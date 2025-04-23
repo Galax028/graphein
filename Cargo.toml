@@ -1,0 +1,46 @@
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["Phawat Suksiriwan <phawat@suksiriwan.com>"]
+publish = false
+
+[workspace]
+resolver = "3"
+members = ["app", "codegen", "common"]
+
+[workspace.dependencies]
+anyhow = "1.0.98"
+arc-swap = "1.7.1"
+axum = { version = "0.8.3", features = ["macros"] }
+axum-extra = { version = "0.10.1", features = ["cookie"] }
+axum-macros = "0.5.0"
+chrono = { version = "0.4.40", features = ["serde"] }
+dashmap = "6.1.0"
+dotenvy = "0.15.7"
+hex = "0.4.3"
+hmac = "0.12.1"
+jsonwebtoken = "9.3.1"
+rand = "0.9.1"
+reqwest = { version = "0.12.15", features = ["json", "native-tls"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+serde_qs = { version = "0.14.0", features = ["axum"] }
+sha2 = "0.10.8"
+sqlx = { version = "0.8.5", features = [
+    "postgres",
+    "chrono",
+    "runtime-tokio-native-tls",
+    "uuid",
+] }
+thiserror = "2.0.12"
+tokio = { version = "1.44.2", features = [
+    "rt-multi-thread",
+    "signal",
+    "sync",
+    "time",
+] }
+tokio-util = "0.7.14"
+tower-http = { version = "0.6.2", features = ["trace"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+uuid = { version = "1.16.0", features = ["serde"] }
