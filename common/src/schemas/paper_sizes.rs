@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use serde::Serialize;
 use sqlx::{FromRow, PgConnection};
 
-use graphein_common::{
+use crate::{
     AppError,
     database::{
         Table,
@@ -15,7 +15,7 @@ use graphein_common::{
 
 #[derive(Debug, FromRow, Serialize, Table)]
 #[table(name = "paper_sizes", primary_key = "i32")]
-pub(crate) struct PaperSizesTable {
+pub struct PaperSizesTable {
     pub id: i32,
     pub created_at: DateTime<Utc>,
     pub name: String,
@@ -27,7 +27,7 @@ pub(crate) struct PaperSizesTable {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct DefaultPaperSize {
+pub struct DefaultPaperSize {
     id: i32,
     name: String,
     length: i32,
@@ -53,4 +53,4 @@ impl ModelVariant<PaperSizesTable> for DefaultPaperSize {
     }
 }
 
-pub(crate) type PaperSize = Model<PaperSizesTable, DefaultPaperSize, DefaultPaperSize>;
+pub type PaperSize = Model<PaperSizesTable, DefaultPaperSize, DefaultPaperSize>;

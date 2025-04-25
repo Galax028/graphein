@@ -1,4 +1,7 @@
-use axum::response::{IntoResponse, Response};
+use axum::{
+    http::status::StatusCode,
+    response::{IntoResponse, Response},
+};
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 
@@ -32,16 +35,23 @@ pub struct ResponseBody<T: Serialize> {
     data: Option<T>,
     error: Option<String>,
     pagination: Option<PaginationResponse>,
+
+    #[serde(skip)]
+    status_code: Option<StatusCode>,
 }
 
 impl<T: Serialize> IntoResponse for ResponseBody<T> {
     fn into_response(self) -> Response {
-        Json(self).into_response()
+        match self.status_code {
+            Some(status_code) => (status_code, Json(self)).into_response(),
+            None => Json(self).into_response(),
+        }
     }
 }
 
 #[derive(Debug)]
 pub struct ResponseBuilder<T: Serialize> {
+    status_code: Option<StatusCode>,
     success: bool,
     message: Option<String>,
     data: Option<T>,
@@ -59,12 +69,19 @@ impl<T: Serialize> ResponseBuilder<T> {
     #[must_use]
     pub fn new() -> Self {
         Self {
+            status_code: None,
             success: true,
             message: None,
             data: None,
             error: None,
             pagination: None,
         }
+    }
+
+    #[must_use]
+    pub fn status_code(mut self, status_code: StatusCode) -> Self {
+        self.status_code = Some(status_code);
+        self
     }
 
     #[must_use]
@@ -87,6 +104,7 @@ impl<T: Serialize> ResponseBuilder<T> {
 
     pub fn build(self) -> ResponseBody<T> {
         ResponseBody {
+            status_code: self.status_code,
             success: self.success,
             timestamp: Utc::now(),
             message: self.message,
@@ -101,6 +119,7 @@ impl ResponseBuilder<()> {
     #[must_use]
     pub fn new_error(error: String, message: String) -> Self {
         Self {
+            status_code: None,
             success: false,
             message: Some(message),
             data: None,

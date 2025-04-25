@@ -11,8 +11,10 @@ pub mod auth;
 pub mod database;
 pub mod error;
 pub mod extract;
+pub mod permissions;
 pub mod request;
 pub mod response;
+pub mod schemas;
 
 pub(crate) mod config;
 pub(crate) mod state;

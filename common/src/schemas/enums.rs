@@ -4,7 +4,7 @@ use sqlx::Type;
 #[derive(Debug, Clone, Copy, Serialize, Type)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "filetype", rename_all = "lowercase")]
-pub(crate) enum FileType {
+pub enum FileType {
     Pdf,
     Png,
     Jpg,
@@ -13,7 +13,8 @@ pub(crate) enum FileType {
 #[derive(Debug, Clone, Copy, Serialize, Type)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "order_status", rename_all = "lowercase")]
-pub(crate) enum OrderStatus {
+pub enum OrderStatus {
+    Building,
     Reviewing,
     Processing,
     Ready,
@@ -25,7 +26,7 @@ pub(crate) enum OrderStatus {
 #[derive(Debug, Clone, Copy, Serialize, Type)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "paper_orientation", rename_all = "lowercase")]
-pub(crate) enum PaperOrientation {
+pub enum PaperOrientation {
     Portrait,
     Landscape,
 }
@@ -33,7 +34,7 @@ pub(crate) enum PaperOrientation {
 #[derive(Debug, Clone, Copy, Serialize, Type)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "user_role", rename_all = "lowercase")]
-pub(crate) enum UserRole {
+pub enum UserRole {
     Student,
     Teacher,
     Merchant,

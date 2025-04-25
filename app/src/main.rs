@@ -42,7 +42,10 @@ async fn main() -> Result<()> {
         .layer(TraceLayer::new_for_http());
 
     let listener = TcpListener::bind((host, port)).await?;
-    info!("sk-online-printing (`graphein`) server version {}", env!("CARGO_PKG_VERSION"));
+    info!(
+        "sk-online-printing (`graphein`) server version {}",
+        env!("CARGO_PKG_VERSION")
+    );
     info!("server is listening on http://{}", listener.local_addr()?);
     debug!("quick login: {root_uri}/auth/google/init");
     axum::serve(listener, app)

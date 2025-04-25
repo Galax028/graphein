@@ -3,26 +3,25 @@ use serde::Serialize;
 use sqlx::{FromRow, PgConnection};
 use uuid::Uuid;
 
-use crate::schemas::{
-    BookbindingType, Order, PaperSize, User,
-    enums::{FileType, PaperOrientation},
-};
-use graphein_common::{
-    AppError,
+use crate::{
+    AppError, SqlxResult,
     database::{
         Table,
         model::{Model, ModelVariant},
     },
     dto::FetchLevel,
+    schemas::{
+        BookbindingType, Order, PaperSize,
+        enums::{FileType, PaperOrientation},
+    },
 };
 
 #[derive(Debug, FromRow, Table)]
 #[table(name = "files")]
-pub(crate) struct FilesTable {
+pub struct FilesTable {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
-    pub owner_id: Option<Uuid>,
-    pub order_id: Option<Uuid>,
+    pub order_id: Uuid,
     pub copies: i32,
     pub range: Option<String>,
     pub paper_size_id: Option<i32>,
@@ -37,12 +36,42 @@ pub(crate) struct FilesTable {
     pub filetype: FileType,
 }
 
+impl FilesTable {
+    /// Counts the number of files associated with the given order ID.
+    pub async fn count_files_by_order_id(
+        conn: &mut PgConnection,
+        order_id: Uuid,
+    ) -> SqlxResult<i64> {
+        sqlx::query_scalar("SELECT COUNT(id) FROM files WHERE order_id = $1")
+            .bind(order_id)
+            .fetch_one(conn)
+            .await
+    }
+}
+
+impl FilesTable {
+    /// Fetches all record related to given order ID, returning an empty `Vec` if none were found.
+    pub async fn fetch_all_by_order_id(
+        conn: &mut PgConnection,
+        order_id: Uuid,
+    ) -> SqlxResult<Vec<File>> {
+        Ok(
+            sqlx::query_as("SELECT * FROM files WHERE order_id = $1 ORDER BY created_at ASC")
+                .bind(order_id)
+                .fetch_all(conn)
+                .await?
+                .into_iter()
+                .map(File::Raw)
+                .collect(),
+        )
+    }
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct DefaultFile {
+pub struct DefaultFile {
     id: Uuid,
-    owner: Option<User>,
-    order: Option<Order>,
+    order: Order,
     copies: i32,
     range: Option<String>,
     paper_size: Option<PaperSize>,
@@ -52,7 +81,6 @@ pub(crate) struct DefaultFile {
     double_sided: bool,
     bookbinding_type: Option<BookbindingType>,
     notes: Option<String>,
-    file_id: String,
     filename: String,
     filetype: FileType,
 }
@@ -63,49 +91,35 @@ impl ModelVariant<FilesTable> for DefaultFile {
         row: FilesTable,
         descendant_fetch_level: FetchLevel,
     ) -> Result<Self, AppError> {
-        let owner = match row.owner_id {
-            Some(owner_id) => Some(
-                User::fetch_one(conn, owner_id)
-                    .await?
-                    .into_model_variant(conn, descendant_fetch_level, FetchLevel::default())
-                    .await?,
-            ),
-            None => None,
-        };
+        let order = Order::fetch_one(conn, row.order_id)
+            .await?
+            .into_model_variant(conn, descendant_fetch_level, FetchLevel::default())
+            .await?;
 
-        let order = match row.order_id {
-            Some(order_id) => Some(
-                Order::fetch_one(conn, order_id)
-                    .await?
-                    .into_model_variant(conn, descendant_fetch_level, FetchLevel::default())
-                    .await?,
-            ),
-            None => None,
-        };
-
-        let paper_size = match row.paper_size_id {
-            Some(paper_size_id) => Some(
+        let paper_size = if let Some(paper_size_id) = row.paper_size_id {
+            Some(
                 PaperSize::fetch_one(conn, paper_size_id)
                     .await?
                     .into_model_variant(conn, descendant_fetch_level, FetchLevel::default())
                     .await?,
-            ),
-            None => None,
+            )
+        } else {
+            None
         };
 
-        let bookbinding_type = match row.bookbinding_type_id {
-            Some(bookbinding_type_id) => Some(
+        let bookbinding_type = if let Some(bookbinding_type_id) = row.bookbinding_type_id {
+            Some(
                 BookbindingType::fetch_one(conn, bookbinding_type_id)
                     .await?
                     .into_model_variant(conn, descendant_fetch_level, FetchLevel::default())
                     .await?,
-            ),
-            None => None,
+            )
+        } else {
+            None
         };
 
         Ok(Self {
             id: row.id,
-            owner,
             order,
             copies: row.copies,
             range: row.range,
@@ -116,11 +130,10 @@ impl ModelVariant<FilesTable> for DefaultFile {
             double_sided: row.double_sided,
             bookbinding_type,
             notes: row.notes,
-            file_id: row.file_id,
             filename: row.filename,
             filetype: row.filetype,
         })
     }
 }
 
-pub(crate) type File = Model<FilesTable, DefaultFile, DefaultFile>;
+pub type File = Model<FilesTable, DefaultFile, DefaultFile>;

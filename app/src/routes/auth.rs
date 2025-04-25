@@ -12,7 +12,6 @@ use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::schemas::{User, UsersTable, enums::UserRole};
 use graphein_common::{
     AppError, AppState, HandlerResponse, HandlerResult,
     auth::{
@@ -23,6 +22,7 @@ use graphein_common::{
     error::AuthError,
     extract::{QsQuery, RequiresOnboarding},
     response::ResponseBuilder,
+    schemas::{User, UsersTable, enums::UserRole},
 };
 
 #[cfg(debug_assertions)]
@@ -236,6 +236,8 @@ pub(super) async fn get_finish_google_oauth(
         Err(error) => error.into_response(),
 
         #[cfg(not(debug_assertions))]
-        Err(_) => Html(include_str!("oauth_failure.html")).into_response(),
+        Err(error) => {
+            (error.to_status_code(), Html(include_str!("oauth_failure.html"))).into_response()
+        }
     }
 }

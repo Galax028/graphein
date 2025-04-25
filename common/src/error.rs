@@ -116,7 +116,7 @@ impl From<hex::FromHexError> for AuthError {
 }
 
 impl AppError {
-    fn to_status_code(&self) -> StatusCode {
+    pub fn to_status_code(&self) -> StatusCode {
         match self {
             Self::BadRequest { .. } => StatusCode::BAD_REQUEST,
             Self::Unauthorized { .. } => StatusCode::UNAUTHORIZED,

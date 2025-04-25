@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use serde::Serialize;
 use sqlx::{FromRow, PgConnection};
 
-use graphein_common::{
+use crate::{
     AppError,
     database::{
         Table,
@@ -15,7 +15,7 @@ use graphein_common::{
 
 #[derive(Debug, FromRow, Serialize, Table)]
 #[table(name = "bookbinding_types", primary_key = "i32")]
-pub(crate) struct BookbindingTypesTable {
+pub struct BookbindingTypesTable {
     pub id: i32,
     pub created_at: DateTime<Utc>,
     pub name: String,
@@ -24,7 +24,7 @@ pub(crate) struct BookbindingTypesTable {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct DefaultBookbindingType {
+pub struct DefaultBookbindingType {
     id: i32,
     name: String,
     is_available: bool,
@@ -44,5 +44,5 @@ impl ModelVariant<BookbindingTypesTable> for DefaultBookbindingType {
     }
 }
 
-pub(crate) type BookbindingType =
+pub type BookbindingType =
     Model<BookbindingTypesTable, DefaultBookbindingType, DefaultBookbindingType>;

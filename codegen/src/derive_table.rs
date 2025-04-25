@@ -22,7 +22,7 @@ pub(crate) fn table(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         #[automatically_derived]
-        impl ::graphein_common::database::Table for #ident {
+        impl crate::database::Table for #ident {
             const TABLE_NAME: &'static str = #name;
 
             type PK = #primary_key;

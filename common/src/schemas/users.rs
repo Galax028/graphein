@@ -5,19 +5,19 @@ use serde::Serialize;
 use sqlx::{FromRow, PgConnection};
 use uuid::Uuid;
 
-use crate::schemas::enums::UserRole;
-use graphein_common::{
+use crate::{
     AppError, SqlxResult,
     database::{
         Table,
         model::{Model, ModelVariant},
     },
     dto::FetchLevel,
+    schemas::enums::UserRole,
 };
 
 #[derive(Debug, FromRow, Serialize, Table)]
 #[table(name = "users")]
-pub(crate) struct UsersTable {
+pub struct UsersTable {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub role: UserRole,
@@ -32,7 +32,7 @@ pub(crate) struct UsersTable {
 
 impl UsersTable {
     /// Creates a new **un-onboarded** user returning their ID.
-    pub(crate) async fn create_new(
+    pub async fn create_new(
         conn: &mut PgConnection,
         role: UserRole,
         email: &str,
@@ -56,10 +56,7 @@ impl UsersTable {
     }
 
     /// Fetch a single record from the `UsersTable` by email, returning `None` if not found.
-    pub(crate) async fn fetch_by_email(
-        conn: &mut PgConnection,
-        email: &str,
-    ) -> SqlxResult<Option<Self>> {
+    pub async fn fetch_by_email(conn: &mut PgConnection, email: &str) -> SqlxResult<Option<Self>> {
         sqlx::query_as("SELECT * FROM users WHERE email = $1")
             .bind(email)
             .fetch_optional(conn)
@@ -69,7 +66,7 @@ impl UsersTable {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct DefaultUser {
+pub struct DefaultUser {
     id: Uuid,
     role: UserRole,
     email: String,
@@ -101,4 +98,4 @@ impl ModelVariant<UsersTable> for DefaultUser {
     }
 }
 
-pub(crate) type User = Model<UsersTable, DefaultUser, DefaultUser>;
+pub type User = Model<UsersTable, DefaultUser, DefaultUser>;

@@ -1,7 +1,10 @@
 use std::error::Error as _;
 
 use axum::{
-    extract::{FromRef, FromRequestParts, rejection::JsonRejection},
+    extract::{
+        FromRef, FromRequestParts,
+        rejection::{JsonRejection, PathRejection},
+    },
     http::request::Parts,
     response::{IntoResponse, Response},
 };
@@ -17,6 +20,10 @@ use crate::{
 };
 
 #[derive(FromRequestParts)]
+#[from_request(via(axum::extract::Path), rejection(AppError))]
+pub struct Path<T>(pub T);
+
+#[derive(FromRequestParts)]
 #[from_request(via(serde_qs::axum::QsQuery), rejection(AppError))]
 pub struct QsQuery<T>(pub T);
 
@@ -28,6 +35,14 @@ impl<T: Serialize> IntoResponse for Json<T> {
     fn into_response(self) -> axum::response::Response {
         let Self(value) = self;
         axum::Json(value).into_response()
+    }
+}
+
+impl From<PathRejection> for AppError {
+    fn from(value: PathRejection) -> Self {
+        Self::BadRequest {
+            message: value.body_text(),
+        }
     }
 }
 
@@ -97,7 +112,7 @@ where
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let Session { is_onboarded, .. } = Session::from_request_parts(parts, state)
             .await
-            .map_err(|err| err.into_response())?;
+            .map_err(IntoResponse::into_response)?;
 
         if is_onboarded {
             Ok(Self)
