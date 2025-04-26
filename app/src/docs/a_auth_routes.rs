@@ -14,61 +14,85 @@
 //! [`window.open()`]: https://developer.mozilla.org/en-US/docs/Web/API/Window/open
 //! [`/auth/google/code`]: #get-authgooglecode
 //!
-//! ## Parameters
+//! ## Request
 //!
-//! | Name         | Type     | Description                              | Default   |
-//! |--------------|----------|------------------------------------------|-----------|
-//! | `asMerchant` | [`bool`] | Toggles whether to allow merchant logins.| [`true`]  |
+//! ### Query parameters
+//!
+//! | Name         | Type     | Description                                                     |
+//! |--------------|----------|-----------------------------------------------------------------|
+//! | `asMerchant` | [`bool`] | Toggles whether to allow merchant logins (defaults to `false`). |
 //!
 //! **Note:** An asterisk (*) next to the parameter name indicates that it is required.
 //!
 //! # GET `/auth/google/code`
 //!
 //! This is the redirect URI that is to be called by the OAuth provider. The frontend **should not**
-//! call this route by itself. If the OAuth flow is successful, the server will set the necessary
-//! cookies for authentication and authorization, which are not accessible by JavaScript. Then, a
-//! temporary HTML page will be rendered with script inside it to send a [message] to the [opener]
-//! to indicate a successful login, the content of the message being `oauthSuccess`. Once the
-//! message is received, it is encouraged to close the popup window from the parent.
+//! call this route by itself.
+//!
+//! ## Responses
+//!
+//! ### On success (200-299)
+//!
+//! #### [`200 OK`]
+//!
+//! The server will set the necessary cookies for authentication and authorization, which are not
+//! accessible by JavaScript. The cookies will be named `session_token` and `is_onboarded`, both
+//! will be set with `max-age` directives of one week from the time of issuance of the session.
+//!
+//! Response headers: `Set-Cookie`
+//!
+//! ##### Response body
+//!
+//! Content type: `text/html`
+//!
+//! The HTML page will contain a script inside it with a sole purpose to send a [message] to the
+//! [opener] to indicate a successful login, the content of the message being `oauthSuccess`. Once
+//! the message is received, it is encouraged to close the popup window from the parent.
 //!
 //! [message]: https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
 //! [opener]: https://developer.mozilla.org/en-US/docs/Web/API/Window/opener
 //!
-//! ## Responses
+//! ### On client error (400-499)
 //!
-//! ### On success
+//! #### [`401 Unauthorized`]
 //!
-//! Possible status codes: [`200 OK`]
+//! Unless threat actors targeting the OAuth flow were to appear, this error is impossible to occur.
 //!
-//! Sets the `sessionToken` and `isOnboarded` cookies, along with a `max-age` directive of one week
-//! from the time of issuance of the token.
+//! ##### Response body
 //!
 //! Content type: `text/html`
 //!
-//! ### On failure
+//! #### [`403 Forbidden`]
 //!
-//! Possible status codes: [`401 Unauthorized`], [`403 Forbidden`]
+//! Unless a non-merchant user modifies the `hd` query parameter during the OAuth flow, this error
+//! is impossible to occur.
+//!
+//! ##### Response body
 //!
 //! Content type: `text/html`
 //!
 //! # POST `/auth/signout`
 //!
 //! This route signs out the current session of the user (by removing cookies) and returns no
-//! content. If called when there is no `sessionToken` cookie present, the server will return an
+//! content. If called when there is no `session_token` cookie present, the server will return an
 //! error.
 //!
 //! ## Responses
 //!
-//! ### On success
+//! ### On success (200-299)
 //!
-//! Possible status codes: [`204 No Content`]
-//! 
-//! Content type: *None*
+//! #### [`204 No Content`]
 //!
-//! ### On failure
+//! The server clear the cookies via the `Set-Cookie` header.
 //!
-//! Possible status codes: [`401 Unauthorized`]
-//! 
+//! Response headers: `Set-Cookie`
+//!
+//! ### On client error (400-499)
+//!
+//! #### [`401 Unauthorized`]
+//!
+//! ##### Response body
+//!
 //! Content type: `application/json`
 //!
 //! [`200 OK`]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/200

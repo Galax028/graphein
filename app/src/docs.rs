@@ -5,4 +5,5 @@
 //!
 //! Refer to the [modules](#modules) section below for a table of contents.
 
-pub mod auth_routes;
+pub mod a_auth_routes;
+pub mod b_user_routes;

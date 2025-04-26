@@ -9,8 +9,6 @@
 //! The current [crate] (`graphein_app`) contains the formal definitions of all the routes along
 //! with their required parameters, data, requests, and responses. The schemas of data transfer
 //! objects and entities will be located in the [common](graphein_common) (`graphein_common`) crate.
-//! The [codegen](graphein_codegen) (`graphein_codegen`) crate is not public API, and should be
-//! ignored.
 
 pub mod docs;
 
