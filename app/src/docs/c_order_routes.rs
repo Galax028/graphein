@@ -94,16 +94,16 @@
 //!
 //! Creates a new order with the [`OrderStatus`] set to [`Building`]. To change the status to
 //! [`Reviewing`] (i.e. the user has finished configuring the files attached to the order), send a
-//! PUT request to [`/orders/{id}`].
+//! PUT request to [`/orders/{id}/build`].
 //!
 //! **Disclaimer:** [`Building`] orders **will never appear** in any GET requests for orders, since
 //! the intended flow is to allow only one order per user to be in the [`Building`] state at any
 //! time. The frontend is therefore responsible for keeping track of the order ID returned by this
-//! route. If the frontend loses track of an order in [`Building`] or fails to send a PUT request to
-//! [`/orders/{id}`] **in 15 minutes**, it will become "orphaned" and automatically purged by the
-//! server (gone forever) along with any associated files.
+//! route. If the frontend loses track of an order in [`Building`] or fails to send a PUT request
+//! to [`/orders/{id}/build`] **in 15 minutes**, it will become "orphaned" and automatically purged
+//! by the server (gone forever) along with any associated files.
 //!
-//! [`/orders/{id}`]: #put-ordersid
+//! [`/orders/{id}/build`]: #post-ordersidbuild
 //!
 //! ## Responses
 //!
@@ -231,10 +231,11 @@
 //! | `notes`       | [`String`]      | Yes       |
 //! | `fileIds`     | [`Vec<Uuid>`]   | No        |
 //!
-//! # PATCH `/orders/{id}`
+//! # POST `/orders/{id}/status`
 //!
 //! Changes the status of an order either to [`Processing`], [`Ready`], or [`Completed`]. This route
-//! is **for merchants only**.
+//! is **for merchants only**. This route only works in succession from the previous status, meaning
+//! that no request data indicating the target status has to be provided.
 //!
 //! ## Request
 //!
@@ -288,17 +289,48 @@
 //!
 //! This error will be returned if the order does not exist.
 //!
-//! # PUT `/orders/{id}`
+//! # POST `/orders/{id}/build`
 //!
 //! Builds an order. The order's status will be changed into [`Reviewing`].
 //!
 //! ## Request
+//!
+//! Content type: `application/json`
 //!
 //! #### Path parameters
 //!
 //! | Name | Type     | Required? |
 //! |------|----------|-----------|
 //! | `id` | [`Uuid`] | Yes       |
+//!
+//! #### Request body
+//!
+//! | Name            | Type                   | Required? |
+//! |-----------------|------------------------|-----------|
+//! | `files`         | [`Vec<File>`]          | Yes       |
+//! | `services`      | [`Vec<Service>`]       | Yes       |
+//!
+//! ###### `File`
+//!
+//! | Name               | Type                 | Required? |
+//! |--------------------|----------------------|-----------|
+//! | `id`               | [`Uuid`]             | Yes       |
+//! | `copies`           | [`i32`]              | Yes       |
+//! | `range`            | [`String`]           | No        |
+//! | `paperSizeId`      | [`Uuid`]             | Yes       |
+//! | `paperOrientation` | [`PaperOrientation`] | Yes       |
+//! | `isColor`          | [`bool`]             | Yes       |
+//! | `scaling`          | [`i32`]              | Yes       |
+//! | `isDoubleSided`    | [`bool`]             | Yes       |
+//! | `notes`            | [`String`]           | No        |
+//!
+//! ###### `Service`
+//!
+//! | Name          | Type            | Required? |
+//! |---------------|-----------------|-----------|
+//! | `serviceType` | [`ServiceType`] | Yes       |
+//! | `notes`       | [`String`]      | No        |
+//! | `fileIds`     | [`Vec<Uuid>`]   | Yes       |
 //!
 //! ## Responses
 //!
@@ -370,7 +402,8 @@
 //!
 //! #### [`400 Bad Request`]
 //!
-//! This error will be returned if the frontend tries to build that has already been built.
+//! This error will be returned if the frontend tries to build that has already been built or if
+//! the data provided to create the order is erroneous.
 //!
 //! #### [`404 Not Found`]
 //!
