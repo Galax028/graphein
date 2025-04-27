@@ -16,13 +16,11 @@
 //!
 //! ## Request
 //!
-//! ### Query parameters
+//! #### Query parameters
 //!
-//! | Name         | Type     | Description                                                     |
-//! |--------------|----------|-----------------------------------------------------------------|
-//! | `asMerchant` | [`bool`] | Toggles whether to allow merchant logins (defaults to `false`). |
-//!
-//! **Note:** An asterisk (*) next to the parameter name indicates that it is required.
+//! | Name         | Type     | Required?             |
+//! |--------------|----------|-----------------------|
+//! | `asMerchant` | [`bool`] | No (default: `false`) |
 //!
 //! # GET `/auth/google/code`
 //!
@@ -83,7 +81,7 @@
 //!
 //! #### [`204 No Content`]
 //!
-//! The server clear the cookies via the `Set-Cookie` header.
+//! The server clear the cookies via the `Set-Cookie` header. No content body will be sent.
 //!
 //! Response headers: `Set-Cookie`
 //!

@@ -7,3 +7,4 @@
 
 pub mod a_auth_routes;
 pub mod b_user_routes;
+pub mod c_order_routes;

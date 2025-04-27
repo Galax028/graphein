@@ -19,6 +19,19 @@
 //!
 //! Content type: `application/json`
 //!
+//! ###### [`ResponseBody`]
+//!
+//! | Name         | Type                   | Nullable?          |
+//! |--------------|------------------------|--------------------|
+//! | `success`    | [`bool`]               | No (always `true`) |
+//! | `timestamp`  | [`DateTime<Utc>`]      | No                 |
+//! | `message`    | [`String`]             | Always             |
+//! | `data`       | [`User`](#user)        | No                 |
+//! | `error`      | [`String`]             | Always             |
+//! | `pagination` | [`PaginationResponse`] | Always             |
+//!
+//! ###### `User`
+//!
 //! | Name          | Type         | Nullable?                                   |
 //! |---------------|--------------|---------------------------------------------|
 //! | `id`          | [`Uuid`]     | No                                          |
@@ -61,6 +74,19 @@
 //!
 //! Content type: `application/json`
 //!
+//! ###### [`ResponseBody`]
+//!
+//! | Name         | Type                   | Nullable?          |
+//! |--------------|------------------------|--------------------|
+//! | `success`    | [`bool`]               | No (always `true`) |
+//! | `timestamp`  | [`DateTime<Utc>`]      | No                 |
+//! | `message`    | [`String`]             | Always             |
+//! | `data`       | [`User`](#user-1)      | No                 |
+//! | `error`      | [`String`]             | Always             |
+//! | `pagination` | [`PaginationResponse`] | Always             |
+//!
+//! ###### `User`
+//!
 //! | Name          | Type         | Nullable?                      |
 //! |---------------|--------------|--------------------------------|
 //! | `id`          | [`Uuid`]     | No                             |
@@ -80,9 +106,20 @@
 //! Will be returned if no fields were provided for update, or if certain fields were set for the
 //! wrong [`UserRole`] (e.g. setting `classNo` for [`Teacher`]s).
 //!
-//! ##### Response body
+//! #### Response body
 //!
 //! Content type: `application/json`
+//!
+//! ###### [`ResponseBody`]
+//!
+//! | Name         | Type              | Nullable?           |
+//! |--------------|-------------------|---------------------|
+//! | `success`    | [`bool`]          | No (always `false`) |
+//! | `timestamp`  | [`DateTime<Utc>`] | No                  |
+//! | `message`    | [`String`]        | No                  |
+//! | `data`       | [`None`]          | Always              |
+//! | `error`      | [`String`]        | No                  |
+//! | `pagination` | [`None`]          | Always              |
 //!
 //! # POST `/user/onboard`
 //!
@@ -111,6 +148,19 @@
 //!
 //! Content type: `application/json`
 //!
+//! ###### [`ResponseBody`]
+//!
+//! | Name         | Type                   | Nullable?          |
+//! |--------------|------------------------|--------------------|
+//! | `success`    | [`bool`]               | No (always `true`) |
+//! | `timestamp`  | [`DateTime<Utc>`]      | No                 |
+//! | `message`    | [`String`]             | Always             |
+//! | `data`       | [`User`](#user-2)      | No                 |
+//! | `error`      | [`String`]             | Always             |
+//! | `pagination` | [`PaginationResponse`] | Always             |
+//!
+//! ###### `User`
+//!
 //! | Name          | Type         | Nullable?                      |
 //! |---------------|--------------|--------------------------------|
 //! | `id`          | [`Uuid`]     | No                             |
@@ -130,14 +180,29 @@
 //! Will be returned if all the required fields were not set, or if certain fields were set for the
 //! wrong [`UserRole`] (e.g. setting `classNo` for [`Teacher`]s).
 //!
-//! ##### Response body
+//! #### Response body
 //!
 //! Content type: `application/json`
+//!
+//! ###### [`ResponseBody`]
+//!
+//! | Name         | Type              | Nullable?           |
+//! |--------------|-------------------|---------------------|
+//! | `success`    | [`bool`]          | No (always `false`) |
+//! | `timestamp`  | [`DateTime<Utc>`] | No                  |
+//! | `message`    | [`String`]        | No                  |
+//! | `data`       | [`None`]          | Always              |
+//! | `error`      | [`String`]        | No                  |
+//! | `pagination` | [`None`]          | Always              |
 //!
 //! [`200 OK`]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/200
 //! [`400 Bad Request`]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/400
 //!
 //! [`Uuid`]: uuid::Uuid
+//! [`DateTime<Utc>`]: chrono::DateTime
+//!
+//! [`ResponseBody`]: graphein_common::dto::ResponseBody
+//! [`PaginationResponse`]: graphein_common::dto::PaginationResponse
 //! [`UserRole`]: graphein_common::schemas::enums::UserRole
 //! [`Student`]:  graphein_common::schemas::enums::UserRole::Student
 //! [`Teacher`]: graphein_common::schemas::enums::UserRole::Teacher
