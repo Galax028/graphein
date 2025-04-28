@@ -1,8 +1,11 @@
 use std::{sync::Arc, time::Duration};
 
 use axum::{
+    Router,
     extract::State,
+    http::StatusCode,
     response::{Html, IntoResponse as _, Redirect, Response},
+    routing::{get, post},
 };
 use axum_extra::extract::{
     CookieJar,
@@ -10,72 +13,71 @@ use axum_extra::extract::{
 };
 use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use serde_json::json;
-use uuid::Uuid;
 
 use graphein_common::{
-    AppError, AppState, HandlerResponse, HandlerResult,
+    AppError, AppState, HandlerResponse,
     auth::{
         GoogleOAuthCodeExchangeParams, GoogleOAuthInitParams, GoogleOAuthReqParams, IdToken,
         Session, decode_and_verify_id_token, hmac_sign, hmac_verify,
     },
-    dto::{FetchLevel, ResponseBody},
+    database::UsersTable,
     error::AuthError,
     extract::{QsQuery, RequiresOnboarding},
     response::ResponseBuilder,
-    schemas::{User, UsersTable, enums::UserRole},
+    schemas::UserId,
 };
 
+pub(super) fn expand_router() -> Router<AppState> {
+    Router::new()
+        .route("/google/init", get(get_init_google_oauth))
+        .route("/google/code", get(get_finish_google_oauth))
+        .route("/signout", post(post_signout))
+        .merge(expand_auth_debug_router())
+}
+
 #[cfg(debug_assertions)]
-pub(super) async fn get_debug_session(session: Session) -> HandlerResponse<Session> {
+fn expand_auth_debug_router() -> Router<AppState> {
+    Router::new()
+        .route("/debug/session", get(get_debug_session))
+        .route("/debug/onboard", get(get_debug_onboard))
+}
+
+#[cfg(not(debug_assertions))]
+fn expand_auth_debug_router() -> Router<AppState> {
+    Router::new()
+}
+
+#[cfg(debug_assertions)]
+async fn get_debug_session(session: Session) -> HandlerResponse<Session> {
     Ok(ResponseBuilder::new().data(session).build())
 }
 
 #[cfg(debug_assertions)]
-pub(super) async fn get_debug_onboard(
-    session: Session,
-    _: RequiresOnboarding,
-) -> HandlerResponse<Session> {
+async fn get_debug_onboard(session: Session, _: RequiresOnboarding) -> HandlerResponse<Session> {
     Ok(ResponseBuilder::new().data(session).build())
 }
 
-pub(super) async fn get_user(
-    State(AppState { pool, .. }): State<AppState>,
-    Session { user_id, .. }: Session,
-) -> HandlerResponse<User> {
-    let mut conn = pool.acquire().await?;
-    let user = User::fetch_one(&mut conn, user_id)
-        .await?
-        .into_model_variant(
-            &mut conn,
-            graphein_common::dto::FetchLevel::Default,
-            FetchLevel::IdOnly,
-        )
-        .await?;
-
-    Ok(ResponseBuilder::new().data(user).build())
-}
-
-pub(super) async fn post_signout(
+async fn post_signout(
     State(AppState { sessions, .. }): State<AppState>,
     _: Session,
     cookies: CookieJar,
-) -> HandlerResult<(CookieJar, ResponseBody<()>)> {
+) -> Result<(StatusCode, CookieJar), AppError> {
     sessions
         .remove(
             cookies
-                .get("sessionToken")
+                .get("session_token")
                 .ok_or(AuthError::MissingAuth)?
                 .value_trimmed(),
         )
         .await?;
 
     Ok((
-        cookies.remove("sessionToken").remove("isOnboarded"),
-        ResponseBuilder::new().build(),
+        StatusCode::NO_CONTENT,
+        cookies.remove("session_token").remove("is_onboarded"),
     ))
 }
 
-pub(super) async fn get_init_google_oauth(
+async fn get_init_google_oauth(
     State(AppState {
         config,
         oauth_states,
@@ -122,7 +124,7 @@ pub(super) async fn get_init_google_oauth(
     Ok(Redirect::to(&oauth_url))
 }
 
-pub(super) async fn get_finish_google_oauth(
+async fn get_finish_google_oauth(
     State(AppState {
         config,
         pool,
@@ -135,7 +137,7 @@ pub(super) async fn get_finish_google_oauth(
     cookies: CookieJar,
     QsQuery(GoogleOAuthCodeExchangeParams { state, code }): QsQuery<GoogleOAuthCodeExchangeParams>,
 ) -> Response {
-    let work = async || -> Result<(Uuid, bool, Duration), AppError> {
+    let work = async || -> Result<(UserId, bool, Duration), AppError> {
         let (state, hmac) = state
             .split_once('.')
             .map(|(state, hmac)| (hex::decode(state), hex::decode(hmac)))
@@ -184,33 +186,14 @@ pub(super) async fn get_finish_google_oauth(
 
         let mut conn = pool.acquire().await?;
         let session_expiry = config.session_expiry_time();
-        let (user_id, user_is_onboarded) =
-            if let Some(user) = UsersTable::fetch_by_email(&mut conn, &decoded.email).await? {
-                (user.id, user.is_onboarded)
-            } else {
-                let user_role = match decoded.email_domain.as_str() {
-                    "student.sk.ac.th" => UserRole::Student,
-                    "sk.ac.th" => UserRole::Teacher,
-                    _ => {
-                        return Err(AppError::Forbidden {
-                            message: "Non-organization users may not sign-up for this service."
-                                .to_string(),
-                        });
-                    }
-                };
-
-                (
-                    UsersTable::create_new(
-                        &mut conn,
-                        user_role,
-                        &decoded.email,
-                        &decoded.name,
-                        &decoded.profile_url,
-                    )
-                    .await?,
-                    false,
-                )
-            };
+        let (user_id, user_is_onboarded) = UsersTable::get_or_create_user_for_session(
+            &mut conn,
+            &decoded.email,
+            &decoded.email_domain,
+            &decoded.name,
+            &decoded.profile_url,
+        )
+        .await?;
 
         Ok((user_id, user_is_onboarded, session_expiry))
     };
@@ -219,7 +202,7 @@ pub(super) async fn get_finish_google_oauth(
         Ok((user_id, user_is_onboarded, session_expiry)) => (
             cookies.add(
                 Cookie::build((
-                    "sessionToken",
+                    "session_token",
                     sessions.issue(user_id, user_is_onboarded).await,
                 ))
                 .http_only(true)
@@ -228,7 +211,7 @@ pub(super) async fn get_finish_google_oauth(
                 .same_site(SameSite::Strict)
                 .secure(true),
             ),
-            Html(include_str!("oauth_success.html")),
+            Html(include_str!("../pages/oauth_success.html")),
         )
             .into_response(),
 
@@ -236,8 +219,10 @@ pub(super) async fn get_finish_google_oauth(
         Err(error) => error.into_response(),
 
         #[cfg(not(debug_assertions))]
-        Err(error) => {
-            (error.to_status_code(), Html(include_str!("oauth_failure.html"))).into_response()
-        }
+        Err(error) => (
+            error.to_status_code(),
+            Html(include_str!("../pages/oauth_failure.html")),
+        )
+            .into_response(),
     }
 }

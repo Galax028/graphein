@@ -16,7 +16,7 @@ use serde_qs::axum::QsQueryRejection;
 use crate::{
     AppState,
     auth::{Session, SessionStore},
-    error::{AppError, AuthError},
+    error::{AppError, AuthError, ForbiddenError},
 };
 
 #[derive(FromRequestParts)]
@@ -40,25 +40,19 @@ impl<T: Serialize> IntoResponse for Json<T> {
 
 impl From<PathRejection> for AppError {
     fn from(value: PathRejection) -> Self {
-        Self::BadRequest {
-            message: value.body_text(),
-        }
+        Self::BadRequest(format!("[4001] {}.", value.body_text()).into())
     }
 }
 
 impl From<QsQueryRejection> for AppError {
     fn from(value: QsQueryRejection) -> Self {
-        Self::BadRequest {
-            message: value.source().unwrap().to_string(),
-        }
+        Self::BadRequest(format!("[4002] {}.", value.source().unwrap()).into())
     }
 }
 
 impl From<JsonRejection> for AppError {
     fn from(value: JsonRejection) -> Self {
-        Self::BadRequest {
-            message: value.body_text(),
-        }
+        Self::BadRequest(format!("[4003] {}.", value.body_text()).into())
     }
 }
 
@@ -78,14 +72,14 @@ where
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let rejection = |cookies: CookieJar| {
             (
-                cookies.remove("sessionToken").remove("isOnboarded"),
+                cookies.remove("session_token").remove("is_onboarded"),
                 AuthError::MissingAuth.into(),
             )
         };
 
         let cookies = CookieJar::from_request_parts(parts, state).await.unwrap();
         let sessions = SessionStore::from_ref(state);
-        let session_id = match cookies.get("sessionToken") {
+        let session_id = match cookies.get("session_token") {
             Some(cookie) => cookie.value_trimmed(),
             None => {
                 return Err(rejection(cookies));
@@ -117,11 +111,7 @@ where
         if is_onboarded {
             Ok(Self)
         } else {
-            Err(AppError::Forbidden {
-                message: "User must complete the onboarding process to perform this action."
-                    .to_string(),
-            }
-            .into_response())
+            Err(AppError::Forbidden(ForbiddenError::OnboardingRequired).into_response())
         }
     }
 }

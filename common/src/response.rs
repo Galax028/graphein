@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use axum::{
     http::status::StatusCode,
     response::{IntoResponse, Response},
@@ -31,9 +33,9 @@ impl PaginationResponse {
 pub struct ResponseBody<T: Serialize> {
     success: bool,
     timestamp: DateTime<Utc>,
-    message: Option<String>,
+    message: Option<Cow<'static, str>>,
     data: Option<T>,
-    error: Option<String>,
+    error: Option<Cow<'static, str>>,
     pagination: Option<PaginationResponse>,
 
     #[serde(skip)]
@@ -53,9 +55,9 @@ impl<T: Serialize> IntoResponse for ResponseBody<T> {
 pub struct ResponseBuilder<T: Serialize> {
     status_code: Option<StatusCode>,
     success: bool,
-    message: Option<String>,
+    message: Option<Cow<'static, str>>,
     data: Option<T>,
-    error: Option<String>,
+    error: Option<Cow<'static, str>>,
     pagination: Option<PaginationResponse>,
 }
 
@@ -85,7 +87,7 @@ impl<T: Serialize> ResponseBuilder<T> {
     }
 
     #[must_use]
-    pub fn message(mut self, message: String) -> Self {
+    pub fn message(mut self, message: Cow<'static, str>) -> Self {
         self.message = Some(message);
         self
     }
@@ -117,7 +119,7 @@ impl<T: Serialize> ResponseBuilder<T> {
 
 impl ResponseBuilder<()> {
     #[must_use]
-    pub fn new_error(error: String, message: String) -> Self {
+    pub fn new_error(error: Cow<'static, str>, message: Cow<'static, str>) -> Self {
         Self {
             status_code: None,
             success: false,

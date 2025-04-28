@@ -10,7 +10,7 @@ pub enum FileType {
     Jpg,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Type)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, Type)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "order_status", rename_all = "lowercase")]
 pub enum OrderStatus {
@@ -29,6 +29,15 @@ pub enum OrderStatus {
 pub enum PaperOrientation {
     Portrait,
     Landscape,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+#[sqlx(type_name = "service_type", rename_all = "snake_case")]
+pub enum ServiceType {
+    Bookbinding,
+    BookbindingWithCover,
+    Laminate,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Type)]

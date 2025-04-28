@@ -21,32 +21,12 @@ pub(crate) mod state;
 
 pub use crate::{config::Config, error::AppError, state::AppState};
 
-pub type HandlerResult<T> = Result<T, error::AppError>;
 pub type HandlerResponse<T> = Result<response::ResponseBody<T>, error::AppError>;
 pub type SqlxResult<T> = Result<T, sqlx::Error>;
 
-pub(crate) use dto::{FetchLevel, IdOnly};
-
 pub mod dto {
-    use serde::{Deserialize, Serialize};
-    use uuid::Uuid;
-
     pub use crate::{
         request::{PaginationRequest, RequestData},
         response::{PaginationResponse, ResponseBody},
     };
-
-    #[derive(Debug, Default, Clone, Copy, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub enum FetchLevel {
-        #[default]
-        IdOnly,
-        Compact,
-        Default,
-    }
-
-    #[derive(Debug, Clone, Copy, Serialize)]
-    pub struct IdOnly<Id: Serialize = Uuid> {
-        pub id: Id,
-    }
 }

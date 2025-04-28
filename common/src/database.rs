@@ -1,4 +1,3 @@
-pub mod model;
-pub mod table;
+mod users;
 
-pub use table::Table;
+pub use users::UsersTable;

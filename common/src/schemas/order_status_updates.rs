@@ -14,7 +14,6 @@ pub struct OrderStatusUpdatesTable {
 }
 
 impl OrderStatusUpdatesTable {
-    /// Fetches all record related to given order ID, returning an empty `Vec` if none were found.
     pub async fn fetch_all_by_order_id(
         conn: &mut PgConnection,
         order_id: Uuid,

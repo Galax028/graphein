@@ -44,7 +44,7 @@
 //! | `profileUrl`  | [`String`]   | No                                          |
 //! | `isOnboarded` | [`bool`]     | No                                          |
 //!
-//! # PATCH `/user`
+//! # PUT `/user`
 //!
 //! Updates the user's profile with provided information. **Do not use** this route to onboard, the
 //! server will reject the request if so. See the documentation for [`/user/onboard`] on how to
@@ -58,11 +58,11 @@
 //!
 //! #### Request body
 //!
-//! | Name      | Type       | Required? |
-//! |-----------|------------|-----------|
-//! | `tel`     | [`String`] | No        |
-//! | `class`   | [`i16`]    | No        |
-//! | `classNo` | [`i16`]    | No        |
+//! | Name      | Type       | Required?                     |
+//! |-----------|------------|-------------------------------|
+//! | `tel`     | [`String`] | Yes ([`Student`]/[`Teacher`]) |
+//! | `class`   | [`i16`]    | Yes ([`Student`])             |
+//! | `classNo` | [`i16`]    | Yes ([`Student`])             |
 //!
 //! ## Responses
 //!

@@ -1,9 +1,7 @@
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::{AppError, auth::Session, schemas::enums::UserRole};
-
-static INSUFFICIENT_PERMISSIONS: &str = "Insufficient permissions to access this resource.";
+use crate::{AppError, auth::Session, error::ForbiddenError, schemas::enums::UserRole};
 
 impl Session {
     pub async fn assert_read_order(
@@ -31,9 +29,7 @@ impl Session {
         if is_owner {
             Ok(())
         } else {
-            Err(AppError::Forbidden {
-                message: INSUFFICIENT_PERMISSIONS.to_string(),
-            })
+            Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions))
         }
     }
 
@@ -68,9 +64,7 @@ impl Session {
         if is_owner {
             Ok(())
         } else {
-            Err(AppError::Forbidden {
-                message: INSUFFICIENT_PERMISSIONS.to_string(),
-            })
+            Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions))
         }
     }
 }

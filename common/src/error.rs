@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use anyhow::anyhow;
 use axum::{
     http::StatusCode,
@@ -8,104 +10,111 @@ use tracing::error;
 
 use crate::response::ResponseBuilder;
 
+#[cfg(not(debug_assertions))]
+static UNEXPECTED_ERR: &str = "An unexpected error had occurred on the server.";
+
 #[derive(Debug, Error)]
 pub enum AppError {
-    #[error("{message}")]
-    BadRequest { message: String },
+    #[error("{0}")]
+    BadRequest(Cow<'static, str>),
 
-    #[error("{message}")]
-    Unauthorized {
-        #[from]
-        message: AuthError,
-    },
+    #[error("{0}")]
+    Unauthorized(#[from] AuthError),
 
-    #[error("{message}")]
-    Forbidden { message: String },
+    #[error("{0}")]
+    Forbidden(#[from] ForbiddenError),
 
-    #[error("{message}")]
-    NotFound { message: String },
+    #[error("{0}")]
+    NotFound(#[from] NotFoundError),
 
-    #[error("{message}")]
-    DatabaseError { message: String },
+    #[error("{0}")]
+    DatabaseError(Cow<'static, str>),
 
     #[cfg(debug_assertions)]
-    #[error("[unknown] {message}")]
-    InternalServerError {
-        #[from]
-        message: anyhow::Error,
-    },
+    #[error("[other] {0}")]
+    InternalServerError(#[from] anyhow::Error),
 
     #[cfg(not(debug_assertions))]
-    #[error("An unexpected error had occurred on the server.")]
-    InternalServerError {
-        #[from]
-        message: anyhow::Error,
-    },
+    #[error("[500] {}", UNEXPECTED_ERR)]
+    InternalServerError(#[from] anyhow::Error),
 }
+
+pub static MISSING_FIELDS: &str = "[4004] Request data is missing required field(s).";
 
 #[derive(Debug, Error)]
 pub enum AuthError {
-    #[error("Corrupted or improper authorization data was provided.")]
+    #[error("[4010] Corrupted or improper authorization data was provided.")]
     Unprocessable,
 
-    #[error("Invalid or improper OAuth flow.")]
+    #[error("[4011] Invalid or improper OAuth flow.")]
     InvalidOAuthFlow,
 
-    #[error("Invalid authorization scheme was provided.")]
+    #[error("[4012] Invalid authorization scheme was provided.")]
     InvalidAuthScheme,
 
-    #[error("Invalid authorization token was provided.")]
+    #[error("[4013] Invalid authorization token was provided.")]
     InvalidAuthToken,
 
-    #[error("Session ID was either invalid or missing.")]
+    #[error("[4014] Session ID was either invalid or missing.")]
     MissingAuth,
+}
+
+#[derive(Debug, Error)]
+pub enum ForbiddenError {
+    #[error("[4031] User must complete the onboarding process to perform this action.")]
+    OnboardingRequired,
+
+    #[error("[4032] Non-organization users may not sign-up for this service.")]
+    NonOrganizationSignup,
+
+    #[error("[4033] Insufficient permissions to access this resource.")]
+    InsufficientPermissions,
+}
+
+#[derive(Debug, Error)]
+pub enum NotFoundError {
+    #[error("[4041] The requested path was not found.")]
+    PathNotFound,
+
+    #[error("[4042] The requested resource was not found.")]
+    ResourceNotFound,
 }
 
 impl From<reqwest::Error> for AppError {
     fn from(source: reqwest::Error) -> Self {
-        AppError::InternalServerError {
-            message: anyhow!(source),
-        }
+        AppError::InternalServerError(anyhow!(source))
     }
 }
 
 impl From<sqlx::Error> for AppError {
     fn from(source: sqlx::Error) -> Self {
         if matches!(source, sqlx::Error::RowNotFound) {
-            AppError::NotFound {
-                message: "The requested resource was not found.".to_string(),
-            }
+            AppError::NotFound(NotFoundError::ResourceNotFound)
         } else {
             #[cfg(debug_assertions)]
-            return AppError::DatabaseError {
-                message: format!("[sqlx] {source}"),
-            };
+            return AppError::DatabaseError(format!("[sqlx] {source}").into());
 
             #[cfg(not(debug_assertions))]
-            return AppError::DatabaseError {
-                message: "An unexpected error had occurred on the server.".to_string(),
-            };
+            return AppError::DatabaseError(UNEXPECTED_ERR.into());
         }
     }
 }
 
 impl From<tokio::task::JoinError> for AppError {
     fn from(source: tokio::task::JoinError) -> Self {
-        AppError::InternalServerError {
-            message: anyhow!(source),
-        }
+        AppError::InternalServerError(anyhow!(source))
     }
 }
 
 impl From<jsonwebtoken::errors::Error> for AppError {
     fn from(_: jsonwebtoken::errors::Error) -> Self {
-        AuthError::InvalidOAuthFlow.into()
+        AppError::Unauthorized(AuthError::InvalidOAuthFlow)
     }
 }
 
 impl From<hex::FromHexError> for AppError {
     fn from(_: hex::FromHexError) -> Self {
-        AuthError::Unprocessable.into()
+        AppError::Unauthorized(AuthError::Unprocessable)
     }
 }
 
@@ -116,6 +125,7 @@ impl From<hex::FromHexError> for AuthError {
 }
 
 impl AppError {
+    #[must_use]
     pub fn to_status_code(&self) -> StatusCode {
         match self {
             Self::BadRequest { .. } => StatusCode::BAD_REQUEST,
@@ -139,7 +149,14 @@ impl IntoResponse for AppError {
 
         (
             status_code,
-            ResponseBuilder::new_error(status_code.to_string(), source).build(),
+            ResponseBuilder::new_error(
+                status_code
+                    .canonical_reason()
+                    .unwrap_or("Unknown")
+                    .into(),
+                source.into(),
+            )
+            .build(),
         )
             .into_response()
     }

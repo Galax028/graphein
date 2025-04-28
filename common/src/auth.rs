@@ -16,9 +16,8 @@ use sha2::Sha256;
 use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;
 use tracing::info;
-use uuid::Uuid;
 
-use crate::{AppError, AppState, error::AuthError};
+use crate::{AppError, AppState, error::AuthError, schemas::UserId};
 
 pub async fn fetch_google_jwks(
     app_state: AppState,
@@ -191,7 +190,7 @@ impl SessionId {
 
 #[derive(Clone, Copy, Debug, Serialize)]
 pub struct Session {
-    pub user_id: Uuid,
+    pub user_id: UserId,
     pub is_onboarded: bool,
     issued_at: DateTime<Utc>,
     expires_at: DateTime<Utc>,
@@ -214,7 +213,7 @@ impl SessionStore {
     }
 
     /// Issues a new session in the session store and returns the session ID signed with HMAC.
-    pub async fn issue(&self, user_id: Uuid, is_onboarded: bool) -> String {
+    pub async fn issue(&self, user_id: UserId, is_onboarded: bool) -> String {
         let hmac_instance = self.hmac_instance.clone();
         let (session_id, signature) = tokio::task::spawn_blocking(move || {
             let mut session_id = [0u8; 8];
@@ -243,6 +242,20 @@ impl SessionStore {
         );
 
         format!("{}.{signature}", hex::encode(session_id.as_slice()))
+    }
+
+    /// Sets the `is_onboarded` value of a session to `true`.
+    pub async fn set_onboard(&self, session_id: &str) -> Result<(), AuthError> {
+        let (session_id, signature) = SessionId::new_from_token(session_id)?;
+        self.verify_session_signature(session_id, signature).await?;
+
+        self.store.alter(&session_id, |_, mut session| {
+            session.is_onboarded = true;
+
+            session
+        });
+
+        Ok(())
     }
 
     /// Retrieves a session from the session store. Will return an error if HMAC signature is
@@ -289,7 +302,7 @@ impl SessionStore {
             self.store.insert(
                 SessionId::new_from_str(&session.id).unwrap(),
                 Session {
-                    user_id: session.user_id,
+                    user_id: session.user_id.into(),
                     is_onboarded: session.is_onboarded,
                     issued_at: session.issued_at,
                     expires_at: session.expires_at,
@@ -321,7 +334,7 @@ impl SessionStore {
                 })
                 .unzip();
 
-        sqlx::query!(
+        sqlx::query(
             "\
             INSERT INTO sessions \
             SELECT * FROM UNNEST(\
@@ -331,11 +344,11 @@ impl SessionStore {
                 $4::timestamp with time zone[]\
             )\
             ",
-            &session_ids[..],
-            &user_ids[..],
-            &issued_ats[..],
-            &expires_ats[..],
         )
+        .bind(&session_ids[..])
+        .bind(&user_ids[..])
+        .bind(&issued_ats[..])
+        .bind(&expires_ats[..])
         .execute(&pool)
         .await
         .unwrap();
