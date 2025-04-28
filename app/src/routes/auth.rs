@@ -22,28 +22,35 @@ use graphein_common::{
     },
     database::UsersTable,
     error::AuthError,
-    extract::{QsQuery, RequiresOnboarding},
+    extract::QsQuery,
     response::ResponseBuilder,
     schemas::UserId,
 };
 
-pub(super) fn expand_router() -> Router<AppState> {
+pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/google/init", get(get_init_google_oauth))
         .route("/google/code", get(get_finish_google_oauth))
         .route("/signout", post(post_signout))
-        .merge(expand_auth_debug_router())
+        .merge(expand_auth_debug_router(state))
 }
 
 #[cfg(debug_assertions)]
-fn expand_auth_debug_router() -> Router<AppState> {
+fn expand_auth_debug_router(state: AppState) -> Router<AppState> {
+    use axum::middleware;
+    use graphein_common::middleware::requires_onboarding;
+
     Router::new()
         .route("/debug/session", get(get_debug_session))
-        .route("/debug/onboard", get(get_debug_onboard))
+        .route(
+            "/debug/onboard",
+            get(get_debug_onboard)
+                .layer(middleware::from_fn_with_state(state, requires_onboarding)),
+        )
 }
 
 #[cfg(not(debug_assertions))]
-fn expand_auth_debug_router() -> Router<AppState> {
+fn expand_auth_debug_router(state: AppState) -> Router<AppState> {
     Router::new()
 }
 
@@ -53,7 +60,7 @@ async fn get_debug_session(session: Session) -> HandlerResponse<Session> {
 }
 
 #[cfg(debug_assertions)]
-async fn get_debug_onboard(session: Session, _: RequiresOnboarding) -> HandlerResponse<Session> {
+async fn get_debug_onboard(session: Session) -> HandlerResponse<Session> {
     Ok(ResponseBuilder::new().data(session).build())
 }
 

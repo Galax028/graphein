@@ -11,6 +11,7 @@ pub mod auth;
 pub mod database;
 pub mod error;
 pub mod extract;
+pub mod middleware;
 pub mod permissions;
 pub mod request;
 pub mod response;

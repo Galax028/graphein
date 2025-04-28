@@ -1,6 +1,7 @@
 use axum::{
     Router,
     extract::State,
+    middleware,
     routing::{get, post},
 };
 
@@ -11,14 +12,20 @@ use graphein_common::{
     database::UsersTable,
     dto::RequestData,
     error::{ForbiddenError, MISSING_FIELDS},
-    extract::{Json, RequiresOnboarding},
+    extract::Json,
+    middleware::requires_onboarding,
     response::ResponseBuilder,
     schemas::{User, UserUpdateData, enums::UserRole},
 };
 
-pub(super) fn expand_router() -> Router<AppState> {
+pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
-        .route("/", get(get_user).put(put_user))
+        .route(
+            "/",
+            get(get_user)
+                .put(put_user)
+                .layer(middleware::from_fn_with_state(state, requires_onboarding)),
+        )
         .route("/onboard", post(post_user_onboard))
 }
 
@@ -34,11 +41,7 @@ async fn get_user(
 
 async fn put_user(
     State(AppState { pool, .. }): State<AppState>,
-    Session {
-        user_id,
-        ..
-    }: Session,
-    _: RequiresOnboarding,
+    Session { user_id, .. }: Session,
     Json(RequestData { data, .. }): Json<RequestData<UserUpdateData>>,
 ) -> HandlerResponse<User> {
     let mut conn = pool.acquire().await?;

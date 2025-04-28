@@ -6,7 +6,7 @@ use axum::{
         rejection::{JsonRejection, PathRejection},
     },
     http::request::Parts,
-    response::{IntoResponse, Response},
+    response::IntoResponse,
 };
 use axum_extra::extract::CookieJar;
 use axum_macros::FromRequest;
@@ -16,7 +16,7 @@ use serde_qs::axum::QsQueryRejection;
 use crate::{
     AppState,
     auth::{Session, SessionStore},
-    error::{AppError, AuthError, ForbiddenError},
+    error::{AppError, AuthError},
 };
 
 #[derive(FromRequestParts)]
@@ -90,28 +90,5 @@ where
             .get(session_id)
             .await
             .map_err(|_| rejection(cookies))
-    }
-}
-
-#[derive(Debug)]
-pub struct RequiresOnboarding;
-
-impl<S> FromRequestParts<S> for RequiresOnboarding
-where
-    SessionStore: FromRef<S>,
-    S: Send + Sync,
-{
-    type Rejection = Response;
-
-    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let Session { is_onboarded, .. } = Session::from_request_parts(parts, state)
-            .await
-            .map_err(IntoResponse::into_response)?;
-
-        if is_onboarded {
-            Ok(Self)
-        } else {
-            Err(AppError::Forbidden(ForbiddenError::OnboardingRequired).into_response())
-        }
     }
 }

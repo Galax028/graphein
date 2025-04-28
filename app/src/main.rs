@@ -37,7 +37,7 @@ async fn main() -> Result<()> {
     tokio::spawn(fetch_google_jwks(app_state.clone(), fgj_token.clone()));
 
     let app = Router::new()
-        .merge(expand_router())
+        .merge(expand_router(app_state.clone()))
         .with_state(app_state.clone())
         .layer(TraceLayer::new_for_http());
 

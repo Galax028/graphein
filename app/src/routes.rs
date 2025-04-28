@@ -10,10 +10,10 @@ mod orders;
 mod user;
 
 #[doc(hidden)]
-pub fn expand_router() -> Router<AppState> {
+pub fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
-        .nest("/auth", auth::expand_router())
-        .nest("/user", user::expand_router())
+        .nest("/auth", auth::expand_router(state.clone()))
+        .nest("/user", user::expand_router(state.clone()))
         .nest("/orders", orders::expand_router())
         .nest("/merchant", merchant::expand_router())
         .nest("/opts", opts::expand_router())
