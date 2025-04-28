@@ -1,8 +1,8 @@
-use axum::{Router, routing::get};
+use axum::{Router, middleware, routing::get};
 
-use graphein_common::{AppState, HandlerResponse};
+use graphein_common::{AppState, HandlerResponse, middleware::requires_onboarding};
 
-pub(super) fn expand_router() -> Router<AppState> {
+pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
         .route(
             "/accepting",
@@ -26,6 +26,7 @@ pub(super) fn expand_router() -> Router<AppState> {
             "/services/laminate",
             get(get_opts_services_laminate).post(post_opts_services_laminate),
         )
+        .route_layer(middleware::from_fn_with_state(state, requires_onboarding))
 }
 
 async fn get_opts_accepting() -> HandlerResponse<()> {

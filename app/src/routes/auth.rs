@@ -15,7 +15,7 @@ use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use serde_json::json;
 
 use graphein_common::{
-    AppError, AppState, HandlerResponse,
+    AppError, AppState,
     auth::{
         GoogleOAuthCodeExchangeParams, GoogleOAuthInitParams, GoogleOAuthReqParams, IdToken,
         Session, decode_and_verify_id_token, hmac_sign, hmac_verify,
@@ -23,9 +23,11 @@ use graphein_common::{
     database::UsersTable,
     error::AuthError,
     extract::QsQuery,
-    response::ResponseBuilder,
     schemas::UserId,
 };
+
+#[cfg(debug_assertions)]
+use graphein_common::{HandlerResponse, response::ResponseBuilder};
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
@@ -50,7 +52,7 @@ fn expand_auth_debug_router(state: AppState) -> Router<AppState> {
 }
 
 #[cfg(not(debug_assertions))]
-fn expand_auth_debug_router(state: AppState) -> Router<AppState> {
+fn expand_auth_debug_router(_: AppState) -> Router<AppState> {
     Router::new()
 }
 

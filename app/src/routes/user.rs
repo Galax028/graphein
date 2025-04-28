@@ -2,7 +2,7 @@ use axum::{
     Router,
     extract::State,
     middleware,
-    routing::{get, post},
+    routing::{get, post, put},
 };
 
 use axum_extra::extract::CookieJar;
@@ -20,11 +20,10 @@ use graphein_common::{
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
+        .route("/", get(get_user))
         .route(
             "/",
-            get(get_user)
-                .put(put_user)
-                .layer(middleware::from_fn_with_state(state, requires_onboarding)),
+            put(put_user).layer(middleware::from_fn_with_state(state, requires_onboarding)),
         )
         .route("/onboard", post(post_user_onboard))
 }

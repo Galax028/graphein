@@ -1,10 +1,11 @@
 use axum::{
-    routing::{delete, get, post}, Router
+    Router, middleware,
+    routing::{delete, get, post},
 };
 
-use graphein_common::{AppState, HandlerResponse};
+use graphein_common::{AppState, HandlerResponse, middleware::requires_onboarding};
 
-pub(super) fn expand_router() -> Router<AppState> {
+pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/glance", get(get_orders_glance))
         .route("/history", get(get_orders_history))
@@ -18,6 +19,7 @@ pub(super) fn expand_router() -> Router<AppState> {
             get(get_orders_id_files_id_thumbnail),
         )
         .route("/{id}/files/{id}", delete(delete_orders_id_files_id))
+        .route_layer(middleware::from_fn_with_state(state, requires_onboarding))
 }
 
 async fn get_orders_glance() -> HandlerResponse<()> {
