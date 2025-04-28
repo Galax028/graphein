@@ -54,15 +54,18 @@ impl UsersTable {
     async fn fetch_for_session(
         conn: &mut PgConnection,
         email: &str,
-    ) -> SqlxResult<Option<(UserId, bool)>> {
+    ) -> SqlxResult<Option<(UserId, UserRole, bool)>> {
         if let Some(res) = sqlx::query!(
-            r#"SELECT id as "id: UserId", is_onboarded FROM users WHERE email = $1"#,
+            "\
+            SELECT id AS \"id: UserId\", role AS \"role: UserRole\", is_onboarded \
+            FROM users WHERE email = $1\
+            ",
             email,
         )
         .fetch_optional(conn)
         .await?
         {
-            Ok(Some((res.id, res.is_onboarded)))
+            Ok(Some((res.id, res.role, res.is_onboarded)))
         } else {
             Ok(None)
         }
@@ -83,7 +86,7 @@ impl UsersTable {
         email_domain: &str,
         name: &str,
         profile_url: &str,
-    ) -> Result<(UserId, bool), AppError> {
+    ) -> Result<(UserId, UserRole, bool), AppError> {
         Ok(
             if let Some(user) = UsersTable::fetch_for_session(conn, email).await? {
                 user
@@ -98,6 +101,7 @@ impl UsersTable {
 
                 (
                     Self::create_new(conn, user_role, email, name, profile_url).await?,
+                    user_role,
                     false,
                 )
             },

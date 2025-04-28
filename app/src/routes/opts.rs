@@ -1,30 +1,42 @@
-use axum::{Router, middleware, routing::get};
+use axum::{
+    Router, middleware,
+    routing::{get, post},
+};
 
-use graphein_common::{AppState, HandlerResponse, middleware::requires_onboarding};
+use graphein_common::{
+    AppState, HandlerResponse,
+    middleware::{merchant_only, requires_onboarding},
+};
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
+        .route("/accepting", get(get_opts_accepting))
         .route(
             "/accepting",
-            get(get_opts_accepting).post(post_opts_accepting),
+            post(post_opts_accepting)
+                .route_layer(middleware::from_fn_with_state(state.clone(), merchant_only)),
         )
+        .route("/papers", get(get_opts_papers))
         .route(
             "/papers",
-            get(get_opts_papers)
-                .post(post_opts_papers)
+            post(post_opts_papers)
                 .put(put_opts_papers)
-                .delete(delete_opts_papers),
+                .delete(delete_opts_papers)
+                .route_layer(middleware::from_fn_with_state(state.clone(), merchant_only)),
         )
+        .route("/services/bookbinding", get(get_opts_services_bookbinding))
         .route(
             "/services/bookbinding",
-            get(get_opts_services_bookbinding)
-                .post(post_opts_services_bookbinding)
+            post(post_opts_services_bookbinding)
                 .put(put_opts_services_bookbinding)
-                .delete(delete_opts_services_bookbinding),
+                .delete(delete_opts_services_bookbinding)
+                .route_layer(middleware::from_fn_with_state(state.clone(), merchant_only)),
         )
+        .route("/services/laminate", get(get_opts_services_laminate))
         .route(
             "/services/laminate",
-            get(get_opts_services_laminate).post(post_opts_services_laminate),
+            post(post_opts_services_laminate)
+                .route_layer(middleware::from_fn_with_state(state.clone(), merchant_only)),
         )
         .route_layer(middleware::from_fn_with_state(state, requires_onboarding))
 }

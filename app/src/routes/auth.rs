@@ -15,15 +15,9 @@ use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use serde_json::json;
 
 use graphein_common::{
-    AppError, AppState,
     auth::{
-        GoogleOAuthCodeExchangeParams, GoogleOAuthInitParams, GoogleOAuthReqParams, IdToken,
-        Session, decode_and_verify_id_token, hmac_sign, hmac_verify,
-    },
-    database::UsersTable,
-    error::AuthError,
-    extract::QsQuery,
-    schemas::UserId,
+        decode_and_verify_id_token, hmac_sign, hmac_verify, GoogleOAuthCodeExchangeParams, GoogleOAuthInitParams, GoogleOAuthReqParams, IdToken, Session
+    }, database::UsersTable, error::AuthError, extract::QsQuery, schemas::{enums::UserRole, UserId}, AppError, AppState
 };
 
 #[cfg(debug_assertions)]
@@ -47,7 +41,7 @@ fn expand_auth_debug_router(state: AppState) -> Router<AppState> {
         .route(
             "/debug/onboard",
             get(get_debug_onboard)
-                .layer(middleware::from_fn_with_state(state, requires_onboarding)),
+                .route_layer(middleware::from_fn_with_state(state, requires_onboarding)),
         )
 }
 
@@ -146,7 +140,7 @@ async fn get_finish_google_oauth(
     cookies: CookieJar,
     QsQuery(GoogleOAuthCodeExchangeParams { state, code }): QsQuery<GoogleOAuthCodeExchangeParams>,
 ) -> Response {
-    let work = async || -> Result<(UserId, bool, Duration), AppError> {
+    let work = async || -> Result<(UserId, UserRole, bool, Duration), AppError> {
         let (state, hmac) = state
             .split_once('.')
             .map(|(state, hmac)| (hex::decode(state), hex::decode(hmac)))
@@ -195,7 +189,7 @@ async fn get_finish_google_oauth(
 
         let mut conn = pool.acquire().await?;
         let session_expiry = config.session_expiry_time();
-        let (user_id, user_is_onboarded) = UsersTable::get_or_create_user_for_session(
+        let (user_id, user_role, user_is_onboarded) = UsersTable::get_or_create_user_for_session(
             &mut conn,
             &decoded.email,
             &decoded.email_domain,
@@ -204,15 +198,15 @@ async fn get_finish_google_oauth(
         )
         .await?;
 
-        Ok((user_id, user_is_onboarded, session_expiry))
+        Ok((user_id, user_role, user_is_onboarded, session_expiry))
     };
 
     match work().await {
-        Ok((user_id, user_is_onboarded, session_expiry)) => (
+        Ok((user_id, user_role, user_is_onboarded, session_expiry)) => (
             cookies.add(
                 Cookie::build((
                     "session_token",
-                    sessions.issue(user_id, user_is_onboarded).await,
+                    sessions.issue(user_id, user_role, user_is_onboarded).await,
                 ))
                 .http_only(true)
                 .max_age(session_expiry.try_into().unwrap())

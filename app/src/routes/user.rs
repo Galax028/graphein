@@ -23,7 +23,7 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
         .route("/", get(get_user))
         .route(
             "/",
-            put(put_user).layer(middleware::from_fn_with_state(state, requires_onboarding)),
+            put(put_user).route_layer(middleware::from_fn_with_state(state, requires_onboarding)),
         )
         .route("/onboard", post(post_user_onboard))
 }
@@ -40,11 +40,12 @@ async fn get_user(
 
 async fn put_user(
     State(AppState { pool, .. }): State<AppState>,
-    Session { user_id, .. }: Session,
+    Session {
+        user_id, user_role, ..
+    }: Session,
     Json(RequestData { data, .. }): Json<RequestData<UserUpdateData>>,
 ) -> HandlerResponse<User> {
     let mut conn = pool.acquire().await?;
-    let user_role = UsersTable::fetch_role(&mut conn, user_id).await?;
 
     if matches!(user_role, UserRole::Merchant) {
         return Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions));
@@ -78,13 +79,13 @@ async fn post_user_onboard(
     cookies: CookieJar,
     Session {
         user_id,
+        user_role,
         is_onboarded,
         ..
     }: Session,
     Json(RequestData { data, .. }): Json<RequestData<UserUpdateData>>,
 ) -> HandlerResponse<User> {
     let mut conn = pool.acquire().await?;
-    let user_role = UsersTable::fetch_role(&mut conn, user_id).await?;
 
     if is_onboarded || matches!(user_role, UserRole::Merchant) {
         return Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions));

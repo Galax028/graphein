@@ -17,7 +17,7 @@ use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;
 use tracing::info;
 
-use crate::{AppError, AppState, error::AuthError, schemas::UserId};
+use crate::{error::AuthError, schemas::{enums::UserRole, UserId}, AppError, AppState};
 
 pub async fn fetch_google_jwks(
     app_state: AppState,
@@ -191,6 +191,7 @@ impl SessionId {
 #[derive(Clone, Copy, Debug, Serialize)]
 pub struct Session {
     pub user_id: UserId,
+    pub user_role: UserRole,
     pub is_onboarded: bool,
     issued_at: DateTime<Utc>,
     expires_at: DateTime<Utc>,
@@ -213,7 +214,7 @@ impl SessionStore {
     }
 
     /// Issues a new session in the session store and returns the session ID signed with HMAC.
-    pub async fn issue(&self, user_id: UserId, is_onboarded: bool) -> String {
+    pub async fn issue(&self, user_id: UserId, user_role: UserRole, is_onboarded: bool) -> String {
         let hmac_instance = self.hmac_instance.clone();
         let (session_id, signature) = tokio::task::spawn_blocking(move || {
             let mut session_id = [0u8; 8];
@@ -235,6 +236,7 @@ impl SessionStore {
             session_id,
             Session {
                 user_id,
+                user_role,
                 is_onboarded,
                 issued_at,
                 expires_at: issued_at + self.session_expiry_time,
@@ -290,7 +292,7 @@ impl SessionStore {
     pub async fn load(&self, pool: PgPool) {
         sqlx::query!(
             "\
-            SELECT s.*, u.is_onboarded FROM sessions AS s \
+            SELECT s.*, u.role AS \"role: UserRole\", u.is_onboarded FROM sessions AS s \
             JOIN users AS u on u.id = s.user_id WHERE s.expires_at > CURRENT_TIMESTAMP\
             "
         )
@@ -303,6 +305,7 @@ impl SessionStore {
                 SessionId::new_from_str(&session.id).unwrap(),
                 Session {
                     user_id: session.user_id.into(),
+                    user_role: session.role,
                     is_onboarded: session.is_onboarded,
                     issued_at: session.issued_at,
                     expires_at: session.expires_at,

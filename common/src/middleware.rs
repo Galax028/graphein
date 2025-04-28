@@ -4,7 +4,7 @@ use axum::{
     response::{IntoResponse as _, Response},
 };
 
-use crate::{AppError, auth::Session, error::ForbiddenError};
+use crate::{AppError, auth::Session, error::ForbiddenError, schemas::enums::UserRole};
 
 pub async fn requires_onboarding(
     Session { is_onboarded, .. }: Session,
@@ -15,5 +15,17 @@ pub async fn requires_onboarding(
         next.run(request).await
     } else {
         AppError::Forbidden(ForbiddenError::OnboardingRequired).into_response()
+    }
+}
+
+pub async fn merchant_only(
+    Session { user_role, .. }: Session,
+    request: Request,
+    next: Next,
+) -> Result<Response, AppError> {
+    if matches!(user_role, UserRole::Merchant) {
+        Ok(next.run(request).await)
+    } else {
+        Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions))
     }
 }
