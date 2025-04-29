@@ -15,7 +15,7 @@ use graphein_common::{
     extract::Json,
     middleware::requires_onboarding,
     response::ResponseBuilder,
-    schemas::{User, UserUpdateData, enums::UserRole},
+    schemas::{User, UserUpdate, enums::UserRole},
 };
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
@@ -43,7 +43,7 @@ async fn put_user(
     Session {
         user_id, user_role, ..
     }: Session,
-    Json(RequestData { data, .. }): Json<RequestData<UserUpdateData>>,
+    Json(RequestData { data, .. }): Json<RequestData<UserUpdate>>,
 ) -> HandlerResponse<User> {
     let mut conn = pool.acquire().await?;
 
@@ -83,7 +83,7 @@ async fn post_user_onboard(
         is_onboarded,
         ..
     }: Session,
-    Json(RequestData { data, .. }): Json<RequestData<UserUpdateData>>,
+    Json(RequestData { data, .. }): Json<RequestData<UserUpdate>>,
 ) -> HandlerResponse<User> {
     let mut conn = pool.acquire().await?;
 

@@ -1,24 +1,26 @@
 use chrono::{DateTime, Utc};
-use serde::Serialize;
-use sqlx::FromRow;
-use uuid::Uuid;
+use serde::{Deserialize, Serialize};
+use sqlx::prelude::FromRow;
 
-use crate::schemas::{OrderStatusUpdate, enums::OrderStatus};
+use crate::schemas::{File, OrderId, Service, enums::OrderStatus};
 
-#[derive(Debug, FromRow)]
-pub struct OrdersTable {
-    pub id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub owner_id: Uuid,
-    pub order_number: String,
-    pub price: Option<i64>,
-    pub status: OrderStatus,
+#[derive(Debug, Serialize)]
+pub struct ClientOrdersGlance {
+    ongoing: Vec<CompactOrder>,
+    finished: Vec<CompactOrder>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct MerchantOrdersGlance {
+    incoming: Vec<CompactOrder>,
+    accepted: Vec<CompactOrder>,
+    finished: Vec<CompactOrder>,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CompactOrder {
-    id: Uuid,
+    id: OrderId,
     created_at: DateTime<Utc>,
     order_number: String,
     status: OrderStatus,
@@ -27,13 +29,34 @@ pub struct CompactOrder {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DefaultOrder {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    // owner: User,
-    order_number: String,
-    price: Option<i64>,
+pub struct DetailedOrder {
+    pub id: OrderId,
+    pub created_at: DateTime<Utc>,
+    pub order_number: String,
+    pub status: OrderStatus,
+    pub price: Option<i64>,
+    pub status_history: Vec<OrderStatusUpdate>,
+    pub files: Vec<File>,
+    pub services: Vec<Service>,
+}
+
+#[derive(Debug, FromRow, Serialize)]
+pub struct OrderStatusUpdate {
+    timestamp: DateTime<Utc>,
     status: OrderStatus,
-    status_updates: Vec<OrderStatusUpdate>,
-    // files: Vec<File>,
+}
+
+#[derive(Debug)]
+pub struct DraftOrder {
+    id: OrderId,
+    created_at: DateTime<Utc>,
+    order_number: String,
+    status: OrderStatus,
+    status_history: Vec<OrderStatusUpdate>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct OrderBuild {
+    files: Vec<File>,
+    services: Vec<Service>,
 }

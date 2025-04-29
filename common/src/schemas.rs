@@ -1,14 +1,13 @@
 pub mod enums;
 
-mod bookbinding_types;
 mod files;
 mod ids;
-mod order_status_updates;
 mod orders;
-mod paper_sizes;
+mod services;
 mod users;
 
-pub use files::FilesTable;
-pub use ids::UserId;
-pub use order_status_updates::{OrderStatusUpdate, OrderStatusUpdatesTable};
-pub use users::{Tel, User, UserUpdateData};
+pub use files::File;
+pub use ids::{BookbindingTypeId, FileId, OrderId, PaperSizeId, UserId};
+pub use orders::{DetailedOrder, OrderStatusUpdate};
+pub use services::{BookbindingType, PaperSize, Service};
+pub use users::{Tel, User, UserUpdate};

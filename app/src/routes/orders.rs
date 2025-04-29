@@ -1,9 +1,19 @@
 use axum::{
-    Router, middleware,
+    Router,
+    extract::State,
+    middleware,
     routing::{delete, get, post},
 };
 
-use graphein_common::{AppState, HandlerResponse, middleware::requires_onboarding};
+use graphein_common::{
+    AppState, HandlerResponse,
+    auth::Session,
+    database::OrdersTable,
+    extract::Path,
+    middleware::requires_onboarding,
+    response::ResponseBuilder,
+    schemas::{DetailedOrder, OrderId},
+};
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
@@ -34,8 +44,20 @@ async fn post_orders() -> HandlerResponse<()> {
     todo!()
 }
 
-async fn get_orders_id() -> HandlerResponse<()> {
-    todo!()
+async fn get_orders_id(
+    State(AppState { pool, .. }): State<AppState>,
+    session: Session,
+    Path(id): Path<OrderId>,
+) -> HandlerResponse<DetailedOrder> {
+    let mut conn = pool.acquire().await?;
+    OrdersTable::permissions_checker(id, session)
+        .allow_merchant(true)
+        .test(&mut conn)
+        .await?;
+
+    let order = OrdersTable::fetch_one(&mut conn, id).await?;
+
+    Ok(ResponseBuilder::new().data(order).build())
 }
 
 async fn post_orders_id_status() -> HandlerResponse<()> {

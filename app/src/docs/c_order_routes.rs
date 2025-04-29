@@ -529,7 +529,7 @@
 //! | Name        | Type       | Nullable? |
 //! |-------------|------------|-----------|
 //! | `id`        | [`Uuid`]   | No        |
-//! | `objectId`  | [`Uuid`]   | No        |
+//! | `objectKey` | [`String`] | No        |
 //! | `uploadUrl` | [`String`] | No        |
 //!
 //! ### On client error (400-499)

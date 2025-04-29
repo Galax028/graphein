@@ -1,7 +1,7 @@
-use serde::Serialize;
-use sqlx::Type;
+use serde::{Deserialize, Serialize};
+use sqlx::Type as SqlxType;
 
-#[derive(Debug, Clone, Copy, Serialize, Type)]
+#[derive(Debug, Deserialize, Clone, Copy, Serialize, SqlxType)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "filetype", rename_all = "lowercase")]
 pub enum FileType {
@@ -10,7 +10,7 @@ pub enum FileType {
     Jpg,
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, Type)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, SqlxType)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "order_status", rename_all = "lowercase")]
 pub enum OrderStatus {
@@ -23,7 +23,7 @@ pub enum OrderStatus {
     Cancelled,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Type)]
+#[derive(Debug, Deserialize, Clone, Copy, Serialize, SqlxType)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "paper_orientation", rename_all = "lowercase")]
 pub enum PaperOrientation {
@@ -31,7 +31,7 @@ pub enum PaperOrientation {
     Landscape,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Type)]
+#[derive(Debug, Deserialize, Clone, Copy, Serialize, SqlxType)]
 #[serde(rename_all = "camelCase")]
 #[sqlx(type_name = "service_type", rename_all = "snake_case")]
 pub enum ServiceType {
@@ -40,7 +40,7 @@ pub enum ServiceType {
     Laminate,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Type)]
+#[derive(Debug, Clone, Copy, Serialize, SqlxType)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "user_role", rename_all = "lowercase")]
 pub enum UserRole {

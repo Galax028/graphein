@@ -1,27 +1,26 @@
 use regex::Regex;
 use serde::{Deserialize, Deserializer, Serialize, de};
 use sqlx::{FromRow, Type as SqlxType};
-use uuid::Uuid;
 
-use crate::schemas::enums::UserRole;
+use crate::schemas::{enums::UserRole, UserId};
 
 #[derive(Debug, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    pub id: Uuid,
-    pub role: UserRole,
-    pub email: String,
-    pub name: String,
-    pub tel: Option<Tel>,
-    pub class: Option<i16>,
-    pub class_no: Option<i16>,
-    pub profile_url: String,
-    pub is_onboarded: bool,
+    id: UserId,
+    role: UserRole,
+    email: String,
+    name: String,
+    tel: Option<Tel>,
+    class: Option<i16>,
+    class_no: Option<i16>,
+    profile_url: String,
+    is_onboarded: bool,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UserUpdateData {
+pub struct UserUpdate {
     pub tel: Option<Tel>,
     pub class: Option<i16>,
     pub class_no: Option<i16>,
