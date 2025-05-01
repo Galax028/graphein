@@ -6,25 +6,25 @@ use crate::schemas::{File, OrderId, Service, enums::OrderStatus};
 
 #[derive(Debug, Serialize)]
 pub struct ClientOrdersGlance {
-    ongoing: Vec<CompactOrder>,
-    finished: Vec<CompactOrder>,
+    pub ongoing: Vec<CompactOrder>,
+    pub finished: Vec<CompactOrder>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct MerchantOrdersGlance {
-    incoming: Vec<CompactOrder>,
-    accepted: Vec<CompactOrder>,
-    finished: Vec<CompactOrder>,
+    pub incoming: Vec<CompactOrder>,
+    pub accepted: Vec<CompactOrder>,
+    pub finished: Vec<CompactOrder>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CompactOrder {
-    id: OrderId,
-    created_at: DateTime<Utc>,
-    order_number: String,
-    status: OrderStatus,
-    files_count: i64,
+    pub id: OrderId,
+    pub created_at: DateTime<Utc>,
+    pub order_number: String,
+    pub status: OrderStatus,
+    pub files_count: i64,
 }
 
 #[derive(Debug, Serialize)]
@@ -35,6 +35,7 @@ pub struct DetailedOrder {
     pub order_number: String,
     pub status: OrderStatus,
     pub price: Option<i64>,
+    pub notes: Option<String>,
     pub status_history: Vec<OrderStatusUpdate>,
     pub files: Vec<File>,
     pub services: Vec<Service>,

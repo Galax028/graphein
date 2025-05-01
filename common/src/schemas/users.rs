@@ -43,7 +43,7 @@ impl<'de> Deserialize<'de> for Tel {
             .is_match(&inner);
 
         if is_valid_tel {
-            Ok(Tel(inner))
+            Ok(Self(inner))
         } else {
             Err(de::Error::custom("Invalid phone number format"))
         }

@@ -7,22 +7,22 @@ use axum::{
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 
-use crate::extract::Json;
+use crate::{extract::Json, request::PageKey};
 
 #[derive(Debug, Clone, Copy, Serialize)]
 pub struct PaginationResponse {
-    current: i64,
-    last: i64,
-    size: i64,
+    prev: Option<PageKey>,
+    next: Option<PageKey>,
+    size: usize,
     count: i64,
 }
 
 impl PaginationResponse {
     #[must_use]
-    pub fn new(current: i64, last: i64, size: i64, count: i64) -> Self {
+    pub fn new(prev: Option<PageKey>, next: Option<PageKey>, size: usize, count: i64) -> Self {
         Self {
-            current,
-            last,
+            prev,
+            next,
             size,
             count,
         }

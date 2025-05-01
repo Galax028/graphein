@@ -10,26 +10,24 @@ use dashmap::DashMap;
 use hmac::{Hmac, Mac};
 use jsonwebtoken::jwk::JwkSet;
 use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
-use reqwest::header::CACHE_CONTROL;
+use reqwest::{Client as ReqwestClient, header::CACHE_CONTROL};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;
 use tracing::info;
 
-use crate::{error::AuthError, schemas::{enums::UserRole, UserId}, AppError, AppState};
+use crate::{
+    AppError, GOOGLE_SIGNING_KEYS,
+    error::AuthError,
+    schemas::{UserId, enums::UserRole},
+};
 
 pub async fn fetch_google_jwks(
-    app_state: AppState,
+    http: ReqwestClient,
     cancellation_token: CancellationToken,
 ) -> anyhow::Result<()> {
-    async fn inner(
-        AppState {
-            http,
-            google_signing_keys,
-            ..
-        }: AppState,
-    ) -> anyhow::Result<()> {
+    async fn inner(http: ReqwestClient) -> anyhow::Result<()> {
         loop {
             let res = http
                 .get("https://www.googleapis.com/oauth2/v3/certs")
@@ -49,8 +47,8 @@ pub async fn fetch_google_jwks(
                 .parse::<u64>()?;
 
             let keys = res.json::<JwkSet>().await?;
-            google_signing_keys.store(Arc::new(keys));
-            info!("fetched Google OAuth signing keys successfully, sleeping for {max_age} seconds");
+            GOOGLE_SIGNING_KEYS.store(Arc::new(keys));
+            info!("fetched OAuth signing keys successfully, sleeping for {max_age} second(s)");
 
             tokio::time::sleep(Duration::from_secs(max_age)).await;
         }
@@ -58,7 +56,7 @@ pub async fn fetch_google_jwks(
 
     tokio::select! {
         () = cancellation_token.cancelled() => Ok(()),
-        res = inner(app_state) => res,
+        res = inner(http) => res,
     }
 }
 

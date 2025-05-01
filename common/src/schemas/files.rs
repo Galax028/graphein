@@ -20,7 +20,6 @@ pub struct File {
     is_color: bool,
     scaling: i32,
     is_double_sided: bool,
-    notes: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
