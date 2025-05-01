@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
     app_state.load_sessions().await;
 
     let fgj_token = CancellationToken::new();
-    tokio::spawn(fetch_google_jwks(app_state.clone(), fgj_token.clone()));
+    tokio::spawn(fetch_google_jwks(app_state.http.clone(), fgj_token.clone()));
 
     let app = Router::new()
         .merge(expand_router(app_state.clone()))

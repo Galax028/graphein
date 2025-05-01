@@ -200,7 +200,7 @@
 //!
 //! ###### `StatusUpdate`
 //!
-//! **Note:** Automatically sorted by `timestamp` descending.
+//! **Note:** Automatically sorted by `timestamp` ascending.
 //!
 //! | Name        | Type              | Nullable? |
 //! |-------------|-------------------|-----------|
@@ -270,7 +270,7 @@
 //!
 //! ###### `StatusUpdate`
 //!
-//! **Note:** Automatically sorted by `timestamp` descending.
+//! **Note:** Automatically sorted by `timestamp` ascending.
 //!
 //! | Name        | Type              | Nullable? |
 //! |-------------|-------------------|-----------|
@@ -367,7 +367,7 @@
 //!
 //! ###### `StatusUpdate`
 //!
-//! **Note:** Automatically sorted by `timestamp` descending.
+//! **Note:** Automatically sorted by `timestamp` ascending.
 //!
 //! | Name        | Type              | Nullable? |
 //! |-------------|-------------------|-----------|

@@ -15,9 +15,15 @@ use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use serde_json::json;
 
 use graphein_common::{
+    AppError, AppState, GOOGLE_SIGNING_KEYS,
     auth::{
-        decode_and_verify_id_token, hmac_sign, hmac_verify, GoogleOAuthCodeExchangeParams, GoogleOAuthInitParams, GoogleOAuthReqParams, IdToken, Session
-    }, database::UsersTable, error::AuthError, extract::QsQuery, schemas::{enums::UserRole, UserId}, AppError, AppState
+        GoogleOAuthCodeExchangeParams, GoogleOAuthInitParams, GoogleOAuthReqParams, IdToken,
+        Session, decode_and_verify_id_token, hmac_sign, hmac_verify,
+    },
+    database::UsersTable,
+    error::AuthError,
+    extract::QsQuery,
+    schemas::{UserId, enums::UserRole},
 };
 
 #[cfg(debug_assertions)]
@@ -134,7 +140,6 @@ async fn get_finish_google_oauth(
         http,
         sessions,
         oauth_states,
-        google_signing_keys,
         ..
     }): State<AppState>,
     cookies: CookieJar,
@@ -180,7 +185,7 @@ async fn get_finish_google_oauth(
         let decoded = tokio::task::spawn_blocking(move || {
             decode_and_verify_id_token(
                 &id_token,
-                &google_signing_keys,
+                &GOOGLE_SIGNING_KEYS,
                 &nonce,
                 config2.google_oauth_client_id(),
             )
