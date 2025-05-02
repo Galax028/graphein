@@ -1,33 +1,72 @@
 @import "tailwindcss";
-@import "./fonts.css"
+@import "./fonts.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --outline: #E5E5E5;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --background: #F3F3F6;
+  --on-background: #1C1B1F;
+  --surface-container: #FFFFFF;
+  --on-surface-container: #1C1B1F;
+
+  --primary: #0B1338;
+  --on-primary: #FFFFFF;
+
+  --action-success: #16A34A;
+  --action-warning: #CA8A04;
+  --action-error: #DC2626;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --outline: #444444;
+
+    --background: #000000;
+    --on-background: #FFFFFF;
+    --surface-container: #121216;
+    --on-surface-container: #FFFFFF;
+  
+    --primary: #BAD1E0;
+    --on-primary: #000000;
+  
+    --action-success: #38E076;
+    --action-warning: #FFCC60;
+    --action-error: #FF5151;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
+@theme {
+  --color-outline: var(--outline);
 
+  --color-background: var(--background);
+  --color-onBackground: var(--on-background);
+
+  --color-surfaceContainer: var(--surface-container);
+  --color-onSurfaceContainer: var(--on-surface-container);
+
+  --color-primary: var(--primary);
+  --color-onPrimary: var(--on-primary);
+
+  --color-actionSuccess: var(--action-success)
+  --color-actionWarning: var(--action-warning)
+  --color-actionError: var(--action-error)
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 300,
+  'GRAD' 0,
+  'opsz' 24
+}
+
+body {
   font-family: "Inter", "Inter Thai Loopless", sans-serif;
   font-feature-settings: 'ss02' on, 'ss03' on, 'cv11' on;
+
+  @apply text-onBackground bg-background
 }
 
 b {
-  font-weight: 600;
+  @apply font-semibold
 }
