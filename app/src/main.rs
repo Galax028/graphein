@@ -1,9 +1,9 @@
 #![forbid(unsafe_code)]
 #![warn(clippy::pedantic)]
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use axum::Router;
-use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
 use tokio_util::sync::CancellationToken;
 use tower_http::trace::TraceLayer;
@@ -25,12 +25,12 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .try_init()?;
 
-    let config = Config::try_from_dotenv()?;
-    let (host, port, root_uri) = (config.host(), config.port(), config.root_uri().to_owned());
+    let config = Config::try_from_dotenv().context("Failed to parse config")?;
+    let (host, port, root_uri) = (config.host(), config.port(), config.root_uri());
     let pool = PgPoolOptions::new()
-        .connect_with(config.database_url().parse::<PgConnectOptions>()?)
+        .connect_with(config.database_connect_options()?)
         .await?;
-    let app_state = AppState::new(config, pool);
+    let app_state = AppState::new(config.clone(), pool);
     app_state.load_sessions().await;
 
     let fgj_token = CancellationToken::new();

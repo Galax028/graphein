@@ -24,12 +24,12 @@ pub struct AppState {
 
 impl AppState {
     #[must_use]
-    pub fn new(config: Config, pool: PgPool) -> Self {
+    pub fn new(config: Arc<Config>, pool: PgPool) -> Self {
         let secret = config.secret().to_owned();
         let session_expiry_time = config.session_expiry_time();
 
         AppState {
-            config: Arc::new(config),
+            config,
             pool,
             http: Client::new(),
             sessions: SessionStore::new(secret.as_bytes(), session_expiry_time),

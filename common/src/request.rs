@@ -63,6 +63,8 @@ impl Display for PageKey {
 pub struct PageSize(NonZeroU64);
 
 impl PageSize {
+    #[allow(clippy::cast_possible_wrap)]
+    #[must_use]
     pub fn get(self) -> i64 {
         self.0.get() as i64
     }
