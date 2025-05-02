@@ -35,9 +35,10 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
 
 async fn get_orders_glance(
     State(AppState { pool, .. }): State<AppState>,
+    Session { user_id, .. }: Session,
 ) -> HandlerResponse<ClientOrdersGlance> {
     let mut conn = pool.acquire().await?;
-    let ongoing = OrdersTable::query_compact()
+    let ongoing = OrdersTable::query_compact(user_id)
         .bind_statuses(&[
             OrderStatus::Reviewing,
             OrderStatus::Processing,
@@ -46,7 +47,7 @@ async fn get_orders_glance(
         .fetch_all(&mut conn)
         .await?;
 
-    let finished = OrdersTable::query_compact()
+    let finished = OrdersTable::query_compact(user_id)
         .bind_statuses(&[
             OrderStatus::Completed,
             OrderStatus::Rejected,
@@ -63,10 +64,11 @@ async fn get_orders_glance(
 
 async fn get_orders_history(
     State(AppState { pool, .. }): State<AppState>,
+    Session { user_id, .. }: Session,
     QsQuery(RequestData { pagination, .. }): QsQuery<RequestData>,
 ) -> HandlerResponse<Vec<CompactOrder>> {
     let mut conn = pool.acquire().await?;
-    let (orders, pagination) = OrdersTable::query_compact()
+    let (orders, pagination) = OrdersTable::query_compact(user_id)
         .bind_statuses(&[
             OrderStatus::Completed,
             OrderStatus::Rejected,

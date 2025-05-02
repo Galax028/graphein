@@ -9,7 +9,7 @@ use crate::{
     error::ForbiddenError,
     request::PageKey,
     schemas::{
-        CompactOrder, DetailedOrder, OrderId,
+        CompactOrder, DetailedOrder, OrderId, UserId,
         enums::{OrderStatus, UserRole},
     },
 };
@@ -90,7 +90,7 @@ impl OrdersTable {
     }
 
     #[must_use]
-    pub fn query_compact<'args>() -> CompactOrdersQuery<'args> {
+    pub fn query_compact<'args>(owner_id: UserId) -> CompactOrdersQuery<'args> {
         let query = "\
             SELECT o.id, o.created_at, o.order_number, o.status, COUNT(f.id) AS files_count \
             FROM orders AS o \
@@ -101,6 +101,7 @@ impl OrdersTable {
         CompactOrdersQuery {
             qb: QueryBuilder::new(query),
             count_qb: None,
+            owner_id,
             statuses: &[],
             limit: None,
             pagination: None,
@@ -120,6 +121,7 @@ impl OrdersTable {
 pub struct CompactOrdersQuery<'args> {
     qb: QueryBuilder<'args, Postgres>,
     count_qb: Option<QueryBuilder<'args, Postgres>>,
+    owner_id: UserId,
     statuses: &'args [OrderStatus],
     limit: Option<i64>,
     pagination: Option<&'args PaginationRequest>,
@@ -168,6 +170,9 @@ impl<'args> CompactOrdersQuery<'args> {
     ) {
         let is_main_qb = qb.is_none();
         let qb = qb.unwrap_or(&mut self.qb);
+        Self::push_sep(first_bind, qb)
+            .push("o.owner_id = ")
+            .push_bind(self.owner_id);
 
         if !self.statuses.is_empty() {
             let statuses = self.statuses;
@@ -177,9 +182,11 @@ impl<'args> CompactOrdersQuery<'args> {
                 .push(')');
         }
 
-        if let (Some(PaginationRequest { page, .. }), true) = (self.pagination, is_main_qb) {
+        if let (Some(PaginationRequest { page, reverse, .. }), true) = (self.pagination, is_main_qb)
+        {
             Self::push_sep(first_bind, qb)
-                .push("(o.created_at, o.id) < (")
+                .push("(o.created_at, o.id)")
+                .push(if *reverse { " > (" } else { " < (" })
                 .push_bind(page.map(|page| page.timestamp()).unwrap_or(Utc::now()))
                 .push(',')
                 .push_bind(page.map(|page| page.id()).unwrap_or(Uuid::max()))
@@ -191,9 +198,14 @@ impl<'args> CompactOrdersQuery<'args> {
         }
 
         match (self.pagination, is_main_qb) {
-            (Some(PaginationRequest { size, .. }), true) => {
-                qb.push(" ORDER BY o.created_at DESC, o.id DESC LIMIT ")
-                    .push_bind(size.get() as i64);
+            (Some(PaginationRequest { size, reverse, .. }), true) => {
+                let sort = if *reverse { "ASC" } else { "DESC" };
+                qb.push(" ORDER BY o.created_at ")
+                    .push(sort)
+                    .push(", o.id ")
+                    .push(sort)
+                    .push(" LIMIT ")
+                    .push_bind(size.get());
             }
             (None, true) => {
                 qb.push(" ORDER BY o.created_at DESC");
@@ -202,8 +214,7 @@ impl<'args> CompactOrdersQuery<'args> {
         }
 
         if let (Some(limit), true) = (self.limit, is_main_qb) {
-                qb.push(" LIMIT ")
-                .push_bind(limit);
+            qb.push(" LIMIT ").push_bind(limit);
         }
     }
 
@@ -234,19 +245,25 @@ impl<'args> CompactOrdersQuery<'args> {
             ",
         );
 
+        let reverse = self.pagination.unwrap().reverse;
         let mut first_bind = true;
         let mut count_qb = self.count_qb.take().unwrap();
         self.build(&mut first_bind, Some(&mut count_qb));
-        let rows = self.fetch_all(&mut *conn).await?;
+        let mut rows = self.fetch_all(&mut *conn).await?;
+        if reverse {
+            rows.reverse();
+        }
 
-        let prev = self.pagination.and_then(|p| p.page);
-        let next = rows
-            .last()
-            .map(|last| PageKey::new(last.created_at, last.id.into()));
         let size = rows.len();
+        let next = match size {
+            0 => None,
+            _ => rows
+                .last()
+                .map(|last| PageKey::new(last.created_at, last.id.into())),
+        };
         let count: i64 = count_qb.build_query_scalar().fetch_one(&mut *conn).await?;
 
-        Ok((rows, PaginationResponse::new(prev, next, size, count)))
+        Ok((rows, PaginationResponse::new(next, size, count, reverse)))
     }
 }
 
