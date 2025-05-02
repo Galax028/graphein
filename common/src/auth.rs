@@ -69,7 +69,7 @@ pub struct GoogleOAuthInitParams {
 #[derive(Debug, Serialize)]
 pub struct GoogleOAuthReqParams<'a> {
     pub client_id: &'a str,
-    pub nonce: String,
+    pub nonce: &'a str,
     pub response_type: &'static str,
     pub redirect_uri: String,
     pub scope: &'static str,

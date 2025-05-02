@@ -90,7 +90,7 @@ impl OrdersTable {
     }
 
     #[must_use]
-    pub fn query_compact<'args>(owner_id: UserId) -> CompactOrdersQuery<'args> {
+    pub fn query_compact<'args>() -> CompactOrdersQuery<'args> {
         let query = "\
             SELECT o.id, o.created_at, o.order_number, o.status, COUNT(f.id) AS files_count \
             FROM orders AS o \
@@ -101,7 +101,7 @@ impl OrdersTable {
         CompactOrdersQuery {
             qb: QueryBuilder::new(query),
             count_qb: None,
-            owner_id,
+            owner_id: None,
             statuses: &[],
             limit: None,
             pagination: None,
@@ -121,7 +121,7 @@ impl OrdersTable {
 pub struct CompactOrdersQuery<'args> {
     qb: QueryBuilder<'args, Postgres>,
     count_qb: Option<QueryBuilder<'args, Postgres>>,
-    owner_id: UserId,
+    owner_id: Option<UserId>,
     statuses: &'args [OrderStatus],
     limit: Option<i64>,
     pagination: Option<&'args PaginationRequest>,
@@ -139,6 +139,12 @@ impl<'args> CompactOrdersQuery<'args> {
         }
 
         qb
+    }
+
+    pub fn bind_owner_id(&mut self, owner_id: UserId) -> &mut Self {
+        self.owner_id = Some(owner_id);
+
+        self
     }
 
     pub fn bind_statuses(&mut self, statuses: &'args [OrderStatus]) -> &mut Self {
@@ -170,9 +176,12 @@ impl<'args> CompactOrdersQuery<'args> {
     ) {
         let is_main_qb = qb.is_none();
         let qb = qb.unwrap_or(&mut self.qb);
-        Self::push_sep(first_bind, qb)
-            .push("o.owner_id = ")
-            .push_bind(self.owner_id);
+
+        if let Some(owner_id) = self.owner_id {
+            Self::push_sep(first_bind, qb)
+                .push("o.owner_id = ")
+                .push_bind(owner_id);
+        }
 
         if !self.statuses.is_empty() {
             let statuses = self.statuses;
@@ -250,10 +259,6 @@ impl<'args> CompactOrdersQuery<'args> {
         let mut count_qb = self.count_qb.take().unwrap();
         self.build(&mut first_bind, Some(&mut count_qb));
         let mut rows = self.fetch_all(&mut *conn).await?;
-        if reverse {
-            rows.reverse();
-        }
-
         let size = rows.len();
         let next = match size {
             0 => None,
@@ -262,6 +267,9 @@ impl<'args> CompactOrdersQuery<'args> {
                 .map(|last| PageKey::new(last.created_at, last.id.into())),
         };
         let count: i64 = count_qb.build_query_scalar().fetch_one(&mut *conn).await?;
+        if reverse {
+            rows.reverse();
+        }
 
         Ok((rows, PaginationResponse::new(next, size, count, reverse)))
     }

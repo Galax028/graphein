@@ -38,7 +38,8 @@ async fn get_orders_glance(
     Session { user_id, .. }: Session,
 ) -> HandlerResponse<ClientOrdersGlance> {
     let mut conn = pool.acquire().await?;
-    let ongoing = OrdersTable::query_compact(user_id)
+    let ongoing = OrdersTable::query_compact()
+        .bind_owner_id(user_id)
         .bind_statuses(&[
             OrderStatus::Reviewing,
             OrderStatus::Processing,
@@ -47,7 +48,8 @@ async fn get_orders_glance(
         .fetch_all(&mut conn)
         .await?;
 
-    let finished = OrdersTable::query_compact(user_id)
+    let finished = OrdersTable::query_compact()
+        .bind_owner_id(user_id)
         .bind_statuses(&[
             OrderStatus::Completed,
             OrderStatus::Rejected,
@@ -68,7 +70,8 @@ async fn get_orders_history(
     QsQuery(RequestData { pagination, .. }): QsQuery<RequestData>,
 ) -> HandlerResponse<Vec<CompactOrder>> {
     let mut conn = pool.acquire().await?;
-    let (orders, pagination) = OrdersTable::query_compact(user_id)
+    let (orders, pagination) = OrdersTable::query_compact()
+        .bind_owner_id(user_id)
         .bind_statuses(&[
             OrderStatus::Completed,
             OrderStatus::Rejected,

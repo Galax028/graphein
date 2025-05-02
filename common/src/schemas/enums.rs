@@ -10,7 +10,7 @@ pub enum FileType {
     Jpg,
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, SqlxType)]
+#[derive(Debug, Deserialize, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, SqlxType)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "order_status", rename_all = "lowercase")]
 pub enum OrderStatus {

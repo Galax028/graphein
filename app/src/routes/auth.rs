@@ -109,15 +109,11 @@ async fn get_init_google_oauth(
     })
     .await?;
 
-    let mut oauth_states = oauth_states.lock().await;
-    oauth_states.push((nonce.clone(), state));
-    drop(oauth_states);
-
     let oauth_url = format!(
         "https://accounts.google.com/o/oauth2/v2/auth?{}",
         serde_qs::to_string(&GoogleOAuthReqParams {
             client_id: config.google_oauth_client_id(),
-            nonce,
+            nonce: &nonce,
             response_type: "code",
             redirect_uri: format!("{}/auth/google/code", config.root_uri()),
             scope: "openid email profile",
@@ -129,6 +125,10 @@ async fn get_init_google_oauth(
         })
         .map_err(anyhow::Error::msg)?
     );
+
+    let mut oauth_states = oauth_states.lock().await;
+    oauth_states.push((nonce, state));
+    drop(oauth_states);
 
     Ok(Redirect::to(&oauth_url))
 }
