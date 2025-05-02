@@ -1,4 +1,4 @@
-use std::{net::IpAddr, str::FromStr, sync::Arc, time::Duration};
+use std::{net::IpAddr, str::FromStr, sync::Arc, time::Duration as StdDuration};
 
 use anyhow::{Context, Result};
 use chrono::FixedOffset;
@@ -12,7 +12,7 @@ pub struct Config {
     root_uri: String,
     database_url: String,
     secret: String,
-    session_expiry_time: Duration,
+    session_expiry_time: StdDuration,
     shop_utc_offset: FixedOffset,
     google_oauth_client_id: String,
     google_oauth_client_secret: String,
@@ -32,7 +32,7 @@ impl Config {
         let database_url =
             var("DATABASE_URL").context("Missing environment variable `DATABASE_URL`")?;
         let secret = var("SECRET").context("Missing environment variable `SECRET`")?;
-        let session_expiry_time = Duration::from_secs(
+        let session_expiry_time = StdDuration::from_secs(
             var("SESSION_EXPIRY_TIME")
                 .context("Missing environment variable `SESSION_EXPIRY_TIME`")?
                 .parse()
@@ -87,7 +87,7 @@ impl Config {
     }
 
     #[must_use]
-    pub fn session_expiry_time(&self) -> Duration {
+    pub fn session_expiry_time(&self) -> StdDuration {
         self.session_expiry_time
     }
 

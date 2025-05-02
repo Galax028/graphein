@@ -8,6 +8,7 @@
 )]
 
 pub mod auth;
+pub mod daemons;
 pub mod database;
 pub mod error;
 pub mod extract;

@@ -1,4 +1,4 @@
-use std::sync::{Arc, LazyLock};
+use std::{sync::{Arc, LazyLock}, time::Instant};
 
 use arc_swap::ArcSwap;
 use jsonwebtoken::jwk::JwkSet;
@@ -11,7 +11,7 @@ use crate::{Config, auth::SessionStore};
 pub static GOOGLE_SIGNING_KEYS: LazyLock<ArcSwap<JwkSet>> =
     LazyLock::new(|| ArcSwap::from_pointee(JwkSet { keys: Vec::new() }));
 
-type OAuthStates = Vec<(String, [u8; 32])>; /* (nonce, state) */
+pub(crate) type OAuthStates = Vec<(String, [u8; 32], Instant)>; /* (nonce, state) */
 
 #[derive(Debug, Clone)]
 pub struct AppState {

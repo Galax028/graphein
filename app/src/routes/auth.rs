@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::{sync::Arc, time::{Duration as StdDuration, Instant}};
 
 use axum::{
     Router,
@@ -127,7 +127,7 @@ async fn get_init_google_oauth(
     );
 
     let mut oauth_states = oauth_states.lock().await;
-    oauth_states.push((nonce, state));
+    oauth_states.push((nonce, state, Instant::now()));
     drop(oauth_states);
 
     Ok(Redirect::to(&oauth_url))
@@ -145,7 +145,7 @@ async fn get_finish_google_oauth(
     cookies: CookieJar,
     QsQuery(GoogleOAuthCodeExchangeParams { state, code }): QsQuery<GoogleOAuthCodeExchangeParams>,
 ) -> Response {
-    let work = async || -> Result<(UserId, UserRole, bool, Duration), AppError> {
+    let work = async || -> Result<(UserId, UserRole, bool, StdDuration), AppError> {
         let (state, hmac) = state
             .split_once('.')
             .map(|(state, hmac)| (hex::decode(state), hex::decode(hmac)))
@@ -157,7 +157,7 @@ async fn get_finish_google_oauth(
             .iter()
             .position(|stored| stored.1 == state[..])
             .ok_or(AuthError::InvalidOAuthFlow)?;
-        let (nonce, _) = oauth_states.remove(idx);
+        let (nonce, _, _) = oauth_states.remove(idx);
         drop(oauth_states);
 
         let config2 = Arc::clone(&config);
