@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css"
 
 :root {
   --background: #ffffff;
@@ -22,5 +23,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family: "Inter", "Inter Thai Loopless", sans-serif;
+  font-feature-settings: 'ss02' on, 'ss03' on, 'cv11' on;
+}
+
+b {
+  font-weight: 600;
 }

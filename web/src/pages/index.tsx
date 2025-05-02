@@ -1,9 +1,13 @@
 export default function Home() {
   return (
     <p>
-      Welcome to Printer Facility
+      The quick brown fox jumps over the lazy dog.
       <br />
-      นี่คือภาษาไทยสำหรับการทดสอบ with english.
+      นายสังฆภัณฑ์ เฮงพิทักษ์ฝั่ง ผู้เฒ่าซึ่งมีอาชีพเป็นฅนขายฃวด ถูกตำรวจปฏิบัติการจับฟ้องศาล ฐานลักนาฬิกาคุณหญิงฉัตรชฎา ฌานสมาธิ
+      <br />
+      <b>The quick brown fox jumps over the lazy dog.</b>
+      <br />
+      <b>นายสังฆภัณฑ์ เฮงพิทักษ์ฝั่ง ผู้เฒ่าซึ่งมีอาชีพเป็นฅนขายฃวด ถูกตำรวจปฏิบัติการจับฟ้องศาล ฐานลักนาฬิกาคุณหญิงฉัตรชฎา ฌานสมาธิ</b>
     </p>
   );
 }
