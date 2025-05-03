@@ -1,11 +1,12 @@
 import Head from "next/head";
+import Image from "next/image";
 import Button from "@/components/common/Button";
 
 const Landing = () => {
   return (
     <>
       <Head>
-        <title>Shit</title>
+        <title>Printing Facility</title>
       </Head>
       <main>
         <p>
@@ -25,15 +26,25 @@ const Landing = () => {
           <Button appearance={"filled"} icon={"shopping_bag_speed"}>
             Send Order
           </Button>
-          <Button appearance={"outlined"} icon={"shopping_bag_speed"}>
+          <Button appearance={"tonal"} icon={"shopping_bag_speed"}>
             Send Order
           </Button>
 
           <Button appearance={"filled"}>Cancel Order</Button>
-          <Button appearance={"outlined"}>Cancel Order</Button>
 
           <Button appearance={"filled"} icon={"print"} />
-          <Button appearance={"outlined"} icon={"print"} />
+          <Button appearance={"tonal"} icon={"print"} />
+
+          <Button appearance={"tonal"}>
+            <Image
+              src={"/images/common/google-logo_light.svg"}
+              width={18}
+              height={18}
+              alt="Google Logo"
+              className="block aspect-square"
+            />
+            Sign in with Google
+          </Button>
         </div>
       </main>
     </>
