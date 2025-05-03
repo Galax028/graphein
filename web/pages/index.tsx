@@ -1,54 +1,31 @@
-import Head from "next/head";
-import Image from "next/image";
-import Button from "@/components/common/Button";
+import NavigationBar from "@/components/common/NavigationBar";
+import GoogleSignInButton from "@/components/landing/GoogleSignInButton";
 
-const Landing = () => {
+const LandingPage = () => {
   return (
-    <>
-      <Head>
-        <title>Printing Facility</title>
-      </Head>
-      <main>
-        <p>
-          The quick brown fox jumps over the lazy dog.
-          <br />
-          นายสังฆภัณฑ์ เฮงพิทักษ์ฝั่ง ผู้เฒ่าซึ่งมีอาชีพเป็นฅนขายฃวด
-          ถูกตำรวจปฏิบัติการจับฟ้องศาล ฐานลักนาฬิกาคุณหญิงฉัตรชฎา ฌานสมาธิ
-          <br />
-          <b>The quick brown fox jumps over the lazy dog.</b>
-          <br />
-          <b>
-            นายสังฆภัณฑ์ เฮงพิทักษ์ฝั่ง ผู้เฒ่าซึ่งมีอาชีพเป็นฅนขายฃวด
-            ถูกตำรวจปฏิบัติการจับฟ้องศาล ฐานลักนาฬิกาคุณหญิงฉัตรชฎา ฌานสมาธิ
-          </b>
-        </p>
-        <div className="flex flex-col gap-2 p-4 [&>*]:!w-max">
-          <Button appearance={"filled"} icon={"shopping_bag_speed"}>
-            Send Order
-          </Button>
-          <Button appearance={"tonal"} icon={"shopping_bag_speed"}>
-            Send Order
-          </Button>
-
-          <Button appearance={"filled"}>Cancel Order</Button>
-
-          <Button appearance={"filled"} icon={"print"} />
-          <Button appearance={"tonal"} icon={"print"} />
-
-          <Button appearance={"tonal"}>
-            <Image
-              src={"/images/common/google-logo_light.svg"}
-              width={18}
-              height={18}
-              alt="Google Logo"
-              className="block aspect-square"
-            />
-            Sign in with Google
-          </Button>
+    <div className="flex flex-col h-dvh">
+      <NavigationBar title={"Welcome to Printer Facility"} />
+      <div className="flex flex-col justify-between flex-grow p-3">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold">Sign in</h1>
+            <p className="opacity-50">
+              Use the email ending in sk.ac.th to continue.
+            </p>
+          </div>
+          <GoogleSignInButton />
         </div>
-      </main>
-    </>
+        <div>
+          <p className="text-xs opacity-50">
+            SK Printing Facility is a project powered by EPLUS+ students, visit
+            About for more information. • SK Printing Facility may collect data
+            for analytics and research purposes, see our Privacy Policy and
+            Terms of Service for more information.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default Landing;
+export default LandingPage;
