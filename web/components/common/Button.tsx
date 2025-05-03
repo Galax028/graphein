@@ -1,4 +1,5 @@
 import cn from "@/utils/helpers/cn";
+import MaterialIcon from "@/components/common/MaterialIcon";
 
 interface BaseButtonProps {
   appearance: "tonal" | "filled";
@@ -21,8 +22,8 @@ const Button = ({ appearance, icon, children, className }: ButtonProps) => {
   return (
     <button
       className={cn(
-        `flex justify-center gap-2 p-2.5 rounded-lg hover:brightness-80 
-        cursor-pointer transition`,
+        `flex justify-center items-center gap-2 p-2.5 rounded-lg cursor-pointer transition
+          hover:brightness-80 focus:brightness-80`,
         icon && children && "pr-3.5",
         appearance == "tonal"
           ? "border border-outline bg-surfaceContainer"
@@ -30,7 +31,7 @@ const Button = ({ appearance, icon, children, className }: ButtonProps) => {
         className
       )}
     >
-      {icon && <span className="material-symbols-outlined">{icon}</span>}
+      {icon && <MaterialIcon icon={icon} />}
       {children}
     </button>
   );
