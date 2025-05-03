@@ -1,5 +1,8 @@
+import cn from "@/utils/helpers/cn";
+
 interface BaseButtonProps {
-  appearance: "outlined" | "filled";
+  appearance: "tonal" | "filled";
+  className?: string;
 }
 
 interface IconButtonProps extends BaseButtonProps {
@@ -14,17 +17,18 @@ interface TextButtonProps extends BaseButtonProps {
 
 type ButtonProps = IconButtonProps | TextButtonProps;
 
-const Button = ({ appearance, icon, children }: ButtonProps) => {
+const Button = ({ appearance, icon, children, className }: ButtonProps) => {
   return (
     <button
-      className={
-        `flex justify-center gap-2 p-2.5 rounded-lg hover:brightness-75 
-        cursor-pointer transition ` +
-        (icon && children && "pr-3.5") +
-        (appearance == "outlined"
-          ? " border border-outline"
-          : " bg-primary text-onPrimary")
-      }
+      className={cn(
+        `flex justify-center gap-2 p-2.5 rounded-lg hover:brightness-80 
+        cursor-pointer transition`,
+        icon && children && "pr-3.5",
+        appearance == "tonal"
+          ? "border border-outline bg-surfaceContainer"
+          : "bg-primary text-onPrimary",
+        className
+      )}
     >
       {icon && <span className="material-symbols-outlined">{icon}</span>}
       {children}
