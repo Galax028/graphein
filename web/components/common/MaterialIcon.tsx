@@ -1,6 +1,4 @@
-interface MaterialIconProps {
-  icon: string;
-}
+import { MaterialIconProps } from "@/utils/types/common";
 
 const MaterialIcon = ({ icon }:MaterialIconProps) => {
   return (

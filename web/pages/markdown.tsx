@@ -1,6 +1,7 @@
-import Head from "next/head";
 import Button from "@/components/common/Button";
-import GoogleSignInButton from "@/components/landing/GoogleSignInButton";
+import GoogleSignInButton from "@/components/landing/SignInButton";
+import Head from "next/head";
+import Link from "next/link";
 
 const Markdown = () => {
   return (
@@ -22,6 +23,9 @@ const Markdown = () => {
             ถูกตำรวจปฏิบัติการจับฟ้องศาล ฐานลักนาฬิกาคุณหญิงฉัตรชฎา ฌานสมาธิ
           </b>
         </p>
+          <div className="p-4">
+            <Link href="/">Go to main page (router test)</Link>
+          </div>
         <div className="flex flex-col gap-2 m-4 [&>*]:!w-full">
           <Button appearance={"filled"} icon={"shopping_bag_speed"}>
             Send Order

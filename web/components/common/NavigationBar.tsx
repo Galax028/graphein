@@ -1,14 +1,26 @@
-import cn from "@/utils/helpers/cn";
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
+import cn from "@/utils/helpers/cn";
+import { NavigationBarProps } from "@/utils/types/landing";
+import { useRouter } from "next/router";
+import isSignedIn from "@/utils/helpers/isSignedIn";
 
-interface NavigationBarProps {
-  title: string;
-  className?: string;
-  style?: string;
-}
+const NavigationBar = ({
+  title,
+  backEnabled = false,
+  backContextURL,
+  className,
+  style,
+}: NavigationBarProps) => {
+  const router = useRouter();
 
-const NavigationBar = ({ title, className, style }: NavigationBarProps) => {
+  const handleBackButtonClicked = () => {
+    if (backContextURL) {
+      return router.push(backContextURL);
+    }
+    return router.back();
+  };
+
   return (
     <nav
       className={cn(
@@ -16,12 +28,17 @@ const NavigationBar = ({ title, className, style }: NavigationBarProps) => {
         className
       )}
     >
-      <div className="flex gap-3 p-3">
-        <MaterialIcon icon="arrow_back" />
+      <div onClick={handleBackButtonClicked} className="flex gap-3 p-3">
+        {backEnabled && <MaterialIcon icon="arrow_back" />}
         {title}
       </div>
       <div className="flex gap-3 p-2">
-        <PersonAvatar />
+        {
+          // If the user is signed in, display the profile picture.
+          isSignedIn() && (
+            <PersonAvatar person_name="John Pork" />
+          )
+        }
       </div>
     </nav>
   );
