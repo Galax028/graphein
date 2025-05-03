@@ -10,8 +10,10 @@ import { sift } from "radash";
  *
  * @returns A string to use in `className`.
  */
-export default function cn(...segments: unknown[]) {
+const cn = (...segments: unknown[]) => {
   return sift(segments)
     .map((segment) => (segment as string).replace(/\s+/g, " "))
     .join(" ");
 }
+
+export default cn
