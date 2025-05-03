@@ -1,8 +1,12 @@
+import cn from "@/utils/helpers/cn";
 import { MaterialIconProps } from "@/utils/types/common";
 
-const MaterialIcon = ({ icon }:MaterialIconProps) => {
+const MaterialIcon = ({ icon, className }:MaterialIconProps) => {
   return (
-    <i className="material-symbols-outlined">{icon}</i>
+    <i className={cn(
+      "material-symbols-outlined",
+      className
+    )}>{icon}</i>
   )
 }
 

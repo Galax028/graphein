@@ -1,6 +1,9 @@
 // Base Button
 interface BaseButtonProps {
   appearance: "tonal" | "filled";
+  disabled?: boolean;
+  busy?: boolean;
+  busyWithText?: boolean;
   className?: string;
 }
 interface IconButtonProps extends BaseButtonProps {
@@ -14,9 +17,17 @@ interface TextButtonProps extends BaseButtonProps {
 
 export type ButtonProps = IconButtonProps | TextButtonProps;
 
+// Segmented Button
+
+export type SegmentedButtonProps = {
+  children: React.ReactNode;
+  className?: string;
+}
+
 // Material Icon
 export type MaterialIconProps = {
   icon: string;
+  className?: string;
 };
 
 // Person Avatar

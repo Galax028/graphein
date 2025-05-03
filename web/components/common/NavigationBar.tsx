@@ -4,13 +4,16 @@ import cn from "@/utils/helpers/cn";
 import { NavigationBarProps } from "@/utils/types/landing";
 import { useRouter } from "next/router";
 import isSignedIn from "@/utils/helpers/isSignedIn";
+import Link from "next/link";
 
 const NavigationBar = ({
   title,
+  description,
   backEnabled = false,
   backContextURL,
   className,
   style,
+  children,
 }: NavigationBarProps) => {
   const router = useRouter();
 
@@ -24,19 +27,34 @@ const NavigationBar = ({
   return (
     <nav
       className={cn(
-        `flex justify-between items-center gap-2 bg-surfaceContainer border-b border-outline`,
+        `sticky top-0 flex justify-between items-center gap-2 border-b 
+          border-outline bg-surfaceContainer [&>div]:flex [&>div]:items-center 
+          [&>div]:gap-3 [&>div]:h-full`,
         className
       )}
     >
-      <div onClick={handleBackButtonClicked} className="flex gap-3 p-3">
-        {backEnabled && <MaterialIcon icon="arrow_back" />}
-        {title}
+      <div className="p-3">
+        {backEnabled && (
+          <div
+            className="cursor-pointer w-6 h-6"
+            onClick={handleBackButtonClicked}
+          >
+            <MaterialIcon icon="arrow_back" />
+          </div>
+        )}
+        <div className="flex flex-col gap-0">
+          <p>{title}</p>
+          <p className="text-xs opacity-50">{description}</p>
+        </div>
       </div>
-      <div className="flex gap-3 p-2">
+      <div className="p-2">
+        {children}
         {
           // If the user is signed in, display the profile picture.
           isSignedIn() && (
-            <PersonAvatar person_name="John Pork" />
+            <Link href="/settings">
+              <PersonAvatar person_name="John Pork" />
+            </Link>
           )
         }
       </div>
