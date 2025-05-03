@@ -7,7 +7,10 @@ use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 use tracing::info;
 
-use crate::{AppState, GOOGLE_SIGNING_KEYS, state::OAuthStates};
+use crate::{
+    AppState, GOOGLE_SIGNING_KEYS,
+    state::{DraftOrderStore, OAuthStates},
+};
 
 #[derive(Debug)]
 pub struct DaemonController {
@@ -33,6 +36,11 @@ impl DaemonController {
 
         tokio::spawn(clean_oauth_states(
             self.app_state.oauth_states.clone(),
+            self.canceller.clone(),
+        ));
+
+        tokio::spawn(clean_draft_orders(
+            self.app_state.draft_orders.clone(),
             self.canceller.clone(),
         ));
 
@@ -93,5 +101,20 @@ async fn clean_oauth_states(oauth_states: Arc<Mutex<OAuthStates>>, token: Cancel
     tokio::select! {
         () = token.cancelled() => (),
         res = inner(oauth_states) => res,
+    }
+}
+
+async fn clean_draft_orders(draft_orders: DraftOrderStore, token: CancellationToken) {
+    async fn inner(draft_orders: DraftOrderStore) {
+        loop {
+            draft_orders.clear_expired();
+
+            tokio::time::sleep(StdDuration::from_secs(60)).await;
+        }
+    }
+
+    tokio::select! {
+        () = token.cancelled() => (),
+        res = inner(draft_orders) => res,
     }
 }

@@ -87,8 +87,13 @@ async fn get_orders_history(
         .build())
 }
 
-async fn post_orders() -> HandlerResponse<()> {
-    todo!()
+async fn post_orders(
+    State(AppState { draft_orders, .. }): State<AppState>,
+    Session { user_id, .. }: Session,
+) -> HandlerResponse<OrderId> {
+    let order_id = draft_orders.insert(user_id)?;
+
+    Ok(ResponseBuilder::new().data(order_id).build())
 }
 
 async fn get_orders_id(

@@ -154,8 +154,10 @@ impl SessionStore {
     pub async fn load(&self, pool: PgPool) {
         sqlx::query!(
             "\
-            SELECT s.*, u.role AS \"role: UserRole\", u.is_onboarded FROM sessions AS s \
-            JOIN users AS u on u.id = s.user_id WHERE s.expires_at > CURRENT_TIMESTAMP\
+            SELECT s.*, u.role AS \"role: UserRole\", u.is_onboarded \
+            FROM sessions AS s \
+                JOIN users AS u on u.id = s.user_id \
+            WHERE s.expires_at > CURRENT_TIMESTAMP\
             "
         )
         .fetch_all(&pool)
@@ -175,7 +177,7 @@ impl SessionStore {
             );
         });
 
-        sqlx::query!("TRUNCATE sessions")
+        sqlx::query("TRUNCATE sessions")
             .execute(&pool)
             .await
             .unwrap();

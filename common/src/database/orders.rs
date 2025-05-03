@@ -79,6 +79,8 @@ impl OrdersTable {
         Ok(DetailedOrder {
             id: order.id,
             created_at: order.created_at,
+            // TODO: fix this
+            owner_id: None,
             order_number: order.order_number,
             status: order.status,
             price: order.price,

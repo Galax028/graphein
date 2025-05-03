@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
-use crate::schemas::{File, OrderId, Service, enums::OrderStatus};
+use crate::schemas::{File, OrderId, Service, UserId, enums::OrderStatus};
 
 #[derive(Debug, Serialize)]
 pub struct ClientOrdersGlance {
@@ -32,6 +32,8 @@ pub struct CompactOrder {
 pub struct DetailedOrder {
     pub id: OrderId,
     pub created_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner_id: Option<UserId>,
     pub order_number: String,
     pub status: OrderStatus,
     pub price: Option<i64>,
@@ -43,21 +45,13 @@ pub struct DetailedOrder {
 
 #[derive(Debug, FromRow, Serialize)]
 pub struct OrderStatusUpdate {
-    timestamp: DateTime<Utc>,
-    status: OrderStatus,
-}
-
-#[derive(Debug)]
-pub struct DraftOrder {
-    id: OrderId,
-    created_at: DateTime<Utc>,
-    order_number: String,
-    status: OrderStatus,
-    status_history: Vec<OrderStatusUpdate>,
+    pub(crate) timestamp: DateTime<Utc>,
+    pub(crate) status: OrderStatus,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct OrderBuild {
-    files: Vec<File>,
-    services: Vec<Service>,
+pub struct OrderCreate {
+    pub(crate) notes: Option<String>,
+    pub(crate) files: Vec<File>,
+    pub(crate) services: Vec<Service>,
 }
