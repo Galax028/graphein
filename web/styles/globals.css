@@ -60,10 +60,12 @@
   'opsz' 24
 }
 
-body {
-  font-family: "Inter", "Inter Thai Loopless", sans-serif;
+* {
+  font-family: "Inter Variable", "Inter Thai Loopless", sans-serif;
   font-feature-settings: 'ss02' on, 'ss03' on, 'cv11' on;
+}
 
+body {
   @apply text-onBackground bg-background
 }
 
