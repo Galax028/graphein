@@ -18,6 +18,18 @@ pub async fn requires_onboarding(
     }
 }
 
+pub async fn client_only(
+    Session { user_role, .. }: Session,
+    request: Request,
+    next: Next,
+) -> Result<Response, AppError> {
+    if matches!(user_role, UserRole::Student | UserRole::Teacher) {
+        Ok(next.run(request).await)
+    } else {
+        Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions))
+    }
+}
+
 pub async fn merchant_only(
     Session { user_role, .. }: Session,
     request: Request,

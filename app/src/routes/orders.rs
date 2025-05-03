@@ -11,25 +11,58 @@ use graphein_common::{
     database::OrdersTable,
     dto::RequestData,
     extract::{Path, QsQuery},
-    middleware::requires_onboarding,
+    middleware::{client_only, merchant_only, requires_onboarding},
     response::ResponseBuilder,
     schemas::{ClientOrdersGlance, CompactOrder, DetailedOrder, OrderId, enums::OrderStatus},
 };
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
-        .route("/glance", get(get_orders_glance))
-        .route("/history", get(get_orders_history))
-        .route("/", post(post_orders))
-        .route("/{id}", get(get_orders_id).delete(delete_orders_id))
-        .route("/{id}/status", post(post_orders_id_status))
-        .route("/{id}/build", post(post_orders_id_build))
-        .route("/{id}/files", post(post_orders_id_files))
+        .route(
+            "/glance",
+            get(get_orders_glance)
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+        )
+        .route(
+            "/history",
+            get(get_orders_history)
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+        )
+        .route(
+            "/",
+            post(post_orders)
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+        )
+        .route("/{id}", get(get_orders_id))
+        .route(
+            "/{id}",
+            delete(delete_orders_id)
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+        )
+        .route(
+            "/{id}/status",
+            post(post_orders_id_status)
+                .route_layer(middleware::from_fn_with_state(state.clone(), merchant_only)),
+        )
+        .route(
+            "/{id}/build",
+            post(post_orders_id_build)
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+        )
+        .route(
+            "/{id}/files",
+            post(post_orders_id_files)
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+        )
         .route(
             "/{id}/files/{id}/thumbnail",
             get(get_orders_id_files_id_thumbnail),
         )
-        .route("/{id}/files/{id}", delete(delete_orders_id_files_id))
+        .route(
+            "/{id}/files/{id}",
+            delete(delete_orders_id_files_id)
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+        )
         .route_layer(middleware::from_fn_with_state(state, requires_onboarding))
 }
 
