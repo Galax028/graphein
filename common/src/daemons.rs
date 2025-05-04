@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Duration as StdDuration};
 
-use anyhow::Context as _;
+use anyhow::{Context as _, Result as AnyhowResult};
 use jsonwebtoken::jwk::JwkSet;
 use reqwest::{Client as ReqwestClient, header::CACHE_CONTROL};
 use tokio::sync::Mutex;
@@ -52,8 +52,8 @@ impl DaemonController {
     }
 }
 
-async fn fetch_google_jwks(http: ReqwestClient, token: CancellationToken) -> anyhow::Result<()> {
-    async fn inner(http: ReqwestClient) -> anyhow::Result<()> {
+async fn fetch_google_jwks(http: ReqwestClient, token: CancellationToken) -> AnyhowResult<()> {
+    async fn inner(http: ReqwestClient) -> AnyhowResult<()> {
         loop {
             let res = http
                 .get("https://www.googleapis.com/oauth2/v3/certs")

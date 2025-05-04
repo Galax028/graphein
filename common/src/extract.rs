@@ -5,11 +5,11 @@ use axum::{
         FromRef, FromRequestParts,
         rejection::{JsonRejection, PathRejection},
     },
-    http::request::Parts,
     response::IntoResponse,
 };
 use axum_extra::extract::CookieJar;
 use axum_macros::FromRequest;
+use http::request::Parts;
 use serde::Serialize;
 use serde_qs::axum::QsQueryRejection;
 

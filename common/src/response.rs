@@ -1,10 +1,8 @@
 use std::borrow::Cow;
 
-use axum::{
-    http::status::StatusCode,
-    response::{IntoResponse, Response},
-};
+use axum::response::{IntoResponse, Response};
 use chrono::{DateTime, Utc};
+use http::StatusCode;
 use serde::Serialize;
 
 use crate::{extract::Json, request::PageKey};

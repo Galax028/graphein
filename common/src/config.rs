@@ -1,6 +1,6 @@
 use std::{net::IpAddr, str::FromStr, sync::Arc, time::Duration as StdDuration};
 
-use anyhow::{Context, Result};
+use anyhow::{Context as _, Result as AnyhowResult};
 use chrono::FixedOffset;
 use dotenvy::var;
 use sqlx::postgres::PgConnectOptions;
@@ -16,10 +16,14 @@ pub struct Config {
     shop_utc_offset: FixedOffset,
     google_oauth_client_id: String,
     google_oauth_client_secret: String,
+    r2_account_id: String,
+    r2_bucket_name: String,
+    r2_access_key_id: String,
+    r2_secret_access_key: String,
 }
 
 impl Config {
-    pub fn try_from_dotenv() -> Result<Arc<Self>> {
+    pub fn try_from_dotenv() -> AnyhowResult<Arc<Self>> {
         dotenvy::dotenv()?;
 
         let host = IpAddr::from_str(&var("HOST").context("Missing environment variable `HOST`")?)
@@ -46,6 +50,14 @@ impl Config {
             .context("Missing environment variable `GOOGLE_OAUTH_CLIENT_ID`")?;
         let google_oauth_client_secret = var("GOOGLE_OAUTH_CLIENT_SECRET")
             .context("Missing environment variable `GOOGLE_OAUTH_CLIENT_SECRET`")?;
+        let r2_account_id =
+            var("R2_ACCOUNT_ID").context("Missing environment variable `R2_ACCOUNT_ID")?;
+        let r2_bucket_name =
+            var("R2_BUCKET_NAME").context("Missing environment variable `R2_BUCKET_NAME")?;
+        let r2_access_key_id =
+            var("R2_ACCESS_KEY_ID").context("Missing environment variable `R2_ACCESS_KEY_ID")?;
+        let r2_secret_access_key = var("R2_SECRET_ACCESS_KEY")
+            .context("Missing environment variable `R2_SECRET_ACCESS_KEY")?;
 
         Ok(Arc::new(Config {
             host,
@@ -57,6 +69,10 @@ impl Config {
             shop_utc_offset,
             google_oauth_client_id,
             google_oauth_client_secret,
+            r2_account_id,
+            r2_bucket_name,
+            r2_access_key_id,
+            r2_secret_access_key,
         }))
     }
 
@@ -75,7 +91,7 @@ impl Config {
         &self.root_uri
     }
 
-    pub fn database_connect_options(&self) -> Result<PgConnectOptions> {
+    pub fn database_connect_options(&self) -> AnyhowResult<PgConnectOptions> {
         self.database_url
             .parse()
             .context("Invalid value for environment variable `DATABASE_URL`")
@@ -104,5 +120,25 @@ impl Config {
     #[must_use]
     pub fn google_oauth_client_secret(&self) -> &str {
         &self.google_oauth_client_secret
+    }
+
+    #[must_use]
+    pub fn r2_account_id(&self) -> &str {
+        &self.r2_account_id
+    }
+
+    #[must_use]
+    pub fn r2_bucket_name(&self) -> &str {
+        &self.r2_bucket_name
+    }
+
+    #[must_use]
+    pub fn r2_access_key_id(&self) -> &str {
+        &self.r2_access_key_id
+    }
+
+    #[must_use]
+    pub fn r2_secret_access_key(&self) -> &str {
+        &self.r2_secret_access_key
     }
 }

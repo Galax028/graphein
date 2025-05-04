@@ -1,10 +1,8 @@
 use std::borrow::Cow;
 
 use anyhow::anyhow;
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
+use axum::response::{IntoResponse, Response};
+use http::StatusCode;
 use thiserror::Error;
 use tracing::error;
 
@@ -106,6 +104,12 @@ impl From<tokio::task::JoinError> for AppError {
     }
 }
 
+impl From<s3::error::S3Error> for AppError {
+    fn from(source: s3::error::S3Error) -> Self {
+        AppError::InternalServerError(anyhow!(source))
+    }
+}
+
 impl From<jsonwebtoken::errors::Error> for AppError {
     fn from(_: jsonwebtoken::errors::Error) -> Self {
         AppError::Unauthorized(AuthError::InvalidOAuthFlow)
@@ -150,10 +154,7 @@ impl IntoResponse for AppError {
         (
             status_code,
             ResponseBuilder::new_error(
-                status_code
-                    .canonical_reason()
-                    .unwrap_or("Unknown")
-                    .into(),
+                status_code.canonical_reason().unwrap_or("Unknown").into(),
                 source.into(),
             )
             .build(),

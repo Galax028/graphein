@@ -1,9 +1,11 @@
-use std::{sync::Arc, time::{Duration as StdDuration, Instant}};
+use std::{
+    sync::Arc,
+    time::{Duration as StdDuration, Instant},
+};
 
 use axum::{
     Router,
     extract::State,
-    http::StatusCode,
     response::{Html, IntoResponse as _, Redirect, Response},
     routing::{get, post},
 };
@@ -11,6 +13,7 @@ use axum_extra::extract::{
     CookieJar,
     cookie::{Cookie, SameSite},
 };
+use http::StatusCode;
 use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use serde_json::json;
 

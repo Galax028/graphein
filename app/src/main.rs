@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 #![warn(clippy::pedantic)]
 
-use anyhow::{Context, Result};
+use anyhow::{Context as _, Result};
 use axum::Router;
 use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
@@ -10,7 +10,7 @@ use tracing::{debug, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use graphein_app::expand_router;
-use graphein_common::{AppState, Config, daemons::DaemonController};
+use graphein_common::{AppState, Config, R2Bucket, daemons::DaemonController};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -29,7 +29,13 @@ async fn main() -> Result<()> {
     let pool = PgPoolOptions::new()
         .connect_with(config.database_connect_options()?)
         .await?;
-    let app_state = AppState::new(config.clone(), pool);
+    let bucket = R2Bucket::new(
+        config.r2_account_id().to_owned(),
+        config.r2_bucket_name(),
+        config.r2_access_key_id(),
+        config.r2_secret_access_key(),
+    )?;
+    let app_state = AppState::new(config.clone(), pool, bucket);
     app_state.load_sessions().await;
 
     let daemon_controller = DaemonController::new(app_state.clone()).start_all();

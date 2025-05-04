@@ -1,3 +1,5 @@
+use std::fmt::{self, Display};
+
 use serde::{Deserialize, Serialize};
 use sqlx::Type as SqlxType;
 
@@ -8,6 +10,26 @@ pub enum FileType {
     Pdf,
     Png,
     Jpg,
+}
+
+impl FileType {
+    pub fn to_mime(&self) -> &str {
+        match self {
+            Self::Pdf => "application/pdf",
+            Self::Png => "image/png",
+            Self::Jpg => "image/jpeg",
+        }
+    }
+}
+
+impl Display for FileType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Pdf => write!(f, "pdf"),
+            Self::Png => write!(f, "png"),
+            Self::Jpg => write!(f, "jpeg"),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, SqlxType)]

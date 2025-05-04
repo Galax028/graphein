@@ -23,7 +23,7 @@ pub(crate) mod state;
 pub use crate::{
     config::Config,
     error::AppError,
-    state::{AppState, GOOGLE_SIGNING_KEYS},
+    state::{AppState, GOOGLE_SIGNING_KEYS, R2Bucket},
 };
 
 pub type HandlerResponse<T> = Result<response::ResponseBody<T>, error::AppError>;
