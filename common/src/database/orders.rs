@@ -262,13 +262,13 @@ impl<'args> CompactOrdersQuery<'args> {
         self.build(&mut first_bind, Some(&mut count_qb));
         let mut rows = self.fetch_all(&mut *conn).await?;
         let size = rows.len();
-        let next = match size {
-            0 => None,
-            _ => rows
-                .last()
-                .map(|last| PageKey::new(last.created_at, last.id.into())),
-        };
         let count: i64 = count_qb.build_query_scalar().fetch_one(&mut *conn).await?;
+        let next = if (count as usize) < size {
+            rows.last()
+                .map(|last| PageKey::new(last.created_at, last.id.into()))
+        } else {
+            None
+        };
         if reverse {
             rows.reverse();
         }
