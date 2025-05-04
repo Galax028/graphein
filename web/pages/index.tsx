@@ -1,9 +1,16 @@
+import Button from "@/components/common/Button";
 import NavigationBar from "@/components/common/NavigationBar";
+import SegmentedButton from "@/components/common/SegmentedButton";
 import SignInButton from "@/components/landing/SignInButton";
 import cn from "@/utils/helpers/cn";
 import Head from "next/head";
+import Link from "next/link";
+import { useState } from "react";
+import InputLabel from "@/components/common/InputLabel";
 
 const LandingPage = () => {
+  const [language, setLanguage] = useState("th");
+
   return (
     <>
       <Head>
@@ -28,8 +35,48 @@ const LandingPage = () => {
               <SignInButton />
             </div>
           </div>
-          <div>
-            <p className="text-xs opacity-50 md:w-[24rem] md:my-4 m-auto">
+          <div className="flex flex-col gap-3 md:w-[24rem] md:my-4 md:m-auto">
+            <InputLabel label="Dev Links">
+              <div
+                className={cn(
+                  `flex gap-2 m-auto w-full px-4 py-2 h-10 border border-outline 
+                  bg-surfaceContainer rounded-lg`
+                )}
+              >
+                <Link href={"/client"}>
+                  <p className="text-sm">/client</p>
+                </Link>
+                <Link href={"/merchant"}>
+                  <p className="text-sm">/merchant</p>
+                </Link>
+                <Link href={"/markdown"}>
+                  <p className="text-sm">/markdown</p>
+                </Link>
+              </div>
+            </InputLabel>
+            <InputLabel label="Language">
+              <SegmentedButton>
+                <Button
+                  selected={language == "th"}
+                  appearance={"tonal"}
+                  onClick={() => {
+                    setLanguage("th");
+                  }}
+                >
+                  ไทย
+                </Button>
+                <Button
+                  selected={language == "en"}
+                  appearance={"tonal"}
+                  onClick={() => {
+                    setLanguage("en");
+                  }}
+                >
+                  English
+                </Button>
+              </SegmentedButton>
+            </InputLabel>
+            <p className="text-xs opacity-50">
               SK Printing Facility is a project powered by EPLUS+ students,
               visit About for more information. • SK Printing Facility may
               collect data for analytics and research purposes, see our Privacy
