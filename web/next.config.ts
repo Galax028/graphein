@@ -1,7 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: '/client',
+        destination: '/client/dashboard',
+        permanent: true,
+      },
+      {
+        source: '/merchant',
+        destination: '/merchant/dashboard',
+        permanent: true,
+      },
+    ]
+  },
   reactStrictMode: true,
 };
 
