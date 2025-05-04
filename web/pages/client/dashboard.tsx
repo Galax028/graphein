@@ -1,10 +1,11 @@
 import NavigationBar from "@/components/common/NavigationBar";
 import OrderCard from "@/components/client/dashboard/OrderCard";
+import getUserFullName from "@/utils/helpers/getUserFullName";
 
 const ClientDashboard = () => {
   return (
     <>
-      <NavigationBar title="Good morning, {User Full Name}" />
+      <NavigationBar title={`Good morning, ${getUserFullName()}`} />
       <main className="p-3">
         <div className="flex flex-col gap-1 [&>div]:w-full max-w-96">
           <OrderCard
