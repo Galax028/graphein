@@ -38,3 +38,10 @@ export type PersonAvatarProps = {
   person_name?: string;
   size?: number;
 }
+
+// Input Label
+
+export type InputLabelProps ={
+  label: string;
+  children: React.ReactNode;
+}

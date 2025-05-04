@@ -33,7 +33,7 @@ const Markdown = () => {
             <Button appearance={"tonal"}>Go to main page (router test)</Button>
           </Link>
         </div>
-        <div className="flex flex-col gap-2 m-4 m-auto [&>*]:!w-full max-w-96">
+        <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <p>Normal Buttons</p>
           <Button appearance={"filled"} icon={"shopping_bag_speed"}>
             Send Order
@@ -96,37 +96,47 @@ const Markdown = () => {
             <Button
               selected={language == "th"}
               appearance={"tonal"}
-              onClick={() => {setLanguage("th")}}
+              onClick={() => {
+                setLanguage("th");
+              }}
             >
               ไทย
             </Button>
             <Button
               selected={language == "en"}
               appearance={"tonal"}
-              onClick={() => {setLanguage("en")}}
+              onClick={() => {
+                setLanguage("en");
+              }}
             >
               English
             </Button>
           </SegmentedButton>
           <SegmentedButton>
-          <Button
+            <Button
               selected={theme == "light"}
               appearance={"tonal"}
-              onClick={() => {setTheme("light")}}
+              onClick={() => {
+                setTheme("light");
+              }}
             >
               Light
             </Button>
             <Button
               selected={theme == "dark"}
               appearance={"tonal"}
-              onClick={() => {setTheme("dark")}}
+              onClick={() => {
+                setTheme("dark");
+              }}
             >
               Dark
             </Button>
             <Button
               selected={theme == "auto"}
               appearance={"tonal"}
-              onClick={() => {setTheme("auto")}}
+              onClick={() => {
+                setTheme("auto");
+              }}
             >
               Auto
             </Button>
