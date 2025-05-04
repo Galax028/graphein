@@ -7,7 +7,7 @@
 // TO-DO: make logic
 
 const isSignedIn = () => {
-  return false
+  return true
 }
 
-export default isSignedIn
+export default isSignedIn;

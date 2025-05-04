@@ -1,10 +1,12 @@
 // Base Button
 interface BaseButtonProps {
   appearance: "tonal" | "filled";
+  selected?: boolean;
   disabled?: boolean;
   busy?: boolean;
   busyWithText?: boolean;
   className?: string;
+  onClick?: any;
 }
 interface IconButtonProps extends BaseButtonProps {
   icon: string;

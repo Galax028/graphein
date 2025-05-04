@@ -3,14 +3,18 @@ import SegmentedButton from "@/components/common/SegmentedButton";
 import GoogleSignInButton from "@/components/landing/SignInButton";
 import Head from "next/head";
 import Link from "next/link";
+import { useState } from "react";
 
 const Markdown = () => {
+  const [language, setLanguage] = useState("th");
+  const [theme, setTheme] = useState("auto");
+
   return (
     <>
       <Head>
         <title>Printing Facility</title>
       </Head>
-      <main>
+      <main className="m-4">
         <p className="m-4">
           The quick brown fox jumps over the lazy dog.
           <br />
@@ -29,7 +33,7 @@ const Markdown = () => {
             <Button appearance={"tonal"}>Go to main page (router test)</Button>
           </Link>
         </div>
-        <div className="flex flex-col gap-2 m-4 [&>*]:!w-full max-w-96">
+        <div className="flex flex-col gap-2 m-4 m-auto [&>*]:!w-full max-w-96">
           <p>Normal Buttons</p>
           <Button appearance={"filled"} icon={"shopping_bag_speed"}>
             Send Order
@@ -63,10 +67,18 @@ const Markdown = () => {
           </Button>
 
           <p>Busy Buttons</p>
-          <Button busy={true} appearance={"filled"}>Next</Button>
-          <Button busy={true} appearance={"tonal"}>Next</Button>
-          <Button busy={true} busyWithText={false} appearance={"filled"}>Next</Button>
-          <Button busy={true} busyWithText={false} appearance={"tonal"}>Next</Button>
+          <Button busy={true} appearance={"filled"}>
+            Next
+          </Button>
+          <Button busy={true} appearance={"tonal"}>
+            Next
+          </Button>
+          <Button busy={true} busyWithText={false} appearance={"filled"}>
+            Next
+          </Button>
+          <Button busy={true} busyWithText={false} appearance={"tonal"}>
+            Next
+          </Button>
 
           <p>Icon Buttons</p>
           <div className="flex gap-2">
@@ -81,13 +93,43 @@ const Markdown = () => {
 
           <p>Segmented Buttons</p>
           <SegmentedButton>
-            <Button appearance="tonal">ไทย</Button>
-            <Button appearance="tonal">English</Button>
+            <Button
+              selected={language == "th"}
+              appearance={"tonal"}
+              onClick={() => {setLanguage("th")}}
+            >
+              ไทย
+            </Button>
+            <Button
+              selected={language == "en"}
+              appearance={"tonal"}
+              onClick={() => {setLanguage("en")}}
+            >
+              English
+            </Button>
           </SegmentedButton>
           <SegmentedButton>
-            <Button appearance="tonal">Light</Button>
-            <Button appearance="tonal">Dark</Button>
-            <Button appearance="tonal">Auto</Button>
+          <Button
+              selected={theme == "light"}
+              appearance={"tonal"}
+              onClick={() => {setTheme("light")}}
+            >
+              Light
+            </Button>
+            <Button
+              selected={theme == "dark"}
+              appearance={"tonal"}
+              onClick={() => {setTheme("dark")}}
+            >
+              Dark
+            </Button>
+            <Button
+              selected={theme == "auto"}
+              appearance={"tonal"}
+              onClick={() => {setTheme("auto")}}
+            >
+              Auto
+            </Button>
           </SegmentedButton>
         </div>
       </main>

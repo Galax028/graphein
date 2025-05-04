@@ -47,9 +47,9 @@
   --color-primary: var(--primary);
   --color-onPrimary: var(--on-primary);
 
-  --color-actionSuccess: var(--action-success)
-  --color-actionWarning: var(--action-warning)
-  --color-actionError: var(--action-error)
+  --color-actionSuccess: var(--action-success);
+  --color-actionWarning: var(--action-warning);
+  --color-actionError: var(--action-error);
 }
 
 .material-symbols-outlined {

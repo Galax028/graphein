@@ -1,7 +1,7 @@
 // Navigation Bar
 interface BaseNavigationBarProps {
   title: string;
-  description?: string;
+  desc?: string;
   className?: string;
   style?: string;
   children?: React.ReactNode;
