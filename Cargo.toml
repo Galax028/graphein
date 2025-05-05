@@ -6,7 +6,7 @@ publish = false
 
 [workspace]
 resolver = "3"
-members = ["app", "codegen", "common"]
+members = ["app", "common"]
 
 [workspace.dependencies]
 anyhow = "1.0.98"

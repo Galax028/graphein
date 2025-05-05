@@ -15,9 +15,9 @@ pub struct File {
     filesize: i64,
     copies: i32,
     range: Option<String>,
-    paper_size_id: PaperSizeId,
+    paper_size_id: Option<PaperSizeId>,
     paper_orientation: PaperOrientation,
-    is_color: bool,
+    is_colour: bool,
     scaling: i32,
     is_double_sided: bool,
 }

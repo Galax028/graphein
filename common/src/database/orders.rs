@@ -47,7 +47,7 @@ impl OrdersTable {
             "\
             SELECT \
                 f.id, f.filename, f.filetype, f.filesize, f.copies, f.range, f.paper_size_id,\
-                f.paper_orientation, f.is_color, f.scaling, f.is_double_sided \
+                f.paper_orientation, f.is_colour, f.scaling, f.is_double_sided \
             FROM files AS f \
                 JOIN orders AS o ON o.id = f.order_id \
             WHERE f.order_id = $1 \

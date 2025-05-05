@@ -71,7 +71,7 @@ impl R2Bucket {
             return Err(AppError::NotFound(NotFoundError::ResourceNotFound));
         }
 
-        let thumbnail_path = format!("/{object_id}.t.{filetype}");
+        let thumbnail_path = format!("/{object_id}.t.webp");
         if !self.inner.object_exists(&thumbnail_path).await? {
             return Ok(None);
         }

@@ -16,7 +16,6 @@ dashmap.workspace = true
 derive_more.workspace = true
 dotenvy.workspace = true
 futures.workspace = true
-graphein-codegen = { path = "../codegen" }
 hex.workspace = true
 hmac.workspace = true
 http.workspace = true
