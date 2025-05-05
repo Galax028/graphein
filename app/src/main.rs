@@ -26,15 +26,19 @@ async fn main() -> Result<()> {
 
     let config = Config::try_from_dotenv().context("Failed to parse config")?;
     let (host, port, root_uri) = (config.host(), config.port(), config.root_uri());
+
     let pool = PgPoolOptions::new()
         .connect_with(config.database_connect_options()?)
         .await?;
+    sqlx::migrate!("../migrations").run(&pool).await?;
+
     let bucket = R2Bucket::new(
         config.r2_account_id().to_owned(),
         config.r2_bucket_name(),
         config.r2_access_key_id(),
         config.r2_secret_access_key(),
     )?;
+
     let app_state = AppState::new(config.clone(), pool, bucket);
     app_state.load_sessions().await;
 

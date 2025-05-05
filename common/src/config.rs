@@ -24,7 +24,7 @@ pub struct Config {
 
 impl Config {
     pub fn try_from_dotenv() -> AnyhowResult<Arc<Self>> {
-        dotenvy::dotenv()?;
+        dotenvy::dotenv().ok();
 
         let host = IpAddr::from_str(&var("HOST").context("Missing environment variable `HOST`")?)
             .context("Invalid value for environment variable ``")?;
