@@ -33,8 +33,8 @@ const Button = ({
   return (
     <button
       className={cn(
-        `flex justify-center items-center gap-2 p-2.5 rounded-lg cursor-pointer 
-          transition text-sm h-10`,
+        `flex justify-center items-center gap-2 p-2 rounded-lg cursor-pointer 
+          transition text-bodyMedium h-10`,
         icon && children && !busy && "pr-3.5",
         (busy || disabled) &&
           "brightness-75 dark:brightness-50 !select-none !pointer-events-none",
@@ -49,7 +49,9 @@ const Button = ({
       onClick={onClick}
     >
       {busy ? (
-        <MaterialIcon icon={"progress_activity"} className="animate-spin" />
+        <div className="grid place-items-center">
+          <MaterialIcon icon={"progress_activity"} className="animate-spin" />
+        </div>
       ) : selected ? (
         <MaterialIcon icon={"check_small"} />
       ) : (

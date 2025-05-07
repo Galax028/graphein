@@ -27,7 +27,7 @@ const LandingPage = () => {
               )}
             >
               <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-semibold">Sign in</h1>
+                <h1 className="text-titleMedium">Sign in</h1>
                 <p className="opacity-50">
                   Use the email ending in sk.ac.th to continue.
                 </p>
@@ -44,13 +44,13 @@ const LandingPage = () => {
                 )}
               >
                 <Link href={"/client"}>
-                  <p className="text-sm">/client</p>
+                  <p className="text-bodyMedium">/client</p>
                 </Link>
                 <Link href={"/merchant"}>
-                  <p className="text-sm">/merchant</p>
+                  <p className="text-bodyMedium">/merchant</p>
                 </Link>
                 <Link href={"/markdown"}>
-                  <p className="text-sm">/markdown</p>
+                  <p className="text-bodyMedium">/markdown</p>
                 </Link>
               </div>
             </InputLabel>

@@ -10,15 +10,15 @@ import getUserProfileURL from "@/utils/helpers/getUserProfileURL";
 
 /**
  * The navigation bar for all types of users including guest.
- * 
+ *
  * @param title           The main text appeared on the navigation bar.
  * @param desc            The description text appeared below title.
  * @param backEnabled     Show back button (defaults to false)
- * @param backContextURL  The URL to redirect when user press back. If not 
- *                        provided, the button will redirects to the previous 
+ * @param backContextURL  The URL to redirect when user press back. If not
+ *                        provided, the button will redirects to the previous
  *                        page in history instead.
  * @param children        The element extension for the right side of the bar.
- * 
+ *
  * @returns The navigation bar element.
  */
 
@@ -60,7 +60,7 @@ const NavigationBar = ({
         )}
         <div className="flex flex-col gap-0">
           <p>{title}</p>
-          <p className="text-xs opacity-50">{desc}</p>
+          <p className="text-bodySmall opacity-50">{desc}</p>
         </div>
       </div>
       <div className="p-2">
@@ -69,9 +69,9 @@ const NavigationBar = ({
           // If the user is signed in, display the profile picture.
           isSignedIn() && (
             <Link href="/settings">
-              <PersonAvatar 
+              <PersonAvatar
                 // profile_url={getUserProfileURL()}
-                person_name={getUserFullName()} 
+                person_name={getUserFullName()}
               />
             </Link>
           )

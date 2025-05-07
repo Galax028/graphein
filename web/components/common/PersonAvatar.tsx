@@ -5,7 +5,7 @@ import Image from "next/image";
 import MaterialIcon from "./MaterialIcon";
 
 /**
- * The avatar of the person. Image will be displayed if `profile_url` is 
+ * The avatar of the person. Image will be displayed if `profile_url` is
  * given, followed by `person_name`, before falling back to an avatar icon.
  *
  * @param profile_url Path to the profile image.
@@ -38,7 +38,9 @@ const PersonAvatar = ({
           className="aspect-square w-full h-full object-cover"
         />
       ) : person_name ? (
-        <span className="text-xs">{getInitialsOfString(person_name)}</span>
+        <span className="text-bodySmall">
+          {getInitialsOfString(person_name)}
+        </span>
       ) : (
         <MaterialIcon icon="account_circle" />
       )}

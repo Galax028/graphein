@@ -25,7 +25,7 @@ const OrderCard = ({
       <div>
         <p
           className={cn(
-            "text-xs",
+            "text-bodySmall",
             ["review", "printing"].includes(status) && "text-actionWarning",
             ["pickup", "complete"].includes(status) && "text-actionSuccess",
             ["reject", "cancel"].includes(status) && "text-actionError",
@@ -35,7 +35,7 @@ const OrderCard = ({
           {statusTranslation[status]}
         </p>
         <p>Order #{orderCode}</p>
-        <p className="text-xs opacity-50">
+        <p className="text-bodySmall opacity-50">
           {date} • {filesCount} File{filesCount != 1 && filesCount != -1 && "s"}
         </p>
       </div>
