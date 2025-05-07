@@ -57,7 +57,7 @@ const Button = ({
       ) : (
         icon && <MaterialIcon icon={icon} />
       )}
-      {busyWithText && <>{children}</>}
+      {!(busy && !busyWithText) && <>{children}</>}
     </button>
   );
 };
