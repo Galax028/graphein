@@ -36,11 +36,12 @@
 }
 
 @theme {
-  --color-outline: var(--outline);
-
+  /* Colors */
   --color-background: var(--background);
   --color-onBackground: var(--on-background);
-
+  
+  --color-outline: var(--outline);
+  
   --color-surfaceContainer: var(--surface-container);
   --color-onSurfaceContainer: var(--on-surface-container);
 
@@ -50,6 +51,19 @@
   --color-actionSuccess: var(--action-success);
   --color-actionWarning: var(--action-warning);
   --color-actionError: var(--action-error);
+
+  /* Text Sizes */
+  --text-bodyExtraSmall: 0.625rem;
+  --text-bodySmall: 0.75rem;
+  --text-bodyMedium: 0.875rem;
+  --text-bodyLarge: 1rem;
+
+  --text-titleSmall: 1rem;
+  --text-titleSmall--font-weight: 600;
+  --text-titleMedium: 1.5rem;
+  --text-titleMedium--font-weight: 600;
+  --text-titleLarge: 2rem;
+  --text-titleLarge--font-weight: 600
 }
 
 .material-symbols-outlined {
@@ -63,6 +77,8 @@
 * {
   font-family: "Inter Variable", "Inter Thai Loopless", sans-serif;
   font-feature-settings: 'ss02' on, 'ss03' on, 'cv11' on;
+
+  line-height: 1.4;
 }
 
 body {
