@@ -1,4 +1,5 @@
 import Button from "@/components/common/Button";
+import Popup from "@/components/common/Popup";
 import SegmentedButton from "@/components/common/SegmentedButton";
 import GoogleSignInButton from "@/components/landing/SignInButton";
 import Head from "next/head";
@@ -9,6 +10,7 @@ const Markdown = () => {
   const [language, setLanguage] = useState("th");
   const [theme, setTheme] = useState("auto");
   const [alphabet, setAlphabet] = useState("a");
+  const [showPopup, setShowPopup] = useState(false);
 
   return (
     <>
@@ -36,9 +38,10 @@ const Markdown = () => {
         </div>
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <p>Normal Buttons</p>
-          <Button appearance={"filled"} icon={"shopping_bag_speed"}>
+          <Button appearance={"filled"} icon={"shopping_bag_speed"} onClick={() => setShowPopup(prev => !prev)}>
             Send Order
           </Button>
+          <Popup open={showPopup} setOpen={setShowPopup}/>
           <Button appearance={"tonal"} icon={"shopping_bag_speed"}>
             Send Order
           </Button>
