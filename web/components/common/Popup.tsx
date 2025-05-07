@@ -1,30 +1,36 @@
-import React from "react";
-import { Dispatch, SetStateAction } from "react";
-import Button from "@/components/common/Button";
+import cn from "@/utils/helpers/cn";
+import React, { Dispatch, SetStateAction, useState } from "react";
 
-type Props = {
-    open: boolean;
-    setOpen: Dispatch<SetStateAction<boolean>>;
-    children?: React.ReactNode;
-}
-
-const Popup = (props: Props) => {
-    return props.open?(
-        <div className="w-full h-full absolute top-0 left-0 backdrop-filter backdrop-brightness-75 z-999 flex justify-center items-center" onClick={() => props.setOpen(false)}>
-            <div className="w-96 h-44 relative bg-black z-10" onClick={(e) => e.stopPropagation()}>
-                <div className="w-96 p-4 left-0 top-0 absolute rounded-lg outline-2 outline-gray-700 inline-flex flex-col justify-start items-start gap-4">
-                    <div className="self-stretch flex flex-col justify-start items-start gap-1">
-                        <div className="self-stretch justify-center text-base font-normal font-['Inter'] leading-snug">Send Order</div>
-                        <div className="self-stretch min-h-12 opacity-50 justify-start text-xs font-normal font-['Inter'] leading-none">You won’t be able to change order details after sending order, and cancellation will no longer be possible once the shop accepts your order.</div>
-                    </div>
-                    <div className="self-stretch inline-flex justify-start items-start gap-1 w-96 ">
-                        <Button className="w-44" appearance="tonal"><p>Nevermind</p></Button>
-                        <Button className="w-44" appearance="filled"><p>Send Order</p></Button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    ) : <></>;
+type PopupProps = {
+  title: string;
+  desc?: string;
+  onClickOutside?: Dispatch<SetStateAction<boolean>>;
+  children?: React.ReactNode;
 };
 
-export default Popup; 
+const Popup = ({ title, desc, onClickOutside, children }: PopupProps) => {
+  return (
+    <div
+      className={cn(
+        `fixed top-0 left-0 grid place-items-center w-dvw h-dvh p-3
+          backdrop-filter backdrop-brightness-50 dark:backdrop-brightness-25`
+      )}
+      // If there's onIgnore value, set value to false.
+      onClick={() => onClickOutside && onClickOutside(false)}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={cn(`flex flex-col gap-4 w-full max-w-96 p-4
+            bg-surfaceContainer border border-outline rounded-lg`)}
+      >
+        <div className={cn(`flex flex-col gap-1`)}>
+          <p>{title}</p>
+          <p className="min-h-12 opacity-50 text-bodySmall">{desc}</p>
+        </div>
+        <div className="flex gap-1 w-full [&>button]:w-full">{children}</div>
+      </div>
+    </div>
+  );
+};
+
+export default Popup;

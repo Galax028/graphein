@@ -11,14 +11,15 @@ const Markdown = () => {
   const [theme, setTheme] = useState("auto");
   const [alphabet, setAlphabet] = useState("a");
   const [showPopup, setShowPopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <>
       <Head>
         <title>Printing Facility</title>
       </Head>
-      <main className="m-4">
-        <p className="m-4">
+      <main className="m-3">
+        <p className="m-3">
           The quick brown fox jumps over the lazy dog.
           <br />
           นายสังฆภัณฑ์ เฮงพิทักษ์ฝั่ง ผู้เฒ่าซึ่งมีอาชีพเป็นฅนขายฃวด
@@ -38,10 +39,13 @@ const Markdown = () => {
         </div>
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <p>Normal Buttons</p>
-          <Button appearance={"filled"} icon={"shopping_bag_speed"} onClick={() => setShowPopup(prev => !prev)}>
+          <Button
+            appearance={"filled"}
+            icon={"shopping_bag_speed"}
+            onClick={() => setShowPopup((prev) => !prev)}
+          >
             Send Order
           </Button>
-          <Popup open={showPopup} setOpen={setShowPopup}/>
           <Button appearance={"tonal"} icon={"shopping_bag_speed"}>
             Send Order
           </Button>
@@ -146,7 +150,7 @@ const Markdown = () => {
             </Button>
           </SegmentedButton>
           <SegmentedButton>
-          <Button
+            <Button
               selected={alphabet == "a"}
               appearance={"tonal"}
               onClick={() => {
@@ -193,6 +197,37 @@ const Markdown = () => {
             </Button>
           </SegmentedButton>
         </div>
+
+
+
+        {showPopup && (
+          <Popup
+            title="Fail Task"
+            desc="If proceed, the task will fail successfully."
+            onClickOutside={setShowPopup}
+          >
+            <Button appearance="tonal" onClick={() => setShowPopup(false)}>
+              No
+            </Button>
+            <Button
+              appearance="filled"
+              busy={isLoading}
+              busyWithText={false}
+              onClick={() => {
+                setIsLoading(true);
+                setTimeout(() => {
+                  setShowPopup(false);
+                  setIsLoading(false);
+                }, 1500);
+              }}
+            >
+              Yes
+            </Button>
+          </Popup>
+        )}
+
+
+
       </main>
     </>
   );
