@@ -8,6 +8,7 @@ import { useState } from "react";
 const Markdown = () => {
   const [language, setLanguage] = useState("th");
   const [theme, setTheme] = useState("auto");
+  const [alphabet, setAlphabet] = useState("a");
 
   return (
     <>
@@ -139,6 +140,53 @@ const Markdown = () => {
               }}
             >
               Auto
+            </Button>
+          </SegmentedButton>
+          <SegmentedButton>
+          <Button
+              selected={alphabet == "a"}
+              appearance={"tonal"}
+              onClick={() => {
+                setAlphabet("a");
+              }}
+            >
+              A
+            </Button>
+            <Button
+              selected={alphabet == "b"}
+              appearance={"tonal"}
+              onClick={() => {
+                setAlphabet("b");
+              }}
+            >
+              B
+            </Button>
+            <Button
+              selected={alphabet == "c"}
+              appearance={"tonal"}
+              onClick={() => {
+                setAlphabet("c");
+              }}
+            >
+              C
+            </Button>
+            <Button
+              selected={alphabet == "d"}
+              appearance={"tonal"}
+              onClick={() => {
+                setAlphabet("d");
+              }}
+            >
+              D
+            </Button>
+            <Button
+              selected={alphabet == "e"}
+              appearance={"tonal"}
+              onClick={() => {
+                setAlphabet("e");
+              }}
+            >
+              E
             </Button>
           </SegmentedButton>
         </div>

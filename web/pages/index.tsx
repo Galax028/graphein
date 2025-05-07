@@ -1,4 +1,5 @@
 import Button from "@/components/common/Button";
+import InputLabel from "@/components/common/InputLabel";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedButton from "@/components/common/SegmentedButton";
 import SignInButton from "@/components/landing/SignInButton";
@@ -6,10 +7,15 @@ import cn from "@/utils/helpers/cn";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
-import InputLabel from "@/components/common/InputLabel";
+import { GetServerSideProps } from "next";
+import { Trans, useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { LangCode } from "@/utils/types/common";
 
 const LandingPage = () => {
-  const [language, setLanguage] = useState("th");
+  const { t } = useTranslation("common");
+
+  const [language, setLanguage] = useState("en");
 
   return (
     <>
@@ -77,16 +83,23 @@ const LandingPage = () => {
               </SegmentedButton>
             </InputLabel>
             <p className="text-xs opacity-50">
-              SK Printing Facility is a project powered by EPLUS+ students,
-              visit About for more information. • SK Printing Facility may
-              collect data for analytics and research purposes, see our Privacy
-              Policy and Terms of Service for more information.
+              <Trans i18nKey={"footer.disclaimer"}>
+                  <Link className="underline" href={"/about"} />
+                  <Link className="underline" href={"/legal/privacy-policy"} />
+                  <Link className="underline" href={"/legal/terms-of-service"} />
+              </Trans>
             </p>
           </div>
         </div>
       </div>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  return {
+    props: await serverSideTranslations(locale as LangCode, ["common"]),
+  };
 };
 
 export default LandingPage;

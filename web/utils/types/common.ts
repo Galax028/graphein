@@ -1,3 +1,7 @@
+// Interface
+
+export type LangCode = "th" | "en";
+
 // Base Button
 interface BaseButtonProps {
   appearance: "tonal" | "filled";
