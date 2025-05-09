@@ -5,6 +5,7 @@ import GoogleSignInButton from "@/components/landing/SignInButton";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
+import NumberInput from "@/components/common/NumberInput";
 
 const Markdown = () => {
   const [language, setLanguage] = useState("th");
@@ -196,6 +197,7 @@ const Markdown = () => {
               E
             </Button>
           </SegmentedButton>
+          <NumberInput/>
         </div>
 
 
