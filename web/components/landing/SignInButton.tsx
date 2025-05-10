@@ -10,9 +10,31 @@ import Image from "next/image";
  * @returns The 'Sign in with Google' button.
  */
 
+const onSignInButtonClick = () => {
+  console.warn(
+    `Opening: ${
+      process.env.NEXT_PUBLIC_SKPF_API_PATH +
+      "/auth/google/init?asMerchant=true"
+    }`
+  );
+
+  const signInWindow = window.open(
+    process.env.NEXT_PUBLIC_SKPF_API_PATH + "/auth/google/init?asMerchant=true",
+    "_blank",
+    "popup, width=800, height=600"
+  );
+
+  window.addEventListener("message", (event) => {
+    console.warn(event.data);
+    if (event.data == "oauthSuccess") {
+      // signInWindow?.close();
+    }
+  });
+};
+
 const SignInButton = () => {
   return (
-    <Button appearance={"tonal"}>
+    <Button appearance={"tonal"} onClick={onSignInButtonClick}>
       <Image
         src={"/images/common/google-logo_light.svg"}
         width={18}
