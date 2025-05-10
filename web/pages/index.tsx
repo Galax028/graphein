@@ -1,7 +1,7 @@
 import Button from "@/components/common/Button";
 import InputLabel from "@/components/common/InputLabel";
 import NavigationBar from "@/components/common/NavigationBar";
-import SegmentedButton from "@/components/common/SegmentedButton";
+import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
 import cn from "@/utils/helpers/cn";
 import Head from "next/head";
@@ -61,7 +61,7 @@ const LandingPage = () => {
               </div>
             </InputLabel>
             <InputLabel label="Language">
-              <SegmentedButton>
+              <SegmentedGroup>
                 <Button
                   selected={language == "th"}
                   appearance={"tonal"}
@@ -80,13 +80,13 @@ const LandingPage = () => {
                 >
                   English
                 </Button>
-              </SegmentedButton>
+              </SegmentedGroup>
             </InputLabel>
             <p className="text-xs opacity-50">
               <Trans i18nKey={"footer.disclaimer"}>
-                  <Link className="underline" href={"/about"} />
-                  <Link className="underline" href={"/legal/privacy-policy"} />
-                  <Link className="underline" href={"/legal/terms-of-service"} />
+                <Link className="underline" href={"/about"} />
+                <Link className="underline" href={"/legal/privacy-policy"} />
+                <Link className="underline" href={"/legal/terms-of-service"} />
               </Trans>
             </p>
           </div>

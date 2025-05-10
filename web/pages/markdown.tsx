@@ -1,6 +1,6 @@
 import Button from "@/components/common/Button";
 import Popup from "@/components/common/Popup";
-import SegmentedButton from "@/components/common/SegmentedButton";
+import SegmentedGroup from "@/components/common/SegmentedGroup";
 import GoogleSignInButton from "@/components/landing/SignInButton";
 import Head from "next/head";
 import Link from "next/link";
@@ -101,7 +101,7 @@ const Markdown = () => {
           <GoogleSignInButton />
 
           <p>Segmented Buttons</p>
-          <SegmentedButton>
+          <SegmentedGroup>
             <Button
               selected={language == "th"}
               appearance={"tonal"}
@@ -120,8 +120,8 @@ const Markdown = () => {
             >
               English
             </Button>
-          </SegmentedButton>
-          <SegmentedButton>
+          </SegmentedGroup>
+          <SegmentedGroup>
             <Button
               selected={theme == "light"}
               appearance={"tonal"}
@@ -149,8 +149,8 @@ const Markdown = () => {
             >
               Auto
             </Button>
-          </SegmentedButton>
-          <SegmentedButton>
+          </SegmentedGroup>
+          <SegmentedGroup>
             <Button
               selected={alphabet == "a"}
               appearance={"tonal"}
@@ -196,11 +196,26 @@ const Markdown = () => {
             >
               E
             </Button>
-          </SegmentedButton>
           <NumberInput/>
         </div>
+          </SegmentedGroup>
 
 
+          <SegmentedGroup>
+            <div className="text-bodyMedium flex items-center justify-center p-2 h-10 aspect-square bg-surfaceContainer border border-outline">
+              <p>M.</p>
+            </div>
+            <div className="text-bodyMedium flex items-center justify-start p-2 h-10 w-full border border-outline">
+              <p>911</p>
+            </div>
+            <div className="text-bodyMedium flex items-center justify-center p-2 h-10 aspect-square bg-surfaceContainer border border-outline">
+              <p>No.</p>
+            </div>
+            <div className="text-bodyMedium flex items-center justify-start p-2 h-10 w-full border border-outline">
+              <p>28</p>
+            </div>
+          </SegmentedGroup>
+        </div>
 
         {showPopup && (
           <Popup

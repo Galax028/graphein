@@ -36,7 +36,7 @@ export type ButtonProps = IconButtonProps | TextButtonProps;
 
 // Segmented Button
 
-export type SegmentedButtonProps = {
+export type SegmentedGroupProps = {
   children: React.ReactNode;
   className?: string;
 };
