@@ -1,4 +1,5 @@
 export type OrderCardProps = {
+  id: string;
   status:
     | "review"
     | "printing"
@@ -7,7 +8,7 @@ export type OrderCardProps = {
     | "reject"
     | "cancel"
     | "unknown";
-  orderCode: string;
+  orderNumber: string;
   filesCount: number;
-  date: string;
+  createdAt: string;
 };

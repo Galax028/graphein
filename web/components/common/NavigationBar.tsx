@@ -1,12 +1,12 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import cn from "@/utils/helpers/cn";
-import { NavigationBarProps } from "@/utils/types/landing";
-import { useRouter } from "next/router";
-import isSignedIn from "@/utils/helpers/isSignedIn";
-import Link from "next/link";
 import getUserFullName from "@/utils/helpers/getUserFullName";
 import getUserProfileURL from "@/utils/helpers/getUserProfileURL";
+import isSignedIn from "@/utils/helpers/isSignedIn";
+import { NavigationBarProps } from "@/utils/types/common";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 /**
  * The navigation bar for all types of users including guest.
@@ -28,7 +28,6 @@ const NavigationBar = ({
   backEnabled = false,
   backContextURL,
   className,
-  style,
   children,
 }: NavigationBarProps) => {
   const router = useRouter();
@@ -67,10 +66,10 @@ const NavigationBar = ({
         {children}
         {
           // If the user is signed in, display the profile picture.
-          isSignedIn() && (
+          !isSignedIn() && (
             <Link href="/settings">
               <PersonAvatar
-                // profile_url={getUserProfileURL()}
+                profile_url={getUserProfileURL()}
                 person_name={getUserFullName()}
               />
             </Link>

@@ -1,59 +1,74 @@
 import NavigationBar from "@/components/common/NavigationBar";
 import OrderCard from "@/components/client/dashboard/OrderCard";
+import Button from "@/components/common/Button";
+import InputLabel from "@/components/common/InputLabel";
+import NavigationBar from "@/components/common/NavigationBar";
+import getLoggedInUser from "@/utils/helpers/getLoggedInUser";
 import getUserFullName from "@/utils/helpers/getUserFullName";
+import { testOrdersGlance } from "@/utils/testResponse/clientDashboard";
+import { GetServerSideProps } from "next";
+import Link from "next/link";
+
+type ClientDashboardProps = {
+  user: any;
+};
+
+const ClientDashboard = ({ user }: ClientDashboardProps) => {
+  console.warn(user);
 
 const ClientDashboard = () => {
   return (
     <>
       <NavigationBar title={`Good morning, ${getUserFullName()}`} />
-      <main className="p-3">
-        <div className="flex flex-col gap-1 [&>div]:w-full max-w-96">
-          <OrderCard
-            status="review"
-            orderCode="C-028"
-            filesCount={1}
-            date="28 Febuary 2025"
-            />
-          <OrderCard
-            status="printing"
-            orderCode="C-028"
-            filesCount={2}
-            date="28 Febuary 2025"
-            />
-          <OrderCard
-            status="pickup"
-            orderCode="C-028"
-            filesCount={3}
-            date="28 Febuary 2025"
-            />
-          <OrderCard
-            status="complete"
-            orderCode="C-028"
-            filesCount={4}
-            date="28 Febuary 2025"
-            />
-          <OrderCard
-            status="reject"
-            orderCode="C-028"
-            filesCount={5}
-            date="28 Febuary 2025"
-            />
-          <OrderCard
-            status="cancel"
-            orderCode="C028"
-            filesCount={6}
-            date="28 Febuary 2025"
-            />
-          <OrderCard
-            status="unknown"
-            orderCode="C-028"
-            filesCount={0}
-            date="28 Febuary 2025"
-          />
+      <main className="flex flex-col h-full overflow-auto gap-3">
+        <div className="flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16">
+          <InputLabel label="Ongoing">
+            {testOrdersGlance.OrdersGlance.ongoing.map((order) => {
+              return (
+                <OrderCard
+                  id={order.id}
+                  status={order.status}
+                  orderNumber={order.orderNumber}
+                  createdAt={order.createdAt}
+                  filesCount={order.filesCount}
+                />
+              );
+            })}
+          </InputLabel>
+          <InputLabel label="Completed">
+            {testOrdersGlance.OrdersGlance.finished.map((order) => {
+              return (
+                <OrderCard
+                  id={order.id}
+                  status={order.status}
+                  orderNumber={order.orderNumber}
+                  createdAt={order.createdAt}
+                  filesCount={order.filesCount}
+                />
+              );
+            })}
+          </InputLabel>
+          <Link href="/client/order/history">
+            <Button appearance={"tonal"} icon={"history"} className="w-full">
+              Order History
+            </Button>
+          </Link>
+        </div>
+        <div className="fixed p-3 left-0 bottom-0 w-full flex flex-col h-16">
+          <Link href="/client/order/new/upload">
+            <Button appearance={"filled"} icon={"add"} className="w-full">
+              New Order
+            </Button>
+          </Link>
         </div>
       </main>
-    </>
+    </div>
   );
 };
 
+export const getServerSideProps: GetServerSideProps = async (req) => {
+  const user = await getLoggedInUser(req);
+
+  return { props: { user } };
+};
 export default ClientDashboard;

@@ -34,7 +34,7 @@ const Button = ({
     <button
       className={cn(
         `flex justify-center items-center gap-2 p-2 rounded-lg cursor-pointer 
-          transition text-bodyMedium h-10`,
+          transition text-bodyMedium h-10 select-none`,
         icon && children && !busy && "pr-3.5",
         (busy || disabled) &&
           "brightness-75 dark:brightness-50 !select-none !pointer-events-none",
@@ -42,7 +42,7 @@ const Button = ({
           ? "border border-outline bg-surfaceContainer hover:bg-background"
           : "bg-primary text-onPrimary hover:brightness-80",
         selected &&
-          "!pr-4 !gap-1 " +
+          "!pr-4 !gap-1 hover:!brightness-100 " +
             (appearance == "tonal" ? "!bg-surfaceContainer" : "!bg-primary"),
         className
       )}
