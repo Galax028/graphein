@@ -14,6 +14,8 @@ const Markdown = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [count, setCount] = useState(0);
+
   return (
     <>
       <Head>
@@ -196,9 +198,12 @@ const Markdown = () => {
             >
               E
             </Button>
-          <NumberInput/>
-        </div>
           </SegmentedGroup>
+
+          {/* <NumberInput count={count} /> */}
+          <NumberInput count={count} setCount={setCount} min={0} max={5} />
+          <p className="text-bodySmall">{count}</p>
+
 
 
           <SegmentedGroup>
@@ -242,9 +247,6 @@ const Markdown = () => {
             </Button>
           </Popup>
         )}
-
-
-
       </main>
     </>
   );

@@ -1,4 +1,3 @@
-import NavigationBar from "@/components/common/NavigationBar";
 import OrderCard from "@/components/client/dashboard/OrderCard";
 import Button from "@/components/common/Button";
 import InputLabel from "@/components/common/InputLabel";
@@ -16,9 +15,8 @@ type ClientDashboardProps = {
 const ClientDashboard = ({ user }: ClientDashboardProps) => {
   console.warn(user);
 
-const ClientDashboard = () => {
   return (
-    <>
+    <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar title={`Good morning, ${getUserFullName()}`} />
       <main className="flex flex-col h-full overflow-auto gap-3">
         <div className="flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16">

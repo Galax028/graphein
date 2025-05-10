@@ -4,13 +4,12 @@ import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
 import cn from "@/utils/helpers/cn";
-import Head from "next/head";
-import Link from "next/link";
-import { useState } from "react";
+import { LangCode } from "@/utils/types/common";
 import { GetServerSideProps } from "next";
 import { Trans, useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { LangCode } from "@/utils/types/common";
+import Link from "next/link";
+import { useState } from "react";
 
 const LandingPage = () => {
   const { t } = useTranslation("common");
@@ -19,11 +18,10 @@ const LandingPage = () => {
 
   return (
     <>
-      <Head>
-        <title>Printer Facility</title>
-      </Head>
       <div className="flex flex-col h-dvh">
-        <NavigationBar title={"Welcome to Printer Facility"} />
+        <NavigationBar
+          title={`Welcome to ${process.env.NEXT_PUBLIC_APP_NAME}`}
+        />
         <div className="flex flex-col justify-between flex-grow p-3 md:p-0">
           <div className="md:grid md:place-items-center md:flex-grow">
             <div
@@ -54,6 +52,9 @@ const LandingPage = () => {
                 </Link>
                 <Link href={"/merchant"}>
                   <p className="text-bodyMedium">/merchant</p>
+                </Link>
+                <Link href={"/settings"}>
+                  <p className="text-bodyMedium">/settings</p>
                 </Link>
                 <Link href={"/markdown"}>
                   <p className="text-bodyMedium">/markdown</p>
