@@ -10,11 +10,19 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/client/order/new",
+        destination: "/client/order/new/upload",
+        permanent: true,
+      },
+      {
         source: "/merchant",
         destination: "/merchant/dashboard",
         permanent: true,
       },
     ];
+  },
+  images: {
+    remotePatterns: [new URL("https://lh3.googleusercontent.com/**")],
   },
   reactStrictMode: true,
   i18n,
