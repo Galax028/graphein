@@ -1,6 +1,7 @@
 import cn from "@/utils/helpers/cn";
 import React, { useState } from 'react';
 import Button from "@/components/common/Button";
+import SegmentedGroup from "@/components/common/SegmentedGroup";
 
 function NumberInput() {
   const [count, setCount] = useState(0);
@@ -18,12 +19,14 @@ function NumberInput() {
   
 
   return (
-    <div className={cn(`flex flex-row gap-2 p-2 bg-surfaceContainer border border-outline rounded-lg justify-around`)}>
+    <SegmentedGroup>
       <Button appearance="tonal" icon="remove" onClick={decrement}/>
-      <p>{count}</p>
+      <div className={cn("text-bodyMedium flex items-center justify-center p-2 h-10 w-full border border-outline")}>
+        <p>{count}</p>
+      </div>
       <Button appearance="tonal" icon="add" onClick={increment}/>
-    </div>
+    </SegmentedGroup>
   );
-}
+}1
 
 export default NumberInput;
