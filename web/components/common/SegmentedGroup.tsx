@@ -6,10 +6,10 @@ const SegmentedGroup = ({ children, className }: SegmentedGroupProps) => {
     <div
       className={cn(
         `flex border border-outline rounded-lg
-          [&>button,div,input]:rounded-none 
+          [&>button,div,input]:rounded-none [&>div,input]:p-2 [&>input]:z-10
           [&>button,div,input]:border-0 [&>button,div,input]:not-first:border-l
           [&>button,div,input]:first:rounded-l-lg [&>button]:flex-[10%] 
-          [&>button,div,input]:last:rounded-r-lg`,
+          [&>button,div,input]:last:rounded-r-lg [&>button,div,input]:border-outline`,
           // [&>button,div,input]:last:rounded-r-lg [&>button]:bg-background`,
         className
       )}
