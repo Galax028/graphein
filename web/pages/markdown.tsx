@@ -14,7 +14,10 @@ const Markdown = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  
   const [count, setCount] = useState(0);
+  const [classroom, setClassroom] = useState("");
+  const [classNo, setClassNo] = useState("");
 
   return (
     <>
@@ -200,25 +203,21 @@ const Markdown = () => {
             </Button>
           </SegmentedGroup>
 
-          <p className="text-bodySmall">{count}</p>
-
-
           <NumberInput count={count} setCount={setCount} min={-99} max={99} />
+          <p className="text-bodySmall">{count} copies</p>
 
           <SegmentedGroup>
             <div className="text-bodyMedium flex items-center justify-center p-2 h-10 aspect-square bg-surfaceContainer border border-outline">
               <p>M.</p>
             </div>
-            <div className="text-bodyMedium flex items-center justify-start p-2 h-10 w-full border border-outline">
-              <p>911</p>
-            </div>
+            <input value={classroom} onChange={(e) => {setClassroom(e.target.value) }} type="text" className="w-full p-2"/>
             <div className="text-bodyMedium flex items-center justify-center p-2 h-10 aspect-square bg-surfaceContainer border border-outline">
               <p>No.</p>
             </div>
-            <div className="text-bodyMedium flex items-center justify-start p-2 h-10 w-full border border-outline">
-              <p>28</p>
-            </div>
+            <input value={classNo} onChange={(e) => {setClassNo(e.target.value) }} type="text" className="w-full p-2"/>
           </SegmentedGroup>
+          <p className="text-bodySmall">M.{classroom} No.{classNo}</p>
+
         </div>
 
         {showPopup && (
