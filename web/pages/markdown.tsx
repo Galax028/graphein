@@ -200,11 +200,10 @@ const Markdown = () => {
             </Button>
           </SegmentedGroup>
 
-          {/* <NumberInput count={count} /> */}
-          <NumberInput count={count} setCount={setCount} min={0} max={5} />
           <p className="text-bodySmall">{count}</p>
 
 
+          <NumberInput count={count} setCount={setCount} min={-99} max={99} />
 
           <SegmentedGroup>
             <div className="text-bodyMedium flex items-center justify-center p-2 h-10 aspect-square bg-surfaceContainer border border-outline">
