@@ -10,6 +10,7 @@ pub struct Config {
     host: IpAddr,
     port: u16,
     root_uri: String,
+    frontend_uri: String,
     database_url: String,
     secret: String,
     session_expiry_time: StdDuration,
@@ -33,6 +34,8 @@ impl Config {
             .parse()
             .context("Invalid value for environment variable `PORT`")?;
         let root_uri = var("ROOT_URI").context("Missing environment variable `ROOT_URI`")?;
+        let frontend_uri =
+            var("FRONTEND_URI").context("Missing environment variable `FRONTEND_URI`")?;
         let database_url =
             var("DATABASE_URL").context("Missing environment variable `DATABASE_URL`")?;
         let secret = var("SECRET").context("Missing environment variable `SECRET`")?;
@@ -63,6 +66,7 @@ impl Config {
             host,
             port,
             root_uri,
+            frontend_uri,
             database_url,
             secret,
             session_expiry_time,
@@ -89,6 +93,11 @@ impl Config {
     #[must_use]
     pub fn root_uri(&self) -> &str {
         &self.root_uri
+    }
+
+    #[must_use]
+    pub fn frontend_uri(&self) -> &str {
+        &self.frontend_uri
     }
 
     pub fn database_connect_options(&self) -> AnyhowResult<PgConnectOptions> {

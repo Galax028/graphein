@@ -222,7 +222,10 @@ async fn get_finish_google_oauth(
                 .same_site(SameSite::Strict)
                 .secure(true),
             ),
-            Html(include_str!("../pages/oauth_success.html")),
+            Html(
+                include_str!("../pages/oauth_success.html")
+                    .replace("{{ORIGIN}}", config.frontend_uri()),
+            ),
         )
             .into_response(),
 
