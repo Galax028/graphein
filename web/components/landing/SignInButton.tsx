@@ -1,5 +1,6 @@
-import Button from "../common/Button";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import Button from "../common/Button";
 
 /**
  * The sign in button using the application's design language.
@@ -10,29 +11,25 @@ import Image from "next/image";
  * @returns The 'Sign in with Google' button.
  */
 
-const onSignInButtonClick = () => {
-  console.warn(
-    `Opening: ${
-      process.env.NEXT_PUBLIC_SKPF_API_PATH +
-      "/auth/google/init?asMerchant=true"
-    }`
-  );
-
-  const signInWindow = window.open(
-    process.env.NEXT_PUBLIC_SKPF_API_PATH + "/auth/google/init?asMerchant=true",
-    "_blank",
-    "popup, width=800, height=600"
-  );
-
-  window.addEventListener("message", (event) => {
-    console.warn(event.data);
-    if (event.data == "oauthSuccess") {
-      // signInWindow?.close();
-    }
-  });
-};
-
 const SignInButton = () => {
+  const router = useRouter();
+
+  const onSignInButtonClick = () => {
+    const signInWindow = window.open(
+      process.env.NEXT_PUBLIC_SKPF_API_PATH +
+        "/auth/google/init?asMerchant=true",
+      "_blank",
+      "popup, width=800, height=600"
+    );
+
+    window.addEventListener("message", (event) => {
+      if (event.data == "oauthSuccess") {
+        signInWindow?.close()
+        router.push("/client/dashboard");
+      }
+    });
+  };
+
   return (
     <Button appearance={"tonal"} onClick={onSignInButtonClick}>
       <Image
