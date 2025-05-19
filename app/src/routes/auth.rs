@@ -219,7 +219,11 @@ async fn get_finish_google_oauth(
                 .http_only(true)
                 .max_age(session_expiry.try_into().unwrap())
                 .path("/")
-                .same_site(SameSite::Strict)
+                .same_site(if cfg!(debug_assertions) {
+                    SameSite::None
+                } else {
+                    SameSite::Strict
+                })
                 .secure(true),
             ),
             Html(
