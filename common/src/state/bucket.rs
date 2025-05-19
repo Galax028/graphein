@@ -6,7 +6,6 @@ use http::{
     HeaderMap,
     header::{CONTENT_LENGTH, CONTENT_TYPE},
 };
-use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use s3::{Bucket, Region, creds::Credentials};
 
 use crate::{AppError, error::NotFoundError, schemas::enums::FileType};
@@ -42,7 +41,7 @@ impl R2Bucket {
 
     pub async fn presign_get_file(
         &self,
-        object_id: &str,
+        object_key: &str,
         filename: &str,
         filetype: FileType,
     ) -> Result<String, AppError> {
@@ -54,24 +53,24 @@ impl R2Bucket {
 
         Ok(self
             .inner
-            .presign_get(format!("/{object_id}.{filetype}"), 3600, Some(queries))
+            .presign_get(format!("/{object_key}.{filetype}"), 3600, Some(queries))
             .await?)
     }
 
     pub async fn presign_get_file_thumbnail(
         &self,
-        object_id: &str,
+        object_key: &str,
         filetype: FileType,
     ) -> Result<Option<String>, AppError> {
-        if !self
+        let file_exists = self
             .inner
-            .object_exists(format!("/{object_id}.{filetype}"))
-            .await?
-        {
+            .object_exists(format!("/{object_key}.{filetype}"))
+            .await?;
+        if !file_exists {
             return Err(AppError::NotFound(NotFoundError::ResourceNotFound));
         }
 
-        let thumbnail_path = format!("/{object_id}.t.webp");
+        let thumbnail_path = format!("/{object_key}.t.webp");
         if !self.inner.object_exists(&thumbnail_path).await? {
             return Ok(None);
         }
@@ -89,31 +88,38 @@ impl R2Bucket {
         ))
     }
 
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     pub async fn presign_put(
         &self,
         created_at: &DateTime<Utc>,
         filetype: FileType,
         length: u64,
-    ) -> Result<(String, String), AppError> {
+        object_key: &str,
+    ) -> Result<String, AppError> {
         // 50 MB
-        if length > 50 * 1000000 {
+        if length > 50 * 1_000_000 {
             return Err(AppError::BadRequest("File size exceeded limit".into()));
         }
 
-        let mut object_id = [0u8; 16];
-        StdRng::from_os_rng().fill_bytes(&mut object_id);
-        let object_id = hex::encode(object_id);
-        let path = format!("/{}.{filetype}", &object_id);
+        let path = format!("/{object_key}.{filetype}");
         let expires_at = (TimeDelta::minutes(15) - (Utc::now() - *created_at)).num_seconds() as u32;
         let mut headers = HeaderMap::new();
         headers.insert(CONTENT_TYPE, filetype.to_mime().parse().unwrap());
         headers.insert(CONTENT_LENGTH, length.to_string().parse().unwrap());
 
-        Ok((
-            object_id,
-            self.inner
-                .presign_put(path, expires_at, Some(headers), None)
-                .await?,
-        ))
+        Ok(self
+            .inner
+            .presign_put(path, expires_at, Some(headers), None)
+            .await?)
+    }
+
+    pub async fn delete_file(&self, object_key: &str, filetype: FileType) -> Result<(), AppError> {
+        let path = format!("/{object_key}.{filetype}");
+        let thumbnail_path = format!("/{object_key}.t.webp");
+
+        self.inner.delete_object(path).await?;
+        self.inner.delete_object(thumbnail_path).await?;
+
+        Ok(())
     }
 }

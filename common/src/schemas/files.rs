@@ -9,7 +9,7 @@ use crate::schemas::{
 #[derive(Debug, Deserialize, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct File {
-    id: FileId,
+    pub(crate) id: FileId,
     filename: String,
     filetype: FileType,
     filesize: i64,
@@ -23,16 +23,15 @@ pub struct File {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct FileCreate {
-    filename: String,
-    filetype: String,
-    filesize: i64,
+pub struct FileUploadCreate {
+    pub filetype: FileType,
+    pub filesize: u64,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FileUploadResponse {
-    id: FileId,
-    object_key: String,
-    upload_url: String,
+    pub id: FileId,
+    pub object_key: String,
+    pub upload_url: String,
 }

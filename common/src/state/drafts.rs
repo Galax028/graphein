@@ -5,23 +5,84 @@ use std::sync::{
 
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
+use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use uuid::Uuid;
 
 use crate::{
     AppError,
     error::NotFoundError,
-    schemas::{DetailedOrder, OrderCreate, OrderId, OrderStatusUpdate, UserId, enums::OrderStatus},
+    schemas::{
+        DetailedOrder, FileId, OrderCreate, OrderId, OrderStatusUpdate, UserId,
+        enums::{FileType, OrderStatus},
+    },
 };
 
+static MAX_NUM_FILES: usize = 10;
 static MAX_QUEUE_SEQ: u16 = 25974; /* 26 * 999 */
 
 #[derive(Clone, Debug)]
+pub struct DraftFile {
+    id: FileId,
+    pub filetype: FileType,
+    pub filesize: u64,
+    pub object_key: String,
+}
+
+#[derive(Debug)]
+pub struct DraftOrder {
+    id: OrderId,
+    created_at: DateTime<Utc>,
+    files: Vec<DraftFile>,
+}
+
+impl DraftOrder {
+    #[must_use]
+    fn new(id: OrderId) -> Self {
+        Self {
+            id,
+            created_at: Utc::now(),
+            files: Vec::with_capacity(MAX_NUM_FILES),
+        }
+    }
+
+    #[must_use]
+    fn files_len(&self) -> usize {
+        self.files.len()
+    }
+
+    #[must_use]
+    fn contains_file(&self, id: FileId) -> bool {
+        self.files.iter().any(|file| file.id == id)
+    }
+
+    #[must_use]
+    fn add_file(&mut self, id: FileId, filetype: FileType, filesize: u64) -> String {
+        let mut object_key = [0u8; 16];
+        StdRng::from_os_rng().fill_bytes(&mut object_key);
+        let object_key = hex::encode(object_key);
+        self.files.push(DraftFile {
+            id,
+            filetype,
+            filesize,
+            object_key: object_key.clone(),
+        });
+
+        object_key
+    }
+
+    fn remove_file(&mut self, id: FileId) {
+        self.files.retain(|file| file.id != id);
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct DraftOrderStore {
-    orders: Arc<DashMap<UserId, (OrderId, DateTime<Utc>)>>,
+    orders: Arc<DashMap<UserId, DraftOrder>>,
     queue: Arc<AtomicU16>,
 }
 
 impl DraftOrderStore {
+    #[must_use]
     pub(super) fn new() -> Self {
         Self {
             orders: Arc::new(DashMap::new()),
@@ -37,9 +98,79 @@ impl DraftOrderStore {
         }
 
         let order_id = Uuid::new_v4().into();
-        self.orders.insert(owner_id, (order_id, Utc::now()));
+        self.orders.insert(owner_id, DraftOrder::new(order_id));
 
         Ok(order_id)
+    }
+
+    pub fn add_file(
+        &self,
+        owner_id: UserId,
+        filetype: FileType,
+        filesize: u64,
+    ) -> Result<(FileId, String), AppError> {
+        let mut draft = self
+            .orders
+            .get_mut(&owner_id)
+            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
+
+        if draft.files_len() == MAX_NUM_FILES {
+            return Err(AppError::BadRequest(
+                "This order has already reached the maximum file limit.".into(),
+            ));
+        }
+
+        let file_id = Uuid::new_v4().into();
+        let object_key = draft.add_file(file_id, filetype, filesize);
+
+        Ok((file_id, object_key))
+    }
+
+    pub fn exists(&self, owner_id: UserId, order_id: OrderId) -> Result<(), AppError> {
+        if self
+            .orders
+            .get(&owner_id)
+            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?
+            .id
+            == order_id
+        {
+            Ok(())
+        } else {
+            Err(AppError::NotFound(NotFoundError::ResourceNotFound))
+        }
+    }
+
+    pub fn get_file(&self, owner_id: UserId, file_id: FileId) -> Result<DraftFile, AppError> {
+        let draft = self
+            .orders
+            .get(&owner_id)
+            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
+
+        draft
+            .files
+            .iter()
+            .find(|file| file.id == file_id)
+            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))
+            .cloned() // I tried
+    }
+
+    pub fn get_created_at(&self, owner_id: UserId) -> Result<DateTime<Utc>, AppError> {
+        Ok(self
+            .orders
+            .get(&owner_id)
+            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?
+            .created_at)
+    }
+
+    pub fn remove_file(&self, owner_id: UserId, file_id: FileId) -> Result<(), AppError> {
+        let mut draft = self
+            .orders
+            .get_mut(&owner_id)
+            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
+
+        draft.remove_file(file_id);
+
+        Ok(())
     }
 
     pub fn build(
@@ -51,15 +182,26 @@ impl DraftOrderStore {
             services,
         }: OrderCreate,
     ) -> Result<DetailedOrder, AppError> {
-        let (order_id, created_at) = self
+        let draft_order = self
             .orders
             .remove(&owner_id)
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?
             .1;
 
+        if !files.iter().all(|file| draft_order.contains_file(file.id))
+            || !services.iter().all(|service| {
+                service
+                    .file_ids
+                    .iter()
+                    .all(|file_id| draft_order.contains_file(*file_id))
+            })
+        {
+            return Err(AppError::NotFound(NotFoundError::ResourceNotFound));
+        }
+
         Ok(DetailedOrder {
-            id: order_id,
-            created_at,
+            id: draft_order.id,
+            created_at: draft_order.created_at,
             owner_id: Some(owner_id),
             order_number: Self::convert_queue_seq_to_order_number(self.next_queue()),
             status: OrderStatus::Reviewing,
@@ -77,7 +219,7 @@ impl DraftOrderStore {
     pub(crate) fn clear_expired(&self) {
         let now = Utc::now();
         self.orders
-            .retain(|_, (_, created_at)| (now - *created_at).num_minutes() <= 15);
+            .retain(|_, draft| (now - draft.created_at).num_minutes() <= 15);
     }
 
     #[must_use]

@@ -35,6 +35,7 @@ pub struct AppState {
 
 impl AppState {
     #[must_use]
+    #[allow(clippy::needless_pass_by_value)]
     pub fn new(config: Arc<Config>, pool: PgPool, bucket: R2Bucket) -> Self {
         AppState {
             config: config.clone(),

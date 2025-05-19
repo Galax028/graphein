@@ -45,6 +45,7 @@ pub struct DetailedOrder {
 
 #[derive(Debug, FromRow, Serialize)]
 pub struct OrderStatusUpdate {
+    #[sqlx(rename = "created_at")]
     pub(crate) timestamp: DateTime<Utc>,
     pub(crate) status: OrderStatus,
 }

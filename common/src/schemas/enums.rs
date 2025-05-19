@@ -13,6 +13,7 @@ pub enum FileType {
 }
 
 impl FileType {
+    #[must_use]
     pub fn to_mime(&self) -> &str {
         match self {
             Self::Pdf => "application/pdf",

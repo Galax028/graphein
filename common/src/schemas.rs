@@ -6,7 +6,7 @@ mod orders;
 mod services;
 mod users;
 
-pub use files::File;
+pub use files::{File, FileUploadCreate, FileUploadResponse};
 pub use ids::{BookbindingTypeId, FileId, OrderId, PaperSizeId, UserId};
 pub use orders::{
     ClientOrdersGlance, CompactOrder, DetailedOrder, MerchantOrdersGlance, OrderCreate,

@@ -9,7 +9,7 @@ use crate::{
     error::ForbiddenError,
     request::PageKey,
     schemas::{
-        CompactOrder, DetailedOrder, OrderId, UserId,
+        CompactOrder, DetailedOrder, OrderId, OrderStatusUpdate, UserId,
         enums::{OrderStatus, UserRole},
     },
 };
@@ -25,14 +25,14 @@ impl OrdersTable {
                 status AS \"status: OrderStatus\", price, notes \
             FROM orders WHERE id = $1\
             ",
-            Uuid::from(id),
+            id as OrderId,
         )
         .fetch_one(&mut *conn)
         .await?;
 
         let status_history = sqlx::query_as(
             "\
-            SELECT u.created_at AS timestamp, u.status \
+            SELECT u.created_at, u.status \
             FROM order_status_updates AS u \
                 JOIN orders AS o ON o.id = u.order_id \
             WHERE u.order_id = $1 \
@@ -91,6 +91,16 @@ impl OrdersTable {
         })
     }
 
+    pub async fn fetch_status_for_update(
+        conn: &mut PgConnection,
+        order_id: OrderId,
+    ) -> SqlxResult<OrderStatus> {
+        sqlx::query_scalar("SELECT status FROM orders WHERE id = $1 FOR UPDATE")
+            .bind(order_id)
+            .fetch_one(conn)
+            .await
+    }
+
     #[must_use]
     pub fn query_compact<'args>() -> CompactOrdersQuery<'args> {
         let query = "\
@@ -108,6 +118,29 @@ impl OrdersTable {
             limit: None,
             pagination: None,
         }
+    }
+
+    pub async fn update_status(
+        conn: &mut PgConnection,
+        order_id: OrderId,
+        status: OrderStatus,
+    ) -> SqlxResult<OrderStatusUpdate> {
+        sqlx::query("UPDATE orders SET status = $1 WHERE id = $2")
+            .bind(status)
+            .bind(order_id)
+            .execute(&mut *conn)
+            .await?;
+
+        sqlx::query_as(
+            "\
+            INSERT INTO order_status_updates (order_id, status)\
+            VALUES ($1, $2) RETURNING created_at, status\
+            ",
+        )
+        .bind(order_id)
+        .bind(status)
+        .fetch_one(conn)
+        .await
     }
 
     #[must_use]
@@ -244,6 +277,7 @@ impl<'args> CompactOrdersQuery<'args> {
         self.qb.build_query_as().fetch_all(conn).await
     }
 
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     pub async fn fetch_paginated(
         &mut self,
         conn: &mut PgConnection,

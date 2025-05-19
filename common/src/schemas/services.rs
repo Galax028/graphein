@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
-use uuid::Uuid;
 
-use crate::schemas::{BookbindingTypeId, PaperSizeId, enums::ServiceType};
+use crate::schemas::{BookbindingTypeId, FileId, PaperSizeId, enums::ServiceType};
 
 #[derive(Debug, Deserialize, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -10,7 +9,7 @@ pub struct Service {
     service_type: ServiceType,
     bookbinding_type_id: Option<BookbindingTypeId>,
     notes: Option<String>,
-    file_ids: Vec<Uuid>,
+    pub(crate) file_ids: Vec<FileId>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

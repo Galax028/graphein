@@ -497,7 +497,6 @@
 //!
 //! | Name       | Type         | Required? |
 //! |------------|--------------|-----------|
-//! | `filename` | [`String`]   | Yes       |
 //! | `filetype` | [`FileType`] | Yes       |
 //! | `filesize` | [`u64`]      | Yes       |
 //!
