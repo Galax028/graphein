@@ -6,6 +6,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import NumberInput from "@/components/common/NumberInput";
+import DropDownCard from "@/components/common/DropDownCard";
 
 const Markdown = () => {
   const [language, setLanguage] = useState("th");
@@ -43,6 +44,17 @@ const Markdown = () => {
             <Button appearance={"tonal"}>Go to main page (router test)</Button>
           </Link>
         </div>
+        
+        <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
+          <DropDownCard
+            header={"Title"}
+            footer={["2 orders pending", "Total 38 THB"]}
+            collapsible={true}
+          >
+            order stuff you think about it idk
+          </DropDownCard>
+        </div>
+
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <p>Normal Buttons</p>
           <Button
