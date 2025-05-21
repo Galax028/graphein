@@ -16,8 +16,8 @@ const SignInButton = () => {
 
   const onSignInButtonClick = () => {
     const signInWindow = window.open(
-      process.env.NEXT_PUBLIC_SKPF_API_PATH +
-        "/auth/google/init?asMerchant=true",
+      process.env.NEXT_PUBLIC_API_PATH +
+        "/auth/google/init",
       "_blank",
       "popup, width=800, height=600"
     );
