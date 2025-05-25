@@ -1,12 +1,10 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import cn from "@/utils/helpers/cn";
-import getUserFullName from "@/utils/helpers/getUserFullName";
-import getUserProfileURL from "@/utils/helpers/getUserProfileURL";
-import isSignedIn from "@/utils/helpers/isSignedIn";
 import { NavigationBarProps } from "@/utils/types/common";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 /**
  * The navigation bar for all types of users including guest.
@@ -31,6 +29,27 @@ const NavigationBar = ({
   children,
 }: NavigationBarProps) => {
   const router = useRouter();
+
+  const [user, setUser] = useState<any>({})
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(false)
+
+  useEffect(() => {
+    const getUser = async () => {
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_API_PATH + "/user",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+      
+      const data = await res.json();
+      setIsSignedIn(true)
+      setUser(data);
+    };
+
+    getUser()
+  }, [])
 
   const handleBackButtonClicked = () => {
     if (backContextURL) {
@@ -66,11 +85,11 @@ const NavigationBar = ({
         {children}
         {
           // If the user is signed in, display the profile picture.
-          !isSignedIn() && (
+          isSignedIn && (
             <Link href="/settings">
               <PersonAvatar
-                profile_url={getUserProfileURL()}
-                person_name={getUserFullName()}
+                profile_url={user.data.profileUrl}
+                person_name={user.data.name}
               />
             </Link>
           )
