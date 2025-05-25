@@ -30,26 +30,26 @@ const NavigationBar = ({
 }: NavigationBarProps) => {
   const router = useRouter();
 
-  const [user, setUser] = useState<any>({})
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false)
+  const [user, setUser] = useState<any>({});
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
 
   useEffect(() => {
     const getUser = async () => {
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_API_PATH + "/user",
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-      
+      const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
+        method: "GET",
+        credentials: "include",
+      });
+
       const data = await res.json();
-      setIsSignedIn(true)
-      setUser(data);
+      
+      if (res.ok) {
+        setIsSignedIn(true);
+        setUser(data);
+      }
     };
 
-    getUser()
-  }, [])
+    getUser();
+  }, []);
 
   const handleBackButtonClicked = () => {
     if (backContextURL) {
