@@ -11,14 +11,35 @@ const OrderCard = ({
   createdAt,
 }: OrderCardProps) => {
   const statusTranslation = {
+    building: "Building Order",
     review: "Reviewing",
-    printing: "Printing",
-    pickup: "Ready for Pickup",
-    complete: "Completed",
-    reject: "Rejected",
-    cancel: "Cancelled",
+    processing: "Printing",
+    ready: "Ready for Pickup",
+    completed: "Completed",
+    rejected: "Rejected",
+    cancelled: "Cancelled",
     unknown: "Unknown Status",
   };
+
+  const date = new Date(createdAt);
+  const formattedDate = `${
+    date.getDay()
+  } ${
+    [
+      "January",
+      "Febuary",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ][date.getMonth()]
+  } ${date.getFullYear()}`;
 
   return (
     <Link
@@ -31,9 +52,9 @@ const OrderCard = ({
           <p
             className={cn(
               "text-bodySmall",
-              ["review", "printing"].includes(status) && "text-actionWarning",
-              ["pickup", "complete"].includes(status) && "text-actionSuccess",
-              ["reject", "cancel"].includes(status) && "text-actionError",
+              ["review", "processing"].includes(status) && "text-actionWarning",
+              ["ready", "completed"].includes(status) && "text-actionSuccess",
+              ["rejected", "cancelled"].includes(status) && "text-actionError",
               status == "unknown" && "opacity-50"
             )}
           >
@@ -41,7 +62,7 @@ const OrderCard = ({
           </p>
           <p>Order #{orderNumber}</p>
           <p className="text-bodySmall opacity-50">
-            {createdAt} • {filesCount} File
+            {formattedDate} • {filesCount} File
             {filesCount != 1 && filesCount != -1 && "s"}
           </p>
         </div>

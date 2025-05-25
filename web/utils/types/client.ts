@@ -2,11 +2,11 @@ export type OrderCardProps = {
   id: string;
   status:
     | "review"
-    | "printing"
-    | "pickup"
-    | "complete"
-    | "reject"
-    | "cancel"
+    | "processing"
+    | "ready"
+    | "completed"
+    | "rejected"
+    | "cancelled"
     | "unknown";
   orderNumber: string;
   filesCount: number;
