@@ -2,10 +2,27 @@ import Button from "@/components/common/Button";
 import getLoggedInUser from "@/utils/helpers/getLoggedInUser";
 import { GetServerSideProps } from "next";
 import NavigationBar from "@/components/common/NavigationBar";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 const SettingsPage = (user: any) => {
-  const handleSignOutButton = async () => {
-    return;
+  const router = useRouter();
+  const [busy, setBusy] = useState<boolean>(false)
+
+  const handleSignOut = async () => {
+    setBusy(true)
+
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    if (res.ok) {
+      return router.push("/");
+    }
   };
 
   return (
@@ -13,7 +30,13 @@ const SettingsPage = (user: any) => {
       <NavigationBar title="Settings" backEnabled={true} />
       <div className="p-3">
         <p>{JSON.stringify(user)}</p>
-        <Button appearance="tonal" onClick={handleSignOutButton}>
+        <Button
+          appearance="tonal"
+          onClick={handleSignOut}
+          className="w-full text-actionError"
+          icon={"logout"}
+          busy={busy}
+        >
           Sign Out
         </Button>
       </div>
