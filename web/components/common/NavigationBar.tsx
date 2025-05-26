@@ -63,7 +63,7 @@ const NavigationBar = ({
       className={cn(
         `sticky top-0 flex justify-between items-center gap-2 border-b 
           border-outline bg-surface-container [&>div]:flex [&>div]:items-center 
-          [&>div]:gap-3 [&>div]:h-full`,
+          [&>div]:gap-3 [&>div]:h-full z-50`,
         className
       )}
     >
