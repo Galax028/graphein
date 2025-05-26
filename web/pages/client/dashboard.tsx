@@ -90,7 +90,7 @@ const ClientDashboard = () => {
       <NavigationBar title={`Good morning, ${user.data?.name ?? ""}`} />
       <main className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div className="flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16">
-          <InputLabel label="Ongoing">
+          <InputLabel header="Ongoing">
             {(ordersState.data?.ongoing ?? []).length != 0 ? (
               (ordersState.data?.ongoing ?? []).map((order: any) => {
                 return (
@@ -105,12 +105,10 @@ const ClientDashboard = () => {
                 );
               })
             ) : (
-              <OrderEmptyCard
-                text={"You have no active order in progress."}
-              />
+              <OrderEmptyCard text={"You have no active order in progress."} />
             )}
           </InputLabel>
-          <InputLabel label="Completed">
+          <InputLabel header="Completed">
             {(ordersState.data?.finished ?? []).length != 0 ? (
               (ordersState.data?.finished ?? []).map((order: any) => {
                 return (
@@ -125,9 +123,7 @@ const ClientDashboard = () => {
                 );
               })
             ) : (
-              <OrderEmptyCard
-                text={"Orders completed will appear here."}
-              />
+              <OrderEmptyCard text={"Orders completed will appear here."} />
             )}
           </InputLabel>
           <Link href="/client/order/history">
@@ -137,8 +133,8 @@ const ClientDashboard = () => {
           </Link>
 
           {/* Dev logs */}
-          <InputLabel label="Developer Log">
-            <div className="p-3 text-bodySmall bg-surfaceContainer border border-outline rounded-lg">
+          <InputLabel header="Developer Log">
+            <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
               <b>
                 <a
                   className="!font-mono break-all"

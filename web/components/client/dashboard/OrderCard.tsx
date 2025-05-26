@@ -22,9 +22,7 @@ const OrderCard = ({
   };
 
   const date = new Date(createdAt);
-  const formattedDate = `${
-    date.getDay()
-  } ${
+  const formattedDate = `${date.getDay()} ${
     [
       "January",
       "Febuary",
@@ -43,7 +41,7 @@ const OrderCard = ({
 
   return (
     <Link
-      className={cn(`bg-surfaceContainer border border-outline rounded-lg 
+      className={cn(`bg-surface-container border border-outline rounded-lg 
       p-3 pl-4`)}
       href={`/client/order/detail/${id}`}
     >
@@ -51,17 +49,17 @@ const OrderCard = ({
         <div className="flex-grow">
           <p
             className={cn(
-              "text-bodySmall",
-              ["review", "processing"].includes(status) && "text-actionWarning",
-              ["ready", "completed"].includes(status) && "text-actionSuccess",
-              ["rejected", "cancelled"].includes(status) && "text-actionError",
+              "text-body-sm",
+              ["review", "processing"].includes(status) && "text-warning",
+              ["ready", "completed"].includes(status) && "text-success",
+              ["rejected", "cancelled"].includes(status) && "text-error",
               status == "unknown" && "opacity-50"
             )}
           >
             {statusTranslation[status]}
           </p>
           <p>Order #{orderNumber}</p>
-          <p className="text-bodySmall opacity-50">
+          <p className="text-body-sm opacity-50">
             {formattedDate} • {filesCount} File
             {filesCount != 1 && filesCount != -1 && "s"}
           </p>

@@ -21,11 +21,11 @@ const Popup = ({ title, desc, onClickOutside, children }: PopupProps) => {
       <div
         onClick={(e) => e.stopPropagation()}
         className={cn(`flex flex-col gap-4 w-full max-w-96 p-4
-            bg-surfaceContainer border border-outline rounded-lg`)}
+            bg-surface-container border border-outline rounded-lg`)}
       >
         <div className={cn(`flex flex-col gap-1`)}>
           <p>{title}</p>
-          <p className="min-h-12 opacity-50 text-bodySmall">{desc}</p>
+          <p className="min-h-12 opacity-50 text-body-sm">{desc}</p>
         </div>
         <div className="flex gap-1 w-full [&>button]:w-full">{children}</div>
       </div>

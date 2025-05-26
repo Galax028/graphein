@@ -27,11 +27,11 @@ const LandingPage = () => {
             <div
               className={cn(
                 `flex flex-col gap-3 md:border md:border-outline 
-                md:bg-surfaceContainer md:p-6 md:rounded-xl`
+                md:bg-surface-container md:p-6 md:rounded-xl`
               )}
             >
               <div className="flex flex-col gap-1">
-                <h1 className="text-titleMedium">Sign in</h1>
+                <h1 className="text-title-md">Sign in</h1>
                 <p className="opacity-50">
                   Use the email ending in sk.ac.th to continue.
                 </p>
@@ -40,28 +40,28 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="flex flex-col gap-3 md:w-[24rem] md:my-4 md:m-auto">
-            <InputLabel label="Dev Links">
+            <InputLabel header="Dev Links">
               <div
                 className={cn(
                   `flex gap-2 m-auto w-full px-4 py-2 h-10 border border-outline 
-                  bg-surfaceContainer rounded-lg`
+                  bg-surface-container rounded-lg`
                 )}
               >
                 <Link href={"/client"}>
-                  <p className="text-bodyMedium">/client</p>
+                  <p className="text-body-md">/client</p>
                 </Link>
                 <Link href={"/merchant"}>
-                  <p className="text-bodyMedium">/merchant</p>
+                  <p className="text-body-md">/merchant</p>
                 </Link>
                 <Link href={"/settings"}>
-                  <p className="text-bodyMedium">/settings</p>
+                  <p className="text-body-md">/settings</p>
                 </Link>
                 <Link href={"/markdown"}>
-                  <p className="text-bodyMedium">/markdown</p>
+                  <p className="text-body-md">/markdown</p>
                 </Link>
               </div>
             </InputLabel>
-            <InputLabel label="Language">
+            <InputLabel header="Language">
               <SegmentedGroup>
                 <Button
                   selected={language == "th"}

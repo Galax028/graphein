@@ -51,7 +51,7 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
   return (
     <SegmentedGroup>
       <Button
-        className="!bg-surfaceContainer"
+        className="!bg-surface-container"
         appearance="tonal"
         icon="remove"
         disabled={min != undefined && count <= min}
@@ -61,7 +61,7 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
       />
       <input
         className={cn(
-          `p-2 h-10 w-full text-center !border-r z-10 text-bodyMedium
+          `p-2 h-10 w-full text-center !border-r z-10 text-body-md
             border border-outline [appearance:textfield] 
             [&::-webkit-outer-spin-button]:appearance-none 
             [&::-webkit-inner-spin-button]:appearance-none
@@ -75,7 +75,7 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
         value={tempCount}
       />
       <Button
-        className="!bg-surfaceContainer !border-l-0"
+        className="!bg-surface-container !border-l-0"
         appearance="tonal"
         icon="add"
         disabled={max != undefined && count >= max}

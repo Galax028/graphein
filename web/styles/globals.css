@@ -2,19 +2,21 @@
 @import "./fonts.css";
 
 :root {
-  --outline: #E5E5E5;
+  --outline: #e5e5e5;
 
-  --background: #F3F3F6;
-  --on-background: #1C1B1F;
-  --surface-container: #FFFFFF;
-  --on-surface-container: #1C1B1F;
+  --background: #f3f3f6;
+  --on-background: #1c1b1f;
+  --on-background-disbabled: rgba(28, 27, 31, 0.5);
+  --surface-container: #ffffff;
+  --on-surface-container: #1c1b1f;
+  --on-surface-container-disbabled: rgba(28, 27, 31, 0.5);
 
-  --primary: #0B1338;
-  --on-primary: #FFFFFF;
+  --primary: #0b1338;
+  --on-primary: #ffffff;
 
-  --action-success: #16A34A;
-  --action-warning: #CA8A04;
-  --action-error: #DC2626;
+  --action-success: #16a34a;
+  --action-warning: #ca8a04;
+  --action-error: #dc2626;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,69 +24,69 @@
     --outline: #444444;
 
     --background: #000000;
-    --on-background: #FFFFFF;
+    --on-background: #ffffff;
+    --on-background-disbabled: rgba(255, 255, 255, 0.5);
     --surface-container: #121216;
-    --on-surface-container: #FFFFFF;
-  
-    --primary: #BAD1E0;
+    --on-surface-container: #ffffff;
+    --on-surface-container-disbabled: rgba(255, 255, 255, 0.5);
+
+    --primary: #bad1e0;
     --on-primary: #000000;
-  
-    --action-success: #38E076;
-    --action-warning: #FFCC60;
-    --action-error: #FF5151;
+
+    --action-success: #38e076;
+    --action-warning: #ffcc60;
+    --action-error: #ff5151;
   }
 }
 
 @theme {
   /* Colors */
   --color-background: var(--background);
-  --color-onBackground: var(--on-background);
-  
+  --color-on-background: var(--on-background);
+  --color-on-background-disabled: var(--on-background-disbabled);
+
+  --color-surface-container: var(--surface-container);
+  --color-on-surface-container: var(--on-surface-container);
+  --color-on-surface-container-disabled: var(--on-surface-container-disabled);
+
   --color-outline: var(--outline);
-  
-  --color-surfaceContainer: var(--surface-container);
-  --color-onSurfaceContainer: var(--on-surface-container);
 
   --color-primary: var(--primary);
   --color-onPrimary: var(--on-primary);
 
-  --color-actionSuccess: var(--action-success);
-  --color-actionWarning: var(--action-warning);
-  --color-actionError: var(--action-error);
+  --color-success: var(--action-success);
+  --color-warning: var(--action-warning);
+  --color-error: var(--action-error);
 
   /* Text Sizes */
-  --text-bodyExtraSmall: 0.625rem;
-  --text-bodySmall: 0.75rem;
-  --text-bodyMedium: 0.875rem;
-  --text-bodyLarge: 1rem;
+  --text-body-xs: 0.625rem;
+  --text-body-sm: 0.75rem;
+  --text-body-md: 0.875rem;
+  --text-body-lg: 1rem;
 
-  --text-titleSmall: 1rem;
-  --text-titleSmall--font-weight: 600;
-  --text-titleMedium: 1.5rem;
-  --text-titleMedium--font-weight: 600;
-  --text-titleLarge: 2rem;
-  --text-titleLarge--font-weight: 600
+  --text-title-sm: 1rem;
+  --text-title-sm--font-weight: 600;
+  --text-title-md: 1.5rem;
+  --text-title-md--font-weight: 600;
+  --text-title-lg: 2rem;
+  --text-title-lg--font-weight: 600;
 }
 
 .material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 300,
-  'GRAD' 0,
-  'opsz' 24
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
 }
 
 * {
   font-family: "Inter Variable", "Inter Thai Loopless", sans-serif;
-  font-feature-settings: 'ss02' on, 'ss03' on, 'cv11' on;
+  font-feature-settings: "ss02" on, "ss03" on, "cv11" on;
 
   line-height: 1.4;
 }
 
 body {
-  @apply text-onBackground bg-background
+  @apply text-on-background bg-background;
 }
 
 b {
-  @apply font-semibold
+  @apply font-semibold;
 }

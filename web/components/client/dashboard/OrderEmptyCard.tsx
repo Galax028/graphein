@@ -6,9 +6,11 @@ type OrderEmptyCardProps = {
 
 const OrderEmptyCard = ({ text }: OrderEmptyCardProps) => {
   return (
-    <div className={cn(`p-3 px-4 bg-surfaceContainer border border-outline 
-      rounded-lg`)}>
-      <p className="text-bodySmall opacity-50">{text}</p>
+    <div
+      className={cn(`p-3 px-4 bg-surface-container border border-outline 
+      rounded-lg`)}
+    >
+      <p className="text-body-sm opacity-50">{text}</p>
     </div>
   );
 };

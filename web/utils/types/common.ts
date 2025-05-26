@@ -57,6 +57,7 @@ export type PersonAvatarProps = {
 // Input Label
 
 export type InputLabelProps = {
-  label: string;
+  header: string;
+  footer?: string;
   children: React.ReactNode;
 };

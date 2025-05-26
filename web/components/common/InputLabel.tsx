@@ -9,11 +9,12 @@ import { InputLabelProps } from "@/utils/types/common";
  * @returns A stylized DOM element.
  */
 
-const InputLabel = ({ label, children }: InputLabelProps) => {
+const InputLabel = ({ header, children, footer }: InputLabelProps) => {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-bodySmall opacity-50">{label}</p>
+      <p className="text-body-sm opacity-50">{header}</p>
       {children}
+      <p className="text-body-sm opacity-50">{footer}</p>
     </div>
   );
 };

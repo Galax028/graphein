@@ -11,12 +11,12 @@ type DropDownCardProps = {
 
 /**
  * The dropdown content box that contains information.
- * 
+ *
  * @param header The title string displayed on the title bar.
  * @param footer Array of string to be mapped on the footer bar.
  * @param collapsible Should the box be collapsible or not? (Default true)
  * @param children The content inside the main box.
- * 
+ *
  * @returns The stylized element with functinoalities.
  */
 
@@ -29,7 +29,7 @@ const DropDownCard = ({
   const [open, setOpen] = useState<boolean>(true);
 
   return (
-    <div className="border border-outline rounded-lg bg-surfaceContainer">
+    <div className="border border-outline rounded-lg bg-surface-container">
       <div
         className={cn(`flex justify-between items-center gap-2 p-2 pl-3 
           cursor-pointer select-none`)}
@@ -37,7 +37,7 @@ const DropDownCard = ({
           if (collapsible == true) return setOpen(!open);
         }}
       >
-        <p className="text-bodyMedium">{header}</p>
+        <p className="text-body-md">{header}</p>
         {collapsible && (
           <MaterialIcon icon={open ? "arrow_drop_down" : "arrow_drop_up"} />
         )}
@@ -51,7 +51,7 @@ const DropDownCard = ({
             border-outline`)}
             >
               {footer.map((i) => (
-                <span className="opacity-50 text-bodySmall">{i}</span>
+                <span className="opacity-50 text-body-sm">{i}</span>
               ))}
             </div>
           )}

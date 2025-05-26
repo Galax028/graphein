@@ -35,12 +35,11 @@ const PersonAvatar = ({
           width={size}
           height={size}
           alt="Avatar"
+          style={{ width: `${size / 16}rem`, height: `${size / 16}rem` }}
           className="aspect-square w-full h-full object-cover"
         />
       ) : person_name ? (
-        <span className="text-bodySmall">
-          {getInitialsOfString(person_name)}
-        </span>
+        <span className="text-body-sm">{getInitialsOfString(person_name)}</span>
       ) : (
         <MaterialIcon icon="account_circle" />
       )}

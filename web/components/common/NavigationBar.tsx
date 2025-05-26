@@ -41,7 +41,7 @@ const NavigationBar = ({
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
         setIsSignedIn(true);
         setUser(data);
@@ -62,7 +62,7 @@ const NavigationBar = ({
     <nav
       className={cn(
         `sticky top-0 flex justify-between items-center gap-2 border-b 
-          border-outline bg-surfaceContainer [&>div]:flex [&>div]:items-center 
+          border-outline bg-surface-container [&>div]:flex [&>div]:items-center 
           [&>div]:gap-3 [&>div]:h-full`,
         className
       )}
@@ -78,7 +78,7 @@ const NavigationBar = ({
         )}
         <div className="flex flex-col gap-0">
           <p>{title}</p>
-          <p className="text-bodySmall opacity-50">{desc}</p>
+          <p className="text-body-sm opacity-50">{desc}</p>
         </div>
       </div>
       <div className="p-2">

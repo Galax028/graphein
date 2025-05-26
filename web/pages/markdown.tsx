@@ -15,7 +15,6 @@ const Markdown = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  
   const [count, setCount] = useState(0);
   const [classroom, setClassroom] = useState("");
   const [classNo, setClassNo] = useState("");
@@ -44,7 +43,7 @@ const Markdown = () => {
             <Button appearance={"tonal"}>Go to main page (router test)</Button>
           </Link>
         </div>
-        
+
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <DropDownCard
             header={"Title"}
@@ -216,20 +215,35 @@ const Markdown = () => {
           </SegmentedGroup>
 
           <NumberInput count={count} setCount={setCount} min={-99} max={99} />
-          <p className="text-bodySmall">{count} copies</p>
+          <p className="text-body-sm">{count} copies</p>
 
           <SegmentedGroup>
-            <div className="text-bodyMedium flex items-center justify-center p-2 h-10 aspect-square bg-surfaceContainer border border-outline">
+            <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
               <p>M.</p>
             </div>
-            <input value={classroom} onChange={(e) => {setClassroom(e.target.value) }} type="text" className="w-full p-2"/>
-            <div className="text-bodyMedium flex items-center justify-center p-2 h-10 aspect-square bg-surfaceContainer border border-outline">
+            <input
+              value={classroom}
+              onChange={(e) => {
+                setClassroom(e.target.value);
+              }}
+              type="text"
+              className="w-full p-2"
+            />
+            <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
               <p>No.</p>
             </div>
-            <input value={classNo} onChange={(e) => {setClassNo(e.target.value) }} type="text" className="w-full p-2"/>
+            <input
+              value={classNo}
+              onChange={(e) => {
+                setClassNo(e.target.value);
+              }}
+              type="text"
+              className="w-full p-2"
+            />
           </SegmentedGroup>
-          <p className="text-bodySmall">M.{classroom} No.{classNo}</p>
-
+          <p className="text-body-sm">
+            M.{classroom} No.{classNo}
+          </p>
         </div>
 
         {showPopup && (

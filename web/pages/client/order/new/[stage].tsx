@@ -29,7 +29,7 @@ const NewOrderPage = () => {
       <main className="flex flex-col gap-2 p-3">
         <p>New order page contents here.</p>
         <p>{contextURL[orderStage]}</p>
-        <InputLabel label="state">
+        <InputLabel header="state">
           <SegmentedGroup className="max-w-128">
             <Button
               appearance="tonal"
