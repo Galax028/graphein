@@ -51,7 +51,7 @@ const DropDownCard = ({
             border-outline`)}
             >
               {footer.map((i) => (
-                <span className="opacity-50 text-body-sm">{i}</span>
+                <span key={i} className="opacity-50 text-body-sm">{i}</span>
               ))}
             </div>
           )}
