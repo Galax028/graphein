@@ -1,5 +1,5 @@
 import cn from "@/utils/helpers/cn";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
 type PopupProps = {
   title: string;

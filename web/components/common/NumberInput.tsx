@@ -25,7 +25,7 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
 
   // Text Input
   const validateUpdateCount = (i: string) => {
-    let rawString = i.replace(/^0+/, "");
+    const rawString = i.replace(/^0+/, "");
 
     // Remove non-numbers except "-"
     const tempNumber = Number(
@@ -86,6 +86,5 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
     </SegmentedGroup>
   );
 }
-1;
 
 export default NumberInput;

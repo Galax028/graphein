@@ -6,14 +6,12 @@ import SignInButton from "@/components/landing/SignInButton";
 import cn from "@/utils/helpers/cn";
 import { LangCode } from "@/utils/types/common";
 import { GetServerSideProps } from "next";
-import { Trans, useTranslation } from "next-i18next";
+import { Trans } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Link from "next/link";
 import { useState } from "react";
 
 const LandingPage = () => {
-  const { t } = useTranslation("common");
-
   const [language, setLanguage] = useState("en");
 
   return (
