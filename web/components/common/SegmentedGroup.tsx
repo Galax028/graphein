@@ -1,7 +1,7 @@
 import { SegmentedGroupProps } from "@/utils/types/common";
 import cn from "@/utils/helpers/cn";
 
-const SegmentedGroup = ({ children, className }: SegmentedGroupProps) => {
+const SegmentedGroup = ({ children, className, direction, }: SegmentedGroupProps) => {
   return (
     <div
       className={cn(
@@ -11,10 +11,15 @@ const SegmentedGroup = ({ children, className }: SegmentedGroupProps) => {
           [&>button,div,input]:first:rounded-l-lg [&>button]:flex-[10%] 
           [&>button,div,input]:last:rounded-r-lg [&>button,div,input]:border-outline`,
           // [&>button,div,input]:last:rounded-r-lg [&>button]:bg-background`,
+          direction == "horizontal"
+            ? "flex-row"
+            : "flex-col", 
         className
       )}
+      
     >
       {children}
+
     </div>
   );
 };

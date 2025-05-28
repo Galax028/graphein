@@ -39,6 +39,7 @@ export type ButtonProps = IconButtonProps | TextButtonProps;
 export type SegmentedGroupProps = {
   children: React.ReactNode;
   className?: string;
+  direction?: "horizontal" | "vertical";
 };
 
 // Material Icon
