@@ -1,6 +1,13 @@
 import { SegmentedGroupProps } from "@/utils/types/common";
 import cn from "@/utils/helpers/cn";
 
+/**
+ * SegmentedGroup is a component that groups buttons, inputs, or divs
+ * into a segmented control style layout.
+ *
+ * @param direction The direction of the segmented group, either "horizontal" or "vertical".
+ */
+
 const SegmentedGroup = ({ children, className, direction, }: SegmentedGroupProps) => {
   return (
     <div
