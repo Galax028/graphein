@@ -10,16 +10,26 @@ use crate::schemas::{
 #[serde(rename_all = "camelCase")]
 pub struct File {
     pub(crate) id: FileId,
-    filename: String,
-    filetype: FileType,
-    filesize: i64,
-    copies: i32,
-    range: Option<String>,
-    paper_size_id: Option<PaperSizeId>,
-    paper_orientation: PaperOrientation,
-    is_colour: bool,
-    scaling: i32,
-    is_double_sided: bool,
+    pub(crate) filename: String,
+    pub(crate) filetype: FileType,
+    pub(crate) filesize: i64,
+    #[serde(skip_serializing)]
+    pub(crate) object_key: String,
+    pub(crate) copies: i32,
+    pub(crate) range: Option<String>,
+    pub(crate) paper_size_id: Option<PaperSizeId>,
+    pub(crate) paper_orientation: PaperOrientation,
+    pub(crate) is_colour: bool,
+    pub(crate) scaling: i32,
+    pub(crate) is_double_sided: bool,
+}
+
+#[derive(Debug, FromRow)]
+pub struct FileMetadata {
+    pub id: FileId,
+    pub object_key: String,
+    pub filename: String,
+    pub filetype: FileType,
 }
 
 #[derive(Debug, Deserialize)]
@@ -34,4 +44,24 @@ pub struct FileUploadResponse {
     pub id: FileId,
     pub object_key: String,
     pub upload_url: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FileCreate {
+    pub id: FileId,
+    pub filename: String,
+    pub copies: i32,
+    pub range: Option<String>,
+    pub paper_size_id: PaperSizeId,
+    pub paper_orientation: PaperOrientation,
+    pub is_colour: bool,
+    pub scaling: i32,
+    pub is_double_sided: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct FilePresignResponse {
+    pub id: FileId,
+    pub url: String,
 }

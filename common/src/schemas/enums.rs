@@ -1,9 +1,10 @@
 use std::fmt::{self, Display};
 
+use derive_more::FromStr;
 use serde::{Deserialize, Serialize};
 use sqlx::Type as SqlxType;
 
-#[derive(Debug, Deserialize, Clone, Copy, Serialize, SqlxType)]
+#[derive(Debug, Deserialize, Clone, Copy, FromStr, Serialize, SqlxType)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "filetype", rename_all = "lowercase")]
 pub enum FileType {

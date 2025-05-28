@@ -9,7 +9,7 @@ use crate::{
     error::ForbiddenError,
     request::PageKey,
     schemas::{
-        CompactOrder, DetailedOrder, OrderId, OrderStatusUpdate, UserId,
+        CompactOrder, DetailedOrder, OrderId, OrderStatusUpdate, ServiceId, UserId,
         enums::{OrderStatus, UserRole},
     },
 };
@@ -17,6 +17,95 @@ use crate::{
 pub struct OrdersTable;
 
 impl OrdersTable {
+    #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
+    pub async fn create_new(conn: &mut PgConnection, order: &DetailedOrder) -> SqlxResult<()> {
+        sqlx::query(
+            "\
+            INSERT INTO orders (id, created_at, owner_id, order_number, status, notes)\
+            VALUES ($1, $2, $3, $4, $5, $6)\
+            ",
+        )
+        .bind(order.id)
+        .bind(order.created_at)
+        .bind(order.owner_id)
+        .bind(order.order_number.as_str())
+        .bind(OrderStatus::Reviewing)
+        .bind(order.notes.as_ref())
+        .execute(&mut *conn)
+        .await?;
+
+        sqlx::query(
+            "\
+            INSERT INTO order_status_updates (created_at, order_id, status)\
+            VALUES ($1, $2, $3)\
+            ",
+        )
+        .bind(Utc::now())
+        .bind(order.id)
+        .bind(OrderStatus::Reviewing)
+        .execute(&mut *conn)
+        .await?;
+
+        for (index, file) in order.files.iter().enumerate() {
+            sqlx::query(
+                "\
+                INSERT INTO files (\
+                    id, order_id, filename, filetype, filesize, object_key, copies, range,\
+                    paper_size_id, paper_orientation, is_colour, scaling, is_double_sided, index\
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\
+                ",
+            )
+            .bind(file.id)
+            .bind(order.id)
+            .bind(file.filename.as_str())
+            .bind(file.filetype)
+            .bind(file.filesize)
+            .bind(file.object_key.as_str())
+            .bind(file.copies)
+            .bind(file.range.as_ref())
+            .bind(file.paper_size_id)
+            .bind(file.paper_orientation)
+            .bind(file.is_colour)
+            .bind(file.scaling)
+            .bind(file.is_double_sided)
+            .bind(index as i32)
+            .execute(&mut *conn)
+            .await?;
+        }
+
+        for (index, service) in order.services.iter().enumerate() {
+            let service_id: ServiceId = sqlx::query_scalar(
+                "\
+                INSERT INTO services (order_id, service_type, bookbinding_type_id, notes, index)\
+                VALUES ($1, $2, $3, $4, $5) RETURNING id\
+                ",
+            )
+            .bind(order.id)
+            .bind(service.service_type)
+            .bind(service.bookbinding_type_id.as_ref())
+            .bind(service.notes.as_ref())
+            .bind(index as i32)
+            .fetch_one(&mut *conn)
+            .await?;
+
+            for file_id in &service.file_ids {
+                sqlx::query(
+                    "\
+                    INSERT INTO services_files (order_id, service_id, file_id)\
+                    VALUES ($1, $2, $3)\
+                    ",
+                )
+                .bind(order.id)
+                .bind(service_id)
+                .bind(file_id)
+                .execute(&mut *conn)
+                .await?;
+            }
+        }
+
+        Ok(())
+    }
+
     pub async fn fetch_one(conn: &mut PgConnection, id: OrderId) -> SqlxResult<DetailedOrder> {
         let order = sqlx::query!(
             "\
@@ -46,8 +135,8 @@ impl OrdersTable {
         let files = sqlx::query_as(
             "\
             SELECT \
-                f.id, f.filename, f.filetype, f.filesize, f.copies, f.range, f.paper_size_id,\
-                f.paper_orientation, f.is_colour, f.scaling, f.is_double_sided \
+                f.id, f.filename, f.filetype, f.filesize, f.object_key, f.copies, f.range,\
+                f.paper_size_id, f.paper_orientation, f.is_colour, f.scaling, f.is_double_sided \
             FROM files AS f \
                 JOIN orders AS o ON o.id = f.order_id \
             WHERE f.order_id = $1 \

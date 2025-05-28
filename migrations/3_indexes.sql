@@ -21,7 +21,7 @@ CREATE UNIQUE INDEX orders_created_at_id_idx ON orders USING btree (created_at D
 
 CREATE UNIQUE INDEX order_status_updates_pkey_idx ON order_status_updates USING btree (id);
 
-CREATE UNIQUE INDEX order_status_updates_order_id_fkey_idx
+CREATE INDEX order_status_updates_order_id_fkey_idx
 ON order_status_updates USING btree (order_id);
 
 CREATE UNIQUE INDEX files_pkey_idx ON files USING btree (id);

@@ -104,6 +104,12 @@ impl From<tokio::task::JoinError> for AppError {
     }
 }
 
+impl<T> From<tokio::sync::mpsc::error::SendError<T>> for AppError {
+    fn from(_: tokio::sync::mpsc::error::SendError<T>) -> Self {
+        AppError::InternalServerError(anyhow!("Channel closed"))
+    }
+}
+
 impl From<s3::error::S3Error> for AppError {
     fn from(source: s3::error::S3Error) -> Self {
         AppError::InternalServerError(anyhow!(source))

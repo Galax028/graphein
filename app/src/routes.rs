@@ -12,6 +12,7 @@ mod orders;
 mod user;
 
 #[doc(hidden)]
+#[allow(clippy::needless_pass_by_value)]
 pub fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
         .nest("/auth", auth::expand_router(state.clone()))

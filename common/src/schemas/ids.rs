@@ -31,4 +31,10 @@ pub struct OrderId(Uuid);
 #[repr(transparent)]
 #[serde(transparent)]
 #[sqlx(transparent)]
+pub struct ServiceId(Uuid);
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, From, Hash, PartialEq, Serialize, SqlxType)]
+#[repr(transparent)]
+#[serde(transparent)]
+#[sqlx(transparent)]
 pub struct UserId(Uuid);

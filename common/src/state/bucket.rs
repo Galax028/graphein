@@ -39,6 +39,14 @@ impl R2Bucket {
         })
     }
 
+    pub async fn exists(&self, object_key: &str, filetype: FileType) -> Result<(), AppError> {
+        self.inner
+            .object_exists(format!("{object_key}.{filetype}"))
+            .await?;
+
+        Ok(())
+    }
+
     pub async fn presign_get_file(
         &self,
         object_key: &str,
@@ -114,11 +122,12 @@ impl R2Bucket {
     }
 
     pub async fn delete_file(&self, object_key: &str, filetype: FileType) -> Result<(), AppError> {
-        let path = format!("/{object_key}.{filetype}");
-        let thumbnail_path = format!("/{object_key}.t.webp");
-
-        self.inner.delete_object(path).await?;
-        self.inner.delete_object(thumbnail_path).await?;
+        self.inner
+            .delete_object(format!("/{object_key}.{filetype}"))
+            .await?;
+        self.inner
+            .delete_object(format!("/{object_key}.t.webp"))
+            .await?;
 
         Ok(())
     }

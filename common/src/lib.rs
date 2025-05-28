@@ -29,6 +29,8 @@ pub use crate::{
 pub type HandlerResponse<T> = Result<response::ResponseBody<T>, error::AppError>;
 pub type SqlxResult<T> = Result<T, sqlx::Error>;
 
+pub const MAX_FILE_LIMIT: usize = 10;
+
 pub mod dto {
     pub use crate::{
         request::{PaginationRequest, RequestData},

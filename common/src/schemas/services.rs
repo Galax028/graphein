@@ -6,9 +6,9 @@ use crate::schemas::{BookbindingTypeId, FileId, PaperSizeId, enums::ServiceType}
 #[derive(Debug, Deserialize, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Service {
-    service_type: ServiceType,
-    bookbinding_type_id: Option<BookbindingTypeId>,
-    notes: Option<String>,
+    pub(crate) service_type: ServiceType,
+    pub(crate) bookbinding_type_id: Option<BookbindingTypeId>,
+    pub(crate) notes: Option<String>,
     pub(crate) file_ids: Vec<FileId>,
 }
 

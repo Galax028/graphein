@@ -5,20 +5,22 @@ use std::sync::{
 
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
+use futures::stream::{self, TryStreamExt as _};
 use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use uuid::Uuid;
 
 use crate::{
-    AppError,
+    AppError, MAX_FILE_LIMIT,
     error::NotFoundError,
     schemas::{
-        DetailedOrder, FileId, OrderCreate, OrderId, OrderStatusUpdate, UserId,
+        DetailedOrder, File, FileId, OrderCreate, OrderId, UserId,
         enums::{FileType, OrderStatus},
     },
 };
 
-static MAX_NUM_FILES: usize = 10;
-static MAX_QUEUE_SEQ: u16 = 25974; /* 26 * 999 */
+use super::R2Bucket;
+
+const MAX_QUEUE_SEQ: u16 = 25974; /* 26 * 999 */
 
 #[derive(Clone, Debug)]
 pub struct DraftFile {
@@ -41,7 +43,7 @@ impl DraftOrder {
         Self {
             id,
             created_at: Utc::now(),
-            files: Vec::with_capacity(MAX_NUM_FILES),
+            files: Vec::with_capacity(MAX_FILE_LIMIT),
         }
     }
 
@@ -114,7 +116,7 @@ impl DraftOrderStore {
             .get_mut(&owner_id)
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
 
-        if draft.files_len() == MAX_NUM_FILES {
+        if draft.files_len() == MAX_FILE_LIMIT {
             return Err(AppError::BadRequest(
                 "This order has already reached the maximum file limit.".into(),
             ));
@@ -173,8 +175,10 @@ impl DraftOrderStore {
         Ok(())
     }
 
-    pub fn build(
+    #[allow(clippy::cast_possible_wrap)]
+    pub async fn build(
         &self,
+        bucket: &R2Bucket,
         owner_id: UserId,
         OrderCreate {
             notes,
@@ -182,11 +186,17 @@ impl DraftOrderStore {
             services,
         }: OrderCreate,
     ) -> Result<DetailedOrder, AppError> {
-        let draft_order = self
+        let mut draft_order = self
             .orders
             .remove(&owner_id)
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?
             .1;
+
+        if draft_order.files_len() == 0 {
+            return Err(AppError::BadRequest(
+                "There are no files present in this order.".into(),
+            ));
+        }
 
         if !files.iter().all(|file| draft_order.contains_file(file.id))
             || !services.iter().all(|service| {
@@ -196,8 +206,47 @@ impl DraftOrderStore {
                     .all(|file_id| draft_order.contains_file(*file_id))
             })
         {
-            return Err(AppError::NotFound(NotFoundError::ResourceNotFound));
+            return Err(AppError::BadRequest(
+                "Malformed or missing files and/or services were provided.".into(),
+            ));
         }
+
+        if stream::iter(draft_order.files.iter().map(Ok))
+            .try_for_each_concurrent(MAX_FILE_LIMIT, |draft_file| {
+                bucket.exists(&draft_file.object_key, draft_file.filetype)
+            })
+            .await
+            .is_err()
+        {
+            return Err(AppError::BadRequest(
+                "Object(s) bound to the order were not provided.".into(),
+            ));
+        }
+
+        let files = files
+            .into_iter()
+            .map(|file| {
+                let draft_file = draft_order
+                    .files
+                    .pop_if(|draft_file| draft_file.id == file.id)
+                    .unwrap();
+
+                File {
+                    id: file.id,
+                    filename: file.filename,
+                    filetype: draft_file.filetype,
+                    filesize: draft_file.filesize as i64,
+                    object_key: draft_file.object_key,
+                    copies: file.copies,
+                    range: file.range,
+                    paper_size_id: Some(file.paper_size_id),
+                    paper_orientation: file.paper_orientation,
+                    is_colour: file.is_colour,
+                    scaling: file.scaling,
+                    is_double_sided: file.is_double_sided,
+                }
+            })
+            .collect();
 
         Ok(DetailedOrder {
             id: draft_order.id,
@@ -207,10 +256,7 @@ impl DraftOrderStore {
             status: OrderStatus::Reviewing,
             price: None,
             notes,
-            status_history: vec![OrderStatusUpdate {
-                timestamp: Utc::now(),
-                status: OrderStatus::Reviewing,
-            }],
+            status_history: Vec::with_capacity(0),
             files,
             services,
         })

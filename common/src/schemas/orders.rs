@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
-use crate::schemas::{File, OrderId, Service, UserId, enums::OrderStatus};
+use crate::schemas::{File, FileCreate, OrderId, Service, UserId, enums::OrderStatus};
 
 #[derive(Debug, Serialize)]
 pub struct ClientOrdersGlance {
@@ -52,7 +52,7 @@ pub struct OrderStatusUpdate {
 
 #[derive(Debug, Deserialize)]
 pub struct OrderCreate {
-    pub(crate) notes: Option<String>,
-    pub(crate) files: Vec<File>,
-    pub(crate) services: Vec<Service>,
+    pub notes: Option<String>,
+    pub files: Vec<FileCreate>,
+    pub services: Vec<Service>,
 }
