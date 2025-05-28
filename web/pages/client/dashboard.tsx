@@ -62,14 +62,19 @@ const ClientDashboard = () => {
             {(ordersState.data?.ongoing ?? []).length != 0 ? (
               (ordersState.data?.ongoing ?? []).map((order: any) => {
                 return (
-                  <OrderCard
-                    key={order.id}
-                    id={order.id}
-                    status={order.status}
-                    orderNumber={order.orderNumber}
-                    createdAt={order.createdAt}
-                    filesCount={order.filesCount}
-                  />
+                  <Link href={`/client/order/detail/${order.id}`}>
+                    <OrderCard
+                      key={order.id}
+                      id={order.id}
+                      status={order.status}
+                      orderNumber={order.orderNumber}
+                      createdAt={order.createdAt}
+                      filesCount={order.filesCount}
+                      options={{
+                        showNavigationIcon: true,
+                      }}
+                    />
+                  </Link>
                 );
               })
             ) : (
@@ -80,14 +85,19 @@ const ClientDashboard = () => {
             {(ordersState.data?.finished ?? []).length != 0 ? (
               (ordersState.data?.finished ?? []).map((order: any) => {
                 return (
-                  <OrderCard
-                    key={order.id}
-                    id={order.id}
-                    status={order.status}
-                    orderNumber={order.orderNumber}
-                    createdAt={order.createdAt}
-                    filesCount={order.filesCount}
-                  />
+                  <Link href={`/client/order/detail/${order.id}`}>
+                    <OrderCard
+                      key={order.id}
+                      id={order.id}
+                      status={order.status}
+                      orderNumber={order.orderNumber}
+                      createdAt={order.createdAt}
+                      filesCount={order.filesCount}
+                      options={{
+                        showNavigationIcon: true,
+                      }}
+                    />
+                  </Link>
                 );
               })
             ) : (
