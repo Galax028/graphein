@@ -20,6 +20,23 @@ import { useEffect, useState } from "react";
  * @returns The navigation bar element.
  */
 
+type User = {
+  success: boolean;
+  timestamp: string;
+  message: string;
+  data: {
+    id: string;
+    role: "student" | "teacher" | "merchant";
+    email: string;
+    name: string;
+    class: number;
+    classNo: number;
+    profileUrl: string;
+    isOnboarded: boolean;
+  }
+  error: string;
+}
+
 const NavigationBar = ({
   title,
   desc,
@@ -30,7 +47,7 @@ const NavigationBar = ({
 }: NavigationBarProps) => {
   const router = useRouter();
 
-  const [user, setUser] = useState<any>({});
+  const [user, setUser] = useState<User>();
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -88,8 +105,8 @@ const NavigationBar = ({
           isSignedIn && (
             <Link href="/settings">
               <PersonAvatar
-                profile_url={user.data.profileUrl}
-                person_name={user.data.name}
+                profile_url={user?.data.profileUrl}
+                person_name={user?.data.name}
               />
             </Link>
           )
