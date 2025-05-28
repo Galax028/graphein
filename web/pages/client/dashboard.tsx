@@ -3,6 +3,8 @@ import OrderEmptyCard from "@/components/client/dashboard/OrderEmptyCard";
 import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
+import cn from "@/utils/helpers/cn";
+import getGrettingMessage from "@/utils/helpers/getGreetingMessage";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -15,31 +17,15 @@ const ClientDashboard = () => {
   const [user, setUser] = useState<any>({});
 
   useEffect(() => {
-    // Onboard the logged in user. (DANGER!!!)
-    const postOnboard = async () => {
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_API_PATH + "/user/onboard",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tel: "0929264489",
-            class: 605,
-            classNo: 5,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      setOrdersState(data);
-    };
-
-    const getUser = async () => {
+    const fetchUser = async () => {
       const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
         method: "GET",
         credentials: "include",
       });
+
+      if (!res.ok) {
+        router.push("/");
+      }
 
       const data = await res.json();
       setUser(data);
@@ -53,43 +39,25 @@ const ClientDashboard = () => {
         }
       );
 
-      if (res.status == 403) {
-        console.warn(
-          `Response: [403] Forbidden\n[1.] The user must be authenticated before accessing this page.\n[2.] Redirecting to '/client/onboarding'`
-        );
-        return;
-        // return router.push("/client/onboarding");
-      }
-
       const data = await res.json();
       setOrdersState(data);
     };
 
-    const getDetailedOrder = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_PATH}/orders/844d2794-e378-4c77-b1bc-d5ff9685c744`,
-        {
-          credentials: "include",
-        }
-      );
-      if (res.status == 403) {
-        // return router.push("/client/onboarding");
-      }
-      const data = await res.json();
-      setDetailedState(data);
-    };
-
-    // postOnboard();
-    getUser();
+    fetchUser();
     fetchOrders();
-    getDetailedOrder();
   }, []);
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
-      <NavigationBar title={`Good morning, ${user.data?.name ?? ""}`} />
+      <NavigationBar
+        title={`${getGrettingMessage()}, ${user.data?.name ?? ""}`}
+      />
       <main className="flex flex-col h-full overflow-auto gap-3 font-mono">
-        <div className="flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16">
+        <div
+          className={cn(
+            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
+          )}
+        >
           <LabelGroup header="Ongoing">
             {(ordersState.data?.ongoing ?? []).length != 0 ? (
               (ordersState.data?.ongoing ?? []).map((order: any) => {
