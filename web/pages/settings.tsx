@@ -1,5 +1,5 @@
 import Button from "@/components/common/Button";
-import InputLabel from "@/components/common/InputLabel";
+import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -59,12 +59,12 @@ const SettingsPage = () => {
       <div className="flex flex-col gap-3 p-3">
         {isSignedIn && (
           <>
-            <InputLabel
+            <LabelGroup
               header="About you"
               footer="You cannot change your profile picture, name, or email here because they’re synced with your Google account—please update them in your Google account settings."
             >
               <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
-                <InputLabel header="Profile">
+                <LabelGroup header="Profile">
                   <div className="m-auto">
                     <PersonAvatar
                       profile_url={user.data.profileUrl}
@@ -72,28 +72,28 @@ const SettingsPage = () => {
                       size={96}
                     />
                   </div>
-                </InputLabel>
-                <InputLabel header="Name">
+                </LabelGroup>
+                <LabelGroup header="Name">
                   <input
                     value={user.data.name}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
                     disabled
                   />
-                </InputLabel>
-                <InputLabel header="Email">
+                </LabelGroup>
+                <LabelGroup header="Email">
                   <input
                     value={user.data.email}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
                     disabled
                   />
-                </InputLabel>
-                <InputLabel header="Phone">
+                </LabelGroup>
+                <LabelGroup header="Phone">
                   <input
                     value={user.data.tel}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
                   />
-                </InputLabel>
-                <InputLabel header="Class / No.">
+                </LabelGroup>
+                <LabelGroup header="Class / No.">
                   <SegmentedGroup>
                     <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
                       <p>M.</p>
@@ -120,7 +120,7 @@ const SettingsPage = () => {
                   </SegmentedGroup>
                 </InputLabel>
               </div>
-            </InputLabel>
+            </LabelGroup>
           </>
         )}
         <Button
@@ -132,7 +132,7 @@ const SettingsPage = () => {
         >
           Sign Out
         </Button>
-        <InputLabel header="Developer Log">
+        <LabelGroup header="Developer Log">
           <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
             <b>
               <a
@@ -146,7 +146,7 @@ const SettingsPage = () => {
             <br />
             <span className="!font-mono break-all">{JSON.stringify(user)}</span>
           </div>
-        </InputLabel>
+        </LabelGroup>
       </div>
     </>
   );

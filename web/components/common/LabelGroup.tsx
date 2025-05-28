@@ -9,7 +9,7 @@ import { InputLabelProps } from "@/utils/types/common";
  * @returns A stylized DOM element.
  */
 
-const InputLabel = ({ header, children, footer }: InputLabelProps) => {
+const LabelGroup = ({ header, children, footer }: InputLabelProps) => {
   return (
     <div className="flex flex-col gap-1">
       <p className="text-body-sm opacity-50">{header}</p>
@@ -19,4 +19,4 @@ const InputLabel = ({ header, children, footer }: InputLabelProps) => {
   );
 };
 
-export default InputLabel;
+export default LabelGroup;

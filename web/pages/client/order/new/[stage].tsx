@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import InputLabel from "@/components/common/InputLabel";
+import LabelGroup from "@/components/common/LabelGroup";
 
 const NewOrderPage = () => {
   const router = useRouter();
@@ -29,7 +29,7 @@ const NewOrderPage = () => {
       <main className="flex flex-col gap-2 p-3">
         <p>New order page contents here.</p>
         <p>{contextURL[orderStage]}</p>
-        <InputLabel header="state">
+        <LabelGroup header="state">
           <SegmentedGroup className="max-w-128">
             <Button
               appearance="tonal"
@@ -64,7 +64,7 @@ const NewOrderPage = () => {
               review
             </Button>
           </SegmentedGroup>
-        </InputLabel>
+        </LabelGroup>
       </main>
     </>
   );

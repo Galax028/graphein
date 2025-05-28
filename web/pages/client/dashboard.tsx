@@ -1,7 +1,7 @@
 import OrderCard from "@/components/client/dashboard/OrderCard";
 import OrderEmptyCard from "@/components/client/dashboard/OrderEmptyCard";
 import Button from "@/components/common/Button";
-import InputLabel from "@/components/common/InputLabel";
+import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -90,7 +90,7 @@ const ClientDashboard = () => {
       <NavigationBar title={`Good morning, ${user.data?.name ?? ""}`} />
       <main className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div className="flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16">
-          <InputLabel header="Ongoing">
+          <LabelGroup header="Ongoing">
             {(ordersState.data?.ongoing ?? []).length != 0 ? (
               (ordersState.data?.ongoing ?? []).map((order: any) => {
                 return (
@@ -107,8 +107,8 @@ const ClientDashboard = () => {
             ) : (
               <OrderEmptyCard text={"You have no active order in progress."} />
             )}
-          </InputLabel>
-          <InputLabel header="Completed">
+          </LabelGroup>
+          <LabelGroup header="Completed">
             {(ordersState.data?.finished ?? []).length != 0 ? (
               (ordersState.data?.finished ?? []).map((order: any) => {
                 return (
@@ -125,66 +125,68 @@ const ClientDashboard = () => {
             ) : (
               <OrderEmptyCard text={"Orders completed will appear here."} />
             )}
-          </InputLabel>
+          </LabelGroup>
           <Link href="/client/order/history">
             <Button appearance={"tonal"} icon={"history"} className="w-full">
               Order History
             </Button>
           </Link>
 
-          {/* Dev logs */}
-          <InputLabel header="Developer Log">
-            <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
-              <b>
-                <a
-                  className="!font-mono break-all"
-                  href={process.env.NEXT_PUBLIC_API_PATH + "/user"}
-                  target="_blank"
-                >
-                  {process.env.NEXT_PUBLIC_API_PATH + "/user"}
-                </a>
-              </b>
-              <br />
-              <span className="!font-mono break-all">
-                {JSON.stringify(user)}
-              </span>
-              <br />
-              <br />
-              <b>
-                <a
-                  className="!font-mono break-all"
-                  href={process.env.NEXT_PUBLIC_API_PATH + "/orders/glance"}
-                  target="_blank"
-                >
-                  {process.env.NEXT_PUBLIC_API_PATH + "/orders/glance"}
-                </a>
-              </b>
-              <br />
-              <span className="!font-mono break-all">
-                {JSON.stringify(ordersState)}
-              </span>
-              <br />
-              <br />
+          {/* DEV: Fetch logs */}
+          {process.env.NODE_ENV === "development" && (
+            <LabelGroup header="Developer Log">
+              <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
+                <b>
+                  <a
+                    className="!font-mono break-all"
+                    href={process.env.NEXT_PUBLIC_API_PATH + "/user"}
+                    target="_blank"
+                  >
+                    {process.env.NEXT_PUBLIC_API_PATH + "/user"}
+                  </a>
+                </b>
+                <br />
+                <span className="!font-mono break-all">
+                  {JSON.stringify(user)}
+                </span>
+                <br />
+                <br />
+                <b>
+                  <a
+                    className="!font-mono break-all"
+                    href={process.env.NEXT_PUBLIC_API_PATH + "/orders/glance"}
+                    target="_blank"
+                  >
+                    {process.env.NEXT_PUBLIC_API_PATH + "/orders/glance"}
+                  </a>
+                </b>
+                <br />
+                <span className="!font-mono break-all">
+                  {JSON.stringify(ordersState)}
+                </span>
+                <br />
+                <br />
 
-              <b>
-                <a
-                  className="!font-mono break-all"
-                  href={
-                    process.env.NEXT_PUBLIC_API_PATH +
-                    "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"
-                  }
-                  target="_blank"
-                >
-                  {process.env.NEXT_PUBLIC_API_PATH +
-                    "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"}
-                </a>
-              </b>
-              <br />
-              <span className="!font-mono break-all">
-                {JSON.stringify(detailedState)}
-              </span>
-            </div>
-          </InputLabel>
+                <b>
+                  <a
+                    className="!font-mono break-all"
+                    href={
+                      process.env.NEXT_PUBLIC_API_PATH +
+                      "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"
+                    }
+                    target="_blank"
+                  >
+                    {process.env.NEXT_PUBLIC_API_PATH +
+                      "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"}
+                  </a>
+                </b>
+                <br />
+                <span className="!font-mono break-all">
+                  {JSON.stringify(detailedState)}
+                </span>
+              </div>
+            </LabelGroup>
+          )}
         </div>
         <div className="fixed p-3 left-0 bottom-0 w-full flex flex-col h-16">
           <Link href="/client/order/new/upload">

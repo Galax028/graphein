@@ -1,5 +1,5 @@
 import Button from "@/components/common/Button";
-import InputLabel from "@/components/common/InputLabel";
+import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
@@ -40,7 +40,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="flex flex-col gap-3 md:w-[24rem] md:my-4 md:m-auto">
-            <InputLabel header="Dev Links">
+            <LabelGroup header="Dev Links">
               <div
                 className={cn(
                   `flex gap-2 m-auto w-full px-4 py-2 h-10 border border-outline 
@@ -60,8 +60,8 @@ const LandingPage = () => {
                   <p className="text-body-md">/markdown</p>
                 </Link>
               </div>
-            </InputLabel>
-            <InputLabel header="Language">
+            </LabelGroup>
+            <LabelGroup header="Language">
               <SegmentedGroup>
                 <Button
                   selected={language == "th"}
@@ -82,7 +82,7 @@ const LandingPage = () => {
                   English
                 </Button>
               </SegmentedGroup>
-            </InputLabel>
+            </LabelGroup>
             <p className="text-xs opacity-50">
               <Trans i18nKey={"footer.disclaimer"}>
                 <Link className="underline" href={"/about"} />
