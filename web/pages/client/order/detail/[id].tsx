@@ -10,6 +10,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import DescriptionList from "@/components/common/DescriptionList";
 
 type OrderDetailsPageProps = {
   user: any;
@@ -138,24 +139,14 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
                 }}
               />
               <DropDownCard header="About Order">
-                <div className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2">
-                  {aboutOrderProps.map((i) => (
-                    <>
-                      <p className="w-18 text-body-sm opacity-50">{i.title}</p>
-                      <p className="w-full text-body-md">{i.content}</p>
-                    </>
-                  ))}
-                </div>
+                <DescriptionList 
+                  data={aboutOrderProps}
+                />
               </DropDownCard>
               <DropDownCard header="Time Log">
-                <div className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2">
-                  {timeLogProps.map((i) => (
-                    <>
-                      <p className="text-body-sm opacity-50">{i.title}</p>
-                      <p className="text-body-md">{i.content}</p>
-                    </>
-                  ))}
-                </div>
+                <DescriptionList 
+                  data={timeLogProps}
+                />
               </DropDownCard>
             </LabelGroup>
             <LabelGroup header="Note to Shop">
