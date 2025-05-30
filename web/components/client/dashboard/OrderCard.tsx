@@ -1,17 +1,19 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import getDateString from "@/utils/helpers/getDateString";
+import getDateTimeString from "@/utils/helpers/getDateTimeString";
+
+type OrderStatusProps =
+  | "building"
+  | "reviewing"
+  | "processing"
+  | "ready"
+  | "completed"
+  | "rejected"
+  | "cancelled"
+  | "unknown";
 
 type OrderCardProps = {
-  id: string;
-  status:
-    | "review"
-    | "processing"
-    | "ready"
-    | "completed"
-    | "rejected"
-    | "cancelled"
-    | "unknown";
+  status: OrderStatusProps;
   orderNumber: string;
   filesCount: number;
   createdAt: string;
@@ -23,7 +25,6 @@ type OrderCardProps = {
 };
 
 const OrderCard = ({
-  id,
   status = "unknown",
   orderNumber,
   filesCount,
@@ -32,7 +33,7 @@ const OrderCard = ({
 }: OrderCardProps) => {
   const statusTranslation = {
     building: "Building Order",
-    review: "Reviewing",
+    reviewing: "Reviewing",
     processing: "Printing",
     ready: "Ready for Pickup",
     completed: "Completed",
@@ -45,7 +46,8 @@ const OrderCard = ({
     OrderCardProps["status"],
     { width: string; color: string }
   > = {
-    review: { width: "w-[calc(57.91px/2)]", color: "bg-warning" },
+    building: { width: "", color: "" },
+    reviewing: { width: "w-[calc(57.91px/2)]", color: "bg-warning" },
     processing: { width: "w-3/8", color: "bg-warning" },
     ready: { width: "w-5/8", color: "bg-success" },
     completed: { width: "w-full", color: "bg-success" },
@@ -73,7 +75,7 @@ const OrderCard = ({
           )}
           <p>Order #{orderNumber}</p>
           <p className="text-body-sm opacity-50">
-            {getDateString(new Date(createdAt))} • {filesCount} File
+            {getDateTimeString(new Date(createdAt))} • {filesCount} File
             {filesCount != 1 && filesCount != -1 && "s"}
           </p>
         </div>
