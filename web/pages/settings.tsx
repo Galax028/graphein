@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
+import { UserTypes } from "@/utils/types/common";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -13,9 +14,26 @@ const SettingsPage = () => {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
 
-  const [phone, setPhone] = useState<string>();
+  const [phone, setPhone] = useState<string>("");
   const [classroom, setClassroom] = useState<string>("");
-  const [classNo, setClassNo] = useState<string>("");
+  const [classroomNo, setClassroomNo] = useState<string>("");
+
+  const handleUpdateProfileSettings = async (role: UserTypes) => {
+    const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tel: String(phone),
+        class: Number(classroom),
+        classNo: Number(classroomNo),
+      }),
+    });
+
+    if (res.ok) {
+      return location.reload();
+    }
+  };
 
   const handleSignOut = async () => {
     setBusy(true);
@@ -60,7 +78,7 @@ const SettingsPage = () => {
         {isSignedIn && (
           <>
             <LabelGroup
-              header="About you"
+              header="About You"
               footer="You cannot change your profile picture, name, or email here because they’re synced with your Google account—please update them in your Google account settings."
             >
               <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
@@ -89,8 +107,11 @@ const SettingsPage = () => {
                 </LabelGroup>
                 <LabelGroup header="Phone">
                   <input
-                    value={user.data.tel}
+                    value={phone}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                    }}
                   />
                 </LabelGroup>
                 <LabelGroup header="Class / No.">
@@ -99,26 +120,35 @@ const SettingsPage = () => {
                       <p>M.</p>
                     </div>
                     <input
-                      value={user.data.class}
+                      value={classroom}
                       onChange={(e) => {
                         setClassroom(e.target.value);
                       }}
                       type="text"
-                      className="w-full p-2 bg-background"
+                      className="w-full p-2 bg-background text-body-md"
                     />
                     <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
                       <p>No.</p>
                     </div>
                     <input
-                      value={user.data.classNo}
+                      value={classroomNo}
                       onChange={(e) => {
-                        setClassNo(e.target.value);
+                        setClassroomNo(e.target.value);
                       }}
                       type="text"
-                      className="w-full p-2 bg-background"
+                      className="w-full p-2 bg-background text-body-md"
                     />
                   </SegmentedGroup>
-                </InputLabel>
+                </LabelGroup>
+                <Button
+                  appearance="filled"
+                  onClick={handleUpdateProfileSettings}
+                  className="w-full"
+                  icon={"save"}
+                  busy={busy}
+                >
+                  Save
+                </Button>
               </div>
             </LabelGroup>
           </>

@@ -1,5 +1,6 @@
 // Interface
 export type LangCode = "th" | "en";
+export type UserTypes = "student" | "teacher" | "merchant";
 
 // Base Button
 interface BaseButtonProps {
