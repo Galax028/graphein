@@ -8,7 +8,11 @@ import cn from "@/utils/helpers/cn";
  * @param direction The direction of the segmented group, either "horizontal" or "vertical".
  */
 
-const SegmentedGroup = ({ children, className, direction, }: SegmentedGroupProps) => {
+const SegmentedGroup = ({
+  children,
+  className,
+  direction = "horizontal",
+}: SegmentedGroupProps) => {
   return (
     <div
       className={cn(
@@ -17,16 +21,12 @@ const SegmentedGroup = ({ children, className, direction, }: SegmentedGroupProps
           [&>button,div,input]:border-0 [&>button,div,input]:not-first:border-l
           [&>button,div,input]:first:rounded-l-lg [&>button]:flex-[10%] 
           [&>button,div,input]:last:rounded-r-lg [&>button,div,input]:border-outline`,
-          // [&>button,div,input]:last:rounded-r-lg [&>button]:bg-background`,
-          direction == "horizontal"
-            ? "flex-row"
-            : "flex-col", 
+        // [&>button,div,input]:last:rounded-r-lg [&>button]:bg-background`,
+        direction == "horizontal" ? "flex-row" : "flex-col",
         className
       )}
-      
     >
       {children}
-
     </div>
   );
 };
