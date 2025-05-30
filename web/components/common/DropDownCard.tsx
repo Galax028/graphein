@@ -53,9 +53,9 @@ const DropDownCard = ({
         <AnimatePresence initial={false}>
           {open && (
             <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: "auto" }}
-              exit={{ height: 0 }}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
             >
               <div className="p-3 border-t border-outline">{children}</div>
               {footer && (
