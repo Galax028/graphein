@@ -1,18 +1,6 @@
 // Interface
 export type LangCode = "th" | "en";
 
-// Navigation Bar
-export type NavigationBarProps = {
-  user?: any;
-  title: string;
-  desc?: string;
-  backEnabled?: boolean;
-  backContextURL?: string;
-  className?: string;
-  style?: string;
-  children?: React.ReactNode;
-};
-
 // Base Button
 interface BaseButtonProps {
   appearance: "tonal" | "filled";

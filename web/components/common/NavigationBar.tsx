@@ -1,7 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import cn from "@/utils/helpers/cn";
-import { NavigationBarProps } from "@/utils/types/common";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -19,6 +18,17 @@ import { useEffect, useState } from "react";
  *
  * @returns The navigation bar element.
  */
+
+export type NavigationBarProps = {
+  user?: any;
+  title: React.ReactNode;
+  desc?: React.ReactNode;
+  backEnabled?: boolean;
+  backContextURL?: string;
+  className?: string;
+  style?: string;
+  children?: React.ReactNode;
+};
 
 type User = {
   success: boolean;
