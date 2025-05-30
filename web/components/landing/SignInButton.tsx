@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Button from "../common/Button";
+import { useEffect } from "react";
 
 /**
  * The sign in button using the application's design language.
@@ -28,6 +29,21 @@ const SignInButton = () => {
       }
     });
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      // If the user is logged in, redirect the to /glance
+      if (res.ok) return router.push("/glance");
+      return;
+    };
+
+    fetchUser();
+  });
 
   return (
     <Button appearance={"tonal"} onClick={onSignInButtonClick}>
