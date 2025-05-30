@@ -65,7 +65,6 @@ const ClientDashboard = () => {
                   <Link href={`/client/order/detail/${order.id}`}>
                     <OrderCard
                       key={order.id}
-                      id={order.id}
                       status={order.status}
                       orderNumber={order.orderNumber}
                       createdAt={order.createdAt}
@@ -88,7 +87,6 @@ const ClientDashboard = () => {
                   <Link href={`/client/order/detail/${order.id}`}>
                     <OrderCard
                       key={order.id}
-                      id={order.id}
                       status={order.status}
                       orderNumber={order.orderNumber}
                       createdAt={order.createdAt}
@@ -141,26 +139,6 @@ const ClientDashboard = () => {
                 <br />
                 <span className="!font-mono break-all">
                   {JSON.stringify(ordersState)}
-                </span>
-                <br />
-                <br />
-
-                <b>
-                  <a
-                    className="!font-mono break-all"
-                    href={
-                      process.env.NEXT_PUBLIC_API_PATH +
-                      "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"
-                    }
-                    target="_blank"
-                  >
-                    {process.env.NEXT_PUBLIC_API_PATH +
-                      "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"}
-                  </a>
-                </b>
-                <br />
-                <span className="!font-mono break-all">
-                  {JSON.stringify(detailedState)}
                 </span>
               </div>
             </LabelGroup>
