@@ -4,6 +4,7 @@ import cn from "@/utils/helpers/cn";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 /**
  * The navigation bar for all types of users including guest.
@@ -43,9 +44,9 @@ type User = {
     classNo: number;
     profileUrl: string;
     isOnboarded: boolean;
-  }
+  };
   error: string;
-}
+};
 
 const NavigationBar = ({
   title,
@@ -103,10 +104,20 @@ const NavigationBar = ({
             <MaterialIcon icon="arrow_back" />
           </div>
         )}
-        <div className="flex flex-col gap-0">
-          <p>{title}</p>
-          <p className="text-body-sm opacity-50">{desc}</p>
-        </div>
+        <AnimatePresence>
+          <motion.div
+            initial={{ x: -16, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -16, opacity: 0 }}
+            transition={{
+              x: { type: "spring", bounce: 0 },
+            }}
+            className="flex flex-col gap-0"
+          >
+            <div>{title}</div>
+            <div className="text-body-sm opacity-50">{desc}</div>
+          </motion.div>
+        </AnimatePresence>
       </div>
       <div className="p-2">
         {children}
