@@ -12,9 +12,9 @@ import { InputLabelProps } from "@/utils/types/common";
 const LabelGroup = ({ header, children, footer }: InputLabelProps) => {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-body-sm opacity-50">{header}</p>
+      {header && <p className="text-body-sm opacity-50">{header}</p>}
       {children}
-      <p className="text-body-sm opacity-50">{footer}</p>
+      {footer && <p className="text-body-sm opacity-50">{footer}</p>}
     </div>
   );
 };
