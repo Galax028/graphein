@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 type DropDownCardProps = {
   header: string;
   footer?: string[];
+  collapsed?: boolean;
   collapsible?: boolean;
   children: React.ReactNode;
 };
@@ -15,6 +16,7 @@ type DropDownCardProps = {
  *
  * @param header The title string displayed on the title bar.
  * @param footer Array of string to be mapped on the footer bar.
+ * @param collapsed The default collapsed state of the box. (Default true)
  * @param collapsible Should the box be collapsible or not? (Default true)
  * @param children The content inside the main box.
  *
@@ -24,10 +26,11 @@ type DropDownCardProps = {
 const DropDownCard = ({
   header,
   footer,
+  collapsed = true,
   collapsible = true,
   children,
 }: DropDownCardProps) => {
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(!collapsed);
 
   return (
     <div className="border border-outline rounded-lg bg-surface-container">
