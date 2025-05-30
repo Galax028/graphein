@@ -1,6 +1,7 @@
 import cn from "@/utils/helpers/cn";
 import MaterialIcon from "./MaterialIcon";
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 type DropDownCardProps = {
   header: string;
@@ -39,24 +40,40 @@ const DropDownCard = ({
       >
         <p className="text-body-md">{header}</p>
         {collapsible && (
-          <MaterialIcon icon={open ? "arrow_drop_down" : "arrow_drop_up"} />
+          <MaterialIcon
+            icon={"arrow_drop_up"}
+            className={cn(
+              "transition-all duration-250",
+              open ? "rotate-180" : ""
+            )}
+          />
         )}
       </div>
-      {open && (
-        <>
-          <div className="p-3 border-t border-outline">{children}</div>
-          {footer && (
-            <div
-              className={cn(`flex justify-between gap-2 p-2 pl-3 border-t 
-            border-outline`)}
+      <div className="overflow-hidden">
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: "auto" }}
+              exit={{ height: 0 }}
             >
-              {footer.map((i) => (
-                <span key={i} className="opacity-50 text-body-sm">{i}</span>
-              ))}
-            </div>
+              <div className="p-3 border-t border-outline">{children}</div>
+              {footer && (
+                <div
+                  className={cn(`flex justify-between gap-2 p-2 pl-3 border-t 
+            border-outline`)}
+                >
+                  {footer.map((i) => (
+                    <span key={i} className="opacity-50 text-body-sm">
+                      {i}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </motion.div>
           )}
-        </>
-      )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
