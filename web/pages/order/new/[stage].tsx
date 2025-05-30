@@ -13,10 +13,10 @@ const NewOrderPage = () => {
   const [orderStage, setOrderStage] = useState("review");
 
   const contextURL: Record<string, string> = {
-    upload: "/client/dashboard",
-    config: "/client/order/new/upload",
-    service: "/client/order/new/config",
-    review: "/client/order/new/service",
+    upload: "/glance",
+    config: "/order/new/upload",
+    service: "/order/new/config",
+    review: "/order/new/service",
   };
 
   return (

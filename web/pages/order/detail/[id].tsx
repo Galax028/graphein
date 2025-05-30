@@ -1,4 +1,4 @@
-import OrderCard from "@/components/client/dashboard/OrderCard";
+import OrderCard from "@/components/glance/OrderCard";
 import DropDownCard from "@/components/common/DropDownCard";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import DescriptionList from "@/components/common/DescriptionList";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 
 type OrderDetailsPageProps = {
   user: any;
@@ -120,14 +121,8 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
       />
       <main className="p-3 flex flex-col gap-3">
         {detailedState.data && (
-          <motion.div
-            initial={{ opacity: 0, y: 64 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              y: { type: "spring", bounce: 0 },
-            }}
-            className="flex flex-col gap-3"
-          >
+          <PageLoadTransition className="flex flex-col gap-3">
+            {" "}
             <LabelGroup header="Your Order">
               <OrderCard
                 status={detailedState.data?.status ?? "unknown"}
@@ -139,14 +134,10 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
                 }}
               />
               <DropDownCard header="About Order">
-                <DescriptionList 
-                  data={aboutOrderProps}
-                />
+                <DescriptionList data={aboutOrderProps} />
               </DropDownCard>
               <DropDownCard header="Time Log">
-                <DescriptionList 
-                  data={timeLogProps}
-                />
+                <DescriptionList data={timeLogProps} />
               </DropDownCard>
             </LabelGroup>
             <LabelGroup header="Note to Shop">
@@ -164,7 +155,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
                 </p>
               </div>
             </LabelGroup>
-          </motion.div>
+          </PageLoadTransition>
         )}
 
         {process.env.NODE_ENV === "development" && (

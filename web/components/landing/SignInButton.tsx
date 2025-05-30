@@ -16,16 +16,15 @@ const SignInButton = () => {
 
   const onSignInButtonClick = () => {
     const signInWindow = window.open(
-      process.env.NEXT_PUBLIC_API_PATH +
-        "/auth/google/init",
+      process.env.NEXT_PUBLIC_API_PATH + "/auth/google/init",
       "_blank",
       "popup, width=800, height=600"
     );
 
     window.addEventListener("message", (event) => {
       if (event.data == "oauthSuccess") {
-        signInWindow?.close()
-        router.push("/client/dashboard");
+        signInWindow?.close();
+        router.push("/glance");
       }
     });
   };

@@ -114,7 +114,12 @@ const AboutPage = () => {
         </LabelGroup>
         <LabelGroup header="Developers">
           {developers.map((i) => (
-            <DeveloperProfile name={i.name} role={i.role} image={i.image} />
+            <DeveloperProfile
+              key={i.name}
+              name={i.name}
+              role={i.role}
+              image={i.image}
+            />
           ))}
         </LabelGroup>
       </main>

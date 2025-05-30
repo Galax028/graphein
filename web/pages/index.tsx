@@ -45,8 +45,8 @@ const LandingPage = () => {
                   bg-surface-container rounded-lg`
                 )}
               >
-                <Link href={"/client"}>
-                  <p className="text-body-md">/client</p>
+                <Link href={"/glance"}>
+                  <p className="text-body-md">/glance</p>
                 </Link>
                 <Link href={"/merchant"}>
                   <p className="text-body-md">/merchant</p>

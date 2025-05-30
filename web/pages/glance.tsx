@@ -1,5 +1,5 @@
-import OrderCard from "@/components/client/dashboard/OrderCard";
-import OrderEmptyCard from "@/components/client/dashboard/OrderEmptyCard";
+import OrderCard from "@/components/glance/OrderCard";
+import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
 import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
@@ -8,6 +8,7 @@ import getGrettingMessage from "@/utils/helpers/getGreetingMessage";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 
 const ClientDashboard = () => {
   const router = useRouter();
@@ -58,55 +59,63 @@ const ClientDashboard = () => {
             `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
           )}
         >
-          <LabelGroup header="Ongoing">
-            {(ordersState.data?.ongoing ?? []).length != 0 ? (
-              (ordersState.data?.ongoing ?? []).map((order: any) => {
-                return (
-                  <Link href={`/client/order/detail/${order.id}`}>
-                    <OrderCard
-                      key={order.id}
-                      status={order.status}
-                      orderNumber={order.orderNumber}
-                      createdAt={order.createdAt}
-                      filesCount={order.filesCount}
-                      options={{
-                        showNavigationIcon: true,
-                      }}
-                    />
-                  </Link>
-                );
-              })
-            ) : (
-              <OrderEmptyCard text={"You have no active order in progress."} />
-            )}
-          </LabelGroup>
-          <LabelGroup header="Completed">
-            {(ordersState.data?.finished ?? []).length != 0 ? (
-              (ordersState.data?.finished ?? []).map((order: any) => {
-                return (
-                  <Link href={`/client/order/detail/${order.id}`}>
-                    <OrderCard
-                      key={order.id}
-                      status={order.status}
-                      orderNumber={order.orderNumber}
-                      createdAt={order.createdAt}
-                      filesCount={order.filesCount}
-                      options={{
-                        showNavigationIcon: true,
-                      }}
-                    />
-                  </Link>
-                );
-              })
-            ) : (
-              <OrderEmptyCard text={"Orders completed will appear here."} />
-            )}
-          </LabelGroup>
-          <Link href="/client/order/history">
-            <Button appearance={"tonal"} icon={"history"} className="w-full">
-              Order History
-            </Button>
-          </Link>
+          {ordersState.data && (
+            <PageLoadTransition>
+              <LabelGroup header="Ongoing">
+                {(ordersState.data?.ongoing ?? []).length != 0 ? (
+                  (ordersState.data?.ongoing ?? []).map((order: any) => {
+                    return (
+                      <Link key={order.id} href={`/order/detail/${order.id}`}>
+                        <OrderCard
+                          status={order.status}
+                          orderNumber={order.orderNumber}
+                          createdAt={order.createdAt}
+                          filesCount={order.filesCount}
+                          options={{
+                            showNavigationIcon: true,
+                          }}
+                        />
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <OrderEmptyCard
+                    text={"You have no active order in progress."}
+                  />
+                )}
+              </LabelGroup>
+              <LabelGroup header="Completed">
+                {(ordersState.data?.finished ?? []).length != 0 ? (
+                  (ordersState.data?.finished ?? []).map((order: any) => {
+                    return (
+                      <Link key={order.id} href={`/order/detail/${order.id}`}>
+                        <OrderCard
+                          status={order.status}
+                          orderNumber={order.orderNumber}
+                          createdAt={order.createdAt}
+                          filesCount={order.filesCount}
+                          options={{
+                            showNavigationIcon: true,
+                          }}
+                        />
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <OrderEmptyCard text={"Orders completed will appear here."} />
+                )}
+              </LabelGroup>
+              <Link href="/order/history">
+                <Button
+                  appearance={"tonal"}
+                  icon={"history"}
+                  className="w-full"
+                >
+                  Order History
+                </Button>
+              </Link>
+            </PageLoadTransition>
+          )}
 
           {/* DEV: Fetch logs */}
           {process.env.NODE_ENV === "development" && (
@@ -145,7 +154,7 @@ const ClientDashboard = () => {
           )}
         </div>
         <div className="fixed p-3 left-0 bottom-0 w-full flex flex-col h-16">
-          <Link href="/client/order/new/upload">
+          <Link href="/order/new/upload">
             <Button appearance={"filled"} icon={"add"} className="w-full">
               New Order
             </Button>

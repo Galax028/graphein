@@ -6,12 +6,12 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/client",
-        destination: "/client/dashboard",
+        destination: "/glance",
         permanent: true,
       },
       {
-        source: "/client/order/new",
-        destination: "/client/order/new/upload",
+        source: "/order/new",
+        destination: "/order/new/upload",
         permanent: true,
       },
       {

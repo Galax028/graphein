@@ -3,10 +3,10 @@ import NavigationBar from "@/components/common/NavigationBar";
 const OrderHistoryPage = () => {
   return (
     <>
-      <NavigationBar 
+      <NavigationBar
         title="Order History"
         backEnabled={true}
-        backContextURL={"/client/dashboard"}
+        backContextURL={"/glance"}
       />
       <main>OrderHistoryPage</main>
     </>
