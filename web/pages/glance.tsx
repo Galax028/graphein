@@ -14,7 +14,6 @@ const ClientDashboard = () => {
   const router = useRouter();
 
   const [ordersState, setOrdersState] = useState<any>({});
-  const [detailedState, setDetailedState] = useState<any>({});
   const [user, setUser] = useState<any>({});
 
   useEffect(() => {
@@ -24,11 +23,18 @@ const ClientDashboard = () => {
         credentials: "include",
       });
 
+      // If the user is not logged in, redirect to landing page.
       if (!res.ok) {
-        router.push("/");
+        return router.push("/");
+      }
+      
+      const data = await res.json();
+
+      // If the user role is merchant, redirect to merchant page.
+      if (data.data.role == "merchant") {
+        return router.push("/merchant")
       }
 
-      const data = await res.json();
       setUser(data);
     };
 
