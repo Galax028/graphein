@@ -51,7 +51,9 @@ const ClientDashboard = () => {
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar
-        title={`${getGrettingMessage()}, ${user.data?.name ?? ""}`}
+        title={`${getGrettingMessage()}${
+          user.data ? `, ${user.data?.name}` : ""
+        }`}
       />
       <main className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div

@@ -115,7 +115,9 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
   return (
     <>
       <NavigationBar
-        title={`Order #${detailedState.data?.orderNumber ?? ""}`}
+        title={`Order ${
+          detailedState.data ? `#${detailedState.data?.orderNumber}` : "Details"
+        }`}
         backEnabled={true}
         user={user}
       />
