@@ -384,9 +384,9 @@ impl<'args> CompactOrdersQuery<'args> {
         let mut count_qb = self.count_qb.take().unwrap();
         self.build(&mut first_bind, Some(&mut count_qb));
         let mut rows = self.fetch_all(&mut *conn).await?;
-        let size = rows.len();
-        let count: i64 = count_qb.build_query_scalar().fetch_one(&mut *conn).await?;
-        let next = if (count as usize) < size {
+        let fetched_size = rows.len();
+        let total_count: i64 = count_qb.build_query_scalar().fetch_one(&mut *conn).await?;
+        let next = if fetched_size < (total_count as usize) {
             rows.last()
                 .map(|last| PageKey::new(last.created_at, last.id.into()))
         } else {
@@ -396,7 +396,10 @@ impl<'args> CompactOrdersQuery<'args> {
             rows.reverse();
         }
 
-        Ok((rows, PaginationResponse::new(next, size, count, reverse)))
+        Ok((
+            rows,
+            PaginationResponse::new(next, fetched_size, total_count, reverse),
+        ))
     }
 }
 
