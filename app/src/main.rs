@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
     let pool = PgPoolOptions::new()
         .connect_with(config.database_connect_options()?)
         .await?;
-    sqlx::migrate!("../migrations").run(&pool).await?;
+    sqlx::migrate!("../.sqlx/migrations").run(&pool).await?;
 
     let bucket = R2Bucket::new(
         config.r2_account_id().to_owned(),

@@ -1,4 +1,4 @@
-CREATE TABLE settings (
+CREATE TABLE IF NOT EXISTS settings (
     created_at                timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_accepting              boolean     NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE settings (
     close_time                time        NOT NULL
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id           uuid        NOT NULL DEFAULT gen_random_uuid(),
     created_at   timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     email        text        NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE users (
     UNIQUE (email)
 );
 
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id         text        NOT NULL,
     user_id    uuid        NOT NULL,
     issued_at  timestamptz NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE sessions (
         ON DELETE CASCADE
 );
 
-CREATE TABLE bookbinding_types (
+CREATE TABLE IF NOT EXISTS bookbinding_types (
     id           integer     NOT NULL GENERATED ALWAYS AS IDENTITY,
     created_at   timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name         text        NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE bookbinding_types (
     UNIQUE (name)
 );
 
-CREATE TABLE paper_sizes (
+CREATE TABLE IF NOT EXISTS paper_sizes (
     id              integer     NOT NULL GENERATED ALWAYS AS IDENTITY,
     created_at      timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name            text        NOT NULL,
@@ -55,13 +55,13 @@ CREATE TABLE paper_sizes (
 );
 
 INSERT INTO paper_sizes (name, length, width, is_default, is_laminatable)
-VALUES ('A4 (80 gsm)', 297, 210, true, true);
+VALUES ('A4 (80 gsm)', 297, 210, true, true) ON CONFLICT DO NOTHING;
 
 CREATE FUNCTION default_paper_size() RETURNS integer LANGUAGE 'sql' COST 100 AS $$
     SELECT id FROM paper_sizes WHERE is_default = true LIMIT 1;
 $$;
 
-CREATE TABLE bookbinding_types_paper_sizes (
+CREATE TABLE IF NOT EXISTS bookbinding_types_paper_sizes (
     bookbinding_type_id integer NOT NULL,
     paper_size_id       integer NOT NULL,
     coverable           boolean NOT NULL DEFAULT false,
@@ -72,7 +72,7 @@ CREATE TABLE bookbinding_types_paper_sizes (
         ON DELETE CASCADE
 );
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id           uuid         NOT NULL DEFAULT gen_random_uuid(),
     created_at   timestamptz  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     owner_id     uuid         NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE orders (
         ON DELETE CASCADE
 );
 
-CREATE TABLE order_status_updates (
+CREATE TABLE IF NOT EXISTS order_status_updates (
     id         bigint       NOT NULL GENERATED ALWAYS AS IDENTITY,
     created_at timestamptz  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     order_id   uuid         NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE order_status_updates (
         ON DELETE CASCADE
 );
 
-CREATE TABLE files (
+CREATE TABLE IF NOT EXISTS files (
     id                uuid              NOT NULL DEFAULT gen_random_uuid(),
     created_at        timestamptz       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     order_id          uuid              NOT NULL,
@@ -120,7 +120,7 @@ CREATE TABLE files (
     UNIQUE (order_id, index)
 );
 
-CREATE TABLE services (
+CREATE TABLE IF NOT EXISTS services (
     id                  uuid         NOT NULL DEFAULT gen_random_uuid(),
     created_at          timestamptz  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     order_id            uuid         NOT NULL,
@@ -137,7 +137,7 @@ CREATE TABLE services (
     UNIQUE (order_id, index)
 );
 
-CREATE TABLE services_files (
+CREATE TABLE IF NOT EXISTS services_files (
     order_id   uuid NOT NULL,
     service_id uuid NOT NULL,
     file_id    uuid NOT NULL,
