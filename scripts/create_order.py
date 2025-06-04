@@ -57,7 +57,7 @@ async def command(database_url: str, email: str, order_number: str):
     files = await conn.fetchmany(
         """\
         INSERT INTO files (\
-            created_at, order_id, is_colour, object_id, filename, filetype, filesize,\
+            created_at, order_id, is_colour, object_key, filename, filetype, filesize,\
             index\
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)\
         RETURNING id\
