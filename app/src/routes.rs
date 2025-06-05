@@ -27,7 +27,13 @@ pub fn expand_router(state: AppState) -> Router<AppState> {
         .route_layer(
             CorsLayer::new()
                 .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-                .allow_origin(state.config.frontend_uri().parse::<HeaderValue>().unwrap())
+                .allow_origin(
+                    state
+                        .config
+                        .frontend_uri()
+                        .parse::<HeaderValue>()
+                        .expect("Invalid value for environment variable `FRONTEND_URI`"),
+                )
                 .allow_credentials(true),
         )
 }

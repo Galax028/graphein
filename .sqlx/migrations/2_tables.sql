@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS files (
     id                uuid              NOT NULL DEFAULT gen_random_uuid(),
     created_at        timestamptz       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     order_id          uuid              NOT NULL,
-    object_id         text              NOT NULL,
+    object_key        text              NOT NULL,
     filename          text              NOT NULL,
     filetype          filetype          NOT NULL,
     filesize          bigint            NOT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS files (
         ON DELETE CASCADE,
     FOREIGN KEY (paper_size_id) REFERENCES paper_sizes (id)
         ON DELETE SET NULL,
-    UNIQUE (object_id),
+    UNIQUE (object_key),
     UNIQUE (order_id, index)
 );
 

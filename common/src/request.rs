@@ -72,7 +72,7 @@ impl PageSize {
 
 impl Default for PageSize {
     fn default() -> Self {
-        Self(NonZeroU64::new(5).unwrap())
+        Self(NonZeroU64::new(5).unwrap()) // Infallible
     }
 }
 

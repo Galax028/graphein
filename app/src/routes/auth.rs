@@ -147,7 +147,7 @@ async fn get_finish_google_oauth(
     }): State<AppState>,
     cookies: CookieJar,
     QsQuery(GoogleOAuthCodeExchangeParams { state, code }): QsQuery<GoogleOAuthCodeExchangeParams>,
-) -> Response {
+) -> Result<Response, AppError> {
     let work = async || -> Result<(UserId, UserRole, bool, StdDuration), AppError> {
         let (state, hmac) = state
             .split_once('.')
@@ -209,15 +209,21 @@ async fn get_finish_google_oauth(
         Ok((user_id, user_role, user_is_onboarded, session_expiry))
     };
 
-    match work().await {
+    Ok(match work().await {
         Ok((user_id, user_role, user_is_onboarded, session_expiry)) => (
             cookies.add(
                 Cookie::build((
                     "session_token",
-                    sessions.issue(user_id, user_role, user_is_onboarded).await,
+                    sessions
+                        .issue(user_id, user_role, user_is_onboarded)
+                        .await?,
                 ))
                 .http_only(true)
-                .max_age(session_expiry.try_into().unwrap())
+                .max_age(
+                    session_expiry
+                        .try_into()
+                        .expect("Invalid value for environment variable `SESSION_EXPIRY_TIME`"),
+                )
                 .path("/")
                 .same_site(if cfg!(debug_assertions) {
                     SameSite::None
@@ -242,5 +248,5 @@ async fn get_finish_google_oauth(
             Html(include_str!("../pages/oauth_failure.html")),
         )
             .into_response(),
-    }
+    })
 }

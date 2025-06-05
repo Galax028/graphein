@@ -3,6 +3,7 @@ use std::{
     time::Duration as StdDuration,
 };
 
+use anyhow::Result as AnyhowResult;
 use chrono::{DateTime, TimeDelta, Utc};
 use dashmap::DashMap;
 use hmac::{Hmac, Mac as _};
@@ -13,7 +14,7 @@ use sqlx::PgPool;
 
 use crate::{
     error::AuthError,
-    schemas::{UserId, enums::UserRole},
+    schemas::{enums::UserRole, UserId}, SqlxResult,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -76,14 +77,19 @@ impl SessionStore {
     }
 
     /// Issues a new session in the session store and returns the session ID signed with HMAC.
-    pub async fn issue(&self, user_id: UserId, user_role: UserRole, is_onboarded: bool) -> String {
+    pub async fn issue(
+        &self,
+        user_id: UserId,
+        user_role: UserRole,
+        is_onboarded: bool,
+    ) -> Result<String, AuthError> {
         let hmac_instance = self.hmac_instance.clone();
         let (session_id, signature) = tokio::task::spawn_blocking(move || {
             let mut session_id = [0u8; 8];
             StdRng::from_os_rng().fill_bytes(&mut session_id);
 
             // we cannot use `.chain_update()` due to the way `StdMutex` works
-            let mut hmac_instance = hmac_instance.lock().unwrap();
+            let mut hmac_instance = hmac_instance.lock().unwrap(); // Shouldn't be poisoned
             hmac_instance.update(&session_id);
             let signature: [u8; 32] = hmac_instance.finalize_reset().into_bytes().into();
             drop(hmac_instance);
@@ -91,7 +97,7 @@ impl SessionStore {
             (SessionId::new(session_id), hex::encode(signature))
         })
         .await
-        .unwrap();
+        .map_err(|_| AuthError::Unprocessable)?;
 
         let issued_at = Utc::now();
         self.store.insert(
@@ -105,7 +111,10 @@ impl SessionStore {
             },
         );
 
-        format!("{}.{signature}", hex::encode(session_id.as_slice()))
+        Ok(format!(
+            "{}.{signature}",
+            hex::encode(session_id.as_slice())
+        ))
     }
 
     /// Sets the `is_onboarded` value of a session to `true`.
@@ -151,7 +160,7 @@ impl SessionStore {
     }
 
     /// Loads all the sessions from the database into the session store.
-    pub async fn load(&self, pool: PgPool) {
+    pub async fn load(&self, pool: PgPool) -> AnyhowResult<()> {
         sqlx::query!(
             "\
             SELECT s.*, u.role AS \"role: UserRole\", u.is_onboarded \
@@ -161,12 +170,11 @@ impl SessionStore {
             "
         )
         .fetch_all(&pool)
-        .await
-        .unwrap()
+        .await?
         .into_iter()
-        .for_each(|session| {
+        .try_for_each(|session| -> Result<(), AuthError> {
             self.store.insert(
-                SessionId::new_from_str(&session.id).unwrap(),
+                SessionId::new_from_str(&session.id)?,
                 Session {
                     user_id: session.user_id.into(),
                     user_role: session.role,
@@ -175,18 +183,18 @@ impl SessionStore {
                     expires_at: session.expires_at,
                 },
             );
-        });
 
-        sqlx::query("TRUNCATE sessions")
-            .execute(&pool)
-            .await
-            .unwrap();
+            Ok(())
+        })?;
+
+        sqlx::query("TRUNCATE sessions").execute(&pool).await?;
 
         tracing::debug!("loaded {} session(s) from database", self.store.len());
+        Ok(())
     }
 
     /// Commits all the sessions in the session store into the database.
-    pub async fn commit(&self, pool: PgPool) {
+    pub async fn commit(&self, pool: PgPool) -> SqlxResult<()> {
         let now = Utc::now();
         self.store.retain(|_, session| session.expires_at > now);
 
@@ -217,10 +225,11 @@ impl SessionStore {
         .bind(&issued_ats[..])
         .bind(&expires_ats[..])
         .execute(&pool)
-        .await
-        .unwrap();
+        .await?;
 
         tracing::debug!("committed {} session(s) to database", self.store.len());
+
+        Ok(())
     }
 
     async fn verify_session_signature(
@@ -231,7 +240,7 @@ impl SessionStore {
         let hmac_instance = self.hmac_instance.clone();
 
         tokio::task::spawn_blocking(move || {
-            let mut hmac_instance = hmac_instance.lock().unwrap();
+            let mut hmac_instance = hmac_instance.lock().unwrap(); // Shouldn't be poisoned
             hmac_instance.update(session_id.as_slice());
             let res = hmac_instance
                 .verify_slice_reset(&signature)
@@ -241,6 +250,6 @@ impl SessionStore {
             res
         })
         .await
-        .unwrap()
+        .map_err(|_| AuthError::Unprocessable)?
     }
 }

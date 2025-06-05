@@ -229,7 +229,7 @@ impl DraftOrderStore {
                 let draft_file = draft_order
                     .files
                     .pop_if(|draft_file| draft_file.id == file.id)
-                    .unwrap();
+                    .unwrap(); // Infallible
 
                 File {
                     id: file.id,

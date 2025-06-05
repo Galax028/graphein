@@ -3,6 +3,7 @@ use std::{
     time::Instant,
 };
 
+use anyhow::Result as AnyhowResult;
 use arc_swap::ArcSwap;
 use jsonwebtoken::jwk::JwkSet;
 use reqwest::Client as ReqwestClient;
@@ -13,9 +14,11 @@ use crate::{Config, auth::SessionStore};
 
 mod bucket;
 mod drafts;
+mod thumbnailer;
 
 pub use bucket::R2Bucket;
 pub(super) use drafts::DraftOrderStore;
+pub use thumbnailer::Thumbnailer;
 
 pub static GOOGLE_SIGNING_KEYS: LazyLock<ArcSwap<JwkSet>> =
     LazyLock::new(|| ArcSwap::from_pointee(JwkSet { keys: Vec::new() }));
@@ -31,12 +34,18 @@ pub struct AppState {
     pub sessions: SessionStore,
     pub oauth_states: Arc<Mutex<OAuthStates>>,
     pub draft_orders: DraftOrderStore,
+    pub thumbnailer: Thumbnailer,
 }
 
 impl AppState {
     #[must_use]
     #[allow(clippy::needless_pass_by_value)]
-    pub fn new(config: Arc<Config>, pool: PgPool, bucket: R2Bucket) -> Self {
+    pub fn new(
+        config: Arc<Config>,
+        pool: PgPool,
+        bucket: R2Bucket,
+        thumbnailer: Thumbnailer,
+    ) -> Self {
         AppState {
             config: config.clone(),
             pool,
@@ -45,10 +54,11 @@ impl AppState {
             sessions: SessionStore::new(config.secret().as_bytes(), config.session_expiry_time()),
             oauth_states: Arc::new(Mutex::new(Vec::new())),
             draft_orders: DraftOrderStore::new(),
+            thumbnailer,
         }
     }
 
-    pub async fn load_sessions(&self) {
-        self.sessions.load(self.pool.clone()).await;
+    pub async fn load_sessions(&self) -> AnyhowResult<()> {
+        self.sessions.load(self.pool.clone()).await
     }
 }

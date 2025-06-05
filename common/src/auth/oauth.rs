@@ -52,7 +52,7 @@ pub struct IdTokenPayload {
 #[must_use]
 pub fn hmac_sign(key: &[u8], state: [u8; 32]) -> String {
     let hmac = Hmac::<Sha256>::new_from_slice(key)
-        .unwrap()
+        .unwrap() // Infallible
         .chain_update(state)
         .finalize()
         .into_bytes();
@@ -62,7 +62,7 @@ pub fn hmac_sign(key: &[u8], state: [u8; 32]) -> String {
 
 pub fn hmac_verify(key: &[u8], state: &[u8], sig: &[u8]) -> Result<(), AuthError> {
     Hmac::<Sha256>::new_from_slice(key)
-        .unwrap()
+        .unwrap() // Infallible
         .chain_update(state)
         .verify_slice(sig)
         .map_err(|_| AuthError::InvalidOAuthFlow)

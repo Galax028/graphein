@@ -4,6 +4,7 @@ use axum::{
     Router,
     extract::State,
     middleware,
+    response::{IntoResponse, Response},
     routing::{delete, get, post},
 };
 use futures::stream::{StreamExt as _, TryStreamExt as _};
@@ -262,7 +263,7 @@ async fn get_orders_id_files(
         .test(&mut conn)
         .await?;
 
-    let (tx, mut rx) = mpsc::unbounded_channel();
+    let (tx, mut rx) = mpsc::channel(MAX_FILE_LIMIT);
     FilesTable::stream_all_for_metadata_from_order(&mut conn, order_id)
         .map(move |meta| meta.map(|meta| (meta, tx.clone())))
         .err_into::<AppError>()
@@ -271,7 +272,7 @@ async fn get_orders_id_files(
                 .presign_get_file(&meta.object_key, &meta.filename, meta.filetype)
                 .await?;
 
-            tx.send(FilePresignResponse { id: meta.id, url })?;
+            tx.send(FilePresignResponse { id: meta.id, url }).await?;
             Ok(())
         })
         .await?;
@@ -315,8 +316,50 @@ async fn post_orders_id_files(
         .build())
 }
 
-async fn get_orders_id_files_id_thumbnail() -> HandlerResponse<()> {
-    todo!()
+async fn get_orders_id_files_id_thumbnail(
+    State(AppState {
+        pool,
+        bucket,
+        draft_orders,
+        thumbnailer,
+        ..
+    }): State<AppState>,
+    session: Session,
+    Path((order_id, file_id)): Path<(OrderId, FileId)>,
+) -> Result<Response, AppError> {
+    let (object_key, filetype) =
+        if draft_orders.exists(session.user_id, order_id).is_ok() {
+            let draft_file = draft_orders.get_file(session.user_id, file_id)?;
+
+            (draft_file.object_key, draft_file.filetype)
+        } else {
+            let mut conn = pool.acquire().await?;
+            OrdersTable::permissions_checker(order_id, session)
+                .allow_merchant(true)
+                .test(&mut conn)
+                .await?;
+
+            let file =
+                FilesTable::fetch_one_for_metadata_from_order(&mut conn, order_id, file_id).await?;
+
+            (file.object_key, file.filetype)
+        };
+
+    let Some(thumbnail_url) = bucket
+        .presign_get_file_thumbnail(&object_key, filetype)
+        .await?
+    else {
+        thumbnailer
+            .signal_for_processing(object_key, filetype)
+            .await?;
+
+        return Ok(StatusCode::ACCEPTED.into_response());
+    };
+
+    Ok(ResponseBuilder::new()
+        .data(thumbnail_url)
+        .build()
+        .into_response())
 }
 
 async fn delete_orders_id_files_id(

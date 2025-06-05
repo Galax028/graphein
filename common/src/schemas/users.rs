@@ -39,7 +39,7 @@ impl<'de> Deserialize<'de> for Tel {
     {
         let inner: String = Deserialize::deserialize(deserializer)?;
         let is_valid_tel = Regex::new(r"^0[6-9][0-9]\-?[0-9]{3}\-?[0-9]{4}$")
-            .unwrap()
+            .unwrap() // Infallible
             .is_match(&inner);
 
         if is_valid_tel {

@@ -379,9 +379,9 @@ impl<'args> CompactOrdersQuery<'args> {
             ",
         );
 
-        let reverse = self.pagination.unwrap().reverse;
+        let reverse = self.pagination.unwrap().reverse; // Infallible
         let mut first_bind = true;
-        let mut count_qb = self.count_qb.take().unwrap();
+        let mut count_qb = self.count_qb.take().unwrap(); // Infallible
         self.build(&mut first_bind, Some(&mut count_qb));
         let mut rows = self.fetch_all(&mut *conn).await?;
         let fetched_size = rows.len();

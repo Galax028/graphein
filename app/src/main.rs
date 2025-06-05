@@ -4,13 +4,13 @@
 use anyhow::{Context as _, Result};
 use axum::Router;
 use sqlx::postgres::PgPoolOptions;
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, runtime::Handle};
 use tower_http::trace::TraceLayer;
 use tracing::{debug, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use graphein_app::expand_router;
-use graphein_common::{AppState, Config, R2Bucket, daemons::DaemonController};
+use graphein_common::{AppState, Config, R2Bucket, Thumbnailer, daemons::DaemonController};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -34,15 +34,18 @@ async fn main() -> Result<()> {
 
     let bucket = R2Bucket::new(
         config.r2_account_id().to_owned(),
-        config.r2_bucket_name(),
+        config.r2_bucket_name().to_owned(),
         config.r2_access_key_id(),
         config.r2_secret_access_key(),
     )?;
 
-    let app_state = AppState::new(config.clone(), pool, bucket);
-    app_state.load_sessions().await;
+    let (thumbnailer, thumbnailer_rx) = Thumbnailer::new();
 
-    let daemon_controller = DaemonController::new(app_state.clone()).start_all();
+    let app_state = AppState::new(config.clone(), pool, bucket, thumbnailer);
+    app_state.load_sessions().await?;
+
+    let daemon_controller =
+        DaemonController::new(app_state.clone()).start_all(Handle::current(), thumbnailer_rx);
 
     let app = Router::new()
         .merge(expand_router(app_state.clone()))
@@ -87,5 +90,9 @@ async fn shutdown_signal(daemon_controller: DaemonController, app_state: AppStat
     }
 
     daemon_controller.stop_all();
-    app_state.sessions.commit(app_state.pool).await;
+    app_state
+        .sessions
+        .commit(app_state.pool)
+        .await
+        .expect("Unable to commit sessions to database");
 }
