@@ -1,6 +1,7 @@
 // Interface
 export type LangCode = "th" | "en";
 export type UserTypes = "student" | "teacher" | "merchant";
+export type AcceptedFileTypes = "pdf" | "png" | "jpg"
 
 // Base Button
 interface BaseButtonProps {
