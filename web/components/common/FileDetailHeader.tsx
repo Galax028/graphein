@@ -68,11 +68,11 @@ const FileDetailHeader = ({
       <div
         className={cn(
           `flex justify-between items-center gap-2 bg-surface-container 
-          border border-outline rounded-lg w-full pr-3`,
-          thumbnailData.data ? "p-2" : "p-3"
+          border border-outline rounded-lg w-[calc(100vw-1.5rem)] max-w-lg pr-3`,
+          thumbnailData.data ? "p-2" : "p-4"
         )}
       >
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center min-w-0">
           {thumbnailData.data && (
             <motion.div
               initial={{ x: -8, opacity: 0 }}
@@ -92,8 +92,8 @@ const FileDetailHeader = ({
               />
             </motion.div>
           )}
-          <div className="flex flex-col gap-1">
-            <p>
+          <div className="flex flex-col grow gap-1 min-w-0">
+            <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
               {fileName}.{fileType}
             </p>
             <p className="text-body-sm opacity-50">

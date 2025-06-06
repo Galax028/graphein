@@ -73,6 +73,9 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
     cancelled: "Cancelled",
   };
 
+  // The CSS here is completely cooked, will need to cleanup this later.
+  // - @pixelpxed, 06-06-2025
+
   return (
     <>
       <NavigationBar
