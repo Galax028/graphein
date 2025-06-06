@@ -67,43 +67,30 @@ const ClientDashboard = () => {
             `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
           )}
         >
-          {ordersState.data && (
-            <PageLoadTransition>
-              <LabelGroup header="Ongoing">
-                {(ordersState.data?.ongoing ?? []).length != 0 ? (
-                  (ordersState.data?.ongoing ?? []).map((order: any) => {
-                    return (
-                      <Link key={order.id} href={`/order/detail/${order.id}`}>
-                        <OrderCard
-                          status={order.status}
-                          orderNumber={order.orderNumber}
-                          createdAt={order.createdAt}
-                          filesCount={order.filesCount}
-                          options={{
-                            showNavigationIcon: true,
-                          }}
-                        />
-                      </Link>
-                    );
-                  })
-                ) : (
-                  <OrderEmptyCard
-                    text={"You have no active order in progress."}
-                  />
-                )}
-              </LabelGroup>
-              <LabelGroup header="Completed">
-                {(ordersState.data?.finished ?? []).length != 0 ? (
-                  (ordersState.data?.finished ?? []).map((order: any) => {
-                    return (
-                      <Link key={order.id} href={`/order/detail/${order.id}`}>
-                        <OrderCard
-                          status={order.status}
-                          orderNumber={order.orderNumber}
-                          createdAt={order.createdAt}
-                          filesCount={order.filesCount}
-                          options={{
-                            showNavigationIcon: true,
+          {ordersState.data &&
+            [
+              {
+                label: "Ongoing",
+                data: ordersState.data.ongoing,
+                fallback: "You have no active order in progress.",
+              },
+              {
+                label: "Completed",
+                data: ordersState.data.finished,
+                fallback: "You have no active order in progress.",
+              },
+            ].map((i: any) => {
+              return (
+                <LabelGroup header={i.label}>
+                  {(i.data ?? []).length != 0 ? (
+                    (i.data ?? []).map((i: any) => {
+                      return (
+                        <motion.div
+                          initial={{ opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            y: { type: "spring", bounce: 0 },
+                            delay: i * 0.2,
                           }}
                         />
                       </Link>
