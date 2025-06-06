@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import { UserTypes } from "@/utils/types/common";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -74,7 +75,7 @@ const SettingsPage = () => {
   return (
     <>
       <NavigationBar title="Settings" backEnabled={true} />
-      <div className="flex flex-col gap-3 p-3">
+      <PageLoadTransition className="flex flex-col gap-3 p-3">
         {isSignedIn && (
           <>
             <LabelGroup
@@ -177,7 +178,7 @@ const SettingsPage = () => {
             <span className="!font-mono break-all">{JSON.stringify(user)}</span>
           </div>
         </LabelGroup>
-      </div>
+      </PageLoadTransition>
     </>
   );
 };

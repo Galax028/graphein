@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import { motion } from "motion/react";
+import MaterialIcon from "@/components/common/MaterialIcon";
 
 const ClientDashboard = () => {
   const router = useRouter();
@@ -27,12 +29,12 @@ const ClientDashboard = () => {
       if (!res.ok) {
         return router.push("/");
       }
-      
+
       const data = await res.json();
 
       // If the user role is merchant, redirect to merchant page.
       if (data.data.role == "merchant") {
-        return router.push("/merchant")
+        return router.push("/merchant");
       }
 
       setUser(data);
@@ -61,7 +63,7 @@ const ClientDashboard = () => {
           user.data ? `, ${user.data?.name}` : ""
         }`}
       />
-      <main className="flex flex-col h-full overflow-auto gap-3 font-mono">
+      <PageLoadTransition className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div
           className={cn(
             `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
@@ -92,25 +94,32 @@ const ClientDashboard = () => {
                             y: { type: "spring", bounce: 0 },
                             delay: i * 0.2,
                           }}
-                        />
-                      </Link>
-                    );
-                  })
-                ) : (
-                  <OrderEmptyCard text={"Orders completed will appear here."} />
-                )}
-              </LabelGroup>
-              <Link href="/order/history">
-                <Button
-                  appearance={"tonal"}
-                  icon={"history"}
-                  className="w-full"
-                >
-                  Order History
-                </Button>
-              </Link>
-            </PageLoadTransition>
-          )}
+                        >
+                          <Link key={i.id} href={`/order/detail/${i.id}`}>
+                            <OrderCard
+                              status={i.status}
+                              orderNumber={i.orderNumber}
+                              createdAt={i.createdAt}
+                              filesCount={i.filesCount}
+                              options={{
+                                showNavigationIcon: true,
+                              }}
+                            />
+                          </Link>
+                        </motion.div>
+                      );
+                    })
+                  ) : (
+                    <OrderEmptyCard text={i.fallback} />
+                  )}
+                </LabelGroup>
+              );
+            })}
+          <Link href="/order/history">
+            <Button appearance={"tonal"} icon={"history"} className="w-full">
+              Order History
+            </Button>
+          </Link>
 
           {/* DEV: Fetch logs */}
           {process.env.NODE_ENV === "development" && (
@@ -148,14 +157,15 @@ const ClientDashboard = () => {
             </LabelGroup>
           )}
         </div>
-        <div className="fixed p-3 left-0 bottom-0 w-full flex flex-col h-16">
+
+        <div className="fixed p-3 bottom-0 w-full flex flex-col h-16 max-w-lg">
           <Link href="/order/new/upload">
             <Button appearance={"filled"} icon={"add"} className="w-full">
               New Order
             </Button>
           </Link>
         </div>
-      </main>
+      </PageLoadTransition>
     </div>
   );
 };
