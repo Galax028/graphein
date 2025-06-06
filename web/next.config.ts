@@ -22,7 +22,16 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    remotePatterns: [new URL("https://lh3.googleusercontent.com/**")],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com"
+      },
+      {
+        protocol: "https",
+        hostname: "7625945536e42a812439c01fe96f0361.r2.cloudflarestorage.com"
+      }
+    ],
   },
   reactStrictMode: true,
   i18n,

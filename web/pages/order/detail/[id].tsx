@@ -5,13 +5,13 @@ import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/getDateTimeString";
 import getLoggedInUser from "@/utils/helpers/getLoggedInUser";
-import { getOrderStatusFromTimestamp } from "@/utils/helpers/getOrderStatusFromTimestamp";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import FileDetailHeader from "@/components/common/FileDetailHeader";
 import DescriptionList from "@/components/common/DescriptionList";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import { OrderStatus } from "@/utils/types/common";
 
 type OrderDetailsPageProps = {
   user: any;
@@ -63,54 +63,15 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
         : "-",
     },
   ];
-  const timeLogProps = [
-    {
-      title: "Reviewing",
-      content: detailedState.data
-        ? getDateTimeString(
-            new Date(getOrderStatusFromTimestamp(detailedState, "reviewing"))
-          )
-        : "-",
-    },
-    {
-      title: "Printing",
-      content: detailedState.data
-        ? getDateTimeString(
-            new Date(getOrderStatusFromTimestamp(detailedState, "processing"))
-          )
-        : "-",
-    },
-    {
-      title: "Pickup",
-      content: detailedState.data
-        ? getDateTimeString(
-            new Date(getOrderStatusFromTimestamp(detailedState, "ready"))
-          )
-        : "-",
-    },
-    {
-      title: detailedState.data
-        ? getOrderStatusFromTimestamp(detailedState, "rejected")
-          ? "Rejected"
-          : getOrderStatusFromTimestamp(detailedState, "cancelled")
-          ? "Cancelled"
-          : "Completed"
-        : "Completed",
-      content: detailedState.data
-        ? detailedState.data.statusHistory?.rejected
-          ? getDateTimeString(
-              new Date(getOrderStatusFromTimestamp(detailedState, "rejected"))
-            )
-          : detailedState.data.statusHistory?.cancelled
-          ? getDateTimeString(
-              new Date(getOrderStatusFromTimestamp(detailedState, "cancelled"))
-            )
-          : getDateTimeString(
-              new Date(getOrderStatusFromTimestamp(detailedState, "completed"))
-            )
-        : "-",
-    },
-  ];
+
+  const statusTranslation: Record<OrderStatus, string> = {
+    reviewing: "Reviewing",
+    processing: "Printing",
+    ready: "Pickup",
+    completed: "Completed",
+    rejected: "Rejected",
+    cancelled: "Cancelled",
+  };
 
   return (
     <>
@@ -122,72 +83,102 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
         user={user}
       />
       <main className="p-3 flex flex-col gap-3">
-        {detailedState.data && (
-          <PageLoadTransition className="flex flex-col gap-3">
-            {" "}
-            <LabelGroup header="Your Order">
-              <OrderCard
-                status={detailedState.data?.status ?? "unknown"}
-                orderNumber={detailedState.data?.orderNumber}
-                createdAt={detailedState.data?.createdAt}
-                filesCount={detailedState.data?.files.length}
-                options={{
-                  showProgressBar: true,
-                }}
-              />
-              <DropDownCard header="About Order">
-                <DescriptionList data={aboutOrderProps} />
-              </DropDownCard>
-              <DropDownCard header="Time Log">
-                <DescriptionList data={timeLogProps} />
-              </DropDownCard>
-            </LabelGroup>
-            <LabelGroup header="Note to Shop">
+        <PageLoadTransition className="flex flex-col gap-3">
+          {detailedState.data && (
+            <>
+              <LabelGroup header="Your Order">
+                <OrderCard
+                  status={detailedState.data?.status ?? "unknown"}
+                  orderNumber={detailedState.data?.orderNumber}
+                  createdAt={detailedState.data?.createdAt}
+                  filesCount={detailedState.data?.files.length}
+                  options={{
+                    showProgressBar: true,
+                  }}
+                />
+                <DropDownCard header="About Order">
+                  <DescriptionList data={aboutOrderProps} />
+                </DropDownCard>
+                <DropDownCard header="Time Log">
+                  <div
+                    className={`grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center`}
+                  >
+                    {detailedState.data.statusHistory.map(
+                      (i: { timestamp: string; status: string }) => (
+                        <>
+                          <p className="text-body-sm opacity-50">
+                            {statusTranslation[i.status as OrderStatus]}
+                          </p>
+                          <p className="text-body-md">
+                            {getDateTimeString(new Date(i.timestamp))}
+                          </p>
+                        </>
+                      )
+                    )}
+                  </div>
+                </DropDownCard>
+              </LabelGroup>
+              <LabelGroup header="Note to Shop">
+                <div
+                  className={cn(
+                    `p-3 bg-surface-container border border-outline rounded-lg`
+                  )}
+                >
+                  <p className="text-body-md">
+                    {detailedState.data?.notes ?? (
+                      <span className="opacity-50 italic">
+                        No notes provided.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </LabelGroup>
+            </>
+          )}
+
+          <LabelGroup header="Files">
+            {detailedState.data &&
+              detailedState.data.files.map((i: any) => (
+                <FileDetailHeader
+                  fileName={i.filename}
+                  fileSize={i.filesize}
+                  fileType={i.filetype}
+                  orderId={detailedState.data.id}
+                  fileId={i.id}
+                  copies={i.copies}
+                />
+              ))}
+          </LabelGroup>
+
+          {process.env.NODE_ENV === "development" && (
+            <LabelGroup header="Developer Log">
               <div
                 className={cn(
-                  `p-3 bg-surface-container border border-outline rounded-lg`
+                  `p-3 border border-outline bg-surface-container rounded-lg 
+              text-body-sm`
                 )}
               >
-                <p className="text-body-md">
-                  {detailedState.data?.notes ?? (
-                    <span className="opacity-50 italic">
-                      No notes provided.
-                    </span>
-                  )}
-                </p>
+                <b>
+                  <a
+                    className="!font-mono break-all"
+                    href={
+                      process.env.NEXT_PUBLIC_API_PATH +
+                      "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"
+                    }
+                    target="_blank"
+                  >
+                    {process.env.NEXT_PUBLIC_API_PATH +
+                      "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"}
+                  </a>
+                </b>
+                <br />
+                <span className="!font-mono break-all">
+                  {JSON.stringify(detailedState)}
+                </span>
               </div>
             </LabelGroup>
-          </PageLoadTransition>
-        )}
-
-        {process.env.NODE_ENV === "development" && (
-          <LabelGroup header="Developer Log">
-            <div
-              className={cn(
-                `p-3 border border-outline bg-surface-container rounded-lg 
-              text-body-sm`
-              )}
-            >
-              <b>
-                <a
-                  className="!font-mono break-all"
-                  href={
-                    process.env.NEXT_PUBLIC_API_PATH +
-                    "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"
-                  }
-                  target="_blank"
-                >
-                  {process.env.NEXT_PUBLIC_API_PATH +
-                    "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"}
-                </a>
-              </b>
-              <br />
-              <span className="!font-mono break-all">
-                {JSON.stringify(detailedState)}
-              </span>
-            </div>
-          </LabelGroup>
-        )}
+          )}
+        </PageLoadTransition>
       </main>
     </>
   );
