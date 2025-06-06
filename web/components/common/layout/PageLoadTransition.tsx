@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import cn from "@/utils/helpers/cn";
 
 type PageLoadTransitionProps = {
   className?: string;
@@ -16,7 +17,7 @@ const PageLoadTransition = ({
       transition={{
         y: { type: "spring", bounce: 0 },
       }}
-      className="flex flex-col gap-3"
+      className={cn(`flex flex-col gap-3 max-w-lg m-auto`, className)}
     >
       {children}
     </motion.div>
