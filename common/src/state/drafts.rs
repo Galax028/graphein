@@ -252,6 +252,7 @@ impl DraftOrderStore {
             id: draft_order.id,
             created_at: draft_order.created_at,
             owner_id: Some(owner_id),
+            owner: None,
             order_number: Self::convert_queue_seq_to_order_number(self.next_queue()),
             status: OrderStatus::Reviewing,
             price: None,

@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::{
     AppError, SqlxResult,
     auth::Session,
+    database::UsersTable,
     dto::{PaginationRequest, PaginationResponse},
     error::ForbiddenError,
     request::PageKey,
@@ -106,78 +107,12 @@ impl OrdersTable {
         Ok(())
     }
 
-    pub async fn fetch_one(conn: &mut PgConnection, id: OrderId) -> SqlxResult<DetailedOrder> {
-        let order = sqlx::query!(
-            "\
-            SELECT
-                id AS \"id: OrderId\", created_at, order_number,\
-                status AS \"status: OrderStatus\", price, notes \
-            FROM orders WHERE id = $1\
-            ",
-            id as OrderId,
-        )
-        .fetch_one(&mut *conn)
-        .await?;
-
-        let status_history = sqlx::query_as(
-            "\
-            SELECT u.created_at, u.status \
-            FROM order_status_updates AS u \
-                JOIN orders AS o ON o.id = u.order_id \
-            WHERE u.order_id = $1 \
-                ORDER BY u.created_at\
-            ",
-        )
-        .bind(id)
-        .fetch_all(&mut *conn)
-        .await?;
-
-        let files = sqlx::query_as(
-            "\
-            SELECT \
-                f.id, f.filename, f.filetype, f.filesize, f.object_key, f.copies, f.range,\
-                f.paper_size_id, f.paper_orientation, f.is_colour, f.scaling, f.is_double_sided \
-            FROM files AS f \
-                JOIN orders AS o ON o.id = f.order_id \
-            WHERE f.order_id = $1 \
-                ORDER BY f.index\
-            ",
-        )
-        .bind(id)
-        .fetch_all(&mut *conn)
-        .await?;
-
-        let services = sqlx::query_as(
-            "\
-            SELECT \
-                s.service_type, s.bookbinding_type_id, s.notes,\
-                ARRAY_AGG(f.id ORDER BY f.index) AS file_ids \
-            FROM services AS s \
-                JOIN orders AS o ON o.id = s.order_id \
-                JOIN services_files AS sf ON sf.order_id = o.id AND sf.service_id = s.id \
-                JOIN files AS f ON f.id = sf.file_id \
-            WHERE s.order_id = $1 \
-                GROUP BY s.index, s.service_type, s.bookbinding_type_id, s.notes \
-                ORDER BY s.index\
-            ",
-        )
-        .bind(id)
-        .fetch_all(conn)
-        .await?;
-
-        Ok(DetailedOrder {
-            id: order.id,
-            created_at: order.created_at,
-            // TODO: fix this
-            owner_id: None,
-            order_number: order.order_number,
-            status: order.status,
-            price: order.price,
-            notes: order.notes,
-            status_history,
-            files,
-            services,
-        })
+    #[must_use]
+    pub fn query_detailed(id: OrderId) -> DetailedOrderQuery {
+        DetailedOrderQuery {
+            id,
+            with_owner: false,
+        }
     }
 
     pub async fn fetch_status_for_update(
@@ -400,6 +335,97 @@ impl<'args> CompactOrdersQuery<'args> {
             rows,
             PaginationResponse::new(next, fetched_size, total_count, reverse),
         ))
+    }
+}
+
+pub struct DetailedOrderQuery {
+    id: OrderId,
+    with_owner: bool,
+}
+
+impl DetailedOrderQuery {
+    pub fn with_owner(mut self, with_owner: bool) -> Self {
+        self.with_owner = with_owner;
+
+        self
+    }
+
+    pub async fn fetch_one(self, conn: &mut PgConnection) -> SqlxResult<DetailedOrder> {
+        let order = sqlx::query!(
+            "\
+            SELECT \
+                id AS \"id: OrderId\", created_at, owner_id AS \"owner_id: UserId\", order_number,\
+                status AS \"status: OrderStatus\", price, notes \
+            FROM orders WHERE id = $1\
+            ",
+            self.id as OrderId,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+
+        let owner = self
+            .with_owner
+            .then_some(UsersTable::fetch_one(&mut *conn, order.owner_id).await?);
+
+        let status_history = sqlx::query_as(
+            "\
+            SELECT u.created_at, u.status \
+            FROM order_status_updates AS u \
+                JOIN orders AS o ON o.id = u.order_id \
+            WHERE u.order_id = $1 \
+                ORDER BY u.created_at\
+            ",
+        )
+        .bind(self.id)
+        .fetch_all(&mut *conn)
+        .await?;
+
+        let files = sqlx::query_as(
+            "\
+            SELECT \
+                f.id, f.filename, f.filetype, f.filesize, f.object_key, f.copies, f.range,\
+                f.paper_size_id, f.paper_orientation, f.is_colour, f.scaling, f.is_double_sided \
+            FROM files AS f \
+                JOIN orders AS o ON o.id = f.order_id \
+            WHERE f.order_id = $1 \
+                ORDER BY f.index\
+            ",
+        )
+        .bind(self.id)
+        .fetch_all(&mut *conn)
+        .await?;
+
+        let services = sqlx::query_as(
+            "\
+            SELECT \
+                s.service_type, s.bookbinding_type_id, s.notes,\
+                ARRAY_AGG(f.id ORDER BY f.index) AS file_ids \
+            FROM services AS s \
+                JOIN orders AS o ON o.id = s.order_id \
+                JOIN services_files AS sf ON sf.order_id = o.id AND sf.service_id = s.id \
+                JOIN files AS f ON f.id = sf.file_id \
+            WHERE s.order_id = $1 \
+                GROUP BY s.index, s.service_type, s.bookbinding_type_id, s.notes \
+                ORDER BY s.index\
+            ",
+        )
+        .bind(self.id)
+        .fetch_all(conn)
+        .await?;
+
+        Ok(DetailedOrder {
+            id: order.id,
+            created_at: order.created_at,
+            owner_id: None,
+            owner,
+            order_number: order.order_number,
+            status: order.status,
+            price: order.price,
+            notes: order.notes,
+            status_history,
+            files,
+            services,
+        })
     }
 }
 

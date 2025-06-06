@@ -156,7 +156,10 @@ async fn get_orders_id(
         .test(&mut conn)
         .await?;
 
-    let order = OrdersTable::fetch_one(&mut conn, id).await?;
+    let order = OrdersTable::query_detailed(id)
+        .with_owner(matches!(session.user_role, UserRole::Merchant))
+        .fetch_one(&mut conn)
+        .await?;
 
     Ok(ResponseBuilder::new().data(order).build())
 }
@@ -210,14 +213,12 @@ async fn post_orders_id_build(
 
     request_data.files.iter_mut().for_each(|file| {
         file.filename = file.filename.trim().to_string();
-        if file
+        if let Some(ext_len) = file
             .filename
             .rsplit_once('.')
-            .and_then(|(_, ext)| FileType::from_str(ext).ok())
-            .is_some()
+            .and_then(|(_, ext)| FileType::from_str(ext).and(Ok(ext.len() + 1)).ok())
         {
-            // Valid file extensions are always guaranteed to be three characters long plus a dot
-            file.filename.truncate(file.filename.len() - 4);
+            file.filename.truncate(file.filename.len() - ext_len);
         }
     });
 
@@ -327,23 +328,22 @@ async fn get_orders_id_files_id_thumbnail(
     session: Session,
     Path((order_id, file_id)): Path<(OrderId, FileId)>,
 ) -> Result<Response, AppError> {
-    let (object_key, filetype) =
-        if draft_orders.exists(session.user_id, order_id).is_ok() {
-            let draft_file = draft_orders.get_file(session.user_id, file_id)?;
+    let (object_key, filetype) = if draft_orders.exists(session.user_id, order_id).is_ok() {
+        let draft_file = draft_orders.get_file(session.user_id, file_id)?;
 
-            (draft_file.object_key, draft_file.filetype)
-        } else {
-            let mut conn = pool.acquire().await?;
-            OrdersTable::permissions_checker(order_id, session)
-                .allow_merchant(true)
-                .test(&mut conn)
-                .await?;
+        (draft_file.object_key, draft_file.filetype)
+    } else {
+        let mut conn = pool.acquire().await?;
+        OrdersTable::permissions_checker(order_id, session)
+            .allow_merchant(true)
+            .test(&mut conn)
+            .await?;
 
-            let file =
-                FilesTable::fetch_one_for_metadata_from_order(&mut conn, order_id, file_id).await?;
+        let file =
+            FilesTable::fetch_one_for_metadata_from_order(&mut conn, order_id, file_id).await?;
 
-            (file.object_key, file.filetype)
-        };
+        (file.object_key, file.filetype)
+    };
 
     let Some(thumbnail_url) = bucket
         .presign_get_file_thumbnail(&object_key, filetype)
