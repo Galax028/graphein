@@ -13,8 +13,9 @@ use sha2::Sha256;
 use sqlx::PgPool;
 
 use crate::{
+    SqlxResult,
     error::AuthError,
-    schemas::{enums::UserRole, UserId}, SqlxResult,
+    schemas::{UserId, enums::UserRole},
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -83,7 +84,7 @@ impl SessionStore {
         user_role: UserRole,
         is_onboarded: bool,
     ) -> Result<String, AuthError> {
-        let hmac_instance = self.hmac_instance.clone();
+        let hmac_instance = Arc::clone(&self.hmac_instance);
         let (session_id, signature) = tokio::task::spawn_blocking(move || {
             let mut session_id = [0u8; 8];
             StdRng::from_os_rng().fill_bytes(&mut session_id);
@@ -237,7 +238,7 @@ impl SessionStore {
         session_id: SessionId,
         signature: [u8; 32],
     ) -> Result<(), AuthError> {
-        let hmac_instance = self.hmac_instance.clone();
+        let hmac_instance = Arc::clone(&self.hmac_instance);
 
         tokio::task::spawn_blocking(move || {
             let mut hmac_instance = hmac_instance.lock().unwrap(); // Shouldn't be poisoned

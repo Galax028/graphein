@@ -19,7 +19,7 @@ use tracing::info;
 use crate::{
     AppState, GOOGLE_SIGNING_KEYS, R2Bucket, Thumbnailer,
     schemas::enums::FileType,
-    state::{DraftOrderStore, OAuthStates},
+    state::{DraftOrderStore, OAuthStates, vips_version_check},
 };
 
 #[derive(Debug)]
@@ -51,7 +51,7 @@ impl DaemonController {
         ));
 
         tokio::spawn(clean_oauth_states(
-            self.app_state.oauth_states.clone(),
+            Arc::clone(&self.app_state.oauth_states),
             self.canceller.clone(),
         ));
 
@@ -61,11 +61,18 @@ impl DaemonController {
         ));
 
         let bucket = self.app_state.bucket.clone();
+        let thumbnail_size = self.app_state.config.thumbnail_size();
         let (thumbnail_canceller_tx, thumbnail_canceller_rx) = oneshot::channel();
         self.thumbnailer_canceller = Some(thumbnail_canceller_tx);
         thread::spawn(move || {
-            thumbnailer_loop(handle, bucket, thumbnailer_rx, thumbnail_canceller_rx)
-                .expect("`Thumbnailer` thread panicked");
+            thumbnailer_loop(
+                handle,
+                bucket,
+                thumbnail_size,
+                thumbnailer_rx,
+                thumbnail_canceller_rx,
+            )
+            .expect("`Thumbnailer` thread panicked");
         });
 
         self
@@ -151,15 +158,17 @@ async fn clean_draft_orders(draft_orders: DraftOrderStore, token: CancellationTo
 fn thumbnailer_loop(
     handle: Handle,
     bucket: R2Bucket,
+    thumbnail_size: i32,
     mut thumbnailer_rx: Receiver<(String, FileType)>,
     mut token: OneshotReceiver<()>,
 ) -> AnyhowResult<()> {
     let mut processed: Vec<(Arc<str>, DateTime<Utc>)> = Vec::new();
     let vips_app = VipsApp::new("thumbnailer", false)?;
-    vips_app.cache_set_max(0);
-    vips_app.cache_set_max_files(0);
-    vips_app.cache_set_max_mem(0);
-    vips_app.concurrency_set(1);
+    vips_app.cache_set_max(16); // Max operations
+    vips_app.cache_set_max_files(0); // Max open files
+    vips_app.cache_set_max_mem(256); // Max allocation
+    vips_app.concurrency_set(1); // Max workers
+    vips_version_check(vips_app.version_string()?)?;
 
     while let Ok(()) | Err(oneshot::error::TryRecvError::Empty) = token.try_recv() {
         match thumbnailer_rx.try_recv() {
@@ -169,16 +178,26 @@ fn thumbnailer_loop(
                 {
                     let to_be_processed: (Arc<str>, DateTime<Utc>) =
                         (Arc::from(data.0.as_str()), Utc::now());
-                    processed.insert(pos, (to_be_processed.0.clone(), to_be_processed.1));
+                    processed.insert(pos, (Arc::clone(&to_be_processed.0), to_be_processed.1));
 
-                    tracing::info!("processing thumbnail for `{}`", &to_be_processed.0);
-                    Thumbnailer::process_single_thumbnail(
-                        &handle,
-                        &bucket,
-                        &to_be_processed.0,
-                        data.1,
-                    )?;
-                    tracing::info!("finished thumbnail processing for `{}`", &to_be_processed.0);
+                    tracing::info_span!(
+                        "thumbnailer",
+                        object_key = %to_be_processed.0,
+                        elapsed = tracing::field::Empty,
+                    )
+                    .in_scope(|| -> AnyhowResult<()> {
+                        tracing::info!("start processing thumbnail");
+                        let elapsed = Thumbnailer::process_single_thumbnail(
+                            &handle,
+                            &bucket,
+                            thumbnail_size,
+                            &to_be_processed.0,
+                            data.1,
+                        )?;
+                        tracing::info!(?elapsed, "finished thumbnail processing",);
+
+                        Ok(())
+                    })?;
                 }
             }
             Err(TryRecvError::Empty) => {

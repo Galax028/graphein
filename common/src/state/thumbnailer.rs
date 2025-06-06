@@ -1,4 +1,6 @@
-use anyhow::Result as AnyhowResult;
+use std::time::Duration as StdDuration;
+
+use anyhow::{Context, Result as AnyhowResult, anyhow};
 use libvips::{
     VipsImage,
     ops::{
@@ -10,10 +12,30 @@ use libvips::{
 };
 use tokio::{
     runtime::Handle,
-    sync::mpsc::{self, Receiver, Sender, error::SendError},
+    sync::mpsc::{self, error::SendError, Receiver, Sender}, time::Instant,
 };
 
 use crate::{R2Bucket, schemas::enums::FileType};
+
+pub(crate) fn vips_version_check(version: &str) -> AnyhowResult<()> {
+    let (major, minor) = version
+        .split_once('.')
+        .and_then(|(major, rest)| {
+            Some((
+                major.parse::<u8>().ok()?,
+                rest.split_once('.')?.0.parse::<u8>().ok()?,
+            ))
+        })
+        .context("Unknown `libvips` version")?;
+
+    if major == 8 && minor >= 16 {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "Expected `libvips` version to be `^8.16`, got `{major}.{minor}`",
+        ))
+    }
+}
 
 // TODO: maybe make a cache
 #[derive(Clone, Debug)]
@@ -37,17 +59,19 @@ impl Thumbnailer {
     pub(crate) fn process_single_thumbnail(
         handle: &Handle,
         bucket: &R2Bucket,
+        size: i32,
         object_key: &str,
         filetype: FileType,
-    ) -> AnyhowResult<()> {
+    ) -> AnyhowResult<StdDuration> {
+        let time = Instant::now();
         let buffer =
             handle.block_on(bucket.get_file_for_thumbnail_processing(object_key, filetype))?;
         let vips_image = VipsImage::new_from_buffer(&buffer, "")?;
         let vips_image_thumbnail = vips_thumbnail_image_with_opts(
             &vips_image,
-            64,
+            size,
             &VipsThumbnailImageOptions {
-                height: 64,
+                height: size,
                 import_profile: String::from("sRGB"),
                 export_profile: String::from("sRGB"),
                 ..Default::default()
@@ -66,6 +90,6 @@ impl Thumbnailer {
         )?;
         handle.block_on(bucket.put_thumbnail(&thumbnail_buffer, object_key))?;
 
-        Ok(())
+        Ok(time.elapsed())
     }
 }

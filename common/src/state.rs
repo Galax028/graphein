@@ -19,6 +19,7 @@ mod thumbnailer;
 pub use bucket::R2Bucket;
 pub(super) use drafts::DraftOrderStore;
 pub use thumbnailer::Thumbnailer;
+pub(crate) use thumbnailer::vips_version_check;
 
 pub static GOOGLE_SIGNING_KEYS: LazyLock<ArcSwap<JwkSet>> =
     LazyLock::new(|| ArcSwap::from_pointee(JwkSet { keys: Vec::new() }));

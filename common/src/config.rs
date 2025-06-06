@@ -1,4 +1,10 @@
-use std::{net::IpAddr, str::FromStr, sync::Arc, time::Duration as StdDuration};
+use std::{
+    net::IpAddr,
+    num::{NonZeroI32, NonZeroU32},
+    str::FromStr,
+    sync::Arc,
+    time::Duration as StdDuration,
+};
 
 use anyhow::{Context as _, Result as AnyhowResult};
 use chrono::FixedOffset;
@@ -15,6 +21,7 @@ pub struct Config {
     secret: String,
     session_expiry_time: StdDuration,
     shop_utc_offset: FixedOffset,
+    thumbnail_size: NonZeroU32,
     google_oauth_client_id: String,
     google_oauth_client_secret: String,
     r2_account_id: String,
@@ -27,13 +34,13 @@ impl Config {
     pub fn try_from_dotenv() -> AnyhowResult<Arc<Self>> {
         dotenvy::dotenv().ok();
 
-        let host = IpAddr::from_str(&var("HOST").context("Missing environment variable `HOST`")?)
-            .context("Invalid value for environment variable ``")?;
+        let host = IpAddr::from_str(&var("HOST").unwrap_or(String::from("0.0.0.0")))
+            .context("Invalid value for environment variable `HOST`")?;
         let port = var("PORT")
-            .context("Missing environment variable `PORT`")?
+            .unwrap_or(String::from("8000"))
             .parse()
             .context("Invalid value for environment variable `PORT`")?;
-        let root_uri = var("ROOT_URI").context("Missing environment variable `ROOT_URI`")?;
+        let root_uri = var("ROOT_URI").unwrap_or(format!("http://{host}:{port}"));
         let frontend_uri =
             var("FRONTEND_URI").context("Missing environment variable `FRONTEND_URI`")?;
         let database_url =
@@ -41,14 +48,20 @@ impl Config {
         let secret = var("SECRET").context("Missing environment variable `SECRET`")?;
         let session_expiry_time = StdDuration::from_secs(
             var("SESSION_EXPIRY_TIME")
-                .context("Missing environment variable `SESSION_EXPIRY_TIME`")?
+                .unwrap_or(String::from("604800")) // 1 Week
                 .parse()
                 .context("Invalid value for environment variable `SESSION_EXPIRY_TIME`")?,
         );
         let shop_utc_offset = var("SHOP_UTC_OFFSET")
-            .context("Missing environment variable `SHOP_UTC_OFFSET`")?
+            .unwrap_or(String::from("+0000"))
             .parse()
             .context("Invalid value for environment variable `SHOP_UTC_OFFSET`")?;
+        let thumbnail_size = var("THUMBNAIL_SIZE")
+            .unwrap_or(String::from("128"))
+            .parse::<NonZeroI32>()
+            .context("Invalid value for environment variable `THUMBNAIL_SIZE`")?
+            .try_into()
+            .context("Invalid value for environment variable `THUMBNAIL_SIZE`")?;
         let google_oauth_client_id = var("GOOGLE_OAUTH_CLIENT_ID")
             .context("Missing environment variable `GOOGLE_OAUTH_CLIENT_ID`")?;
         let google_oauth_client_secret = var("GOOGLE_OAUTH_CLIENT_SECRET")
@@ -71,6 +84,7 @@ impl Config {
             secret,
             session_expiry_time,
             shop_utc_offset,
+            thumbnail_size,
             google_oauth_client_id,
             google_oauth_client_secret,
             r2_account_id,
@@ -119,6 +133,12 @@ impl Config {
     #[must_use]
     pub fn shop_utc_offset(&self) -> FixedOffset {
         self.shop_utc_offset
+    }
+
+    #[must_use]
+    #[allow(clippy::cast_possible_wrap)]
+    pub fn thumbnail_size(&self) -> i32 {
+        self.thumbnail_size.get() as i32
     }
 
     #[must_use]
