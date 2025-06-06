@@ -1,12 +1,12 @@
 use std::{
     fmt::{self, Display},
-    num::NonZeroU64,
+    num::{NonZeroI64, NonZeroU64},
     str::FromStr,
 };
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, SecondsFormat, Utc};
 use serde::Deserialize;
-use serde_with::{DeserializeFromStr, SerializeDisplay, serde_as};
+use serde_with::{DeserializeFromStr, DisplayFromStr, SerializeDisplay, serde_as};
 use uuid::Uuid;
 
 #[derive(Clone, Copy, Debug, DeserializeFromStr, SerializeDisplay)]
@@ -52,28 +52,57 @@ impl Display for PageKey {
         write!(
             f,
             "{}.{}",
-            hex::encode(self.0.to_rfc3339()),
+            hex::encode(self.0.to_rfc3339_opts(SecondsFormat::Millis, true)),
             hex::encode(self.1)
         )
     }
 }
 
-#[derive(Debug, Clone, Copy, Deserialize)]
-#[serde(default)]
-#[serde_as]
-pub struct PaginationRequest {
-    #[serde_as(as = "TryFromInto<NonZeroI64>")]
-    pub size: NonZeroU64,
-    pub page: Option<PageKey>,
+#[derive(Clone, Copy, Debug)]
+#[repr(transparent)]
+pub struct PageSize(NonZeroU64);
+
+impl PageSize {
+    #[allow(clippy::cast_possible_wrap)]
+    #[must_use]
+    pub fn get(self) -> i64 {
+        self.0.get() as i64
+    }
 }
 
-impl Default for PaginationRequest {
+impl Default for PageSize {
     fn default() -> Self {
-        Self {
-            size: NonZeroU64::new(5).unwrap(),
-            page: None,
+        Self(NonZeroU64::new(5).unwrap()) // Infallible
+    }
+}
+
+impl FromStr for PageSize {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        static ERROR: &str = "Invalid pagination size";
+        let parsed: NonZeroU64 = NonZeroI64::from_str(s)
+            .map_err(|_| ERROR)?
+            .try_into()
+            .map_err(|_| ERROR)?;
+
+        if parsed.get() > 50 {
+            Err("Invalid pagination size: must be between `1` and `50`")
+        } else {
+            Ok(Self(parsed))
         }
     }
+}
+
+#[serde_as]
+#[derive(Debug, Default, Clone, Copy, Deserialize)]
+#[serde(default)]
+pub struct PaginationRequest {
+    #[serde_as(as = "DisplayFromStr")]
+    pub size: PageSize,
+    pub page: Option<PageKey>,
+    #[serde_as(as = "DisplayFromStr")]
+    pub reverse: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -81,7 +110,7 @@ pub struct RequestDataPlaceholder;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RequestData<T = Option<RequestDataPlaceholder>> {
+pub struct RequestData<T = RequestDataPlaceholder> {
     #[serde(flatten)]
     pub data: T,
 

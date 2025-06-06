@@ -1,3 +1,8 @@
+use std::{
+    fmt::{self, Display},
+    str::FromStr,
+};
+
 use serde::{Deserialize, Serialize};
 use sqlx::Type as SqlxType;
 
@@ -10,7 +15,41 @@ pub enum FileType {
     Jpg,
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, SqlxType)]
+impl FileType {
+    #[must_use]
+    pub fn to_mime(&self) -> &str {
+        match self {
+            Self::Pdf => "application/pdf",
+            Self::Png => "image/png",
+            Self::Jpg => "image/jpeg",
+        }
+    }
+}
+
+impl Display for FileType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Pdf => write!(f, "pdf"),
+            Self::Png => write!(f, "png"),
+            Self::Jpg => write!(f, "jpg"),
+        }
+    }
+}
+
+impl FromStr for FileType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s.to_lowercase().as_str() {
+            "png" => FileType::Png,
+            "jpg" | "jpeg" | "jfif" => FileType::Jpg,
+            "pdf" => FileType::Pdf,
+            _ => return Err("Invalid file extension"),
+        })
+    }
+}
+
+#[derive(Debug, Deserialize, Clone, Copy, Eq, PartialEq, PartialOrd, Serialize, SqlxType)]
 #[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "order_status", rename_all = "lowercase")]
 pub enum OrderStatus {

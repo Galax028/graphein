@@ -1,30 +1,28 @@
 use std::borrow::Cow;
 
-use axum::{
-    http::status::StatusCode,
-    response::{IntoResponse, Response},
-};
+use axum::response::{IntoResponse, Response};
 use chrono::{DateTime, Utc};
+use http::StatusCode;
 use serde::Serialize;
 
 use crate::{extract::Json, request::PageKey};
 
 #[derive(Debug, Clone, Copy, Serialize)]
 pub struct PaginationResponse {
-    prev: Option<PageKey>,
-    next: Option<PageKey>,
+    page: Option<PageKey>,
     size: usize,
     count: i64,
+    reverse: bool,
 }
 
 impl PaginationResponse {
     #[must_use]
-    pub fn new(prev: Option<PageKey>, next: Option<PageKey>, size: usize, count: i64) -> Self {
+    pub fn new(page: Option<PageKey>, size: usize, count: i64, reverse: bool) -> Self {
         Self {
-            prev,
-            next,
+            page,
             size,
             count,
+            reverse,
         }
     }
 }
