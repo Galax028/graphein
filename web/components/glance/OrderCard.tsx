@@ -1,6 +1,7 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/getDateTimeString";
+import { motion } from "motion/react";
 
 type OrderStatusProps =
   | "building"
@@ -47,12 +48,12 @@ const OrderCard = ({
     { width: string; color: string }
   > = {
     building: { width: "", color: "" },
-    reviewing: { width: "w-[calc(57.91px/2)]", color: "bg-warning" },
-    processing: { width: "w-3/8", color: "bg-warning" },
-    ready: { width: "w-5/8", color: "bg-success" },
-    completed: { width: "w-full", color: "bg-success" },
-    rejected: { width: "w-[calc(57.91px/2)]", color: "bg-error" },
-    cancelled: { width: "w-[calc(57.91px/2)]", color: "bg-error" },
+    reviewing: { width: "28.96px", color: "bg-warning" },
+    processing: { width: "37.5%", color: "bg-warning" },
+    ready: { width: "62.5%", color: "bg-success" },
+    completed: { width: "100%", color: "bg-success" },
+    rejected: { width: "28.96px", color: "bg-error" },
+    cancelled: { width: "28.96px", color: "bg-error" },
     unknown: { width: "", color: "" },
   };
 
@@ -86,10 +87,12 @@ const OrderCard = ({
       {(options?.showProgressBar ?? false) && (
         <div className="flex flex-col gap-1 border-t border-outline p-3">
           <div className="flex h-1 bg-outline rounded-full overflow-hidden">
-            <div
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: progressBarMap[status].width }}
+              style={{ width: progressBarMap[status].width }}
               className={cn(
                 "h-full rounded-l-full",
-                progressBarMap[status].width,
                 progressBarMap[status].color
               )}
             />
