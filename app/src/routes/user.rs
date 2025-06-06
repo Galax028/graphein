@@ -11,7 +11,7 @@ use graphein_common::{
     auth::Session,
     database::UsersTable,
     dto::RequestData,
-    error::{ForbiddenError, MISSING_FIELDS},
+    error::{AuthError, ForbiddenError, MISSING_FIELDS},
     extract::Json,
     middleware::requires_onboarding,
     response::ResponseBuilder,
@@ -113,7 +113,10 @@ async fn post_user_onboard(
         }
     };
 
-    let session_id = cookies.get("session_token").unwrap().value_trimmed();
+    let session_id = cookies
+        .get("session_token")
+        .ok_or(AppError::Unauthorized(AuthError::Unprocessable))?
+        .value_trimmed();
     sessions.set_onboard(session_id).await?;
 
     Ok(ResponseBuilder::new().data(user).build())

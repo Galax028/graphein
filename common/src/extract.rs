@@ -5,11 +5,11 @@ use axum::{
         FromRef, FromRequestParts,
         rejection::{JsonRejection, PathRejection},
     },
-    http::request::Parts,
     response::IntoResponse,
 };
 use axum_extra::extract::CookieJar;
 use axum_macros::FromRequest;
+use http::request::Parts;
 use serde::Serialize;
 use serde_qs::axum::QsQueryRejection;
 
@@ -46,7 +46,15 @@ impl From<PathRejection> for AppError {
 
 impl From<QsQueryRejection> for AppError {
     fn from(value: QsQueryRejection) -> Self {
-        Self::BadRequest(format!("[4002] {}.", value.source().unwrap()).into())
+        Self::BadRequest(
+            format!(
+                "[4002] {}.",
+                value
+                    .source()
+                    .map_or(String::from("unknown"), ToString::to_string)
+            )
+            .into(),
+        )
     }
 }
 
@@ -77,7 +85,7 @@ where
             )
         };
 
-        let cookies = CookieJar::from_request_parts(parts, state).await.unwrap();
+        let cookies = CookieJar::from_request_parts(parts, state).await.unwrap(); // Infallible
         let sessions = SessionStore::from_ref(state);
         let session_id = match cookies.get("session_token") {
             Some(cookie) => cookie.value_trimmed(),

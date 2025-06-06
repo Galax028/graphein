@@ -55,7 +55,7 @@ impl UsersTable {
         conn: &mut PgConnection,
         email: &str,
     ) -> SqlxResult<Option<(UserId, UserRole, bool)>> {
-        if let Some(res) = sqlx::query!(
+        if let Some(row) = sqlx::query!(
             "\
             SELECT id AS \"id: UserId\", role AS \"role: UserRole\", is_onboarded \
             FROM users WHERE email = $1\
@@ -65,7 +65,7 @@ impl UsersTable {
         .fetch_optional(conn)
         .await?
         {
-            Ok(Some((res.id, res.role, res.is_onboarded)))
+            Ok(Some((row.id, row.role, row.is_onboarded)))
         } else {
             Ok(None)
         }

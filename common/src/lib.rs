@@ -8,6 +8,7 @@
 )]
 
 pub mod auth;
+pub mod daemons;
 pub mod database;
 pub mod error;
 pub mod extract;
@@ -22,11 +23,13 @@ pub(crate) mod state;
 pub use crate::{
     config::Config,
     error::AppError,
-    state::{AppState, GOOGLE_SIGNING_KEYS},
+    state::{AppState, GOOGLE_SIGNING_KEYS, R2Bucket, Thumbnailer},
 };
 
 pub type HandlerResponse<T> = Result<response::ResponseBody<T>, error::AppError>;
 pub type SqlxResult<T> = Result<T, sqlx::Error>;
+
+pub const MAX_FILE_LIMIT: usize = 10;
 
 pub mod dto {
     pub use crate::{

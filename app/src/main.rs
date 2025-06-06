@@ -1,17 +1,16 @@
 #![forbid(unsafe_code)]
 #![warn(clippy::pedantic)]
 
-use anyhow::Result;
+use anyhow::{Context as _, Result};
 use axum::Router;
-use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
-use tokio::net::TcpListener;
-use tokio_util::sync::CancellationToken;
+use sqlx::postgres::PgPoolOptions;
+use tokio::{net::TcpListener, runtime::Handle};
 use tower_http::trace::TraceLayer;
 use tracing::{debug, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use graphein_app::expand_router;
-use graphein_common::{AppState, Config, auth::fetch_google_jwks};
+use graphein_common::{AppState, Config, R2Bucket, Thumbnailer, daemons::DaemonController};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -25,16 +24,28 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .try_init()?;
 
-    let config = Config::try_from_dotenv()?;
-    let (host, port, root_uri) = (config.host(), config.port(), config.root_uri().to_owned());
-    let pool = PgPoolOptions::new()
-        .connect_with(config.database_url().parse::<PgConnectOptions>()?)
-        .await?;
-    let app_state = AppState::new(config, pool);
-    app_state.load_sessions().await;
+    let config = Config::try_from_dotenv().context("Failed to parse config")?;
+    let (host, port, root_uri) = (config.host(), config.port(), config.root_uri());
 
-    let fgj_token = CancellationToken::new();
-    tokio::spawn(fetch_google_jwks(app_state.http.clone(), fgj_token.clone()));
+    let pool = PgPoolOptions::new()
+        .connect_with(config.database_connect_options()?)
+        .await?;
+    sqlx::migrate!("../.sqlx/migrations").run(&pool).await?;
+
+    let bucket = R2Bucket::new(
+        config.r2_account_id().to_owned(),
+        config.r2_bucket_name().to_owned(),
+        config.r2_access_key_id(),
+        config.r2_secret_access_key(),
+    )?;
+
+    let (thumbnailer, thumbnailer_rx) = Thumbnailer::new();
+
+    let app_state = AppState::new(config.clone(), pool, bucket, thumbnailer);
+    app_state.load_sessions().await?;
+
+    let daemon_controller =
+        DaemonController::new(app_state.clone()).start_all(Handle::current(), thumbnailer_rx);
 
     let app = Router::new()
         .merge(expand_router(app_state.clone()))
@@ -49,13 +60,13 @@ async fn main() -> Result<()> {
     info!("server is listening on http://{}", listener.local_addr()?);
     debug!("quick login: {root_uri}/auth/google/init");
     axum::serve(listener, app)
-        .with_graceful_shutdown(shutdown_signal(fgj_token, app_state))
+        .with_graceful_shutdown(shutdown_signal(daemon_controller, app_state))
         .await?;
 
     Ok(())
 }
 
-async fn shutdown_signal(fgj_token: CancellationToken, app_state: AppState) {
+async fn shutdown_signal(daemon_controller: DaemonController, app_state: AppState) {
     let sigint_handle = async {
         tokio::signal::ctrl_c()
             .await
@@ -78,6 +89,10 @@ async fn shutdown_signal(fgj_token: CancellationToken, app_state: AppState) {
         () = sigterm_handle => info!("stopping server due to system termination"),
     }
 
-    fgj_token.cancel();
-    app_state.sessions.commit(app_state.pool).await;
+    daemon_controller.stop_all();
+    app_state
+        .sessions
+        .commit(app_state.pool)
+        .await
+        .expect("Unable to commit sessions to database");
 }

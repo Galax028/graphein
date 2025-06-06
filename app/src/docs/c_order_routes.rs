@@ -218,7 +218,7 @@
 //! | `range`            | [`String`]           | Yes       |
 //! | `paperSizeId`      | [`Uuid`]             | No        |
 //! | `paperOrientation` | [`PaperOrientation`] | No        |
-//! | `isColor`          | [`bool`]             | No        |
+//! | `isColour`         | [`bool`]             | No        |
 //! | `scaling`          | [`i32`]              | No        |
 //! | `isDoubleSided`    | [`bool`]             | No        |
 //! | `notes`            | [`String`]           | Yes       |
@@ -319,7 +319,7 @@
 //! | `range`            | [`String`]           | No        |
 //! | `paperSizeId`      | [`Uuid`]             | Yes       |
 //! | `paperOrientation` | [`PaperOrientation`] | Yes       |
-//! | `isColor`          | [`bool`]             | Yes       |
+//! | `isColour`         | [`bool`]             | Yes       |
 //! | `scaling`          | [`i32`]              | Yes       |
 //! | `isDoubleSided`    | [`bool`]             | Yes       |
 //! | `notes`            | [`String`]           | No        |
@@ -385,7 +385,7 @@
 //! | `range`            | [`String`]           | Yes       |
 //! | `paperSizeId`      | [`Uuid`]             | No        |
 //! | `paperOrientation` | [`PaperOrientation`] | No        |
-//! | `isColor`          | [`bool`]             | No        |
+//! | `isColour`         | [`bool`]             | No        |
 //! | `scaling`          | [`i32`]              | No        |
 //! | `isDoubleSided`    | [`bool`]             | No        |
 //! | `notes`            | [`String`]           | Yes       |
@@ -497,7 +497,6 @@
 //!
 //! | Name       | Type         | Required? |
 //! |------------|--------------|-----------|
-//! | `filename` | [`String`]   | Yes       |
 //! | `filetype` | [`FileType`] | Yes       |
 //! | `filesize` | [`u64`]      | Yes       |
 //!

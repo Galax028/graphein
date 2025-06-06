@@ -1,0 +1,24 @@
+services:
+  graphein:
+    build: .
+    ports:
+      - "9000:80"
+    env_file: ".env"
+    depends_on:
+      db:
+        condition: service_healthy
+    init: true
+    restart: always
+  db:
+    image: postgres:15-alpine
+    env_file: ".postgres.env"
+    volumes:
+      - graphein-postgres-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  graphein-postgres-data:
