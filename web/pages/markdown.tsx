@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import NumberInput from "@/components/common/NumberInput";
 import DropDownCard from "@/components/common/DropDownCard";
+import { AnimatePresence } from "motion/react";
 
 const Markdown = () => {
   const [language, setLanguage] = useState("th");
@@ -114,7 +115,7 @@ const Markdown = () => {
           </div>
 
           <p>Google OAuth Button</p>
-          <GoogleSignInButton />
+          {/* <GoogleSignInButton /> */}
 
           <p>Segmented Buttons</p>
           <SegmentedGroup>
@@ -246,31 +247,33 @@ const Markdown = () => {
           </p>
         </div>
 
-        {showPopup && (
-          <Popup
-            title="Fail Task"
-            desc="If proceed, the task will fail successfully."
-            onClickOutside={setShowPopup}
-          >
-            <Button appearance="tonal" onClick={() => setShowPopup(false)}>
-              No
-            </Button>
-            <Button
-              appearance="filled"
-              busy={isLoading}
-              busyWithText={false}
-              onClick={() => {
-                setIsLoading(true);
-                setTimeout(() => {
-                  setShowPopup(false);
-                  setIsLoading(false);
-                }, 1500);
-              }}
+        <AnimatePresence>
+          {showPopup && (
+            <Popup
+              title="Fail Task"
+              desc="If proceed, the task will fail successfully."
+              onClickOutside={setShowPopup}
             >
-              Yes
-            </Button>
-          </Popup>
-        )}
+              <Button appearance="tonal" onClick={() => setShowPopup(false)}>
+                No
+              </Button>
+              <Button
+                appearance="filled"
+                busy={isLoading}
+                busyWithText={false}
+                onClick={() => {
+                  setIsLoading(true);
+                  setTimeout(() => {
+                    setShowPopup(false);
+                    setIsLoading(false);
+                  }, 1500);
+                }}
+              >
+                Yes
+              </Button>
+            </Popup>
+          )}
+        </AnimatePresence>
       </main>
     </>
   );
