@@ -64,11 +64,13 @@ const OrderCard = ({
           {(options?.showStatusText ?? true) && (
             <p
               className={cn(
-                "text-body-sm",
-                ["review", "processing"].includes(status) && "text-warning",
-                ["ready", "completed"].includes(status) && "text-success",
-                ["rejected", "cancelled"].includes(status) && "text-error",
-                status == "unknown" && "opacity-50"
+                "text-body-sm opacity-50",
+                ["review", "processing"].includes(status) &&
+                  "text-warning opacity-100",
+                ["ready", "completed"].includes(status) &&
+                  "text-success opacity-100",
+                ["rejected", "cancelled"].includes(status) &&
+                  "text-error opacity-100"
               )}
             >
               {statusTranslation[status]}
