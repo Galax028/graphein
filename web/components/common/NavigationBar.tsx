@@ -94,12 +94,12 @@ const NavigationBar = ({
         //   [&>div]:gap-3 [&>div]:h-full z-50`,
         `sticky top-0 flex justify-between items-center gap-2 
           bg-background [&>div]:flex [&>div]:items-center 
-          [&>div]:gap-3 [&>div]:h-full z-50`,
+          [&>div]:gap-3 [&>div]:h-full z-50 p-2`,
         className
       )}
     >
       {backEnabled && (
-        <div className="p-3">
+        <div className="p-1">
           <div
             className="cursor-pointer w-6 h-6"
             onClick={handleBackButtonClicked}
@@ -108,7 +108,7 @@ const NavigationBar = ({
           </div>
         </div>
       )}
-      <div className={cn(`p-3 w-full flex`, backEnabled && "justify-center")}>
+      <div className={cn(`p-1 w-full flex`, backEnabled && "justify-center")}>
         <AnimatePresence>
           <motion.div
             initial={{ x: !backEnabled ? -24 : 0, opacity: 0 }}
@@ -131,7 +131,7 @@ const NavigationBar = ({
           </motion.div>
         </AnimatePresence>
       </div>
-      <div className="p-2">
+      <div>
         {children}
         {
           // If the user is signed in, display the profile picture.
