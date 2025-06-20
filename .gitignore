@@ -23,3 +23,4 @@ target/
 
 # dependencies
 /node_modules
+/web/utils/fetch

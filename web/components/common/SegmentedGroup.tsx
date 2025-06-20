@@ -1,5 +1,5 @@
 import { SegmentedGroupProps } from "@/utils/types/common";
-import cn from "@/utils/helpers/cn";
+import cn from "@/utils/helpers/code/cn";
 
 /**
  * SegmentedGroup is a component that groups buttons, inputs, or divs

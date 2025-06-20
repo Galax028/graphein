@@ -2,8 +2,8 @@ import { AcceptedFileTypes } from "@/utils/types/common";
 import MaterialIcon from "@/components/common/MaterialIcon";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import cn from "@/utils/helpers/cn";
-import { getShortenedFileSizeString } from "@/utils/helpers/getShortenedFileSizeString";
+import cn from "@/utils/helpers/code/cn";
+import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
 import { AnimatePresence, motion } from "motion/react";
 
 type FileDetailHeaderProps = {

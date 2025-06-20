@@ -3,7 +3,7 @@ import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
-import cn from "@/utils/helpers/cn";
+import cn from "@/utils/helpers/code/cn";
 import { LangCode } from "@/utils/types/common";
 import { GetServerSideProps } from "next";
 import { Trans } from "next-i18next";

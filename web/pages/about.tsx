@@ -1,6 +1,6 @@
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/cn";
+import cn from "@/utils/helpers/code/cn";
 import Link from "next/link";
 import Image from "next/image";
 

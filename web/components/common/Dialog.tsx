@@ -1,23 +1,23 @@
-import cn from "@/utils/helpers/cn";
+import cn from "@/utils/helpers/code/cn";
 import React, { Dispatch, SetStateAction } from "react";
 import { motion } from "motion/react";
 
 /**
- * A popup with actions that accepts DOM elements at the bottom.
- * 
- * @param title The title to put on the popup (string)
- * @param desc The description to put on the popup (string)
- * @param children The title to put on the popup (string)
+ * A dialog with actions that accepts DOM elements at the bottom.
+ *
+ * @param title The title to put on the dialog (string)
+ * @param desc The description to put on the dialog (string)
+ * @param children The title to put on the dialog (string)
  */
 
-type PopupProps = {
+type DialogProps = {
   title: string;
   desc?: string;
   onClickOutside?: Dispatch<SetStateAction<boolean>>;
   children?: React.ReactNode;
 };
 
-const Popup = ({ title, desc, onClickOutside, children }: PopupProps) => {
+const Dialog = ({ title, desc, onClickOutside, children }: DialogProps) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -53,4 +53,4 @@ const Popup = ({ title, desc, onClickOutside, children }: PopupProps) => {
   );
 };
 
-export default Popup;
+export default Dialog;

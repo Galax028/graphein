@@ -3,14 +3,14 @@ import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
 import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/cn";
-import getGrettingMessage from "@/utils/helpers/getGreetingMessage";
+import cn from "@/utils/helpers/code/cn";
+import getGrettingMessage from "@/utils/helpers/glance/getGreetingMessage";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import { motion } from "motion/react";
-import MaterialIcon from "@/components/common/MaterialIcon";
+import { AnimatePresence, motion } from "motion/react";
+import Dialog from "@/components/common/Dialog";
 
 const ClientDashboard = () => {
   const router = useRouter();
@@ -79,7 +79,7 @@ const ClientDashboard = () => {
               {
                 label: "Completed",
                 data: ordersState.data.finished,
-                fallback: "You have no active order in progress.",
+                fallback: "Orders completed will appear here.",
               },
             ].map((i: any) => {
               return (
@@ -166,6 +166,9 @@ const ClientDashboard = () => {
           </Link>
         </div>
       </PageLoadTransition>
+      <AnimatePresence>
+        <Dialog></Dialog>
+      </AnimatePresence>
     </div>
   );
 };

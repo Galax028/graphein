@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import cn from "@/utils/helpers/cn";
+import cn from "@/utils/helpers/code/cn";
 
 type PageLoadTransitionProps = {
   className?: string;

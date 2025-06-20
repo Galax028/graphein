@@ -1,5 +1,5 @@
 import Button from "@/components/common/Button";
-import Popup from "@/components/common/Popup";
+import Dialog from "@/components/common/Dialog";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import GoogleSignInButton from "@/components/landing/SignInButton";
 import Head from "next/head";
@@ -249,7 +249,7 @@ const Markdown = () => {
 
         <AnimatePresence>
           {showPopup && (
-            <Popup
+            <Dialog
               title="Fail Task"
               desc="If proceed, the task will fail successfully."
               onClickOutside={setShowPopup}
@@ -271,7 +271,7 @@ const Markdown = () => {
               >
                 Yes
               </Button>
-            </Popup>
+            </Dialog>
           )}
         </AnimatePresence>
       </main>

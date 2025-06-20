@@ -1,5 +1,5 @@
-import cn from "@/utils/helpers/cn";
-import getInitialsOfString from "@/utils/helpers/getInitialsOfString";
+import cn from "@/utils/helpers/code/cn";
+import getInitialsOfString from "@/utils/helpers/common/getInitialsOfString";
 import { PersonAvatarProps } from "@/utils/types/common";
 import Image from "next/image";
 import MaterialIcon from "./MaterialIcon";
