@@ -65,6 +65,10 @@ const SettingsPage = () => {
         if (isSignedIn == false) {
           setIsSignedIn(true);
           setUser(data);
+
+          setPhone(data.data.tel ?? "");
+          setClassroom(data.data.class ? String(data.data.class) : "");
+          setClassroomNo(data.data.classNo ? String(data.data.classNo) : "");
         }
       }
     };
