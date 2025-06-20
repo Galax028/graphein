@@ -117,10 +117,17 @@ const NavigationBar = ({
             transition={{
               x: { type: "spring", bounce: 0 },
             }}
-            className="flex flex-col gap-0"
+            className={`flex flex-col gap-0`}
           >
-            <div>{title}</div>
-            <div className="text-body-sm opacity-50">{desc}</div>
+            <div className={cn(backEnabled && "text-center")}>{title}</div>
+            <div
+              className={cn(
+                `text-body-sm opacity-50`,
+                backEnabled && `text-center`
+              )}
+            >
+              {desc}
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
