@@ -11,12 +11,16 @@ import { useEffect, useState } from "react";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import { AnimatePresence, motion } from "motion/react";
 import Dialog from "@/components/common/Dialog";
+import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 
 const ClientDashboard = () => {
   const router = useRouter();
 
   const [ordersState, setOrdersState] = useState<any>({});
   const [user, setUser] = useState<any>({});
+
+  const [showNewOrderWarning, setShowNewOrderWarning] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -167,7 +171,29 @@ const ClientDashboard = () => {
         </div>
       </PageLoadTransition>
       <AnimatePresence>
-        <Dialog></Dialog>
+        {showNewOrderWarning && (
+          <Dialog
+            title={
+              "You’ll have 15 minutes to complete your order."
+            }
+            desc={
+              "If you don’t complete your order within the 15-minute window, it will be automatically discarded and you’ll need to start over."
+            }
+            onClickOutside={setShowNewOrderWarning}
+          >
+            <Button
+              appearance="tonal"
+              onClick={() => setShowNewOrderWarning(false)}
+            >
+              Cancel
+            </Button>
+            <Link href={"/order/new"} className="w-full">
+              <Button appearance="filled" className="w-full">
+                OK
+              </Button>
+            </Link>
+          </Dialog>
+        )}
       </AnimatePresence>
     </div>
   );
