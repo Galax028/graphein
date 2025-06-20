@@ -163,11 +163,23 @@ const ClientDashboard = () => {
         </div>
 
         <div className="fixed p-3 bottom-0 w-full flex flex-col h-16 max-w-lg">
-          <Link href="/order/new/upload">
-            <Button appearance={"filled"} icon={"add"} className="w-full">
-              New Order
-            </Button>
-          </Link>
+          <Button
+            appearance={"filled"}
+            icon={checkBuildingOrderExpired() ? "add" : "check"}
+            className="w-full"
+            onClick={() => {
+              if (checkBuildingOrderExpired()) {
+                setShowNewOrderWarning(true)
+              } else {
+                router.push("/order/new")
+              }
+            }}
+          >
+            {
+              checkBuildingOrderExpired() ? "New" : "Finish"
+            }{" "}
+             Order
+          </Button>
         </div>
       </PageLoadTransition>
       <AnimatePresence>
