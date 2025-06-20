@@ -89,26 +89,31 @@ const NavigationBar = ({
   return (
     <nav
       className={cn(
-        `sticky top-0 flex justify-between items-center gap-2 border-b 
-          border-outline bg-surface-container [&>div]:flex [&>div]:items-center 
+        // `sticky top-0 flex justify-between items-center gap-2 border-b
+        //   border-outline bg-surface-container [&>div]:flex [&>div]:items-center
+        //   [&>div]:gap-3 [&>div]:h-full z-50`,
+        `sticky top-0 flex justify-between items-center gap-2 
+          bg-background [&>div]:flex [&>div]:items-center 
           [&>div]:gap-3 [&>div]:h-full z-50`,
         className
       )}
     >
-      <div className="p-3">
-        {backEnabled && (
+      {backEnabled && (
+        <div className="p-3">
           <div
             className="cursor-pointer w-6 h-6"
             onClick={handleBackButtonClicked}
           >
             <MaterialIcon icon="arrow_back" />
           </div>
-        )}
+        </div>
+      )}
+      <div className={cn(`p-3 w-full flex`, backEnabled && "justify-center")}>
         <AnimatePresence>
           <motion.div
-            initial={{ x: -16, opacity: 0 }}
+            initial={{ x: !backEnabled ? -24 : 0, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -16, opacity: 0 }}
+            exit={{ x: !backEnabled ? -24 : 0, opacity: 0 }}
             transition={{
               x: { type: "spring", bounce: 0 },
             }}
