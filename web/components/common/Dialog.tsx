@@ -8,6 +8,7 @@ import { motion } from "motion/react";
  * @param title The title to put on the dialog (string)
  * @param desc The description to put on the dialog (string)
  * @param children The title to put on the dialog (string)
+ * @param onClickOutside The useState function name to trigger when clicked outside. (Always set to false)
  */
 
 type DialogProps = {
@@ -15,21 +16,31 @@ type DialogProps = {
   desc?: string;
   onClickOutside?: Dispatch<SetStateAction<boolean>>;
   children?: React.ReactNode;
+  className?: string;
 };
 
-const Dialog = ({ title, desc, onClickOutside, children }: DialogProps) => {
+const Dialog = ({
+  title,
+  desc,
+  onClickOutside,
+  className,
+  children,
+}: DialogProps) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
+      exit={{ opacity: 0, pointerEvents: "none" }}
+      transition={{ duration: 0.1 }}
       className={cn(
         `fixed top-0 left-0 grid place-items-center w-dvw h-dvh p-3
-          backdrop-filter backdrop-brightness-50 dark:backdrop-brightness-25`
+          backdrop-filter backdrop-brightness-50 dark:backdrop-brightness-25`,
+        className
       )}
       // If there's onIgnore value, set value to false.
-      onClick={() => onClickOutside && onClickOutside(false)}
+      onClick={() => {
+        onClickOutside && onClickOutside(false);
+      }}
     >
       <motion.div
         initial={{ scale: 0.9 }}
