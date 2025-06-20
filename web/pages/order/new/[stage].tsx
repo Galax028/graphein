@@ -4,12 +4,15 @@ import { useRouter } from "next/router";
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import LabelGroup from "@/components/common/LabelGroup";
+import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 
 const NewOrderPage = () => {
   const router = useRouter();
 
-  const [orderStage, setOrderStage] = useState("review");
+  const [orderStage, setOrderStage] = useState("upload");
   const [orderId, setOrderId] = useState<string | null>("");
+  const [orderCreated, setOrderCreated] = useState<string | null>("");
+  const [timeDiff, setTimeDiff] = useState<number | null>(null);
 
   useEffect(() => {
     // Creates a request for new order, set returned UUID to 'orderId'
@@ -22,23 +25,43 @@ const NewOrderPage = () => {
       });
 
       const data = await res.json();
-      setOrderId(data);
+      setOrderId(data.data);
+      setOrderCreated(data.timestamp);
 
-      if (res.ok && typeof window != undefined) {
+      if (res.ok && typeof window !== "undefined") {
         localStorage.setItem("skpf-buildingOrderId", data.data);
         localStorage.setItem("skpf-buildingOrderCreated", data.timestamp);
       } else {
         console.error(`[${res.status}] ${data.message}`);
         console.warn(`Continuing by getting OrderID from localStorage.`);
-        return setOrderId(localStorage.getItem("skpf-buildingOrderId"));
+        setOrderId(localStorage.getItem("skpf-buildingOrderId"));
       }
     };
 
-    if (typeof window != "undefined") {
-      if (localStorage.getItem("skpf-buildingOrderId") != null) {
-        setOrderId(localStorage.getItem("skpf-buildingOrderId"));
+    if (typeof window !== "undefined") {
+      const storedOrderId = localStorage.getItem("skpf-buildingOrderId");
+      const storedOrderCreated = localStorage.getItem(
+        "skpf-buildingOrderCreated"
+      );
+      const isOrderExpired =
+        storedOrderCreated && checkBuildingOrderExpired();
+
+      if (storedOrderId && !isOrderExpired) {
+        setOrderId(storedOrderId);
+        setOrderCreated(storedOrderCreated);
       } else {
+        localStorage.removeItem("skpf-buildingOrderId");
+        localStorage.removeItem("skpf-buildingOrderCreated");
         postOrders();
+      }
+
+      // Set timeDiff after orderCreated is set
+      if (storedOrderCreated) {
+        setTimeDiff(
+          new Date().getTime() - new Date(storedOrderCreated).getTime()
+        );
+      } else {
+        setTimeDiff(null);
       }
     }
   }, []);
@@ -61,6 +84,7 @@ const NewOrderPage = () => {
       />
       <main className="flex flex-col gap-2 p-3">
         <p>{JSON.stringify(orderId)}</p>
+        <p>{timeDiff} </p>
         <LabelGroup
           header={"Stages / Current Back URL: " + contextURL[orderStage]}
         >
