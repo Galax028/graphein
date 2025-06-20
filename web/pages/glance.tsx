@@ -22,6 +22,8 @@ const ClientDashboard = () => {
   const [showNewOrderWarning, setShowNewOrderWarning] =
     useState<boolean>(false);
 
+  const [isOrderExpired, setIsOrderExpired] = useState<boolean | undefined>(false);
+
   useEffect(() => {
     const fetchUser = async () => {
       const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
@@ -55,6 +57,8 @@ const ClientDashboard = () => {
       const data = await res.json();
       setOrdersState(data);
     };
+
+    setIsOrderExpired(checkBuildingOrderExpired());
 
     fetchUser();
     fetchOrders();
@@ -161,33 +165,27 @@ const ClientDashboard = () => {
             </LabelGroup>
           )}
         </div>
-
         <div className="fixed p-3 bottom-0 w-full flex flex-col h-16 max-w-lg">
           <Button
             appearance={"filled"}
-            icon={checkBuildingOrderExpired() ? "add" : "check"}
+            icon={isOrderExpired ? "add" : "check"}
             className="w-full"
             onClick={() => {
-              if (checkBuildingOrderExpired()) {
-                setShowNewOrderWarning(true)
+              if (isOrderExpired) {
+                setShowNewOrderWarning(true);
               } else {
-                router.push("/order/new")
+                router.push("/order/new");
               }
             }}
           >
-            {
-              checkBuildingOrderExpired() ? "New" : "Finish"
-            }{" "}
-             Order
+            {isOrderExpired ? "New" : "Finish"} Order
           </Button>
         </div>
       </PageLoadTransition>
       <AnimatePresence>
         {showNewOrderWarning && (
           <Dialog
-            title={
-              "You’ll have 15 minutes to complete your order."
-            }
+            title={"You’ll have 15 minutes to complete your order."}
             desc={
               "If you don’t complete your order within the 15-minute window, it will be automatically discarded and you’ll need to start over."
             }
