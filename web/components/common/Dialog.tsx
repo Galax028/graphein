@@ -33,7 +33,7 @@ const Dialog = ({
       exit={{ opacity: 0, pointerEvents: "none" }}
       transition={{ duration: 0.1 }}
       className={cn(
-        `fixed top-0 left-0 grid place-items-center w-dvw h-dvh p-3
+        `fixed top-0 left-0 grid place-items-center w-dvw h-dvh p-3 z-50
           backdrop-filter backdrop-brightness-50 dark:backdrop-brightness-25`,
         className
       )}
