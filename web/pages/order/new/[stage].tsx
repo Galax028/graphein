@@ -1,12 +1,14 @@
-import NavigationBar from "@/components/common/NavigationBar";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Button from "@/components/common/Button";
-import SegmentedGroup from "@/components/common/SegmentedGroup";
-import LabelGroup from "@/components/common/LabelGroup";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import NavigationBar from "@/components/common/NavigationBar";
+import cn from "@/utils/helpers/code/cn";
 import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
-const NewOrderPage = () => {
+const BuildOrderPage = () => {
   const router = useRouter();
 
   const [orderStage, setOrderStage] = useState("upload");
@@ -43,8 +45,7 @@ const NewOrderPage = () => {
       const storedOrderCreated = localStorage.getItem(
         "skpf-buildingOrderCreated"
       );
-      const isOrderExpired =
-        storedOrderCreated && checkBuildingOrderExpired();
+      const isOrderExpired = storedOrderCreated && checkBuildingOrderExpired();
 
       if (storedOrderId && !isOrderExpired) {
         setOrderId(storedOrderId);
@@ -64,68 +65,83 @@ const NewOrderPage = () => {
         setTimeDiff(null);
       }
     }
+
+    console.error(orderId, timeDiff);
   }, []);
 
-  console.log(router.query.stage);
+  useEffect(() => {
+    if (typeof router.query.stage === "string") {
+      setOrderStage(router.query.stage);
+    } else {
+      setOrderStage("upload");
+    }
+  }, [router.query.stage]);
 
   const contextURL: Record<string, string> = {
     upload: "/glance",
-    config: "/order/new/upload",
-    service: "/order/new/config",
+    configure: "/order/new/upload",
+    service: "/order/new/configure",
     review: "/order/new/service",
   };
 
+  const futureURL: Record<string, string> = {
+    upload: "/order/new/configure",
+    configure: "/order/new/service",
+    service: "/order/new/review",
+    review: "/order/new/review",
+  };
+
+  const titleBar: Record<string, string> = {
+    upload: "Upload files",
+    configure: "Configure order",
+    service: "Add services",
+    review: "Review order",
+  };
+
   return (
-    <>
+    <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar
-        title="New Order"
+        title={titleBar[orderStage]}
         backEnabled={true}
         backContextURL={contextURL[orderStage]}
       />
-      <main className="flex flex-col gap-2 p-3">
-        <p>{JSON.stringify(orderId)}</p>
-        <p>{timeDiff} </p>
-        <LabelGroup
-          header={"Stages / Current Back URL: " + contextURL[orderStage]}
+      <PageLoadTransition className="flex flex-col w-full h-full overflow-auto gap-3 font-mono">
+        <div
+          className={cn(
+            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
+          )}
         >
-          <SegmentedGroup className="max-w-128">
+          {{
+            upload: (
+              <>
+                <Button appearance="tonal" icon="upload">
+                  Upload Files
+                </Button>
+                <p className="text-body-sm opacity-50">
+                  You can upload up to 6 files per order. To upload more, start
+                  a new order.
+                </p>
+              </>
+            ),
+            configure: <>Configure Order</>,
+            service: <>Add Services</>,
+            review: <>Review Order</>,
+          }[orderStage] || null}
+        </div>
+        <div className="fixed p-3 bottom-0 w-full flex flex-col h-16 max-w-lg">
+          <Link href={futureURL[orderStage]}>
             <Button
-              appearance="tonal"
-              onClick={() => {
-                setOrderStage("upload");
-              }}
+              appearance="filled"
+              icon={orderStage != "review" ? null : "shopping_bag_speed"}
+              className="w-full"
             >
-              upload
+              {orderStage != "review" ? "Next" : "Send Order"}
             </Button>
-            <Button
-              appearance="tonal"
-              onClick={() => {
-                setOrderStage("config");
-              }}
-            >
-              config
-            </Button>
-            <Button
-              appearance="tonal"
-              onClick={() => {
-                setOrderStage("service");
-              }}
-            >
-              service
-            </Button>
-            <Button
-              appearance="tonal"
-              onClick={() => {
-                setOrderStage("review");
-              }}
-            >
-              review
-            </Button>
-          </SegmentedGroup>
-        </LabelGroup>
-      </main>
-    </>
+          </Link>
+        </div>
+      </PageLoadTransition>
+    </div>
   );
 };
 
-export default NewOrderPage;
+export default BuildOrderPage;
