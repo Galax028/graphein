@@ -43,11 +43,11 @@ const Dialog = ({
       }}
     >
       <motion.div
-        initial={{ scale: 0.9 }}
+        initial={{ scale: 0.95 }}
         animate={{ scale: 1 }}
-        exit={{ scale: 0.9 }}
+        exit={{ scale: 0.95 }}
         transition={{
-          duration: 0.05,
+          duration: 0.1,
           scale: { type: "spring", bounce: 0 },
         }}
         onClick={(e) => e.stopPropagation()}
