@@ -9,11 +9,13 @@ type TextInputProps = {
 function TextInput ({ placeholder, type }: TextInputProps) {
   const [inputValue, setInputValue] = useState('');
   
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const filteredValue = value.replace(/[^a-zA-Z]/g, '');
-    setInputValue(filteredValue);
-  };
+  //This is just here incase you want to remove numbers from the input, don't forget to uncomment the onChange prop in the input element if you want to use.
+
+  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = event.target.value;
+  //   const filteredValue = value.replace(/[^a-zA-Z]/g, '');
+  //   setInputValue(filteredValue);
+  // };
 
   return(
       <input className={cn(
@@ -24,7 +26,7 @@ function TextInput ({ placeholder, type }: TextInputProps) {
           rounded-lg
         `
       )} type={type} placeholder={placeholder}
-      onChange={handleChange}
+      // onChange={handleChange}
       value={inputValue}
       />
   )
