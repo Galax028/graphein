@@ -1,11 +1,19 @@
 import "@/styles/globals.css";
 import "@material-symbols/font-300/outlined.css";
-import { appWithTranslation } from "next-i18next";
-
+import { NextIntlClientProvider } from "next-intl";
 import type { AppProps } from "next/app";
 
 const App = ({ Component, pageProps }: AppProps) => {
-  return <Component {...pageProps} />;
+  return (
+    <NextIntlClientProvider
+      locale={
+        pageProps.locale ?? process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? "en"
+      }
+      messages={pageProps.translations}
+    >
+      <Component {...pageProps} />
+    </NextIntlClientProvider>
+  );
 };
 
-export default appWithTranslation(App);
+export default App;

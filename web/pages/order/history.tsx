@@ -1,12 +1,12 @@
+import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
-import cn from "@/utils/helpers/code/cn";
-import LabelGroup from "@/components/common/LabelGroup";
-import { motion } from "motion/react";
 import OrderCard from "@/components/glance/OrderCard";
+import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
+import cn from "@/utils/helpers/cn";
+import { motion } from "motion/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const OrderHistoryPage = () => {
   const [orderHistoryData, setOrderHistoryData] = useState<any>({});

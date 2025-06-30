@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import MaterialIcon from "./MaterialIcon";
 
 type TextInputProps = {

@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";

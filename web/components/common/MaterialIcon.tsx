@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import { MaterialIconProps } from "@/utils/types/common";
 
 /**

@@ -7,9 +7,13 @@ import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import { UserTypes } from "@/utils/types/common";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import { GetServerSideProps } from "next";
+import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
+import { useTranslations } from "next-intl";
 
 const SettingsPage = () => {
   const router = useRouter();
+  const t = useTranslations();
 
   const [user, setUser] = useState<any>({});
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
@@ -74,20 +78,20 @@ const SettingsPage = () => {
     };
 
     getUser();
-  }, []);
+  }, [isSignedIn]);
 
   return (
     <>
-      <NavigationBar title="Settings" backEnabled={true} />
+      <NavigationBar title={t("navigationBar")} backEnabled={true} />
       <PageLoadTransition className="flex flex-col gap-3 p-3">
         {isSignedIn && (
           <>
             <LabelGroup
-              header="About You"
-              footer="You cannot change your profile picture, name, or email here because they’re synced with your Google account—please update them in your Google account settings."
+              header={t("userSettings.title")}
+              footer={t("userSettings.description")}
             >
               <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
-                <LabelGroup header="Profile">
+                <LabelGroup header={t("userSettings.profile")}>
                   <div className="m-auto">
                     <PersonAvatar
                       profile_url={user.data.profileUrl}
@@ -96,21 +100,21 @@ const SettingsPage = () => {
                     />
                   </div>
                 </LabelGroup>
-                <LabelGroup header="Name">
+                <LabelGroup header={t("userSettings.name")}>
                   <input
                     value={user.data.name}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
                     disabled
                   />
                 </LabelGroup>
-                <LabelGroup header="Email">
+                <LabelGroup header={t("userSettings.email")}>
                   <input
                     value={user.data.email}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
                     disabled
                   />
                 </LabelGroup>
-                <LabelGroup header="Phone">
+                <LabelGroup header={t("userSettings.tel")}>
                   <input
                     value={phone}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
@@ -119,10 +123,10 @@ const SettingsPage = () => {
                     }}
                   />
                 </LabelGroup>
-                <LabelGroup header="Class / No.">
+                <LabelGroup header={t("userSettings.classAndNo")}>
                   <SegmentedGroup>
                     <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                      <p>M.</p>
+                      <p>{t("userSettings.class")}</p>
                     </div>
                     <input
                       value={classroom}
@@ -133,7 +137,7 @@ const SettingsPage = () => {
                       className="w-full p-2 bg-background text-body-md"
                     />
                     <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                      <p>No.</p>
+                      <p>{t("userSettings.no")}</p>
                     </div>
                     <input
                       value={classroomNo}
@@ -152,7 +156,7 @@ const SettingsPage = () => {
                   icon={"save"}
                   busy={busy}
                 >
-                  Save
+                  {t("userSettings.save")}
                 </Button>
               </div>
             </LabelGroup>
@@ -165,7 +169,7 @@ const SettingsPage = () => {
           icon={"logout"}
           busy={busy}
         >
-          Sign Out
+          {t("signOut")}
         </Button>
         <LabelGroup header="Developer Log">
           <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
@@ -185,6 +189,15 @@ const SettingsPage = () => {
       </PageLoadTransition>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [locale, translations] = await getServerSideTranslations(
+    context.req,
+    "settings",
+  );
+
+  return { props: { locale, translations } };
 };
 
 export default SettingsPage;

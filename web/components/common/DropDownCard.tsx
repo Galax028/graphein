@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import MaterialIcon from "./MaterialIcon";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";

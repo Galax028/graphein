@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import React, { Dispatch, SetStateAction } from "react";
 import { motion } from "motion/react";
 

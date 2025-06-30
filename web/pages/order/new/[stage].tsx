@@ -1,18 +1,18 @@
 import Button from "@/components/common/Button";
+import Dialog from "@/components/common/Dialog";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
+import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
 import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import { generateFileUploadURL } from "@/utils/helpers/order/new/generateFileUploadURL";
 import { AcceptedFileTypes } from "@/utils/types/common";
+import { motion } from "motion/react";
+import { li } from "motion/react-client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { generateFileUploadURL } from "@/utils/helpers/order/new/generateFileUploadURL";
 import { useDropzone } from "react-dropzone";
-import { li } from "motion/react-client";
-import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
-import Dialog from "@/components/common/Dialog";
-import { motion } from "motion/react";
 
 const BuildOrderPage = () => {
   const router = useRouter();

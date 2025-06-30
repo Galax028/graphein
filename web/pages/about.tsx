@@ -1,8 +1,11 @@
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/code/cn";
-import Link from "next/link";
+import cn from "@/utils/helpers/cn";
+import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
+import { GetServerSideProps } from "next";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
 
 type DeveloperProfileProps = {
   name: string;
@@ -33,71 +36,74 @@ const DeveloperProfile = ({ name, role, image }: DeveloperProfileProps) => {
   );
 };
 
+const developers = [
+  {
+    name: "Metawat Rojniweth",
+    role: "Head of Frontend & Head of Design",
+    image: "/images/about/developers/metawat_r.jpg",
+  },
+  {
+    name: "Aritouch Thammapitakporn",
+    role: "Frontend & Design",
+    image: "/images/about/developers/aritouch_t.png",
+  },
+  {
+    name: "Phawat Suksiriwan",
+    role: "Head of Backend & Head of Database",
+    image: "/images/about/developers/phawat_s.png",
+  },
+] as readonly DeveloperProfileProps[];
+
 const AboutPage = () => {
-  const developers = [
-    {
-      name: "Metawat Rojniweth",
-      role: "Head of Frontend & Head of Design",
-      image: "/images/about/developers/metawat_r.jpg",
-    },
-    {
-      name: "Aritouch Thammapitakporn",
-      role: "Frontend & Design",
-      image: "/images/about/developers/aritouch_t.png",
-    },
-    {
-      name: "Phawat Suksiriwan",
-      role: "Head of Backend & Head of Database",
-      image: "/images/about/developers/phawat_s.png",
-    },
-  ];
+  const t = useTranslations();
 
   return (
     <>
       <NavigationBar
-        title={`About ${process.env.NEXT_PUBLIC_APP_NAME}`}
+        title={t("navigationBar", {
+          appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
+        })}
         backEnabled={true}
       />
       <main className="flex flex-col gap-3 p-3">
-        <LabelGroup header="About">
+        <LabelGroup header={t("about.title")}>
           <div
             className={cn(
               `flex flex-col gap-2 p-3 rounded-lg bg-surface-container 
               border border-outline [&>p]:text-body-md`,
             )}
           >
+            <p>{t("about.p1")}</p>
             <p>
-              Printing Facility is a source-available research project by EPLUS+
-              students at Suankularb Wittayalai, developed in collaboration with
-              the Suankularb Wittayalai Student Committee.
+              {t.rich("about.p2", {
+                a: (children) => (
+                  <Link
+                    href={String(process.env.NEXT_PUBLIC_SOURCE_PATH)}
+                    target="_blank"
+                  >
+                    <span className="underline">{children}</span>
+                  </Link>
+                ),
+              })}
             </p>
             <p>
-              If you’re curious to see the magic behind this project, you’re
-              warmly invited to explore the{" "}
-              <Link
-                href={String(process.env.NEXT_PUBLIC_SOURCE_PATH)}
-                target="_blank"
-              >
-                <span className="underline">GitHub</span>
-              </Link>{" "}
-              repository.
+              {t.rich("about.p3", {
+                a1: (children) => (
+                  <Link href="/legal/privacy">
+                    <span className="underline">{children}</span>
+                  </Link>
+                ),
+                a2: (children) => (
+                  <Link href="/legal/terms">
+                    <span className="underline">{children}</span>
+                  </Link>
+                ),
+              })}
             </p>
-            <p>
-              Printing Facility may collect data for analytics and research
-              purposes, see our{" "}
-              <Link href="/legal/privacy">
-                <span className="underline">Privacy Policy</span>
-              </Link>{" "}
-              and{" "}
-              <Link href="/legal/terms">
-                <span className="underline">Terms of Service</span>
-              </Link>{" "}
-              for more information.
-            </p>
-            <p className="!text-body-sm opacity-50">Made with ❤️ by EPLUS+</p>
+            <p className="!text-body-sm opacity-50">{t("about.p4")}</p>
           </div>
         </LabelGroup>
-        <LabelGroup header="Version">
+        <LabelGroup header={t("version")}>
           <div
             className={cn(
               `flex flex-col gap-2 p-3 rounded-lg bg-surface-container 
@@ -105,14 +111,14 @@ const AboutPage = () => {
             )}
           >
             <div className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center">
-              <p className="w-18 text-body-sm opacity-50">Version</p>
+              <p className="w-18 text-body-sm opacity-50">{t("version")}</p>
               <p className="w-full text-body-md">
                 {process.env.NEXT_PUBLIC_VERSION}
               </p>
             </div>
           </div>
         </LabelGroup>
-        <LabelGroup header="Developers">
+        <LabelGroup header={t("developers")}>
           {developers.map((i) => (
             <DeveloperProfile
               key={i.name}
@@ -125,6 +131,15 @@ const AboutPage = () => {
       </main>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [locale, translations] = await getServerSideTranslations(
+    context.req,
+    "about",
+  );
+
+  return { props: { locale, translations } };
 };
 
 export default AboutPage;

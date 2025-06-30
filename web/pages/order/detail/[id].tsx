@@ -1,17 +1,17 @@
-import OrderCard from "@/components/glance/OrderCard";
+import DescriptionList from "@/components/common/DescriptionList";
 import DropDownCard from "@/components/common/DropDownCard";
+import FileDetailHeader from "@/components/common/FileDetailHeader";
 import LabelGroup from "@/components/common/LabelGroup";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/code/cn";
+import OrderCard from "@/components/glance/OrderCard";
+import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
 import getLoggedInUser from "@/utils/helpers/common/getLoggedInUser";
+import { OrderStatus } from "@/utils/types/common";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import FileDetailHeader from "@/components/common/FileDetailHeader";
-import DescriptionList from "@/components/common/DescriptionList";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import { OrderStatus } from "@/utils/types/common";
 
 type OrderDetailsPageProps = {
   user: any;

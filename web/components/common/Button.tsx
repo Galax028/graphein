@@ -1,5 +1,5 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import { ButtonProps } from "@/utils/types/common";
 
 /**

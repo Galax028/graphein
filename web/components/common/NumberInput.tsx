@@ -1,6 +1,6 @@
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import { useState } from "react";
 
 /**
