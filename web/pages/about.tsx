@@ -20,10 +20,10 @@ const DeveloperProfile = ({ name, role, image }: DeveloperProfileProps) => {
     >
       <Image
         src={image}
-        width={32}
-        height={32}
+        width={128}
+        height={128}
         alt={`Image of ${name}`}
-        className="w-8 h-8 rounded-full"
+        className="w-16 h-16 rounded-full"
       />
       <div className="flex flex-col">
         <p>{name}</p>
