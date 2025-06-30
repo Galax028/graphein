@@ -140,7 +140,7 @@ async fn post_orders(
     State(AppState { draft_orders, .. }): State<AppState>,
     Session { user_id, .. }: Session,
 ) -> HandlerResponse<OrderId> {
-    let order_id = draft_orders.insert(user_id)?;
+    let order_id = draft_orders.insert(user_id);
 
     Ok(ResponseBuilder::new().data(order_id).build())
 }
@@ -183,7 +183,7 @@ async fn post_orders_id_status(
         OrderStatus::Ready => OrderStatus::Completed,
         _ => {
             return Err(AppError::BadRequest(
-                "Cannot process status updates for this order any further.".into(),
+                "[4005] Cannot process status updates for this order any further.".into(),
             ));
         }
     };
@@ -207,7 +207,7 @@ async fn post_orders_id_build(
     draft_orders.exists(user_id, order_id)?;
     if request_data.files.is_empty() {
         return Err(AppError::BadRequest(
-            "There are no files present in this order.".into(),
+            "[4008] There are no files present in this order.".into(),
         ));
     }
 
@@ -234,10 +234,14 @@ async fn post_orders_id_build(
 }
 
 async fn delete_orders_id(
-    State(AppState { pool, .. }): State<AppState>,
+    State(AppState { pool, draft_orders, .. }): State<AppState>,
     session: Session,
     Path(order_id): Path<OrderId>,
 ) -> Result<StatusCode, AppError> {
+    if draft_orders.delete(session.user_id) {
+        return Ok(StatusCode::NO_CONTENT)
+    }
+
     let mut conn = pool.acquire().await?;
     OrdersTable::permissions_checker(order_id, session)
         .allow_merchant(true)

@@ -92,17 +92,15 @@ impl DraftOrderStore {
         }
     }
 
-    pub fn insert(&self, owner_id: UserId) -> Result<OrderId, AppError> {
-        if self.orders.contains_key(&owner_id) {
-            return Err(AppError::BadRequest(
-                "An order in `Building` already exists.".into(),
-            ));
+    pub fn insert(&self, owner_id: UserId) -> OrderId {
+        if let Some(draft) = self.orders.get(&owner_id) {
+            return draft.id;
         }
 
         let order_id = Uuid::new_v4().into();
         self.orders.insert(owner_id, DraftOrder::new(order_id));
 
-        Ok(order_id)
+        order_id
     }
 
     pub fn add_file(
@@ -118,7 +116,7 @@ impl DraftOrderStore {
 
         if draft.files_len() == MAX_FILE_LIMIT {
             return Err(AppError::BadRequest(
-                "This order has already reached the maximum file limit.".into(),
+                "[4008] This order has already reached the maximum file limit.".into(),
             ));
         }
 
@@ -175,6 +173,10 @@ impl DraftOrderStore {
         Ok(())
     }
 
+    pub fn delete(&self, owner_id: UserId) -> bool {
+        self.orders.remove(&owner_id).is_some()
+    }
+
     #[allow(clippy::cast_possible_wrap)]
     pub async fn build(
         &self,
@@ -194,7 +196,7 @@ impl DraftOrderStore {
 
         if draft_order.files_len() == 0 {
             return Err(AppError::BadRequest(
-                "There are no files present in this order.".into(),
+                "[4008] There are no files present in this order.".into(),
             ));
         }
 
@@ -207,7 +209,7 @@ impl DraftOrderStore {
             })
         {
             return Err(AppError::BadRequest(
-                "Malformed or missing files and/or services were provided.".into(),
+                "[4008] Malformed or missing files and/or services were provided.".into(),
             ));
         }
 
@@ -219,7 +221,7 @@ impl DraftOrderStore {
             .is_err()
         {
             return Err(AppError::BadRequest(
-                "Object(s) bound to the order were not provided.".into(),
+                "[4008] Object(s) bound to the order were not provided.".into(),
             ));
         }
 
