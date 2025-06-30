@@ -38,27 +38,29 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="flex flex-col gap-3 md:w-[24rem] md:my-4 md:m-auto">
-            <LabelGroup header="Dev Links">
-              <div
-                className={cn(
-                  `flex gap-2 m-auto w-full px-4 py-2 h-10 border border-outline 
+            {process.env.NODE_ENV === "development" && (
+              <LabelGroup header="Dev Links">
+                <div
+                  className={cn(
+                    `flex gap-2 m-auto w-full px-4 py-2 h-10 border border-outline 
                   bg-surface-container rounded-lg`
-                )}
-              >
-                <Link href={"/glance"}>
-                  <p className="text-body-md">/glance</p>
-                </Link>
-                <Link href={"/merchant"}>
-                  <p className="text-body-md">/merchant</p>
-                </Link>
-                <Link href={"/settings"}>
-                  <p className="text-body-md">/settings</p>
-                </Link>
-                <Link href={"/markdown"}>
-                  <p className="text-body-md">/markdown</p>
-                </Link>
-              </div>
-            </LabelGroup>
+                  )}
+                >
+                  <Link href={"/glance"}>
+                    <p className="text-body-md">/glance</p>
+                  </Link>
+                  <Link href={"/merchant"}>
+                    <p className="text-body-md">/merchant</p>
+                  </Link>
+                  <Link href={"/settings"}>
+                    <p className="text-body-md">/settings</p>
+                  </Link>
+                  <Link href={"/markdown"}>
+                    <p className="text-body-md">/markdown</p>
+                  </Link>
+                </div>
+              </LabelGroup>
+            )}
             <LabelGroup header="Language">
               <SegmentedGroup>
                 <Button
