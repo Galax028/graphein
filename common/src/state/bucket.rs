@@ -132,7 +132,7 @@ impl R2Bucket {
     ) -> Result<String, AppError> {
         // 50 MB
         if length > 50 * 1_000_000 {
-            return Err(AppError::BadRequest("File size exceeded limit".into()));
+            return Err(AppError::BadRequest("[4007] File size exceeded limit".into()));
         }
 
         let path = format!("/{object_key}.{filetype}");
