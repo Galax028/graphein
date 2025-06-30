@@ -8,12 +8,10 @@ import MaterialIcon from "./MaterialIcon";
  * The avatar of the person. Image will be displayed if `profile_url` is
  * given, followed by `person_name`, before falling back to an avatar icon.
  *
- * @param profile_url Path to the profile image.
- * @param person_name The person's full name. Will be initialized.
- * @param size The size of the avatar, in pixels. (Will be converted to rem).
- *
- * @returns Avatar circle consisting of image,
- * or text styled according to parameters.
+ * @param profile_url   Path to the profile image.
+ * @param person_name   The person's full name. Will be initialized.
+ * @param size          The size of the avatar, in pixels. 
+ *                      (Will be converted to rem).
  */
 
 const PersonAvatar = ({

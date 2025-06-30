@@ -4,6 +4,12 @@ type OrderEmptyCardProps = {
   text: string;
 };
 
+/**
+ * Order empty indicator container, with text defined in the component.
+ * 
+ * @param text    The text content inside.
+ */
+
 const OrderEmptyCard = ({ text }: OrderEmptyCardProps) => {
   return (
     <div

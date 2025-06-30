@@ -5,10 +5,11 @@ import { motion } from "motion/react";
 /**
  * A dialog with actions that accepts DOM elements at the bottom.
  *
- * @param title The title to put on the dialog (string)
- * @param desc The description to put on the dialog (string)
- * @param children The title to put on the dialog (string)
- * @param onClickOutside The useState function name to trigger when clicked outside. (Always set to false)
+ * @param title           The title to put on the dialog (string)
+ * @param desc            The description to put on the dialog (string)
+ * @param children        The title to put on the dialog (string)
+ * @param onClickOutside  The useState function name to trigger when 
+ *                        clicked outside. (Always set to false)
  */
 
 type DialogProps = {

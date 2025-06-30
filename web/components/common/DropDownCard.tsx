@@ -14,13 +14,11 @@ type DropDownCardProps = {
 /**
  * The dropdown content box that contains information.
  *
- * @param header The title string displayed on the title bar.
- * @param footer Array of string to be mapped on the footer bar.
- * @param collapsed The default collapsed state of the box. (Default true)
+ * @param header      The title string displayed on the title bar.
+ * @param footer      rray of string to be mapped on the footer bar.
+ * @param collapsed   The default collapsed state of the box. (Default true)
  * @param collapsible Should the box be collapsible or not? (Default true)
- * @param children The content inside the main box.
- *
- * @returns The stylized element with functinoalities.
+ * @param children    The content inside the main box.
  */
 
 const DropDownCard = ({

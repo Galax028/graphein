@@ -5,7 +5,8 @@ import cn from "@/utils/helpers/code/cn";
  * SegmentedGroup is a component that groups buttons, inputs, or divs
  * into a segmented control style layout.
  *
- * @param direction The direction of the segmented group, either "horizontal" or "vertical".
+ * @param direction   The direction of the segmented group, 
+ *                    either "horizontal" or "vertical".
  */
 
 const SegmentedGroup = ({

@@ -1,10 +1,21 @@
-import { AcceptedFileTypes } from "@/utils/types/common";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import Image from "next/image";
-import { useState, useEffect } from "react";
 import cn from "@/utils/helpers/code/cn";
 import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
-import { AnimatePresence, motion } from "motion/react";
+import { AcceptedFileTypes } from "@/utils/types/common";
+import { motion } from "motion/react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+/**
+ * File detail header, for use with range details.
+ * 
+ * @param fileName  The file name, in string.
+ * @param fileSize  The file size, in integer bytes.
+ * @param fileType  The file type, in PDF, PNG, or JPG.
+ * @param orderId   The order id, for fetching thumbnails.
+ * @param fileId    The file id, for fetching thumbnails.
+ * @param copies    The amount of copies for this file, range.
+ */
 
 type FileDetailHeaderProps = {
   fileName: string;

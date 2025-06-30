@@ -6,7 +6,7 @@ import { useEffect } from "react";
 /**
  * The sign in button using the application's design language.
  *
- * This button is name "SignInButton" only because this application
+ * This button is named "SignInButton" only because this application
  * is using Google as the definitive account system.
  *
  * @returns The 'Sign in with Google' button.

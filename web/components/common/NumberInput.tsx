@@ -3,6 +3,16 @@ import SegmentedGroup from "@/components/common/SegmentedGroup";
 import cn from "@/utils/helpers/code/cn";
 import { useState } from "react";
 
+/**
+ * A number input that accepts numbers, negatives, 
+ * and remove invalid characters automatically.
+ * 
+ * @param count     The initial count.
+ * @param setCount  The react state variable to send values to parent.
+ * @param min       The minimum value for this field.
+ * @param max       The maximum value for this field.
+ */
+
 type NumberInputProps = {
   count: number;
   setCount: React.Dispatch<React.SetStateAction<number>>;

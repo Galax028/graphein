@@ -2,13 +2,20 @@ import { motion } from "motion/react";
 import cn from "@/utils/helpers/code/cn";
 
 type PageLoadTransitionProps = {
-  className?: string;
   children: React.ReactNode;
+  className?: string;
 };
 
+/**
+ * The enter animation for the content inside to fade in + slide up.
+ * 
+ * @param children    The content inside the <div> container.
+ * @param className   Style extension to the base style.
+ */
+
 const PageLoadTransition = ({
-  className,
   children,
+  className,
 }: PageLoadTransitionProps) => {
   return (
     <motion.div

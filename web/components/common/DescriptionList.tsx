@@ -13,7 +13,6 @@ type DescriptionListProps = {
  *
  * @param data The data to show in a list. [{title: str, content: str}, ...]
  * @param expand Expanded into 2 columns in big screens or not. (Default false)
- * @returns The stylized element.
  */
 
 const DescriptionList = ({ data, expand = false }: DescriptionListProps) => {

@@ -15,8 +15,6 @@ import { ButtonProps } from "@/utils/types/common";
  * @param busyShowText  Should the button show text or not when it's busy
  *                      (defaults to true)
  * @param children      The contents inside the button.
- *
- * @returns A button styled according to parameters.
  */
 
 const Button = ({

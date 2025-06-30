@@ -25,6 +25,17 @@ type OrderCardProps = {
   }>;
 };
 
+/**
+ * The order information card, with status via progress bar view option
+ * 
+ * @param status        The status. [OrderStatusProps]
+ * @param orderNumber   Order number. (Integer)
+ * @param filesCount    Files count. (Integer)
+ * @param createdAt     Created at timestamp. (UTC)
+ * @param options       A boolean value to show or hide views. {option: boolean}
+ *                      [showStatusText | showProgressBar | showNavigationIcon]
+ */
+
 const OrderCard = ({
   status = "unknown",
   orderNumber,
