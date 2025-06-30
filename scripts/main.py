@@ -11,9 +11,16 @@ DATABASE_URL: str = ""
 commands = Typer(pretty_exceptions_show_locals=False)
 
 
-@commands.command("reserved", help="Reserved command.")
-def command_reserved():
-    pass
+@commands.command("populate-db", help="Populates the database with necessary data.")
+def command_populate_db(
+    merchant_email: Annotated[str, Argument(help="The email of the merchant.")],
+    merchant_name: Annotated[str, Argument(help="The name of the merchant.")],
+):
+    from populate_db import command
+
+    global DATABASE_URL
+
+    asyncio.run(command(DATABASE_URL, merchant_email, merchant_name))
 
 
 @commands.command("create-order", help="Creates a single order.")

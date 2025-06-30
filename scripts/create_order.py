@@ -78,6 +78,15 @@ async def command(database_url: str, email: str, order_number: str):
     )
 
     if random.randint(0, 1):
+        bookbinding_types_count = await conn.fetchval(
+            """\
+            SELECT COUNT(b.id)\
+            FROM bookbinding_types AS b \
+                JOIN bookbinding_types_paper_sizes ON bookbinding_type_id = b.id \
+            WHERE b.is_available = true AND paper_size_id = default_paper_size()\
+            """,
+        )
+
         services = await conn.fetchmany(
             """\
             INSERT INTO services (\
@@ -92,7 +101,9 @@ async def command(database_url: str, email: str, order_number: str):
                     random.choice(("bookbinding", "bookbinding_with_cover"))
                     if index == 0
                     else "laminate",
-                    random.randint(1, 5) if index == 0 else None,
+                    random.randint(1, bookbinding_types_count + 1)
+                    if index == 0
+                    else None,
                     index,
                 )
                 for index in range(random.randint(1, 2))
