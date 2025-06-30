@@ -5,7 +5,6 @@ use anyhow::{Context as _, Result};
 use axum::Router;
 use sqlx::postgres::PgPoolOptions;
 use tokio::{net::TcpListener, runtime::Handle};
-use tower_http::trace::TraceLayer;
 use tracing::{debug, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -49,8 +48,7 @@ async fn main() -> Result<()> {
 
     let app = Router::new()
         .merge(expand_router(app_state.clone()))
-        .with_state(app_state.clone())
-        .layer(TraceLayer::new_for_http());
+        .with_state(app_state.clone());
 
     let listener = TcpListener::bind((host, port)).await?;
     info!(

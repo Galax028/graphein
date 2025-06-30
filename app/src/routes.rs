@@ -1,8 +1,11 @@
-use axum::{Router, routing::get};
+use std::time::Duration;
+
+use axum::{Router, extract::Request, response::Response, routing::get};
 use http::{HeaderValue, Method};
-use tower_http::cors::CorsLayer;
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
 use graphein_common::{AppError, AppState, error::NotFoundError};
+use tracing::Span;
 
 mod auth;
 mod events;
@@ -35,5 +38,24 @@ pub fn expand_router(state: AppState) -> Router<AppState> {
                         .expect("Invalid value for environment variable `FRONTEND_URI`"),
                 )
                 .allow_credentials(true),
+        )
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(|request: &Request| {
+                    tracing::info_span!(
+                        "handler",
+                        method = %request.method(),
+                        uri = %request.uri(),
+                        status = tracing::field::Empty,
+                        latency = tracing::field::Empty,
+                    )
+                })
+                .on_response(|response: &Response, latency: Duration, _: &Span| {
+                    tracing::info!(
+                        status = %response.status(),
+                        latency = ?latency,
+                        "responded",
+                    );
+                }),
         )
 }
