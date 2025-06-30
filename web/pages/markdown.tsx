@@ -1,13 +1,14 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import GoogleSignInButton from "@/components/landing/SignInButton";
+import TextInput from "@/components/common/TextInput";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import NumberInput from "@/components/common/NumberInput";
 import DropDownCard from "@/components/common/DropDownCard";
 import { AnimatePresence } from "motion/react";
+import MaterialIcon from "@/components/common/MaterialIcon";
 
 const Markdown = () => {
   const [language, setLanguage] = useState("th");
@@ -17,6 +18,7 @@ const Markdown = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [count, setCount] = useState(0);
+  const [textInput, setTextInput] = useState("");
   const [classroom, setClassroom] = useState("");
   const [classNo, setClassNo] = useState("");
 
@@ -56,6 +58,45 @@ const Markdown = () => {
         </div>
 
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
+          <SegmentedGroup className="bg-surface-container">
+            <div>Range</div>
+            <TextInput
+              value={textInput}
+              setValue={setTextInput}
+              placeholder="Range"
+              error={
+                textInput
+                  ? !/^(\s*\d+\s*(-\s*\d+\s*)?)(,\s*\d+\s*(-\s*\d+\s*)?)*$/.test(
+                      textInput
+                    )
+                  : false
+              }
+              showErrorIcon={true}
+              className="w-full !p-0 !h-10"
+            />
+            <div className="h-10 w-10">
+              <MaterialIcon icon="hexagon" />
+            </div>
+          </SegmentedGroup>
+
+          <TextInput
+            value={textInput}
+            setValue={setTextInput}
+            placeholder="Range"
+            error={true}
+            errorText="Invalid"
+            showErrorIcon={false}
+          />
+          <TextInput
+            value={textInput}
+            setValue={setTextInput}
+            placeholder="Range"
+            error={false}
+            errorText="Invalid"
+            showErrorIcon={false}
+          />
+          <p>{textInput}</p>
+
           <p>Normal Buttons</p>
           <Button
             appearance={"filled"}
