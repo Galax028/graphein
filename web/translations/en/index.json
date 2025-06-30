@@ -1,0 +1,6 @@
+{
+  "navigationBar": "Welcome to {appName}",
+  "signIn": "Sign In",
+  "emailHint": "Use the email ending in sk.ac.th to continue.",
+  "signInWithGoogle": "Sign in with Google"
+}

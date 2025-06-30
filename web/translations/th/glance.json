@@ -1,0 +1,12 @@
+{
+  "navigationBar": "???",
+  "orderHistory": "ประวัติการออเดอร์",
+  "orderButton": {
+    "new": "เพิ่มออเดอร์ใหม่",
+    "finish": "ส่งออเดอร์"
+  },
+  "expiryWarning": {
+    "title": "???",
+    "description": "???"
+  }
+}

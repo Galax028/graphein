@@ -1,0 +1,12 @@
+{
+  "navigationBar": "About {appName}",
+  "about": {
+    "title": "About",
+    "p1": "Printing Facility is a source-available research project by EPLUS+ students at Suankularb Wittayalai, developed in collaboration with the Suankularb Wittayalai Student Committee.",
+    "p2": "If you're curious to see the magic behind this project, you're warmly invited to explore the <a>GitHub</a> repository.",
+    "p3": "Printing Facility may collect data for analytics and research purposes, see our <a1>Privacy Policy</a1> and <a2>Terms of Service</a2> for more information.",
+    "p4": "Made with ❤️ by EPLUS+"
+  },
+  "version": "Version",
+  "developers": "Developers"
+}
