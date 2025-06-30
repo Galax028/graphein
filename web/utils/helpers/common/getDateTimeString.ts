@@ -3,7 +3,7 @@ export default function getDateTimeString(
   options?: Partial<{
     returnDate: boolean;
     returnTime: boolean;
-  }>
+  }>,
 ) {
   const showDate = options?.returnDate ?? true;
   const showTime = options?.returnTime ?? true;

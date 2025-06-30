@@ -27,7 +27,7 @@ type OrderCardProps = {
 
 /**
  * The order information card, with status via progress bar view option
- * 
+ *
  * @param status        The status. [OrderStatusProps]
  * @param orderNumber   Order number. (Integer)
  * @param filesCount    Files count. (Integer)
@@ -81,7 +81,7 @@ const OrderCard = ({
                 ["ready", "completed"].includes(status) &&
                   "text-success opacity-100",
                 ["rejected", "cancelled"].includes(status) &&
-                  "text-error opacity-100"
+                  "text-error opacity-100",
               )}
             >
               {statusTranslation[status]}
@@ -106,20 +106,20 @@ const OrderCard = ({
               style={{ width: progressBarMap[status].width }}
               className={cn(
                 "h-full rounded-l-full",
-                progressBarMap[status].color
+                progressBarMap[status].color,
               )}
             />
             <div
               className={cn(
                 "h-full w-0.5 rounded-r-full",
-                progressBarMap[status].color
+                progressBarMap[status].color,
               )}
             />
           </div>
           <div
             className={cn(
               `flex w-full [&>p]:w-full [&>p]:text-body-sm [&>p]:opacity-50
-            [&>p]:text-center`
+            [&>p]:text-center`,
             )}
           >
             <p className="!text-left">Reviewing</p>

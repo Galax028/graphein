@@ -54,7 +54,9 @@ function TextInput({
     <div
       className={cn(
         `flex gap-2 items-center px-2 rounded-lg text-body-md border focus-within:border-warning`,
-        error ? "border-error focus-within:border-error bg-error/20 z-10" : "border-outline"
+        error
+          ? "border-error focus-within:border-error bg-error/20 z-10"
+          : "border-outline",
       )}
     >
       {prefixIcon && (
@@ -76,8 +78,8 @@ function TextInput({
             alignment == "left"
               ? "text-left"
               : alignment == "right"
-              ? "text-right"
-              : "text-center"
+                ? "text-right"
+                : "text-center",
           )}
           type={type}
           placeholder={placeholder}
@@ -106,9 +108,7 @@ function TextInput({
           <MaterialIcon icon="error" className="text-error" />
         </div>
       )}
-      {error && errorText && (
-        <div className="text-error">{errorText}</div>
-      )}
+      {error && errorText && <div className="text-error">{errorText}</div>}
     </div>
   );
 }

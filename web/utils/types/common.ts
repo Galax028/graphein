@@ -1,8 +1,14 @@
 // Interface
 export type LangCode = "th" | "en";
 export type UserTypes = "student" | "teacher" | "merchant";
-export type AcceptedFileTypes = "pdf" | "png" | "jpg"
-export type OrderStatus = "reviewing" | "processing" | "ready" | "completed" | "rejected" | "cancelled";
+export type AcceptedFileTypes = "pdf" | "png" | "jpg";
+export type OrderStatus =
+  | "reviewing"
+  | "processing"
+  | "ready"
+  | "completed"
+  | "rejected"
+  | "cancelled";
 
 // Base Button
 interface BaseButtonProps {

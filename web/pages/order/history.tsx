@@ -29,7 +29,7 @@ const OrderHistoryPage = () => {
           //   size: 15,
           //   page: orderHistoryPage,
           // }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -49,7 +49,7 @@ const OrderHistoryPage = () => {
       <PageLoadTransition className="flex flex-col h-full w-full overflow-auto gap-3 font-mono">
         <div
           className={cn(
-            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
+            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
           )}
         >
           {orderHistoryData.data && (

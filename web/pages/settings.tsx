@@ -44,7 +44,7 @@ const SettingsPage = () => {
       {
         method: "POST",
         credentials: "include",
-      }
+      },
     );
 
     if (res.ok) {

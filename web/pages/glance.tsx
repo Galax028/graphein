@@ -4,7 +4,7 @@ import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/code/cn";
-import getGrettingMessage from "@/utils/helpers/glance/getGreetingMessage";
+import getGreetingMessage from "@/utils/helpers/glance/getGreetingMessage";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -22,7 +22,9 @@ const ClientDashboard = () => {
   const [showNewOrderWarning, setShowNewOrderWarning] =
     useState<boolean>(false);
 
-  const [isOrderExpired, setIsOrderExpired] = useState<boolean | undefined>(false);
+  const [isOrderExpired, setIsOrderExpired] = useState<boolean | undefined>(
+    false,
+  );
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -51,7 +53,7 @@ const ClientDashboard = () => {
         process.env.NEXT_PUBLIC_API_PATH + "/orders/glance",
         {
           credentials: "include",
-        }
+        },
       );
 
       const data = await res.json();
@@ -67,14 +69,14 @@ const ClientDashboard = () => {
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar
-        title={`${getGrettingMessage()}${
+        title={`${getGreetingMessage()}${
           user.data ? `, ${user.data?.name}` : ""
         }`}
       />
       <PageLoadTransition className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div
           className={cn(
-            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
+            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
           )}
         >
           {ordersState.data &&

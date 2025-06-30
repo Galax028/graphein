@@ -19,7 +19,7 @@ const SignInButton = () => {
     const signInWindow = window.open(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/google/init",
       "_blank",
-      "popup, width=800, height=600"
+      "popup, width=800, height=600",
     );
 
     window.addEventListener("message", (event) => {

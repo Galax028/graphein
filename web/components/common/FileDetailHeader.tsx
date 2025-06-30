@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 /**
  * File detail header, for use with range details.
- * 
+ *
  * @param fileName  The file name, in string.
  * @param fileSize  The file size, in integer bytes.
  * @param fileType  The file type, in PDF, PNG, or JPG.
@@ -49,7 +49,7 @@ const FileDetailHeader = ({
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
 
       // If the image is still processing (202), set a wait for
@@ -80,7 +80,7 @@ const FileDetailHeader = ({
         className={cn(
           `flex justify-between items-center gap-2 bg-surface-container 
           border border-outline rounded-lg w-[calc(100vw-1.5rem)] max-w-lg pr-3`,
-          thumbnailData.data ? "p-2" : "p-4"
+          thumbnailData.data ? "p-2" : "p-4",
         )}
       >
         <div className="flex gap-3 items-center min-w-0">

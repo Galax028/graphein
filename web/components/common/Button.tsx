@@ -42,7 +42,7 @@ const Button = ({
         selected &&
           "!pr-4 !gap-1 hover:!brightness-100 " +
             (appearance == "tonal" ? "!bg-surface-container" : "!bg-primary"),
-        className
+        className,
       )}
       onClick={onClick}
     >

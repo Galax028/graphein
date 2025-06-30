@@ -4,9 +4,9 @@ import cn from "@/utils/helpers/code/cn";
 import { useState } from "react";
 
 /**
- * A number input that accepts numbers, negatives, 
+ * A number input that accepts numbers, negatives,
  * and remove invalid characters automatically.
- * 
+ *
  * @param count     The initial count.
  * @param setCount  The react state variable to send values to parent.
  * @param min       The minimum value for this field.
@@ -43,7 +43,7 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
         ? rawString[0] === "-"
           ? "-" + rawString.slice(1).replace(/[^0-9]/g, "")
           : rawString.replace(/[^0-9]/g, "")
-        : rawString
+        : rawString,
     );
 
     // If the number is not valid, set it to 0.
@@ -75,7 +75,7 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
             border border-outline [appearance:textfield] 
             [&::-webkit-outer-spin-button]:appearance-none 
             [&::-webkit-inner-spin-button]:appearance-none
-          `
+          `,
         )}
         type="text"
         onChange={(e) => {

@@ -95,7 +95,7 @@ const NavigationBar = ({
         `sticky top-0 flex justify-between items-center gap-2 
           bg-background [&>div]:flex [&>div]:items-center 
           [&>div]:gap-3 [&>div]:h-full z-40 p-2`,
-        className
+        className,
       )}
     >
       {backEnabled && (
@@ -123,7 +123,7 @@ const NavigationBar = ({
             <div
               className={cn(
                 `text-body-sm opacity-50`,
-                backEnabled && `text-center`
+                backEnabled && `text-center`,
               )}
             >
               {desc}

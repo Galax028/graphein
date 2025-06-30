@@ -10,7 +10,7 @@ import MaterialIcon from "./MaterialIcon";
  *
  * @param profile_url   Path to the profile image.
  * @param person_name   The person's full name. Will be initialized.
- * @param size          The size of the avatar, in pixels. 
+ * @param size          The size of the avatar, in pixels.
  *                      (Will be converted to rem).
  */
 
@@ -24,7 +24,7 @@ const PersonAvatar = ({
       style={{ width: `${size / 16}rem`, height: `${size / 16}rem` }}
       className={cn(
         `grid place-content-center rounded-full aspect-square 
-        overflow-hidden border border-outline bg-primary text-onPrimary`
+        overflow-hidden border border-outline bg-primary text-onPrimary`,
       )}
     >
       {profile_url ? (

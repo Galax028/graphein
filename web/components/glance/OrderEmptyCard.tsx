@@ -6,7 +6,7 @@ type OrderEmptyCardProps = {
 
 /**
  * Order empty indicator container, with text defined in the component.
- * 
+ *
  * @param text    The text content inside.
  */
 

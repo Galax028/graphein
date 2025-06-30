@@ -67,7 +67,7 @@ const Markdown = () => {
               error={
                 textInput
                   ? !/^(\s*\d+\s*(-\s*\d+\s*)?)(,\s*\d+\s*(-\s*\d+\s*)?)*$/.test(
-                      textInput
+                      textInput,
                     )
                   : false
               }

@@ -25,7 +25,7 @@ const LandingPage = () => {
             <div
               className={cn(
                 `flex flex-col gap-3 md:border md:border-outline 
-                md:bg-surface-container md:p-6 md:rounded-xl`
+                md:bg-surface-container md:p-6 md:rounded-xl`,
               )}
             >
               <div className="flex flex-col gap-1">
@@ -43,7 +43,7 @@ const LandingPage = () => {
                 <div
                   className={cn(
                     `flex gap-2 m-auto w-full px-4 py-2 h-10 border border-outline 
-                  bg-surface-container rounded-lg`
+                  bg-surface-container rounded-lg`,
                   )}
                 >
                   <Link href={"/glance"}>

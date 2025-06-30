@@ -45,7 +45,7 @@ const DropDownCard = ({
             icon={"arrow_drop_up"}
             className={cn(
               "transition-all duration-250",
-              open ? "rotate-180" : ""
+              open ? "rotate-180" : "",
             )}
           />
         )}

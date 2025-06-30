@@ -15,7 +15,7 @@ const DeveloperProfile = ({ name, role, image }: DeveloperProfileProps) => {
     <div
       className={cn(
         `flex gap-3 items-center px-3 py-2.5 rounded-lg bg-surface-container 
-        border border-outline`
+        border border-outline`,
       )}
     >
       <Image
@@ -63,7 +63,7 @@ const AboutPage = () => {
           <div
             className={cn(
               `flex flex-col gap-2 p-3 rounded-lg bg-surface-container 
-              border border-outline [&>p]:text-body-md`
+              border border-outline [&>p]:text-body-md`,
             )}
           >
             <p>
@@ -101,7 +101,7 @@ const AboutPage = () => {
           <div
             className={cn(
               `flex flex-col gap-2 p-3 rounded-lg bg-surface-container 
-              border border-outline [&>p]:text-body-sm`
+              border border-outline [&>p]:text-body-sm`,
             )}
           >
             <div className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center">

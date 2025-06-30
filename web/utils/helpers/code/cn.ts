@@ -14,7 +14,7 @@ const cn = (...segments: unknown[]) => {
 };
 
 const sift = <T>(
-  list: readonly (T | null | undefined | false | "" | 0 | 0n)[]
+  list: readonly (T | null | undefined | false | "" | 0 | 0n)[],
 ): T[] => {
   return (list?.filter((x) => !!x) as T[]) ?? [];
 };
