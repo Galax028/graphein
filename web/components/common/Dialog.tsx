@@ -40,9 +40,9 @@ const Dialog: FC<DialogProps> = ({
     onClick={() => setClickOutside && setClickOutside(false)}
   >
     <motion.div
-      initial={{ scale: 0.95 }}
+      initial={{ scale: 1.05 }}
       animate={{ scale: 1 }}
-      exit={{ scale: 0.95 }}
+      exit={{ scale: 1.05 }}
       transition={{
         duration: 0.1,
         scale: { type: "spring", bounce: 0 },
@@ -52,8 +52,8 @@ const Dialog: FC<DialogProps> = ({
             bg-surface-container border border-outline rounded-lg`)}
     >
       <div className={cn(`flex flex-col gap-1`)}>
-        <p>{title}</p>
-        <p className="min-h-12 opacity-50 text-body-sm">{desc}</p>
+        <p className="text-title-sm">{title}</p>
+        <p className="min-h-12 text-body-md">{desc}</p>
       </div>
       <div className="flex gap-1 w-full [&>button]:w-full">{children}</div>
     </motion.div>
