@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-const ClientDashboard = () => {
+const GlancePage = () => {
   const router = useRouter();
   const t = useTranslations();
 
@@ -222,4 +222,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return { props: { locale, translations } };
 };
 
-export default ClientDashboard;
+export default GlancePage;
