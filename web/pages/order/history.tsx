@@ -1,12 +1,12 @@
+import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
-import cn from "@/utils/helpers/code/cn";
-import LabelGroup from "@/components/common/LabelGroup";
-import { motion } from "motion/react";
 import OrderCard from "@/components/glance/OrderCard";
+import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
+import cn from "@/utils/helpers/cn";
+import { motion } from "motion/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const OrderHistoryPage = () => {
   const [orderHistoryData, setOrderHistoryData] = useState<any>({});
@@ -29,7 +29,7 @@ const OrderHistoryPage = () => {
           //   size: 15,
           //   page: orderHistoryPage,
           // }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -49,7 +49,7 @@ const OrderHistoryPage = () => {
       <PageLoadTransition className="flex flex-col h-full w-full overflow-auto gap-3 font-mono">
         <div
           className={cn(
-            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
+            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
           )}
         >
           {orderHistoryData.data && (

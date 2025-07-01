@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -95,7 +95,7 @@ const NavigationBar = ({
         `sticky top-0 flex justify-between items-center gap-2 
           bg-background [&>div]:flex [&>div]:items-center 
           [&>div]:gap-3 [&>div]:h-full z-40 p-2`,
-        className
+        className,
       )}
     >
       {backEnabled && (
@@ -123,7 +123,7 @@ const NavigationBar = ({
             <div
               className={cn(
                 `text-body-sm opacity-50`,
-                backEnabled && `text-center`
+                backEnabled && `text-center`,
               )}
             >
               {desc}

@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 
 type DescriptionListProps = {
   data: {
@@ -21,7 +21,7 @@ const DescriptionList = ({ data, expand = false }: DescriptionListProps) => {
       className={cn(
         `grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center`,
         // Expand is true, and the dataset has more than 1 value, use 2 columns.
-        expand && data.length > 1 && `md:grid-cols-[4.5rem_1fr_4.5rem_1fr]`
+        expand && data.length > 1 && `md:grid-cols-[4.5rem_1fr_4.5rem_1fr]`,
       )}
     >
       {data.map((i) => (

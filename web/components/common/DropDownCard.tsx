@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import MaterialIcon from "./MaterialIcon";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
@@ -45,7 +45,7 @@ const DropDownCard = ({
             icon={"arrow_drop_up"}
             className={cn(
               "transition-all duration-250",
-              open ? "rotate-180" : ""
+              open ? "rotate-180" : "",
             )}
           />
         )}

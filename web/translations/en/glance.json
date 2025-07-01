@@ -1,0 +1,12 @@
+{
+  "navigationBar": "???",
+  "orderHistory": "Order History",
+  "orderButton": {
+    "new": "New Order",
+    "finish": "Finish Order"
+  },
+  "expiryWarning": {
+    "title": "You'll have 15 minutes to complete your order.",
+    "description": "If you don't complete your order within the 15-minute window, it will be automatically discarded and you'll need to start over."
+  }
+}

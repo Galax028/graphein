@@ -1,14 +1,14 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
+import DropDownCard from "@/components/common/DropDownCard";
+import MaterialIcon from "@/components/common/MaterialIcon";
+import NumberInput from "@/components/common/NumberInput";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import TextInput from "@/components/common/TextInput";
+import { AnimatePresence } from "motion/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
-import NumberInput from "@/components/common/NumberInput";
-import DropDownCard from "@/components/common/DropDownCard";
-import { AnimatePresence } from "motion/react";
-import MaterialIcon from "@/components/common/MaterialIcon";
 
 const Markdown = () => {
   const [language, setLanguage] = useState("th");
@@ -67,7 +67,7 @@ const Markdown = () => {
               error={
                 textInput
                   ? !/^(\s*\d+\s*(-\s*\d+\s*)?)(,\s*\d+\s*(-\s*\d+\s*)?)*$/.test(
-                      textInput
+                      textInput,
                     )
                   : false
               }

@@ -1,6 +1,3 @@
-// Imports
-import { sift } from "radash";
-
 /**
  * Joins and normalize segments of `className`.
  *
@@ -14,6 +11,12 @@ const cn = (...segments: unknown[]) => {
   return sift(segments)
     .map((segment) => (segment as string).replace(/\s+/g, " "))
     .join(" ");
-}
+};
 
-export default cn
+const sift = <T>(
+  list: readonly (T | null | undefined | false | "" | 0 | 0n)[],
+): T[] => {
+  return (list?.filter((x) => !!x) as T[]) ?? [];
+};
+
+export default cn;

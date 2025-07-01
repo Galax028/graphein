@@ -1,17 +1,17 @@
-import OrderCard from "@/components/glance/OrderCard";
+import DescriptionList from "@/components/common/DescriptionList";
 import DropDownCard from "@/components/common/DropDownCard";
+import FileDetailHeader from "@/components/common/FileDetailHeader";
 import LabelGroup from "@/components/common/LabelGroup";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/code/cn";
+import OrderCard from "@/components/glance/OrderCard";
+import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
 import getLoggedInUser from "@/utils/helpers/common/getLoggedInUser";
+import { OrderStatus } from "@/utils/types/common";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import FileDetailHeader from "@/components/common/FileDetailHeader";
-import DescriptionList from "@/components/common/DescriptionList";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import { OrderStatus } from "@/utils/types/common";
 
 type OrderDetailsPageProps = {
   user: any;
@@ -27,7 +27,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
         `${process.env.NEXT_PUBLIC_API_PATH}/orders/${router.query.id}`,
         {
           credentials: "include",
-        }
+        },
       );
 
       const data = await res.json();
@@ -52,13 +52,13 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
       title: "Order ID",
       content: detailedState.data
         ? `${String(createdTimestamp.getDate()).padStart(2, "0")}${String(
-            createdTimestamp.getMonth()
+            createdTimestamp.getMonth(),
           ).padStart(
             2,
-            "0"
+            "0",
           )}${createdTimestamp.getFullYear()}-${detailedState.data.orderNumber.replace(
             /\-/g,
-            ""
+            "",
           )}`
         : "-",
     },
@@ -116,7 +116,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
                             {getDateTimeString(new Date(i.timestamp))}
                           </p>
                         </>
-                      )
+                      ),
                     )}
                   </div>
                 </DropDownCard>
@@ -124,7 +124,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
               <LabelGroup header="Note to Shop">
                 <div
                   className={cn(
-                    `p-3 bg-surface-container border border-outline rounded-lg`
+                    `p-3 bg-surface-container border border-outline rounded-lg`,
                   )}
                 >
                   <p className="text-body-md">
@@ -158,7 +158,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
               <div
                 className={cn(
                   `p-3 border border-outline bg-surface-container rounded-lg 
-              text-body-sm`
+              text-body-sm`,
                 )}
               >
                 <b>

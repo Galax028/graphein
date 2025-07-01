@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 
 type OrderEmptyCardProps = {
   text: string;
@@ -6,7 +6,7 @@ type OrderEmptyCardProps = {
 
 /**
  * Order empty indicator container, with text defined in the component.
- * 
+ *
  * @param text    The text content inside.
  */
 

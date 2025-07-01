@@ -1,5 +1,5 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import { ButtonProps } from "@/utils/types/common";
 
 /**
@@ -42,7 +42,7 @@ const Button = ({
         selected &&
           "!pr-4 !gap-1 hover:!brightness-100 " +
             (appearance == "tonal" ? "!bg-surface-container" : "!bg-primary"),
-        className
+        className,
       )}
       onClick={onClick}
     >

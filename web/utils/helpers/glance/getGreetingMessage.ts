@@ -1,4 +1,4 @@
-export default function getGrettingMessage() {
+export default function getGreetingMessage() {
   const hour = new Date().getHours();
 
   if (hour >= 19 || (hour >= 0 && hour <= 3)) {

@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 import React, { Dispatch, SetStateAction } from "react";
 import { motion } from "motion/react";
 
@@ -8,7 +8,7 @@ import { motion } from "motion/react";
  * @param title           The title to put on the dialog (string)
  * @param desc            The description to put on the dialog (string)
  * @param children        The title to put on the dialog (string)
- * @param onClickOutside  The useState function name to trigger when 
+ * @param onClickOutside  The useState function name to trigger when
  *                        clicked outside. (Always set to false)
  */
 
@@ -36,7 +36,7 @@ const Dialog = ({
       className={cn(
         `fixed top-0 left-0 grid place-items-center w-dvw h-dvh p-3 z-50
           backdrop-filter backdrop-brightness-50 dark:backdrop-brightness-25`,
-        className
+        className,
       )}
       // If there's onIgnore value, set value to false.
       onClick={() => {

@@ -1,18 +1,18 @@
 import Button from "@/components/common/Button";
+import Dialog from "@/components/common/Dialog";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
+import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
 import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import { generateFileUploadURL } from "@/utils/helpers/order/new/generateFileUploadURL";
 import { AcceptedFileTypes } from "@/utils/types/common";
+import { motion } from "motion/react";
+import { li } from "motion/react-client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { generateFileUploadURL } from "@/utils/helpers/order/new/generateFileUploadURL";
 import { useDropzone } from "react-dropzone";
-import { li } from "motion/react-client";
-import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
-import Dialog from "@/components/common/Dialog";
-import { motion } from "motion/react";
 
 const BuildOrderPage = () => {
   const router = useRouter();
@@ -24,7 +24,7 @@ const BuildOrderPage = () => {
 
   const [files, setFiles] = useState<any>([]);
   const [showFileLimitExceedDialog, setShowFileLimitExceedDialog] = useState(
-    files.length > 6
+    files.length > 6,
   );
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -68,7 +68,7 @@ const BuildOrderPage = () => {
     if (typeof window !== "undefined") {
       const storedOrderId = localStorage.getItem("skpf-buildingOrderId");
       const storedOrderCreated = localStorage.getItem(
-        "skpf-buildingOrderCreated"
+        "skpf-buildingOrderCreated",
       );
       const isOrderExpired = storedOrderCreated && checkBuildingOrderExpired();
 
@@ -84,7 +84,7 @@ const BuildOrderPage = () => {
       // Set timeDiff after orderCreated is set
       if (storedOrderCreated) {
         setTimeDiff(
-          new Date().getTime() - new Date(storedOrderCreated).getTime()
+          new Date().getTime() - new Date(storedOrderCreated).getTime(),
         );
       } else {
         setTimeDiff(null);
@@ -142,7 +142,7 @@ const BuildOrderPage = () => {
       <PageLoadTransition className="flex flex-col w-full h-full overflow-auto gap-3 font-mono">
         <div
           className={cn(
-            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
+            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
           )}
         >
           {{

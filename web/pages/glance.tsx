@@ -1,20 +1,24 @@
+import Button from "@/components/common/Button";
+import Dialog from "@/components/common/Dialog";
+import LabelGroup from "@/components/common/LabelGroup";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import NavigationBar from "@/components/common/NavigationBar";
 import OrderCard from "@/components/glance/OrderCard";
 import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
-import Button from "@/components/common/Button";
-import LabelGroup from "@/components/common/LabelGroup";
-import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/code/cn";
-import getGrettingMessage from "@/utils/helpers/glance/getGreetingMessage";
+import cn from "@/utils/helpers/cn";
+import getGreetingMessage from "@/utils/helpers/glance/getGreetingMessage";
+import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
+import { AnimatePresence, motion } from "motion/react";
+import { GetServerSideProps } from "next";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import { AnimatePresence, motion } from "motion/react";
-import Dialog from "@/components/common/Dialog";
-import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 
 const ClientDashboard = () => {
   const router = useRouter();
+  const t = useTranslations();
 
   const [ordersState, setOrdersState] = useState<any>({});
   const [user, setUser] = useState<any>({});
@@ -22,7 +26,9 @@ const ClientDashboard = () => {
   const [showNewOrderWarning, setShowNewOrderWarning] =
     useState<boolean>(false);
 
-  const [isOrderExpired, setIsOrderExpired] = useState<boolean | undefined>(false);
+  const [isOrderExpired, setIsOrderExpired] = useState<boolean | undefined>(
+    false,
+  );
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -51,7 +57,7 @@ const ClientDashboard = () => {
         process.env.NEXT_PUBLIC_API_PATH + "/orders/glance",
         {
           credentials: "include",
-        }
+        },
       );
 
       const data = await res.json();
@@ -67,14 +73,14 @@ const ClientDashboard = () => {
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar
-        title={`${getGrettingMessage()}${
+        title={`${getGreetingMessage()}${
           user.data ? `, ${user.data?.name}` : ""
         }`}
       />
       <PageLoadTransition className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div
           className={cn(
-            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`
+            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
           )}
         >
           {ordersState.data &&
@@ -125,7 +131,7 @@ const ClientDashboard = () => {
             })}
           <Link href="/order/history">
             <Button appearance={"tonal"} icon={"history"} className="w-full">
-              Order History
+              {t("orderHistory")}
             </Button>
           </Link>
 
@@ -178,17 +184,15 @@ const ClientDashboard = () => {
               }
             }}
           >
-            {isOrderExpired ? "New" : "Finish"} Order
+            {t(isOrderExpired ? "orderButton.new" : "orderButton.finish")}
           </Button>
         </div>
       </PageLoadTransition>
       <AnimatePresence>
         {showNewOrderWarning && (
           <Dialog
-            title={"You’ll have 15 minutes to complete your order."}
-            desc={
-              "If you don’t complete your order within the 15-minute window, it will be automatically discarded and you’ll need to start over."
-            }
+            title={t("expiryWarning.title")}
+            desc={t("expiryWarning.description")}
             onClickOutside={setShowNewOrderWarning}
           >
             <Button
@@ -207,6 +211,15 @@ const ClientDashboard = () => {
       </AnimatePresence>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [locale, translations] = await getServerSideTranslations(
+    context.req,
+    "glance",
+  );
+
+  return { props: { locale, translations } };
 };
 
 export default ClientDashboard;

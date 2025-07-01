@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import Button from "../common/Button";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * The sign in button using the application's design language.
@@ -14,12 +15,13 @@ import { useEffect } from "react";
 
 const SignInButton = () => {
   const router = useRouter();
+  const t = useTranslations();
 
   const onSignInButtonClick = () => {
     const signInWindow = window.open(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/google/init",
       "_blank",
-      "popup, width=800, height=600"
+      "popup, width=800, height=600",
     );
 
     window.addEventListener("message", (event) => {
@@ -54,7 +56,7 @@ const SignInButton = () => {
         alt="Google Logo"
         className="aspect-square"
       />
-      <span className="block w-full pr-3">Sign in with Google</span>
+      <span className="block w-full pr-3">{t("signInWithGoogle")}</span>
     </Button>
   );
 };

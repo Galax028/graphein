@@ -4,7 +4,7 @@ export async function generateFileUploadURL(
   id: string,
   fileName: string,
   fileType: AcceptedFileTypes,
-  fileSize: number
+  fileSize: number,
 ) {
   console.warn(`[SKPF] FETCH : POST /orders/${id}/files`);
 
@@ -19,7 +19,7 @@ export async function generateFileUploadURL(
         filetype: fileType,
         filesize: fileSize,
       }),
-    }
+    },
   );
 
   // EXAMPLE RESPONSE:

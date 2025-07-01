@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import cn from "@/utils/helpers/code/cn";
+import cn from "@/utils/helpers/cn";
 
 type PageLoadTransitionProps = {
   children: React.ReactNode;
@@ -8,7 +8,7 @@ type PageLoadTransitionProps = {
 
 /**
  * The enter animation for the content inside to fade in + slide up.
- * 
+ *
  * @param children    The content inside the <div> container.
  * @param className   Style extension to the base style.
  */
