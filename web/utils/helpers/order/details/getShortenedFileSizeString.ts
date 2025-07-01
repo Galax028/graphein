@@ -1,4 +1,4 @@
-export function getShortenedFileSizeString(i: number): string {
+const getShortenedFileSizeString = (i: number): string => {
   const units = ["B", "KB", "MB", "GB", "TB"];
   let index = 0;
   let size = i;
@@ -9,4 +9,6 @@ export function getShortenedFileSizeString(i: number): string {
   }
 
   return `${Math.floor(size * 10) / 10} ${units[index]}`;
-}
+};
+
+export default getShortenedFileSizeString;

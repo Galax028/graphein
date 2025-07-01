@@ -1,10 +1,10 @@
-export default function getDateTimeString(
+const getDateTimeString = (
   date: Date,
   options?: Partial<{
     returnDate: boolean;
     returnTime: boolean;
   }>,
-) {
+) => {
   const showDate = options?.returnDate ?? true;
   const showTime = options?.returnTime ?? true;
 
@@ -31,4 +31,6 @@ export default function getDateTimeString(
     return `${dateString}, ${timeString}`;
   }
   return dateString || timeString;
-}
+};
+
+export default getDateTimeString;

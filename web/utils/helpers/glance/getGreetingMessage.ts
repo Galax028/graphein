@@ -1,4 +1,4 @@
-export default function useGreetingMessage(t: any) {
+const getGreetingMessage = (t: any): string => {
   const hour = new Date().getHours();
 
   if (hour >= 19 || (hour >= 0 && hour <= 3)) {
@@ -10,4 +10,6 @@ export default function useGreetingMessage(t: any) {
   } else {
     return t("greeting.morning");
   }
-}
+};
+
+export default getGreetingMessage;

@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
+import getShortenedFileSizeString from "@/utils/helpers/order/details/getShortenedFileSizeString";
 import type { FileType } from "@/utils/types/common";
 import { motion } from "motion/react";
 import Image from "next/image";

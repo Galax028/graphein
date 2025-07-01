@@ -1,4 +1,4 @@
-export default async function getLoggedInUser(context: any) {
+const getLoggedInUser = async (context: any) => {
   const user = fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
     method: "GET",
     headers: {
@@ -7,4 +7,6 @@ export default async function getLoggedInUser(context: any) {
   });
 
   return (await user).json();
-}
+};
+
+export default getLoggedInUser;

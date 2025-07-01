@@ -3,7 +3,7 @@ import Dialog from "@/components/common/Dialog";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
-import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
+import getShortenedFileSizeString from "@/utils/helpers/order/details/getShortenedFileSizeString";
 import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 import generateFileUploadURL from "@/utils/helpers/order/new/generateFileUploadURL";
 import { motion } from "motion/react";
