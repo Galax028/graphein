@@ -6,7 +6,7 @@ import MaterialIcon from "./MaterialIcon";
 type DropDownCardProps = {
   header: string;
   footer?: string[];
-  collapsed: boolean;
+  collapsed?: boolean;
   isCollapsible: boolean;
   children: ReactNode;
 };

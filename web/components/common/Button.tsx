@@ -13,12 +13,12 @@ type BaseButtonProps = {
 };
 
 type IconButtonProps = BaseButtonProps & {
-  icon: string;
+  icon: string | null;
   children?: never;
 };
 
 type TextButtonProps = BaseButtonProps & {
-  icon?: string;
+  icon?: string | null;
   children: ReactNode;
 };
 

@@ -11,7 +11,7 @@ export type NavigationBarProps = {
   user?: User;
   title: ReactNode;
   desc?: ReactNode;
-  backEnabled: boolean;
+  backEnabled?: boolean;
   backContextURL?: string;
   className?: string;
   style?: string;
