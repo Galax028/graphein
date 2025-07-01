@@ -1,29 +1,29 @@
 import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import { UserTypes } from "@/utils/types/common";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import { GetServerSideProps } from "next";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
+import type { User } from "@/utils/types/backend";
+import { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const SettingsPage = () => {
   const router = useRouter();
   const t = useTranslations();
 
-  const [user, setUser] = useState<any>({});
+  const [user, setUser] = useState<User | null>();
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
 
-  const [phone, setPhone] = useState<string>("");
-  const [classroom, setClassroom] = useState<string>("");
-  const [classroomNo, setClassroomNo] = useState<string>("");
+  const [phone, setPhone] = useState<string | null>("");
+  const [classroom, setClassroom] = useState<string | null>("");
+  const [classroomNo, setClassroomNo] = useState<string | null>("");
 
-  const handleUpdateProfileSettings = async (role: UserTypes) => {
+  const handleUpdateProfileSettings = async () => {
     const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
       method: "PUT",
       credentials: "include",
@@ -63,16 +63,16 @@ const SettingsPage = () => {
         credentials: "include",
       });
 
-      const data = await res.json();
+      const body = await res.json();
 
       if (res.ok) {
         if (isSignedIn == false) {
           setIsSignedIn(true);
-          setUser(data);
+          setUser(body.data as User);
 
-          setPhone(data.data.tel ?? "");
-          setClassroom(data.data.class ? String(data.data.class) : "");
-          setClassroomNo(data.data.classNo ? String(data.data.classNo) : "");
+          setPhone(body.data.tel ?? "");
+          setClassroom(body.data.class ? String(body.data.class) : "");
+          setClassroomNo(body.data.classNo ? String(body.data.classNo) : "");
         }
       }
     };
@@ -94,33 +94,31 @@ const SettingsPage = () => {
                 <LabelGroup header={t("userSettings.profile")}>
                   <div className="m-auto">
                     <PersonAvatar
-                      profile_url={user.data.profileUrl}
-                      person_name={user.data.name}
+                      profileUrl={user?.profileUrl}
+                      personName={user?.name}
                       size={96}
                     />
                   </div>
                 </LabelGroup>
                 <LabelGroup header={t("userSettings.name")}>
                   <input
-                    value={user.data.name}
+                    value={user?.name}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
                     disabled
                   />
                 </LabelGroup>
                 <LabelGroup header={t("userSettings.email")}>
                   <input
-                    value={user.data.email}
+                    value={user?.email}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
                     disabled
                   />
                 </LabelGroup>
                 <LabelGroup header={t("userSettings.tel")}>
                   <input
-                    value={phone}
+                    value={phone ?? ""}
                     className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
-                    onChange={(e) => {
-                      setPhone(e.target.value);
-                    }}
+                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </LabelGroup>
                 <LabelGroup header={t("userSettings.classAndNo")}>
@@ -129,10 +127,8 @@ const SettingsPage = () => {
                       <p>{t("userSettings.class")}</p>
                     </div>
                     <input
-                      value={classroom}
-                      onChange={(e) => {
-                        setClassroom(e.target.value);
-                      }}
+                      value={classroom ?? ""}
+                      onChange={(e) => setClassroom(e.target.value)}
                       type="text"
                       className="w-full p-2 bg-background text-body-md"
                     />
@@ -140,10 +136,8 @@ const SettingsPage = () => {
                       <p>{t("userSettings.no")}</p>
                     </div>
                     <input
-                      value={classroomNo}
-                      onChange={(e) => {
-                        setClassroomNo(e.target.value);
-                      }}
+                      value={classroomNo ?? ""}
+                      onChange={(e) => setClassroomNo(e.target.value)}
                       type="text"
                       className="w-full p-2 bg-background text-body-md"
                     />
@@ -153,7 +147,7 @@ const SettingsPage = () => {
                   appearance="filled"
                   onClick={handleUpdateProfileSettings}
                   className="w-full"
-                  icon={"save"}
+                  icon="save"
                   busy={busy}
                 >
                   {t("userSettings.save")}
@@ -166,7 +160,7 @@ const SettingsPage = () => {
           appearance="tonal"
           onClick={handleSignOut}
           className="w-full text-error"
-          icon={"logout"}
+          icon="logout"
           busy={busy}
         >
           {t("signOut")}

@@ -1,7 +1,14 @@
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import cn from "@/utils/helpers/cn";
-import { useState } from "react";
+import { type Dispatch, type FC, type SetStateAction, useState } from "react";
+
+type NumberInputProps = {
+  count: number;
+  setCount: Dispatch<SetStateAction<number>>;
+  min?: number;
+  max?: number;
+};
 
 /**
  * A number input that accepts numbers, negatives,
@@ -12,16 +19,8 @@ import { useState } from "react";
  * @param min       The minimum value for this field.
  * @param max       The maximum value for this field.
  */
-
-type NumberInputProps = {
-  count: number;
-  setCount: React.Dispatch<React.SetStateAction<number>>;
-  min?: number;
-  max?: number;
-};
-
-function NumberInput({ count, setCount, min, max }: NumberInputProps) {
-  const [tempCount, setTempCount] = useState(String(count));
+const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
+  const [tempCount, setTempCount] = useState<number>(count);
 
   // Get the value within range.
   const clampedValue = (i: number) =>
@@ -29,7 +28,7 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
 
   // Buttons
   const updateCount = (i: number) => {
-    setTempCount(String(clampedValue(i)));
+    setTempCount(clampedValue(i));
     setCount(clampedValue(i));
   };
 
@@ -49,12 +48,12 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
     // If the number is not valid, set it to 0.
     // Note: If 0 is not in range, we set it to min or max afterwards.
     if (isNaN(tempNumber)) {
-      setTempCount("0");
+      setTempCount(0);
       setCount(0);
       return;
     }
 
-    setTempCount(String(clampedValue(tempNumber)));
+    setTempCount(clampedValue(tempNumber));
     setCount(clampedValue(tempNumber));
   };
 
@@ -64,10 +63,8 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
         className="!bg-surface-container"
         appearance="tonal"
         icon="remove"
-        disabled={min != undefined && count <= min}
-        onClick={() => {
-          updateCount(count - 1);
-        }}
+        disabled={min !== undefined && count <= min}
+        onClick={() => updateCount(count - 1)}
       />
       <input
         className={cn(
@@ -78,23 +75,19 @@ function NumberInput({ count, setCount, min, max }: NumberInputProps) {
           `,
         )}
         type="text"
-        onChange={(e) => {
-          setTempCount(e.target.value);
-        }}
-        onBlur={() => validateUpdateCount(tempCount)}
+        onChange={(e) => setTempCount(parseInt(e.target.value))}
+        onBlur={() => validateUpdateCount(`${tempCount}`)}
         value={tempCount}
       />
       <Button
         className="!bg-surface-container !border-l-0"
         appearance="tonal"
         icon="add"
-        disabled={max != undefined && count >= max}
-        onClick={() => {
-          updateCount(count + 1);
-        }}
+        disabled={max !== undefined && count >= max}
+        onClick={() => updateCount(count + 1)}
       />
     </SegmentedGroup>
   );
-}
+};
 
 export default NumberInput;

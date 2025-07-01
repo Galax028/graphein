@@ -1,5 +1,11 @@
-import { SegmentedGroupProps } from "@/utils/types/common";
 import cn from "@/utils/helpers/cn";
+import type { FC, ReactNode } from "react";
+
+type SegmentedGroupProps = {
+  className?: string;
+  direction?: "horizontal" | "vertical";
+  children: ReactNode;
+};
 
 /**
  * SegmentedGroup is a component that groups buttons, inputs, or divs
@@ -8,12 +14,11 @@ import cn from "@/utils/helpers/cn";
  * @param direction   The direction of the segmented group,
  *                    either "horizontal" or "vertical".
  */
-
-const SegmentedGroup = ({
+const SegmentedGroup: FC<SegmentedGroupProps> = ({
   children,
   className,
   direction = "horizontal",
-}: SegmentedGroupProps) => {
+}) => {
   return (
     <div
       className={cn(

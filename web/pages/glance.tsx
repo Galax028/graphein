@@ -193,7 +193,7 @@ const GlancePage = () => {
           <Dialog
             title={t("expiryWarning.title")}
             desc={t("expiryWarning.description")}
-            onClickOutside={setShowNewOrderWarning}
+            setClickOutside={setShowNewOrderWarning}
           >
             <Button
               appearance="tonal"

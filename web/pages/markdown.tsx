@@ -51,7 +51,7 @@ const MarkdownPage = () => {
           <DropDownCard
             header={"Title"}
             footer={["2 orders pending", "Total 38 THB"]}
-            collapsible={true}
+            isCollapsible={true}
           >
             order stuff you think about it idk
           </DropDownCard>
@@ -293,7 +293,7 @@ const MarkdownPage = () => {
             <Dialog
               title="Fail Task"
               desc="If proceed, the task will fail successfully."
-              onClickOutside={setShowPopup}
+              setClickOutside={setShowPopup}
             >
               <Button appearance="tonal" onClick={() => setShowPopup(false)}>
                 No

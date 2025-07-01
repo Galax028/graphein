@@ -1,46 +1,43 @@
 import cn from "@/utils/helpers/cn";
-import MaterialIcon from "./MaterialIcon";
-import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { type FC, ReactNode, useState } from "react";
+import MaterialIcon from "./MaterialIcon";
 
 type DropDownCardProps = {
   header: string;
   footer?: string[];
-  collapsed?: boolean;
-  collapsible?: boolean;
-  children: React.ReactNode;
+  collapsed: boolean;
+  isCollapsible: boolean;
+  children: ReactNode;
 };
 
 /**
  * The dropdown content box that contains information.
  *
- * @param header      The title string displayed on the title bar.
- * @param footer      rray of string to be mapped on the footer bar.
- * @param collapsed   The default collapsed state of the box. (Default true)
- * @param collapsible Should the box be collapsible or not? (Default true)
- * @param children    The content inside the main box.
+ * @param header        The title string displayed on the title bar.
+ * @param footer        Array of string to be mapped on the footer bar.
+ * @param collapsed     The default collapsed state of the box. (Default true)
+ * @param isCollapsible Should the box be isCollapsible or not? (Default true)
+ * @param children      The content inside the main box.
  */
-
-const DropDownCard = ({
+const DropDownCard: FC<DropDownCardProps> = ({
   header,
   footer,
   collapsed = true,
-  collapsible = true,
+  isCollapsible = true,
   children,
-}: DropDownCardProps) => {
-  const [open, setOpen] = useState<boolean>(!collapsed);
+}) => {
+  const [open, setOpen] = useState(!collapsed);
 
   return (
     <div className="border border-outline rounded-lg bg-surface-container">
       <div
         className={cn(`flex justify-between items-center gap-2 p-2 pl-3 
           cursor-pointer select-none`)}
-        onClick={() => {
-          if (collapsible == true) return setOpen(!open);
-        }}
+        onClick={() => isCollapsible && setOpen((open) => !open)}
       >
         <p className="text-body-md">{header}</p>
-        {collapsible && (
+        {isCollapsible && (
           <MaterialIcon
             icon={"arrow_drop_up"}
             className={cn(

@@ -1,11 +1,11 @@
-import { AcceptedFileTypes } from "@/utils/types/common";
+import type { FileType } from "@/utils/types/common";
 
-export async function generateFileUploadURL(
+const generateFileUploadURL = async (
   id: string,
-  fileName: string,
-  fileType: AcceptedFileTypes,
-  fileSize: number,
-) {
+  filename: string,
+  filetype: FileType,
+  filesize: number,
+) => {
   console.warn(`[SKPF] FETCH : POST /orders/${id}/files`);
 
   const res = await fetch(
@@ -15,9 +15,9 @@ export async function generateFileUploadURL(
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        filename: fileName,
-        filetype: fileType,
-        filesize: fileSize,
+        filename,
+        filetype,
+        filesize,
       }),
     },
   );
@@ -48,4 +48,6 @@ export async function generateFileUploadURL(
   if (res.ok) {
     return data.data;
   }
-}
+};
+
+export default generateFileUploadURL;
