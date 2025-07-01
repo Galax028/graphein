@@ -5,49 +5,29 @@ import LabelGroup from "@/components/common/LabelGroup";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import OrderCard from "@/components/glance/OrderCard";
+import {
+  prefetchDetailedOrder,
+  useDetailedOrderQuery,
+} from "@/query/fetchDetailedOrder";
+import { prefetchUser } from "@/query/fetchUser";
 import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
-import getLoggedInUser from "@/utils/helpers/common/getLoggedInUser";
-import type { DetailedOrder, User } from "@/utils/types/backend";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import type { OrderStatus } from "@/utils/types/common";
-import type { GetServerSideProps } from "next";
+import type { OrderStatus, PageProps, Uuid } from "@/utils/types/common";
+import useUserContext from "@/utils/useUserContext";
+import { QueryClient } from "@tanstack/react-query";
+import { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/router";
-import { type FC, useEffect, useState } from "react";
+import type { FC } from "react";
 
-type OrderDetailsPageProps = {
-  locale: string;
-  user: User;
-};
-
-const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ locale, user }) => {
-  const router = useRouter();
+const OrderDetailsPage: FC<{ orderId: Uuid }> = ({ orderId }) => {
+  const user = useUserContext();
   const tx = useTranslations("common");
 
-  const [detailedOrder, setDetailedOrder] = useState<DetailedOrder | null>(
-    null,
-  );
+  const { data: detailedOrder, status } = useDetailedOrderQuery(orderId);
 
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    const fetchDetailedOrder = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${router.query.id}`,
-        {
-          credentials: "include",
-        },
-      );
-
-      const body = await res.json();
-      setDetailedOrder(body.data);
-    };
-
-    fetchDetailedOrder();
-  }, [router]);
-
-  if (!detailedOrder) return <></>;
+  // TODO: This one should be self-descriptive
+  if (status === "pending" || status === "error") return <></>;
 
   // Rename pls!!!!
   const createdTimestamp = new Date(detailedOrder.createdAt);
@@ -84,11 +64,11 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ locale, user }) => {
   return (
     <>
       <NavigationBar
+        user={user}
         title={tx("orderCard.title", {
-          orderNumber: detailedOrder.orderNumber ?? "",
+          orderNumber: detailedOrder.orderNumber,
         })}
         backEnabled={true}
-        user={user}
       />
       <main className="p-3 flex flex-col gap-3">
         <PageLoadTransition className="flex flex-col gap-3">
@@ -103,7 +83,6 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ locale, user }) => {
                   options={{
                     showProgressBar: true,
                   }}
-                  locale={locale}
                 />
                 <DropDownCard header="About Order">
                   <DescriptionList data={aboutOrderProps} />
@@ -146,9 +125,9 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ locale, user }) => {
             {detailedOrder &&
               detailedOrder.files.map((file, idx) => (
                 <FileDetailHeader
-                  fileName={file.filename}
-                  fileSize={file.filesize}
-                  fileType={file.filetype}
+                  filename={file.filename}
+                  filesize={file.filesize}
+                  filetype={file.filetype}
                   orderId={detailedOrder.id}
                   fileId={file.id}
                   copies={file.copies}
@@ -191,12 +170,24 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ locale, user }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
+  // TODO: translations
   const [locale, translations] = await getServerSideTranslations(context.req, [
     "common",
   ]);
 
-  return { props: { locale, translations } };
+  const queryClient = new QueryClient();
+  const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
+  const signedIn = await prefetchUser(queryClient, sessionToken);
+  if (signedIn) {
+    const orderId = context.query.id;
+    if (typeof orderId !== "string") return { notFound: true };
+    await prefetchDetailedOrder(queryClient, orderId, sessionToken);
+
+    return { props: { locale, translations, orderId } };
+  } else return { redirect: { destination: "/", permanent: false } };
 };
 
 export default OrderDetailsPage;

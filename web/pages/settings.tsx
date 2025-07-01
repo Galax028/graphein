@@ -6,36 +6,32 @@ import NavigationBar from "@/components/common/NavigationBar";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import { User } from "@/utils/types/backend";
+import type { PageProps } from "@/utils/types/common";
+import useUserContext from "@/utils/useUserContext";
 import { AnimatePresence } from "motion/react";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { type FC, useState } from "react";
 
-const SettingsPage = (props: { locale: string }) => {
+const SettingsPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const tx = useTranslations("common");
   const t = useTranslations("settings");
+  const user = useUserContext();
 
-  const [user, setUser] = useState<User | null>();
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
 
   const [phone, setPhone] = useState<string | null>("");
   const [classroom, setClassroom] = useState<string | null>("");
   const [classroomNo, setClassroomNo] = useState<string | null>("");
 
-  const [language, setLanguage] = useState(props.locale);
-
   const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
 
-  const changeLanguage = (lang: string) => {
-    setLanguage(lang);
+  const changeLanguage = (lang: string) =>
     router.replace(`${router.asPath}?lang=${lang}`);
-  };
 
-  const handleUpdateProfileSettings = async (role: User) => {
+  const handleUpdateProfileSettings = async () => {
     const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
       method: "PUT",
       credentials: "include",
@@ -68,119 +64,95 @@ const SettingsPage = (props: { locale: string }) => {
     }
   };
 
-  useEffect(() => {
-    const getUser = async () => {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const body = await res.json();
-
-      if (res.ok) {
-        if (isSignedIn == false) {
-          setIsSignedIn(true);
-          setUser(body.data as User);
-
-          setPhone(body.data.tel ?? "");
-          setClassroom(body.data.class ? String(body.data.class) : "");
-          setClassroomNo(body.data.classNo ? String(body.data.classNo) : "");
-        }
-      }
-    };
-
-    getUser();
-  }, [isSignedIn]);
-
   return (
     <>
-      <NavigationBar title={t("navigationBar")} backEnabled={true} />
+      <NavigationBar
+        user={user}
+        title={t("navigationBar")}
+        backEnabled={true}
+      />
       <PageLoadTransition className="flex flex-col gap-3 p-3">
-        {isSignedIn && (
-          <>
-            <LabelGroup
-              header={t("userSettings.title")}
-              footer={t("userSettings.description")}
-            >
-              <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
-                <LabelGroup header={t("userSettings.profile")}>
-                  <div className="m-auto">
-                    <PersonAvatar
-                      profileUrl={user?.profileUrl}
-                      personName={user?.name}
-                      size={96}
-                    />
-                  </div>
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.name")}>
-                  <input
-                    value={user?.name}
-                    className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
-                    disabled
-                  />
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.email")}>
-                  <input
-                    value={user?.email}
-                    className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
-                    disabled
-                  />
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.tel")}>
-                  <input
-                    value={phone ?? ""}
-                    className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.classAndNo")}>
-                  <SegmentedGroup>
-                    <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                      <p>{t("userSettings.class")}</p>
-                    </div>
-                    <input
-                      value={classroom ?? ""}
-                      onChange={(e) => setClassroom(e.target.value)}
-                      type="text"
-                      className="w-full p-2 bg-background text-body-md"
-                    />
-                    <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                      <p>{t("userSettings.no")}</p>
-                    </div>
-                    <input
-                      value={classroomNo ?? ""}
-                      onChange={(e) => setClassroomNo(e.target.value)}
-                      type="text"
-                      className="w-full p-2 bg-background text-body-md"
-                    />
-                  </SegmentedGroup>
-                </LabelGroup>
-                <Button
-                  appearance="filled"
-                  onClick={() => handleUpdateProfileSettings}
-                  className="w-full"
-                  icon="save"
-                  busy={busy}
-                >
-                  {t("userSettings.save")}
-                </Button>
+        <LabelGroup
+          header={t("userSettings.title")}
+          footer={t("userSettings.description")}
+        >
+          <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
+            <LabelGroup header={t("userSettings.profile")}>
+              <div className="m-auto">
+                <PersonAvatar
+                  profileUrl={user?.profileUrl}
+                  personName={user?.name}
+                  size={96}
+                />
               </div>
             </LabelGroup>
-          </>
-        )}
+            <LabelGroup header={t("userSettings.name")}>
+              <input
+                value={user?.name}
+                className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
+                disabled
+              />
+            </LabelGroup>
+            <LabelGroup header={t("userSettings.email")}>
+              <input
+                value={user?.email}
+                className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
+                disabled
+              />
+            </LabelGroup>
+            <LabelGroup header={t("userSettings.tel")}>
+              <input
+                value={phone ?? ""}
+                className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </LabelGroup>
+            <LabelGroup header={t("userSettings.classAndNo")}>
+              <SegmentedGroup>
+                <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
+                  <p>{t("userSettings.class")}</p>
+                </div>
+                <input
+                  value={classroom ?? ""}
+                  onChange={(e) => setClassroom(e.target.value)}
+                  type="text"
+                  className="w-full p-2 bg-background text-body-md"
+                />
+                <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
+                  <p>{t("userSettings.no")}</p>
+                </div>
+                <input
+                  value={classroomNo ?? ""}
+                  onChange={(e) => setClassroomNo(e.target.value)}
+                  type="text"
+                  className="w-full p-2 bg-background text-body-md"
+                />
+              </SegmentedGroup>
+            </LabelGroup>
+            <Button
+              appearance="filled"
+              onClick={handleUpdateProfileSettings}
+              className="w-full"
+              icon="save"
+              busy={busy}
+            >
+              {t("userSettings.save")}
+            </Button>
+          </div>
+        </LabelGroup>
         <LabelGroup header={t("appearanceSettings.title")}>
           <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
             <LabelGroup header={t("appearanceSettings.language")}>
               <SegmentedGroup>
                 <Button
-                  selected={language == "th"}
+                  selected={locale === "th"}
                   appearance={"tonal"}
                   onClick={() => changeLanguage("th")}
                 >
                   ไทย
                 </Button>
                 <Button
-                  selected={language == "en"}
+                  selected={locale == "en"}
                   appearance={"tonal"}
                   onClick={() => changeLanguage("en")}
                 >

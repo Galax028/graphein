@@ -5,7 +5,7 @@ import type { User } from "@/utils/types/backend";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type FC, type ReactNode, useEffect, useState } from "react";
+import type { FC, ReactNode } from "react";
 
 export type NavigationBarProps = {
   user?: User;
@@ -32,6 +32,7 @@ export type NavigationBarProps = {
  * @returns The navigation bar element.
  */
 const NavigationBar: FC<NavigationBarProps> = ({
+  user,
   title,
   desc,
   backEnabled = false,
@@ -41,28 +42,12 @@ const NavigationBar: FC<NavigationBarProps> = ({
 }) => {
   const router = useRouter();
 
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const body = await res.json();
-
-      if (res.ok) setUser(body.data as User);
-    };
-
-    if (!user) getUser();
-  }, [user]);
-
   const onBackButtonClick = () => {
     if (backContextURL) {
-      return router.push(backContextURL);
+      router.push(backContextURL);
+    } else {
+      router.back();
     }
-    return router.back();
   };
 
   return (

@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import type { FC } from "react";
 import Button from "../common/Button";
 
 /**
@@ -12,7 +12,7 @@ import Button from "../common/Button";
  *
  * @returns The 'Sign in with Google' button.
  */
-const SignInButton = () => {
+const SignInButton: FC = () => {
   const router = useRouter();
   const t = useTranslations();
 
@@ -34,20 +34,6 @@ const SignInButton = () => {
       { once: true },
     );
   };
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      // If the user is logged in, redirect the to /glance
-      if (res.ok) return router.push("/glance");
-    };
-
-    if (router.isReady) fetchUser();
-  }, [router]);
 
   return (
     <Button appearance={"tonal"} onClick={onSignInButtonClick}>

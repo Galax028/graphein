@@ -6,6 +6,7 @@ import cn from "@/utils/helpers/cn";
 import getShortenedFileSizeString from "@/utils/helpers/order/details/getShortenedFileSizeString";
 import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 import generateFileUploadURL from "@/utils/helpers/order/new/generateFileUploadURL";
+import useUserContext from "@/utils/useUserContext";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -14,18 +15,16 @@ import { useDropzone } from "react-dropzone";
 
 const BuildOrderPage = () => {
   const router = useRouter();
+  const user = useUserContext();
 
   const [orderStage, setOrderStage] = useState("upload");
   const [orderId, setOrderId] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [orderCreated, setOrderCreated] = useState<string | null>(null);
+  const [_, setOrderCreated] = useState<string | null>(null);
   const [timeDiff, setTimeDiff] = useState<number | null>(null);
 
   const [files, setFiles] = useState<File[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [showFileLimitExceedDialog, setShowFileLimitExceedDialog] = useState(
-    files.length > 6,
-  );
+  const [showFileLimitExceedDialog] = useState(files.length > 6);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -133,6 +132,7 @@ const BuildOrderPage = () => {
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar
+        user={user}
         title={defineURL[orderStage].title}
         backEnabled={true}
         backContextURL={defineURL[orderStage].context}

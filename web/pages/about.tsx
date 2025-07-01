@@ -3,6 +3,7 @@ import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
+import useUserContext from "@/utils/useUserContext";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -56,10 +57,12 @@ const developers = [
 
 const AboutPage: FC<PageProps> = () => {
   const t = useTranslations();
+  const user = useUserContext();
 
   return (
     <>
       <NavigationBar
+        user={user}
         title={t("navigationBar", {
           appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
         })}
@@ -136,10 +139,9 @@ const AboutPage: FC<PageProps> = () => {
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
-  const [locale, translations] = await getServerSideTranslations(
-    context.req,
+  const [locale, translations] = await getServerSideTranslations(context.req, [
     "about",
-  );
+  ]);
 
   return { props: { locale, translations } };
 };

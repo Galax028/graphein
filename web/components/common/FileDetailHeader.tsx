@@ -7,9 +7,9 @@ import Image from "next/image";
 import { type FC, useEffect, useState } from "react";
 
 type FileDetailHeaderProps = {
-  fileName: string;
-  fileSize: number;
-  fileType: FileType;
+  filename: string;
+  filesize: number;
+  filetype: FileType;
   orderId: string;
   fileId: string;
   copies: number;
@@ -18,17 +18,17 @@ type FileDetailHeaderProps = {
 /**
  * File detail header, for use with range details.
  *
- * @param fileName  The file name, in string.
- * @param fileSize  The file size, in integer bytes.
- * @param fileType  The file type, in PDF, PNG, or JPG.
+ * @param filename  The file name, in string.
+ * @param filesize  The file size, in integer bytes.
+ * @param filetype  The file type, in PDF, PNG, or JPG.
  * @param orderId   The order id, for fetching thumbnails.
  * @param fileId    The file id, for fetching thumbnails.
  * @param copies    The amount of copies for this file, range.
  */
 const FileDetailHeader: FC<FileDetailHeaderProps> = ({
-  fileName,
-  fileSize,
-  fileType,
+  filename,
+  filesize,
+  filetype,
   orderId,
   fileId,
   copies,
@@ -56,9 +56,7 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
       if (res.status === 202) {
         timeoutId = window.setTimeout(fetchFileThumbnail, 500);
         return;
-      }
-
-      if (res.ok) {
+      } else if (res.ok) {
         const body = await res.json();
         return setThumbnailSrc(body.data as string);
       }
@@ -101,18 +99,18 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
                 src={thumbnailSrc}
                 width={56}
                 height={56}
-                alt={fileName}
+                alt={filename}
                 className="w-14 h-14 object-contain"
               />
             </motion.div>
           )}
           <div className="flex flex-col grow gap-1 min-w-0">
             <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
-              {fileName}.{fileType}
+              {filename}.{filetype}
             </p>
             <p className="text-body-sm opacity-50">
               {copies} {copies != 1 ? "copies" : "copy"} •{" "}
-              {fileType.toUpperCase()} • {getShortenedFileSizeString(fileSize)}
+              {filetype.toUpperCase()} • {getShortenedFileSizeString(filesize)}
             </p>
           </div>
         </div>

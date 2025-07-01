@@ -3,8 +3,8 @@ import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
 import type { OrderStatus } from "@/utils/types/common";
 import { motion } from "motion/react";
+import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import { useTranslations } from "next-intl";
 
 type OrderCardProps = {
   status: "building" | OrderStatus;
@@ -16,7 +16,6 @@ type OrderCardProps = {
     showProgressBar?: boolean;
     showNavigationIcon?: boolean;
   };
-  locale?: string;
 };
 
 /**
@@ -28,30 +27,20 @@ type OrderCardProps = {
  * @param createdAt     Created at timestamp. (UTC)
  * @param options       A boolean value to show or hide views. {option: boolean}
  *                      [showStatusText | showProgressBar | showNavigationIcon]
- * @param locale        Locale is used to determine the progress bar's width in 
- *                      the 'reviewing' stage. If component is showing the 
- *                      progress bar and 'reviewing' order stage is possible, 
- *                      do include locale. (Optional, default: 'en')
  */
 const OrderCard: FC<OrderCardProps> = ({
   status = "building",
   orderNumber,
   filesCount,
   createdAt,
-  options,
-  locale = "en",
+  options: {
+    showStatusText = true,
+    showProgressBar = false,
+    showNavigationIcon = false,
+  } = {},
 }) => {
+  const locale = useLocale();
   const t = useTranslations("common");
-
-  const statusTranslation: Record<"building" | OrderStatus, string> = {
-    building: "Building Order",
-    reviewing: "Reviewing",
-    processing: "Printing",
-    ready: "Ready for Pickup",
-    completed: "Completed",
-    rejected: "Rejected",
-    cancelled: "Cancelled",
-  } as const;
 
   const progressBarMap: Record<
     "building" | OrderStatus,
@@ -59,7 +48,7 @@ const OrderCard: FC<OrderCardProps> = ({
   > = {
     building: { width: "", color: "" },
     reviewing: {
-      // A check for language is nescessary to align the progress indicator
+      // A check for language is necessary to align the progress indicator
       // with the middle of the localized text.
       width: locale == "en" ? "28.96px" : "27.47px",
       color: "bg-warning",
@@ -75,15 +64,15 @@ const OrderCard: FC<OrderCardProps> = ({
     <div className="bg-surface-container border border-outline rounded-lg">
       <div className="flex items-center gap-4 p-3 pl-4">
         <div className="flex-grow">
-          {(options?.showStatusText ?? true) && (
+          {showStatusText && (
             <p
               className={cn(
                 "text-body-sm opacity-50",
-                ["review", "processing"].includes(status) &&
+                (status === "reviewing" || status === "processing") &&
                   "text-warning opacity-100",
-                ["ready", "completed"].includes(status) &&
+                (status === "ready" || status === "completed") &&
                   "text-success opacity-100",
-                ["rejected", "cancelled"].includes(status) &&
+                (status === "rejected" || status === "cancelled") &&
                   "text-error opacity-100",
               )}
             >
@@ -96,11 +85,9 @@ const OrderCard: FC<OrderCardProps> = ({
             {filesCount != 1 && filesCount != -1 && "s"}
           </p>
         </div>
-        {(options?.showNavigationIcon ?? false) && (
-          <MaterialIcon icon={"chevron_forward"} />
-        )}
+        {showNavigationIcon && <MaterialIcon icon={"chevron_forward"} />}
       </div>
-      {(options?.showProgressBar ?? false) && (
+      {showProgressBar && (
         <div className="flex flex-col gap-1 border-t border-outline p-3">
           <div className="flex h-1 bg-outline rounded-full overflow-hidden">
             <motion.div

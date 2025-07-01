@@ -3,9 +3,11 @@ import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
+import { fetchUser } from "@/query/fetchUser";
 import cn from "@/utils/helpers/cn";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -15,6 +17,7 @@ import { type FC, useState } from "react";
 const LandingPage: FC<PageProps> = (props: { locale: string }) => {
   const router = useRouter();
   const t = useTranslations();
+
   const [language, setLanguage] = useState(props.locale);
 
   const changeLanguage = (lang: string) => {
@@ -77,12 +80,28 @@ const LandingPage: FC<PageProps> = (props: { locale: string }) => {
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
-  const [locale, translations] = await getServerSideTranslations(
-    context.req,
+  const [locale, translations] = await getServerSideTranslations(context.req, [
     "index",
-  );
+  ]);
 
-  return { props: { locale, translations } };
+  const queryClient = new QueryClient();
+  const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
+  const user = await queryClient.fetchQuery({
+    queryKey: ["user"],
+    queryFn: () => fetchUser({ headers: { Cookie: sessionToken } }),
+  });
+
+  if (user) {
+    return {
+      redirect: {
+        destination: user.role === "merchant" ? "/merchant" : "/glance",
+        permanent: false,
+      },
+    };
+  } else
+    return {
+      props: { locale, translations, dehydratedState: dehydrate(queryClient) },
+    };
 };
 
 export default LandingPage;
