@@ -1,10 +1,22 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import cn from "@/utils/helpers/cn";
+import type { User } from "@/utils/types/backend";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { type FC, type ReactNode, useEffect, useState } from "react";
+
+export type NavigationBarProps = {
+  user?: User;
+  title: ReactNode;
+  desc?: ReactNode;
+  backEnabled: boolean;
+  backContextURL?: string;
+  className?: string;
+  style?: string;
+  children?: ReactNode;
+};
 
 /**
  * The navigation bar for all types of users including guest.
@@ -19,47 +31,17 @@ import { AnimatePresence, motion } from "motion/react";
  *
  * @returns The navigation bar element.
  */
-
-export type NavigationBarProps = {
-  user?: any;
-  title: React.ReactNode;
-  desc?: React.ReactNode;
-  backEnabled?: boolean;
-  backContextURL?: string;
-  className?: string;
-  style?: string;
-  children?: React.ReactNode;
-};
-
-type User = {
-  success: boolean;
-  timestamp: string;
-  message: string;
-  data: {
-    id: string;
-    role: "student" | "teacher" | "merchant";
-    email: string;
-    name: string;
-    class: number;
-    classNo: number;
-    profileUrl: string;
-    isOnboarded: boolean;
-  };
-  error: string;
-};
-
-const NavigationBar = ({
+const NavigationBar: FC<NavigationBarProps> = ({
   title,
   desc,
   backEnabled = false,
   backContextURL,
   className,
   children,
-}: NavigationBarProps) => {
+}) => {
   const router = useRouter();
 
-  const [user, setUser] = useState<User>();
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -68,18 +50,15 @@ const NavigationBar = ({
         credentials: "include",
       });
 
-      const data = await res.json();
+      const body = await res.json();
 
-      if (res.ok) {
-        setIsSignedIn(true);
-        setUser(data);
-      }
+      if (res.ok) setUser(body.data as User);
     };
 
-    getUser();
-  }, []);
+    if (!user) getUser();
+  }, [user]);
 
-  const handleBackButtonClicked = () => {
+  const onBackButtonClick = () => {
     if (backContextURL) {
       return router.push(backContextURL);
     }
@@ -100,10 +79,7 @@ const NavigationBar = ({
     >
       {backEnabled && (
         <div className="p-1">
-          <div
-            className="cursor-pointer w-6 h-6"
-            onClick={handleBackButtonClicked}
-          >
+          <div className="cursor-pointer w-6 h-6" onClick={onBackButtonClick}>
             <MaterialIcon icon="arrow_back" />
           </div>
         </div>
@@ -135,11 +111,11 @@ const NavigationBar = ({
         {children}
         {
           // If the user is signed in, display the profile picture.
-          isSignedIn && (
+          user && (
             <Link href="/settings">
               <PersonAvatar
-                profile_url={user?.data.profileUrl}
-                person_name={user?.data.name}
+                profileUrl={user.profileUrl}
+                personName={user.name}
               />
             </Link>
           )

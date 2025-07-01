@@ -1,10 +1,19 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
 import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
-import { AcceptedFileTypes } from "@/utils/types/common";
+import type { FileType } from "@/utils/types/common";
 import { motion } from "motion/react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
+
+type FileDetailHeaderProps = {
+  fileName: string;
+  fileSize: number;
+  fileType: FileType;
+  orderId: string;
+  fileId: string;
+  copies: number;
+};
 
 /**
  * File detail header, for use with range details.
@@ -16,29 +25,19 @@ import { useEffect, useState } from "react";
  * @param fileId    The file id, for fetching thumbnails.
  * @param copies    The amount of copies for this file, range.
  */
-
-type FileDetailHeaderProps = {
-  fileName: string;
-  fileSize: number;
-  fileType: AcceptedFileTypes;
-  orderId: string;
-  fileId: string;
-  copies: number;
-};
-
-const FileDetailHeader = ({
+const FileDetailHeader: FC<FileDetailHeaderProps> = ({
   fileName,
   fileSize,
   fileType,
   orderId,
   fileId,
   copies,
-}: FileDetailHeaderProps) => {
-  const [thumbnailData, setThumbnailData] = useState<any>({});
+}) => {
+  const [thumbnailSrc, setThumbnailSrc] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    let timeoutId: NodeJS.Timeout | null = null;
+    let timeoutId: number | null = null;
 
     const fetchFileThumbnail = async () => {
       if (cancelled) return;
@@ -55,22 +54,26 @@ const FileDetailHeader = ({
       // If the image is still processing (202), set a wait for
       // half a second before trying again until returns ok (200).
       if (res.status === 202) {
-        timeoutId = setTimeout(fetchFileThumbnail, 500);
+        timeoutId = window.setTimeout(fetchFileThumbnail, 500);
         return;
       }
 
       if (res.ok) {
-        const data = await res.json();
-        return setThumbnailData(data);
+        const body = await res.json();
+        return setThumbnailSrc(body.data as string);
       }
-      setThumbnailData({});
+
+      setThumbnailSrc(null);
     };
 
     fetchFileThumbnail();
 
     return () => {
       cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
     };
   }, [orderId, fileId]);
 
@@ -80,11 +83,11 @@ const FileDetailHeader = ({
         className={cn(
           `flex justify-between items-center gap-2 bg-surface-container 
           border border-outline rounded-lg w-[calc(100vw-1.5rem)] max-w-lg pr-3`,
-          thumbnailData.data ? "p-2" : "p-4",
+          thumbnailSrc !== null ? "p-2" : "p-4",
         )}
       >
         <div className="flex gap-3 items-center min-w-0">
-          {thumbnailData.data && (
+          {thumbnailSrc && (
             <motion.div
               initial={{ x: -8, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -95,7 +98,7 @@ const FileDetailHeader = ({
               className="p-1 bg-outline !w-16 !h-16 aspect-square rounded-sm"
             >
               <Image
-                src={thumbnailData.data}
+                src={thumbnailSrc}
                 width={56}
                 height={56}
                 alt={fileName}

@@ -1,8 +1,8 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import Button from "../common/Button";
 import { useEffect } from "react";
-import { useTranslations } from "next-intl";
+import Button from "../common/Button";
 
 /**
  * The sign in button using the application's design language.
@@ -12,7 +12,6 @@ import { useTranslations } from "next-intl";
  *
  * @returns The 'Sign in with Google' button.
  */
-
 const SignInButton = () => {
   const router = useRouter();
   const t = useTranslations();
@@ -24,12 +23,16 @@ const SignInButton = () => {
       "popup, width=800, height=600",
     );
 
-    window.addEventListener("message", (event) => {
-      if (event.data == "oauthSuccess") {
-        signInWindow?.close();
-        router.push("/glance");
-      }
-    });
+    window.addEventListener(
+      "message",
+      (event) => {
+        if (event.data == "oauthSuccess") {
+          signInWindow?.close();
+          router.push("/glance");
+        }
+      },
+      { once: true },
+    );
   };
 
   useEffect(() => {
@@ -41,11 +44,10 @@ const SignInButton = () => {
 
       // If the user is logged in, redirect the to /glance
       if (res.ok) return router.push("/glance");
-      return;
     };
 
-    fetchUser();
-  });
+    if (router.isReady) fetchUser();
+  }, [router]);
 
   return (
     <Button appearance={"tonal"} onClick={onSignInButtonClick}>

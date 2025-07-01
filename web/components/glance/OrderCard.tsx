@@ -1,28 +1,20 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
+import type { OrderStatus } from "@/utils/types/common";
 import { motion } from "motion/react";
-
-type OrderStatusProps =
-  | "building"
-  | "reviewing"
-  | "processing"
-  | "ready"
-  | "completed"
-  | "rejected"
-  | "cancelled"
-  | "unknown";
+import type { FC } from "react";
 
 type OrderCardProps = {
-  status: OrderStatusProps;
+  status: "building" | OrderStatus;
   orderNumber: string;
   filesCount: number;
   createdAt: string;
-  options?: Partial<{
+  options?: {
     showStatusText?: boolean;
     showProgressBar?: boolean;
     showNavigationIcon?: boolean;
-  }>;
+  };
 };
 
 /**
@@ -35,15 +27,14 @@ type OrderCardProps = {
  * @param options       A boolean value to show or hide views. {option: boolean}
  *                      [showStatusText | showProgressBar | showNavigationIcon]
  */
-
-const OrderCard = ({
-  status = "unknown",
+const OrderCard: FC<OrderCardProps> = ({
+  status = "building",
   orderNumber,
   filesCount,
   createdAt,
   options,
-}: OrderCardProps) => {
-  const statusTranslation = {
+}) => {
+  const statusTranslation: Record<"building" | OrderStatus, string> = {
     building: "Building Order",
     reviewing: "Reviewing",
     processing: "Printing",
@@ -51,11 +42,10 @@ const OrderCard = ({
     completed: "Completed",
     rejected: "Rejected",
     cancelled: "Cancelled",
-    unknown: "Unknown Status",
-  };
+  } as const;
 
   const progressBarMap: Record<
-    OrderCardProps["status"],
+    "building" | OrderStatus,
     { width: string; color: string }
   > = {
     building: { width: "", color: "" },
@@ -65,8 +55,7 @@ const OrderCard = ({
     completed: { width: "100%", color: "bg-success" },
     rejected: { width: "28.96px", color: "bg-error" },
     cancelled: { width: "28.96px", color: "bg-error" },
-    unknown: { width: "", color: "" },
-  };
+  } as const;
 
   return (
     <div className="bg-surface-container border border-outline rounded-lg">

@@ -1,61 +1,20 @@
-// Interface
-export type LangCode = "th" | "en";
-export type UserTypes = "student" | "teacher" | "merchant";
-export type AcceptedFileTypes = "pdf" | "png" | "jpg";
-export type OrderStatus =
-  | "reviewing"
-  | "processing"
-  | "ready"
-  | "completed"
-  | "rejected"
-  | "cancelled";
+export const langCodes = ["en", "th"] as const;
+export type LangCode = (typeof langCodes)[number];
 
-// Base Button
-interface BaseButtonProps {
-  appearance: "tonal" | "filled";
-  selected?: boolean;
-  disabled?: boolean;
-  busy?: boolean;
-  busyWithText?: boolean;
-  className?: string;
-  onClick?: any;
-}
-interface IconButtonProps extends BaseButtonProps {
-  icon: string;
-  children?: never;
-}
-interface TextButtonProps extends BaseButtonProps {
-  icon?: string | null | undefined;
-  children: React.ReactNode;
-}
+export const userRoles = ["student", "teacher", "merchant"] as const;
+export type UserRole = (typeof userRoles)[number];
 
-export type ButtonProps = IconButtonProps | TextButtonProps;
+export const fileTypes = ["pdf", "png", "jpg"] as const;
+export type FileType = (typeof fileTypes)[number];
 
-// Segmented Button
+export const orderStatuses = [
+  "reviewing",
+  "processing",
+  "ready",
+  "completed",
+  "rejected",
+  "cancelled",
+] as const;
+export type OrderStatus = (typeof orderStatuses)[number];
 
-export type SegmentedGroupProps = {
-  children: React.ReactNode;
-  className?: string;
-  direction?: "horizontal" | "vertical";
-};
-
-// Material Icon
-export type MaterialIconProps = {
-  icon: string;
-  className?: string;
-};
-
-// Person Avatar
-export type PersonAvatarProps = {
-  profile_url?: string;
-  person_name?: string;
-  size?: number;
-};
-
-// Input Label
-
-export type InputLabelProps = {
-  header: string;
-  footer?: string;
-  children: React.ReactNode;
-};
+export type Uuid = string;

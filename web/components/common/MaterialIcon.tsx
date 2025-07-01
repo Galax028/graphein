@@ -1,5 +1,10 @@
 import cn from "@/utils/helpers/cn";
-import { MaterialIconProps } from "@/utils/types/common";
+import type { FC } from "react";
+
+type MaterialIconProps = {
+  className?: string;
+  icon: string;
+};
 
 /**
  * Material icon set, weight 300, size 24px.
@@ -7,13 +12,10 @@ import { MaterialIconProps } from "@/utils/types/common";
  * @param icon        The icon name.
  * @param className   Style extension to the base style.
  */
-
-const MaterialIcon = ({ icon, className }: MaterialIconProps) => {
-  return (
-    <i className={cn("material-symbols-outlined select-none", className)}>
-      {icon}
-    </i>
-  );
-};
+const MaterialIcon: FC<MaterialIconProps> = ({ icon, className }) => (
+  <i className={cn("material-symbols-outlined select-none", className)}>
+    {icon}
+  </i>
+);
 
 export default MaterialIcon;

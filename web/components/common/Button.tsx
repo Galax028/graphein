@@ -1,6 +1,28 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import { ButtonProps } from "@/utils/types/common";
+import type { FC, MouseEventHandler, ReactNode } from "react";
+
+type BaseButtonProps = {
+  className?: string;
+  appearance: "tonal" | "filled";
+  selected?: boolean;
+  disabled?: boolean;
+  busy?: boolean;
+  busyWithText?: boolean;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+};
+
+type IconButtonProps = BaseButtonProps & {
+  icon: string;
+  children?: never;
+};
+
+type TextButtonProps = BaseButtonProps & {
+  icon?: string;
+  children: ReactNode;
+};
+
+type ButtonProps = IconButtonProps | TextButtonProps;
 
 /**
  * The button for general interface use.
@@ -16,8 +38,8 @@ import { ButtonProps } from "@/utils/types/common";
  *                      (defaults to true)
  * @param children      The contents inside the button.
  */
-
-const Button = ({
+const Button: FC<ButtonProps> = ({
+  className,
   appearance,
   icon,
   selected = false,
@@ -26,8 +48,7 @@ const Button = ({
   busyWithText = true,
   onClick,
   children,
-  className,
-}: ButtonProps) => {
+}) => {
   return (
     <button
       className={cn(

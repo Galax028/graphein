@@ -8,8 +8,8 @@ import OrderCard from "@/components/glance/OrderCard";
 import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
 import getLoggedInUser from "@/utils/helpers/common/getLoggedInUser";
-import { OrderStatus } from "@/utils/types/common";
-import { GetServerSideProps } from "next";
+import type { OrderStatus } from "@/utils/types/common";
+import type { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -57,7 +57,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
             2,
             "0",
           )}${createdTimestamp.getFullYear()}-${detailedState.data.orderNumber.replace(
-            /\-/g,
+            /-/g,
             "",
           )}`
         : "-",
