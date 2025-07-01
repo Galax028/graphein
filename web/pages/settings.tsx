@@ -6,12 +6,13 @@ import SegmentedGroup from "@/components/common/SegmentedGroup";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { User } from "@/utils/types/backend";
-import { GetServerSideProps } from "next";
+import type { PageProps } from "@/utils/types/common";
+import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 
-const SettingsPage = () => {
+const SettingsPage: FC<PageProps> = () => {
   const router = useRouter();
   const t = useTranslations();
 
@@ -185,7 +186,9 @@ const SettingsPage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
   const [locale, translations] = await getServerSideTranslations(
     context.req,
     "settings",

@@ -5,13 +5,14 @@ import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
 import cn from "@/utils/helpers/cn";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import { GetServerSideProps } from "next";
+import type { PageProps } from "@/utils/types/common";
+import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { type FC, useState } from "react";
 
-const LandingPage = (props: { locale: string }) => {
+const LandingPage: FC<PageProps> = (props: { locale: string }) => {
   const router = useRouter();
   const t = useTranslations();
   const [language, setLanguage] = useState(props.locale);
@@ -96,7 +97,9 @@ const LandingPage = (props: { locale: string }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
   const [locale, translations] = await getServerSideTranslations(
     context.req,
     "index",

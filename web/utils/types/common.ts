@@ -1,3 +1,10 @@
+export type TranslationRecord = { [k: string]: string | TranslationRecord };
+
+export type PageProps = {
+  locale: string;
+  translations: TranslationRecord;
+};
+
 export const langCodes = ["en", "th"] as const;
 export type LangCode = (typeof langCodes)[number];
 

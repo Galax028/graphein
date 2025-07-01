@@ -6,7 +6,7 @@ type DescriptionListProps = {
     title: string;
     content: string;
   }[];
-  expand: boolean;
+  expand?: boolean;
 };
 
 /**

@@ -7,7 +7,7 @@ type DropDownCardProps = {
   header: string;
   footer?: string[];
   collapsed?: boolean;
-  isCollapsible: boolean;
+  isCollapsible?: boolean;
   children: ReactNode;
 };
 

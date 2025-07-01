@@ -7,30 +7,29 @@ import OrderCard from "@/components/glance/OrderCard";
 import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
 import cn from "@/utils/helpers/cn";
 import getGreetingMessage from "@/utils/helpers/glance/getGreetingMessage";
-import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
+import type { CompactOrder, OrdersGlance, User } from "@/utils/types/backend";
+import type { PageProps } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 
-const GlancePage = () => {
+const GlancePage: FC<PageProps> = () => {
   const router = useRouter();
   const t = useTranslations();
 
-  const [ordersState, setOrdersState] = useState<any>({});
-  const [user, setUser] = useState<any>({});
-
-  const [showNewOrderWarningDialog, setShowNewOrderWarningDialog] =
-    useState<boolean>(false);
-
-  const [isOrderExpired, setIsOrderExpired] = useState<boolean | undefined>(
-    false,
-  );
+  const [user, setUser] = useState<User | null>(null);
+  const [ordersState, setOrdersState] = useState<OrdersGlance | null>(null);
+  const [showNewOrderWarningDialog, setShowNewOrderWarningDialog] = useState(false);
+  const [isOrderExpired, setIsOrderExpired] = useState(false);
 
   useEffect(() => {
+    if (!router.isReady) return;
+
     const fetchUser = async () => {
       const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
         method: "GET",
@@ -60,75 +59,70 @@ const GlancePage = () => {
         },
       );
 
-      const data = await res.json();
-      setOrdersState(data);
+      const body = await res.json();
+      setOrdersState(body.data);
     };
 
     setIsOrderExpired(checkBuildingOrderExpired());
+    Promise.all([fetchUser(), fetchOrders()]);
+  }, [router]);
 
-    fetchUser();
-    fetchOrders();
-  }, []);
+  if (!user || !ordersState) return <></>;
+
+  const sections = [
+    {
+      label: "Ongoing",
+      orders: ordersState.ongoing,
+      fallback: "You have no active order in progress.",
+    },
+    {
+      label: "Completed",
+      orders: ordersState.finished,
+      fallback: "Orders completed will appear here.",
+    },
+  ] as const;
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
-      <NavigationBar
-        title={`${getGreetingMessage()}${
-          user.data ? `, ${user.data?.name}` : ""
-        }`}
-      />
+      <NavigationBar title={`${getGreetingMessage()}${user.name}`} />
       <PageLoadTransition className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div
           className={cn(
             `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
           )}
         >
-          {ordersState.data &&
-            [
-              {
-                label: "Ongoing",
-                data: ordersState.data.ongoing,
-                fallback: "You have no active order in progress.",
-              },
-              {
-                label: "Completed",
-                data: ordersState.data.finished,
-                fallback: "Orders completed will appear here.",
-              },
-            ].map((i: any) => {
-              return (
-                <LabelGroup header={i.label}>
-                  {(i.data ?? []).length != 0 ? (
-                    (i.data ?? []).map((i: any) => {
-                      return (
-                        <motion.div
-                          initial={{ opacity: 0, y: 16 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{
-                            y: { type: "spring", bounce: 0 },
-                            delay: i * 0.2,
+          {ordersState &&
+            sections.map((section, idx) => (
+              <LabelGroup header={section.label} key={idx}>
+                {section.orders.length !== 0 ? (
+                  section.orders.map((order: CompactOrder, idx) => (
+                    <motion.div
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        y: { type: "spring", bounce: 0 },
+                        delay: idx * 0.2,
+                      }}
+                      key={idx}
+                    >
+                      <Link key={order.id} href={`/order/detail/${order.id}`}>
+                        <OrderCard
+                          status={order.status}
+                          orderNumber={order.orderNumber}
+                          createdAt={order.createdAt}
+                          filesCount={order.filesCount}
+                          options={{
+                            showNavigationIcon: true,
                           }}
-                        >
-                          <Link key={i.id} href={`/order/detail/${i.id}`}>
-                            <OrderCard
-                              status={i.status}
-                              orderNumber={i.orderNumber}
-                              createdAt={i.createdAt}
-                              filesCount={i.filesCount}
-                              options={{
-                                showNavigationIcon: true,
-                              }}
-                            />
-                          </Link>
-                        </motion.div>
-                      );
-                    })
-                  ) : (
-                    <OrderEmptyCard text={i.fallback} />
-                  )}
-                </LabelGroup>
-              );
-            })}
+                        />
+                      </Link>
+                    </motion.div>
+                  ))
+                ) : (
+                  <OrderEmptyCard text={section.fallback} />
+                )}
+              </LabelGroup>
+            ))}
           <Link href="/order/history">
             <Button appearance={"tonal"} icon={"history"} className="w-full">
               {t("orderHistory")}
@@ -213,7 +207,7 @@ const GlancePage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
   const [locale, translations] = await getServerSideTranslations(
     context.req,
     "glance",

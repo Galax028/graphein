@@ -9,11 +9,11 @@ import { type FC, type ReactNode, useEffect, useState } from "react";
 
 export type NavigationBarProps = {
   user?: User;
+  className?: string;
   title: ReactNode;
   desc?: ReactNode;
   backEnabled?: boolean;
   backContextURL?: string;
-  className?: string;
   style?: string;
   children?: ReactNode;
 };

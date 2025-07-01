@@ -1,8 +1,9 @@
 import type { FC, ReactNode } from "react";
 
-type InputLabelProps = {
+type LabelGroupProps = {
   header: string;
   footer?: string;
+  // key?: number;
   children: ReactNode;
 };
 
@@ -13,7 +14,7 @@ type InputLabelProps = {
  *
  * @returns A stylized DOM element.
  */
-const LabelGroup: FC<InputLabelProps> = ({ header, footer, children }) => (
+const LabelGroup: FC<LabelGroupProps> = ({ header, footer, children }) => (
   <div className="flex flex-col gap-1">
     <p className="text-body-sm opacity-50">{header}</p>
     {children}

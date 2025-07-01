@@ -4,7 +4,7 @@ import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
 import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
-import { checkBuildingOrderExpired } from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -15,11 +15,13 @@ const BuildOrderPage = () => {
   const router = useRouter();
 
   const [orderStage, setOrderStage] = useState("upload");
-  const [orderId, setOrderId] = useState<string | null>("");
-  const [orderCreated, setOrderCreated] = useState<string | null>("");
+  const [orderId, setOrderId] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [orderCreated, setOrderCreated] = useState<string | null>(null);
   const [timeDiff, setTimeDiff] = useState<number | null>(null);
 
-  const [files, setFiles] = useState<any>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showFileLimitExceedDialog, setShowFileLimitExceedDialog] = useState(
     files.length > 6,
   );
@@ -33,7 +35,7 @@ const BuildOrderPage = () => {
     maxFiles: 6,
     onDrop: (acceptedFiles) => {
       if (files.length <= 6) {
-        setFiles((prev: any) => [...prev, ...acceptedFiles]);
+        setFiles((files) => [...files, ...acceptedFiles]);
       }
     },
   });
@@ -52,7 +54,7 @@ const BuildOrderPage = () => {
       setOrderId(data.data);
       setOrderCreated(data.timestamp);
 
-      if (res.ok && typeof window !== "undefined") {
+      if (res.ok) {
         localStorage.setItem("skpf-buildingOrderId", data.data);
         localStorage.setItem("skpf-buildingOrderCreated", data.timestamp);
       } else {
@@ -62,30 +64,28 @@ const BuildOrderPage = () => {
       }
     };
 
-    if (typeof window !== "undefined") {
-      const storedOrderId = localStorage.getItem("skpf-buildingOrderId");
-      const storedOrderCreated = localStorage.getItem(
-        "skpf-buildingOrderCreated",
+    const storedOrderId = localStorage.getItem("skpf-buildingOrderId");
+    const storedOrderCreated = localStorage.getItem(
+      "skpf-buildingOrderCreated",
+    );
+    const isOrderExpired = storedOrderCreated && checkBuildingOrderExpired();
+
+    if (storedOrderId && !isOrderExpired) {
+      setOrderId(storedOrderId);
+      setOrderCreated(storedOrderCreated);
+    } else {
+      localStorage.removeItem("skpf-buildingOrderId");
+      localStorage.removeItem("skpf-buildingOrderCreated");
+      postOrders();
+    }
+
+    // Set timeDiff after orderCreated is set
+    if (storedOrderCreated) {
+      setTimeDiff(
+        new Date().getTime() - new Date(storedOrderCreated).getTime(),
       );
-      const isOrderExpired = storedOrderCreated && checkBuildingOrderExpired();
-
-      if (storedOrderId && !isOrderExpired) {
-        setOrderId(storedOrderId);
-        setOrderCreated(storedOrderCreated);
-      } else {
-        localStorage.removeItem("skpf-buildingOrderId");
-        localStorage.removeItem("skpf-buildingOrderCreated");
-        postOrders();
-      }
-
-      // Set timeDiff after orderCreated is set
-      if (storedOrderCreated) {
-        setTimeDiff(
-          new Date().getTime() - new Date(storedOrderCreated).getTime(),
-        );
-      } else {
-        setTimeDiff(null);
-      }
+    } else {
+      setTimeDiff(null);
     }
 
     console.error(orderId, timeDiff);
@@ -93,7 +93,7 @@ const BuildOrderPage = () => {
     // if (orderId != null) {
     //   generateFileUploadURL(orderId, "TestFile_Draft01", "pdf", 123456);
     // }
-  }, []);
+  }, [orderId, timeDiff]);
 
   // Update stage state upon URL change.
   useEffect(() => {
@@ -147,17 +147,17 @@ const BuildOrderPage = () => {
               <>
                 {/* No files uploaded */}
                 <div className="flex flex-col gap-1">
-                  {files.map((file: any, i: number) => (
+                  {files.map((file: File, idx) => (
                     <motion.div
                       initial={{ opacity: 0, y: 64 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 64 }}
                       transition={{
-                        delay: i * 0.1,
+                        delay: idx * 0.1,
                         y: { type: "spring", bounce: 0 },
                       }}
                       className="border border-outline p-3 rounded-lg bg-surface-container"
-                      key={file.path}
+                      key={idx}
                     >
                       <div className="flex flex-col gap-1">
                         <p className="text-body-sm text-warning">Uploading</p>
@@ -233,7 +233,7 @@ const BuildOrderPage = () => {
           <Link href={defineURL[orderStage].future}>
             <Button
               appearance="filled"
-              icon={orderStage != "review" ? null : "shopping_bag_speed"}
+              icon={orderStage === "review" ? "shopping_bag_speed" : undefined}
               className="w-full"
             >
               {orderStage != "review" ? "Next" : "Send Order"}

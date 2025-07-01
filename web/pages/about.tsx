@@ -2,10 +2,12 @@ import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import { GetServerSideProps } from "next";
+import type { PageProps } from "@/utils/types/common";
+import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import type { FC } from "react";
 
 type DeveloperProfileProps = {
   name: string;
@@ -13,28 +15,26 @@ type DeveloperProfileProps = {
   image: string;
 };
 
-const DeveloperProfile = ({ name, role, image }: DeveloperProfileProps) => {
-  return (
-    <div
-      className={cn(
-        `flex gap-3 items-center px-3 py-2.5 rounded-lg bg-surface-container 
+const DeveloperProfile: FC<DeveloperProfileProps> = ({ name, role, image }) => (
+  <div
+    className={cn(
+      `flex gap-3 items-center px-3 py-2.5 rounded-lg bg-surface-container 
         border border-outline`,
-      )}
-    >
-      <Image
-        src={image}
-        width={128}
-        height={128}
-        alt={`Image of ${name}`}
-        className="w-16 h-16 rounded-full"
-      />
-      <div className="flex flex-col">
-        <p>{name}</p>
-        <p className="text-body-sm opacity-50">{role}</p>
-      </div>
+    )}
+  >
+    <Image
+      src={image}
+      width={128}
+      height={128}
+      alt={`Image of ${name}`}
+      className="w-16 h-16 rounded-full"
+    />
+    <div className="flex flex-col">
+      <p>{name}</p>
+      <p className="text-body-sm opacity-50">{role}</p>
     </div>
-  );
-};
+  </div>
+);
 
 const developers = [
   {
@@ -54,7 +54,7 @@ const developers = [
   },
 ] as readonly DeveloperProfileProps[];
 
-const AboutPage = () => {
+const AboutPage: FC<PageProps> = () => {
   const t = useTranslations();
 
   return (
@@ -119,12 +119,12 @@ const AboutPage = () => {
           </div>
         </LabelGroup>
         <LabelGroup header={t("developers")}>
-          {developers.map((i) => (
+          {developers.map((developer) => (
             <DeveloperProfile
-              key={i.name}
-              name={i.name}
-              role={i.role}
-              image={i.image}
+              key={developer.name}
+              name={developer.name}
+              role={developer.role}
+              image={developer.image}
             />
           ))}
         </LabelGroup>
@@ -133,7 +133,9 @@ const AboutPage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
   const [locale, translations] = await getServerSideTranslations(
     context.req,
     "about",

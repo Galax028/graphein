@@ -1,9 +1,11 @@
 import "@/styles/globals.css";
+import type { PageProps } from "@/utils/types/common";
 import "@material-symbols/font-300/outlined.css";
 import { NextIntlClientProvider } from "next-intl";
 import type { AppProps } from "next/app";
+import type { FC } from "react";
 
-const App = ({ Component, pageProps }: AppProps) => {
+const App: FC<AppProps<PageProps>> = ({ Component, pageProps }) => {
   return (
     <NextIntlClientProvider
       locale={

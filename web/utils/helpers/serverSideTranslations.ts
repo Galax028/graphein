@@ -1,12 +1,13 @@
-import { IncomingMessage } from "http";
-import { NextApiRequestCookies } from "next/dist/server/api-utils";
+import type { IncomingMessage } from "http";
+import type { NextApiRequestCookies } from "next/dist/server/api-utils";
+import type { TranslationRecord } from "../types/common";
 
 const getServerSideTranslations = async (
   req: IncomingMessage & {
     cookies: NextApiRequestCookies;
   },
-  routes: string | string[],
-): Promise<[string, Record<string, any>]> => {
+  route: string,
+): Promise<[string, TranslationRecord]> => {
   const locale =
     req.cookies["NEXT_LOCALE"] ??
     process.env.NEXT_PUBLIC_DEFAULT_LOCALE ??

@@ -8,9 +8,9 @@ import TextInput from "@/components/common/TextInput";
 import { AnimatePresence } from "motion/react";
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
+import { type FC, useState } from "react";
 
-const MarkdownPage = () => {
+const MarkdownPage: FC = () => {
   const [language, setLanguage] = useState("th");
   const [theme, setTheme] = useState("auto");
   const [alphabet, setAlphabet] = useState("a");

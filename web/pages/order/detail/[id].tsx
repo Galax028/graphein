@@ -8,20 +8,26 @@ import OrderCard from "@/components/glance/OrderCard";
 import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
 import getLoggedInUser from "@/utils/helpers/common/getLoggedInUser";
+import type { DetailedOrder, User } from "@/utils/types/backend";
 import type { OrderStatus } from "@/utils/types/common";
 import type { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 
 type OrderDetailsPageProps = {
-  user: any;
+  user: User;
 };
 
-const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
+const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ user }) => {
   const router = useRouter();
 
-  const [detailedState, setDetailedState] = useState<any>({});
+  const [detailedOrder, setDetailedOrder] = useState<DetailedOrder | null>(
+    null,
+  );
+
   useEffect(() => {
+    if (!router.isReady) return;
+
     const fetchDetailedOrder = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_PATH}/orders/${router.query.id}`,
@@ -30,37 +36,33 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
         },
       );
 
-      const data = await res.json();
-      setDetailedState(data);
+      const body = await res.json();
+      setDetailedOrder(body.data);
     };
 
     fetchDetailedOrder();
-  }, []);
+  }, [router]);
+
+  if (!detailedOrder) return <></>;
 
   // Rename pls!!!!
-  const createdTimestamp = new Date(detailedState.data?.createdAt);
+  const createdTimestamp = new Date(detailedOrder.createdAt);
   const aboutOrderProps = [
     {
       title: "Created",
-      content: detailedState.data ? getDateTimeString(createdTimestamp) : "-",
+      content: getDateTimeString(createdTimestamp),
     },
     {
       title: "Price",
-      content: detailedState.data?.price ?? "-",
+      content: (detailedOrder.price ?? NaN).toString(),
     },
     {
       title: "Order ID",
-      content: detailedState.data
-        ? `${String(createdTimestamp.getDate()).padStart(2, "0")}${String(
-            createdTimestamp.getMonth(),
-          ).padStart(
-            2,
-            "0",
-          )}${createdTimestamp.getFullYear()}-${detailedState.data.orderNumber.replace(
-            /-/g,
-            "",
-          )}`
-        : "-",
+      content:
+        createdTimestamp.getDate().toString().padStart(2, "0") +
+        createdTimestamp.getMonth().toString().padStart(2, "0") +
+        `${createdTimestamp.getFullYear()}-` +
+        detailedOrder.orderNumber.replace(/-/g, ""),
     },
   ];
 
@@ -75,26 +77,23 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
 
   // The CSS here is completely cooked, will need to cleanup this later.
   // - @pixelpxed, 06-06-2025
-
   return (
     <>
       <NavigationBar
-        title={`Order ${
-          detailedState.data ? `#${detailedState.data?.orderNumber}` : "Details"
-        }`}
+        title={`Order #${detailedOrder.orderNumber}`}
         backEnabled={true}
         user={user}
       />
       <main className="p-3 flex flex-col gap-3">
         <PageLoadTransition className="flex flex-col gap-3">
-          {detailedState.data && (
+          {detailedOrder && (
             <>
               <LabelGroup header="Your Order">
                 <OrderCard
-                  status={detailedState.data?.status ?? "unknown"}
-                  orderNumber={detailedState.data?.orderNumber}
-                  createdAt={detailedState.data?.createdAt}
-                  filesCount={detailedState.data?.files.length}
+                  status={detailedOrder.status}
+                  orderNumber={detailedOrder.orderNumber}
+                  createdAt={detailedOrder.createdAt}
+                  filesCount={detailedOrder.files.length}
                   options={{
                     showProgressBar: true,
                   }}
@@ -106,18 +105,16 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
                   <div
                     className={`grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center`}
                   >
-                    {detailedState.data.statusHistory.map(
-                      (i: { timestamp: string; status: string }) => (
-                        <>
-                          <p className="text-body-sm opacity-50">
-                            {statusTranslation[i.status as OrderStatus]}
-                          </p>
-                          <p className="text-body-md">
-                            {getDateTimeString(new Date(i.timestamp))}
-                          </p>
-                        </>
-                      ),
-                    )}
+                    {detailedOrder.statusHistory.map((item) => (
+                      <>
+                        <p className="text-body-sm opacity-50">
+                          {statusTranslation[item.status]}
+                        </p>
+                        <p className="text-body-md">
+                          {getDateTimeString(new Date(item.timestamp))}
+                        </p>
+                      </>
+                    ))}
                   </div>
                 </DropDownCard>
               </LabelGroup>
@@ -128,7 +125,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
                   )}
                 >
                   <p className="text-body-md">
-                    {detailedState.data?.notes ?? (
+                    {detailedOrder.notes ?? (
                       <span className="opacity-50 italic">
                         No notes provided.
                       </span>
@@ -138,17 +135,17 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
               </LabelGroup>
             </>
           )}
-
           <LabelGroup header="Files">
-            {detailedState.data &&
-              detailedState.data.files.map((i: any) => (
+            {detailedOrder &&
+              detailedOrder.files.map((file, idx) => (
                 <FileDetailHeader
-                  fileName={i.filename}
-                  fileSize={i.filesize}
-                  fileType={i.filetype}
-                  orderId={detailedState.data.id}
-                  fileId={i.id}
-                  copies={i.copies}
+                  fileName={file.filename}
+                  fileSize={file.filesize}
+                  fileType={file.filetype}
+                  orderId={detailedOrder.id}
+                  fileId={file.id}
+                  copies={file.copies}
+                  key={idx}
                 />
               ))}
           </LabelGroup>
@@ -176,7 +173,7 @@ const OrderDetailsPage = ({ user }: OrderDetailsPageProps) => {
                 </b>
                 <br />
                 <span className="!font-mono break-all">
-                  {JSON.stringify(detailedState)}
+                  {JSON.stringify(detailedOrder)}
                 </span>
               </div>
             </LabelGroup>
