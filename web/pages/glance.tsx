@@ -23,7 +23,7 @@ const GlancePage = () => {
   const [ordersState, setOrdersState] = useState<any>({});
   const [user, setUser] = useState<any>({});
 
-  const [showNewOrderWarning, setShowNewOrderWarning] =
+  const [showNewOrderWarningDialog, setShowNewOrderWarningDialog] =
     useState<boolean>(false);
 
   const [isOrderExpired, setIsOrderExpired] = useState<boolean | undefined>(
@@ -178,7 +178,7 @@ const GlancePage = () => {
             className="w-full"
             onClick={() => {
               if (isOrderExpired) {
-                setShowNewOrderWarning(true);
+                setShowNewOrderWarningDialog(true);
               } else {
                 router.push("/order/new");
               }
@@ -189,15 +189,15 @@ const GlancePage = () => {
         </div>
       </PageLoadTransition>
       <AnimatePresence>
-        {showNewOrderWarning && (
+        {showNewOrderWarningDialog && (
           <Dialog
             title={t("expiryWarning.title")}
             desc={t("expiryWarning.description")}
-            setClickOutside={setShowNewOrderWarning}
+            setClickOutside={setShowNewOrderWarningDialog}
           >
             <Button
               appearance="tonal"
-              onClick={() => setShowNewOrderWarning(false)}
+              onClick={() => setShowNewOrderWarningDialog(false)}
             >
               Cancel
             </Button>
