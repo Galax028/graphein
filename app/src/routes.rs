@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use axum::{Router, extract::Request, response::Response, routing::get};
 use http::{HeaderValue, Method};
-use tower_http::{cors::CorsLayer, trace::TraceLayer};
+use tower_http::{
+    cors::{AllowHeaders, CorsLayer},
+    trace::TraceLayer,
+};
 
 use graphein_common::{AppError, AppState, error::NotFoundError};
 use tracing::Span;
@@ -37,6 +40,7 @@ pub fn expand_router(state: AppState) -> Router<AppState> {
                         .parse::<HeaderValue>()
                         .expect("Invalid value for environment variable `FRONTEND_URI`"),
                 )
+                .allow_headers(AllowHeaders::mirror_request())
                 .allow_credentials(true),
         )
         .layer(
