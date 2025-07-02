@@ -1,0 +1,19 @@
+{
+  "action": {
+    "ok": "โอเค",
+    "start": "เริ่ม",
+    "cancel": "ยกเลิก",
+    "nevermind": "ไม่เป็นไร"
+  },
+  "orderCard": {
+    "status": {
+      "reviewing": "กำลังตรวจ",
+      "processing": "กำลังพิมพ์",
+      "ready": "พร้อมรับ",
+      "completed": "สำเร็จแล้ว",
+      "rejected": "ถูกปฏิเสธ",
+      "cancelled": "ยกเลิก"
+    },
+    "title": "ออเดอร์ #{orderNumber}"
+  }
+}

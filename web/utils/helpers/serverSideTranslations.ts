@@ -6,7 +6,7 @@ const getServerSideTranslations = async (
   req: IncomingMessage & {
     cookies: NextApiRequestCookies;
   },
-  routes: string,
+  routes: string | string[],
 ): Promise<[string, TranslationRecord]> => {
   const locale =
     req.cookies["NEXT_LOCALE"] ??

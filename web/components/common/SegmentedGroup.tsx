@@ -28,11 +28,10 @@ const SegmentedGroup: FC<SegmentedGroupProps> = ({
           [&>button,&>div,&>input]:border-0 
           [&>button,&>div,&>input]:not-first:border-l
           [&>button,&>div,&>input]:first:rounded-l-lg 
-          [&>button,&>div,&>input]:last:rounded-r-lg 
           [&>button,&>div,&>input]:border-outline
           [&>div.border-error]:outline [&>div.border-error]:outline-error 
-          [&>div.border-error]:border-none [&>div.border-error]:py-0`,
-        // [&>button,&>div,&>input]:last:rounded-r-lg [&>button]:bg-background`,
+          [&>div.border-error]:border-none [&>div.border-error]:py-0,
+          [&>button,&>div,&>input]:last:rounded-r-lg [&>button]:bg-background`,
         direction == "horizontal" ? "flex-row" : "flex-col",
         className,
       )}

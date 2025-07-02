@@ -1,12 +1,28 @@
 {
   "navigationBar": "???",
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "midnight": "Hi"
+  },
+  "orders": {
+    "ongoing": {
+      "title": "Ongoing",
+      "empty": "You have no active order in progress."
+    },
+    "finished": {
+      "title": "Completed",
+      "empty": "Orders completed will appear here."
+    }
+  },
   "orderHistory": "Order History",
   "orderButton": {
     "new": "New Order",
     "finish": "Finish Order"
   },
   "expiryWarning": {
-    "title": "You'll have 15 minutes to complete your order.",
-    "description": "If you don't complete your order within the 15-minute window, it will be automatically discarded and you'll need to start over."
+    "title": "New Order",
+    "description": "Finish your order in 15 minutes. Orders not finished in time won’t be saved — you’ll need to start over from the beginning."
   }
 }

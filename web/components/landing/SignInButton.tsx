@@ -58,7 +58,7 @@ const SignInButton = () => {
         alt="Google Logo"
         className="aspect-square"
       />
-      <span className="block w-full pr-3">{t("signInWithGoogle")}</span>
+      <span className="block w-full pr-3">{t("container.signInButton")}</span>
     </Button>
   );
 };

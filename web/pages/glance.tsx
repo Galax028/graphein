@@ -18,9 +18,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { type FC, useEffect, useState } from "react";
 
-const GlancePage: FC<PageProps> = () => {
+const GlancePage: FC<PageProps> = (props: { locale: string }) => {
   const router = useRouter();
-  const t = useTranslations();
+
+  const tx = useTranslations("common");
+  const t = useTranslations("glance");
 
   const [user, setUser] = useState<User | null>(null);
   const [ordersState, setOrdersState] = useState<OrdersGlance | null>(null);
@@ -48,7 +50,7 @@ const GlancePage: FC<PageProps> = () => {
         return router.push("/merchant");
       }
 
-      setUser(data);
+      setUser(data.data as User);
     };
 
     const fetchOrders = async () => {
@@ -84,86 +86,68 @@ const GlancePage: FC<PageProps> = () => {
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
-      <NavigationBar title={`${getGreetingMessage()}${user.name}`} />
-      <PageLoadTransition className="flex flex-col h-full overflow-auto gap-3 font-mono">
+      <NavigationBar
+        title={`${getGreetingMessage(t)}${
+          user
+            ? `${props.locale == "en" ? "," : ""} ${user.name}`
+            : ""
+        }`}
+      />
+      <PageLoadTransition className="flex flex-col w-full h-full overflow-auto gap-3 font-mono">
         <div
-          className={cn(
-            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
-          )}
+          className={cn(`flex flex-col p-3 gap-2 h-full overflow-auto pb-16`)}
         >
           {ordersState &&
-            sections.map((section, idx) => (
-              <LabelGroup header={section.label} key={idx}>
-                {section.orders.length !== 0 ? (
-                  section.orders.map((order: CompactOrder, idx) => (
-                    <motion.div
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        y: { type: "spring", bounce: 0 },
-                        delay: idx * 0.2,
-                      }}
-                      key={idx}
-                    >
-                      <Link key={order.id} href={`/order/detail/${order.id}`}>
-                        <OrderCard
-                          status={order.status}
-                          orderNumber={order.orderNumber}
-                          createdAt={order.createdAt}
-                          filesCount={order.filesCount}
-                          options={{
-                            showNavigationIcon: true,
+            [
+              {
+                label: t("orders.ongoing.title"),
+                data: ordersState.ongoing,
+                fallback: t("orders.ongoing.empty"),
+              },
+              {
+                label: t("orders.finished.title"),
+                data: ordersState.finished,
+                fallback: t("orders.finished.empty"),
+              },
+             ].map((i: any) => {
+              return (
+                <LabelGroup header={i.label} key={i.label}>
+                  {(i.data ?? []).length !== 0 ? (
+                    (i.data ?? []).map((order: any, idx: number) => (
+                      <Link href={`/order/detail/${order.id}`} key={order.id}>
+                        <motion.div
+                          initial={{ opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            y: { type: "spring", bounce: 0 },
+                            delay: idx * 0.2,
                           }}
-                        />
+                        >
+                          <OrderCard
+                            status={order.status}
+                            orderNumber={order.orderNumber}
+                            filesCount={order.filesCount}
+                            createdAt={order.createdAt}
+                            options={{
+                              showStatusText: true,
+                              showProgressBar: true,
+                              showNavigationIcon: true,
+                            }}
+                          />
+                        </motion.div>
                       </Link>
-                    </motion.div>
-                  ))
-                ) : (
-                  <OrderEmptyCard text={section.fallback} />
-                )}
-              </LabelGroup>
-            ))}
+                    ))
+                  ) : (
+                    <OrderEmptyCard text={i.fallback} />
+                  )}
+                </LabelGroup>
+              );
+            })}
           <Link href="/order/history">
             <Button appearance={"tonal"} icon={"history"} className="w-full">
               {t("orderHistory")}
             </Button>
           </Link>
-
-          {/* DEV: Fetch logs */}
-          {process.env.NODE_ENV === "development" && (
-            <LabelGroup header="Developer Log">
-              <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
-                <b>
-                  <a
-                    className="!font-mono break-all"
-                    href={process.env.NEXT_PUBLIC_API_PATH + "/user"}
-                    target="_blank"
-                  >
-                    {process.env.NEXT_PUBLIC_API_PATH + "/user"}
-                  </a>
-                </b>
-                <br />
-                <span className="!font-mono break-all">
-                  {JSON.stringify(user)}
-                </span>
-                <br />
-                <br />
-                <b>
-                  <a
-                    className="!font-mono break-all"
-                    href={process.env.NEXT_PUBLIC_API_PATH + "/orders/glance"}
-                    target="_blank"
-                  >
-                    {process.env.NEXT_PUBLIC_API_PATH + "/orders/glance"}
-                  </a>
-                </b>
-                <br />
-                <span className="!font-mono break-all">
-                  {JSON.stringify(ordersState)}
-                </span>
-              </div>
-            </LabelGroup>
-          )}
         </div>
         <div className="fixed p-3 bottom-0 w-full flex flex-col h-16 max-w-lg">
           <Button
@@ -193,11 +177,11 @@ const GlancePage: FC<PageProps> = () => {
               appearance="tonal"
               onClick={() => setShowNewOrderWarningDialog(false)}
             >
-              Cancel
+              {tx("action.nevermind")}
             </Button>
             <Link href={"/order/new"} className="w-full">
               <Button appearance="filled" className="w-full">
-                OK
+                {tx("action.start")}
               </Button>
             </Link>
           </Dialog>
@@ -207,11 +191,11 @@ const GlancePage: FC<PageProps> = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
-  const [locale, translations] = await getServerSideTranslations(
-    context.req,
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
     "glance",
-  );
+  ]);
 
   return { props: { locale, translations } };
 };

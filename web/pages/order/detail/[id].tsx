@@ -9,8 +9,10 @@ import cn from "@/utils/helpers/cn";
 import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
 import getLoggedInUser from "@/utils/helpers/common/getLoggedInUser";
 import type { DetailedOrder, User } from "@/utils/types/backend";
+import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { OrderStatus } from "@/utils/types/common";
 import type { GetServerSideProps } from "next";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
 import { type FC, useEffect, useState } from "react";
 
@@ -20,6 +22,7 @@ type OrderDetailsPageProps = {
 
 const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ user }) => {
   const router = useRouter();
+  const tx = useTranslations("common")
 
   const [detailedOrder, setDetailedOrder] = useState<DetailedOrder | null>(
     null,
@@ -80,7 +83,7 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ user }) => {
   return (
     <>
       <NavigationBar
-        title={`Order #${detailedOrder.orderNumber}`}
+        title={tx("orderCard.title", { orderNumber: detailedOrder.orderNumber ?? "" })}
         backEnabled={true}
         user={user}
       />
@@ -184,10 +187,12 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ user }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (req) => {
-  const user = await getLoggedInUser(req);
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
+  ]);
 
-  return { props: { user } };
+  return { props: { locale, translations } };
 };
 
 export default OrderDetailsPage;

@@ -5,6 +5,7 @@ import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
 import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
 import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import generateFileUploadURL from "@/utils/helpers/order/new/generateFileUploadURL";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -90,10 +91,10 @@ const BuildOrderPage = () => {
 
     console.error(orderId, timeDiff);
 
-    // if (orderId != null) {
-    //   generateFileUploadURL(orderId, "TestFile_Draft01", "pdf", 123456);
-    // }
-  }, [orderId, timeDiff]);
+    if (orderId != null) {
+      generateFileUploadURL(orderId, "TestFile_Draft01", "pdf", 123456);
+    }
+  }, []);
 
   // Update stage state upon URL change.
   useEffect(() => {

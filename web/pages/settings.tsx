@@ -1,20 +1,22 @@
 import Button from "@/components/common/Button";
+import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
+import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import type { User } from "@/utils/types/backend";
-import type { PageProps } from "@/utils/types/common";
-import type { GetServerSideProps } from "next";
+import { User } from "@/utils/types/backend";
+import { AnimatePresence } from "motion/react";
+import { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { type FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-const SettingsPage: FC<PageProps> = () => {
+const SettingsPage = (props: { locale: string }) => {
   const router = useRouter();
-  const t = useTranslations();
+  const tx = useTranslations("common");
+  const t = useTranslations("settings");
 
   const [user, setUser] = useState<User | null>();
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
@@ -24,7 +26,16 @@ const SettingsPage: FC<PageProps> = () => {
   const [classroom, setClassroom] = useState<string | null>("");
   const [classroomNo, setClassroomNo] = useState<string | null>("");
 
-  const handleUpdateProfileSettings = async () => {
+  const [language, setLanguage] = useState(props.locale);
+
+  const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
+
+  const changeLanguage = (lang: string) => {
+    setLanguage(lang);
+    router.replace(`${router.asPath}?lang=${lang}`);
+  };
+
+  const handleUpdateProfileSettings = async (role: User) => {
     const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
       method: "PUT",
       credentials: "include",
@@ -146,7 +157,7 @@ const SettingsPage: FC<PageProps> = () => {
                 </LabelGroup>
                 <Button
                   appearance="filled"
-                  onClick={handleUpdateProfileSettings}
+                  onClick={() => handleUpdateProfileSettings}
                   className="w-full"
                   icon="save"
                   busy={busy}
@@ -157,14 +168,35 @@ const SettingsPage: FC<PageProps> = () => {
             </LabelGroup>
           </>
         )}
+        <LabelGroup header={t("appearanceSettings.title")}>
+          <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
+            <LabelGroup header={t("appearanceSettings.language")}>
+              <SegmentedGroup>
+                <Button
+                  selected={language == "th"}
+                  appearance={"tonal"}
+                  onClick={() => changeLanguage("th")}
+                >
+                  ไทย
+                </Button>
+                <Button
+                  selected={language == "en"}
+                  appearance={"tonal"}
+                  onClick={() => changeLanguage("en")}
+                >
+                  English
+                </Button>
+              </SegmentedGroup>
+            </LabelGroup>
+          </div>
+        </LabelGroup>
         <Button
           appearance="tonal"
-          onClick={handleSignOut}
+          onClick={() => setShowSignOutDialog(true)}
           className="w-full text-error"
-          icon="logout"
-          busy={busy}
+          icon={"logout"}
         >
-          {t("signOut")}
+          {t("signOut.button")}
         </Button>
         <LabelGroup header="Developer Log">
           <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
@@ -182,17 +214,39 @@ const SettingsPage: FC<PageProps> = () => {
           </div>
         </LabelGroup>
       </PageLoadTransition>
+      <AnimatePresence>
+        {showSignOutDialog && (
+          <Dialog
+            title={t("signOut.title")}
+            desc={t("signOut.description")}
+            setClickOutside={setShowSignOutDialog}
+          >
+            <Button
+              appearance="tonal"
+              onClick={() => setShowSignOutDialog(false)}
+            >
+              {tx("action.nevermind")}
+            </Button>
+            <Button
+              appearance="filled"
+              onClick={handleSignOut}
+              busy={busy}
+              busyWithText={false}
+            >
+              {t("signOut.title")}
+            </Button>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context,
-) => {
-  const [locale, translations] = await getServerSideTranslations(
-    context.req,
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
     "settings",
-  );
+  ]);
 
   return { props: { locale, translations } };
 };

@@ -1,0 +1,19 @@
+{
+  "action": {
+    "ok": "OK",
+    "start": "Start",
+    "cancel": "Cancel",
+    "nevermind": "Nevermind"
+  },
+  "orderCard": {
+    "status": {
+      "reviewing": "Reviewing",
+      "processing": "Printing",
+      "ready": "Pickup",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "title": "Order #{orderNumber}"
+  }
+}

@@ -4,6 +4,7 @@ import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
 import type { OrderStatus } from "@/utils/types/common";
 import { motion } from "motion/react";
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 
 type OrderCardProps = {
   status: "building" | OrderStatus;
@@ -34,6 +35,8 @@ const OrderCard: FC<OrderCardProps> = ({
   createdAt,
   options,
 }) => {
+  const t = useTranslations("common");
+
   const statusTranslation: Record<"building" | OrderStatus, string> = {
     building: "Building Order",
     reviewing: "Reviewing",
@@ -73,10 +76,12 @@ const OrderCard: FC<OrderCardProps> = ({
                   "text-error opacity-100",
               )}
             >
-              {statusTranslation[status]}
+              {t(`orderCard.status.${status}`)}
             </p>
           )}
-          <p>Order #{orderNumber}</p>
+          <p>
+            {t("orderCard.title", { orderNumber: orderNumber ?? "" })}
+          </p>
           <p className="text-body-sm opacity-50">
             {getDateTimeString(new Date(createdAt))} • {filesCount} File
             {filesCount != 1 && filesCount != -1 && "s"}
@@ -111,10 +116,10 @@ const OrderCard: FC<OrderCardProps> = ({
             [&>p]:text-center`,
             )}
           >
-            <p className="!text-left">Reviewing</p>
-            <p>Printing</p>
-            <p>Pickup</p>
-            <p className="!text-right">Completed</p>
+            <p className="!text-left">{t("orderCard.status.reviewing")}</p>
+            <p>{t("orderCard.status.processing")}</p>
+            <p>{t("orderCard.status.ready")}</p>
+            <p className="!text-right">{t("orderCard.status.completed")}</p>
           </div>
         </div>
       )}

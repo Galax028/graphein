@@ -30,7 +30,7 @@ const LandingPage: FC<PageProps> = (props: { locale: string }) => {
         })}
       />
       <div className="flex flex-col justify-between flex-grow p-3 md:p-0">
-        <div className="md:grid md:place-items-center md:flex-grow">
+        <div className="md:grid md:place-items-center md:flex-grow md:w-[24rem] md:m-auto">
           <div
             className={cn(
               `flex flex-col gap-3 md:border md:border-outline 
@@ -38,37 +38,14 @@ const LandingPage: FC<PageProps> = (props: { locale: string }) => {
             )}
           >
             <div className="flex flex-col gap-1">
-              <h1 className="text-title-md">{t("signIn")}</h1>
-              <p className="opacity-50">{t("emailHint")}</p>
+              <h1 className="text-title-md">{t("container.title")}</h1>
+              <p className="opacity-50">{t("container.description")}</p>
             </div>
             <SignInButton />
           </div>
         </div>
         <div className="flex flex-col gap-3 md:w-[24rem] md:my-4 md:m-auto">
-          {process.env.NODE_ENV === "development" && (
-            <LabelGroup header="Dev Links">
-              <div
-                className={cn(
-                  `flex gap-2 m-auto w-full px-4 py-2 h-10 border border-outline 
-                  bg-surface-container rounded-lg`,
-                )}
-              >
-                <Link href={"/glance"}>
-                  <p className="text-body-md">/glance</p>
-                </Link>
-                <Link href={"/merchant"}>
-                  <p className="text-body-md">/merchant</p>
-                </Link>
-                <Link href={"/settings"}>
-                  <p className="text-body-md">/settings</p>
-                </Link>
-                <Link href={"/markdown"}>
-                  <p className="text-body-md">/markdown</p>
-                </Link>
-              </div>
-            </LabelGroup>
-          )}
-          <LabelGroup header="Language">
+          <LabelGroup header={t("language")}>
             <SegmentedGroup>
               <Button
                 selected={language == "th"}
