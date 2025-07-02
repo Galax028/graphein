@@ -133,6 +133,7 @@ const GlancePage: FC<PageProps> = (props: { locale: string }) => {
                               showProgressBar: true,
                               showNavigationIcon: true,
                             }}
+                            locale={props.locale}
                           />
                         </motion.div>
                       </Link>

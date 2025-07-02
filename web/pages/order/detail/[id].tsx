@@ -17,12 +17,13 @@ import { useRouter } from "next/router";
 import { type FC, useEffect, useState } from "react";
 
 type OrderDetailsPageProps = {
+  locale: string;
   user: User;
 };
 
-const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ user }) => {
+const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ locale, user }) => {
   const router = useRouter();
-  const tx = useTranslations("common")
+  const tx = useTranslations("common");
 
   const [detailedOrder, setDetailedOrder] = useState<DetailedOrder | null>(
     null,
@@ -83,7 +84,9 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ user }) => {
   return (
     <>
       <NavigationBar
-        title={tx("orderCard.title", { orderNumber: detailedOrder.orderNumber ?? "" })}
+        title={tx("orderCard.title", {
+          orderNumber: detailedOrder.orderNumber ?? "",
+        })}
         backEnabled={true}
         user={user}
       />
@@ -100,6 +103,7 @@ const OrderDetailsPage: FC<OrderDetailsPageProps> = ({ user }) => {
                   options={{
                     showProgressBar: true,
                   }}
+                  locale={locale}
                 />
                 <DropDownCard header="About Order">
                   <DescriptionList data={aboutOrderProps} />

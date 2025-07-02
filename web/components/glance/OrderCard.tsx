@@ -16,6 +16,7 @@ type OrderCardProps = {
     showProgressBar?: boolean;
     showNavigationIcon?: boolean;
   };
+  locale?: string;
 };
 
 /**
@@ -27,6 +28,10 @@ type OrderCardProps = {
  * @param createdAt     Created at timestamp. (UTC)
  * @param options       A boolean value to show or hide views. {option: boolean}
  *                      [showStatusText | showProgressBar | showNavigationIcon]
+ * @param locale        Locale is used to determine the progress bar's width in 
+ *                      the 'reviewing' stage. If component is showing the 
+ *                      progress bar and 'reviewing' order stage is possible, 
+ *                      do include locale. (Optional, default: 'en')
  */
 const OrderCard: FC<OrderCardProps> = ({
   status = "building",
@@ -34,6 +39,7 @@ const OrderCard: FC<OrderCardProps> = ({
   filesCount,
   createdAt,
   options,
+  locale = "en",
 }) => {
   const t = useTranslations("common");
 
@@ -52,7 +58,12 @@ const OrderCard: FC<OrderCardProps> = ({
     { width: string; color: string }
   > = {
     building: { width: "", color: "" },
-    reviewing: { width: "28.96px", color: "bg-warning" },
+    reviewing: {
+      // A check for language is nescessary to align the progress indicator
+      // with the middle of the localized text.
+      width: locale == "en" ? "28.96px" : "27.47px",
+      color: "bg-warning",
+    },
     processing: { width: "37.5%", color: "bg-warning" },
     ready: { width: "62.5%", color: "bg-success" },
     completed: { width: "100%", color: "bg-success" },
@@ -79,9 +90,7 @@ const OrderCard: FC<OrderCardProps> = ({
               {t(`orderCard.status.${status}`)}
             </p>
           )}
-          <p>
-            {t("orderCard.title", { orderNumber: orderNumber ?? "" })}
-          </p>
+          <p>{t("orderCard.title", { orderNumber: orderNumber ?? "" })}</p>
           <p className="text-body-sm opacity-50">
             {getDateTimeString(new Date(createdAt))} • {filesCount} File
             {filesCount != 1 && filesCount != -1 && "s"}
