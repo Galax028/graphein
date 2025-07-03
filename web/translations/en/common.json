@@ -3,7 +3,9 @@
     "ok": "OK",
     "start": "Start",
     "cancel": "Cancel",
-    "nevermind": "Nevermind"
+    "nevermind": "Nevermind",
+    "next": "Next",
+    "signOut": "Sign Out"
   },
   "orderCard": {
     "status": {
@@ -15,5 +17,17 @@
       "cancelled": "Cancelled"
     },
     "title": "Order #{orderNumber}"
+  },
+  "userSettings": {
+    "title": "About You",
+    "description": "You cannot change your profile picture, name, or email here because they're synced with your Google account—please update them in your Google account settings.",
+    "profile": "Profile Picture",
+    "name": "Name",
+    "email": "Email",
+    "tel": "Phone Number",
+    "classAndNo": "Class / No.",
+    "class": "M.",
+    "no": "No.",
+    "save": "Save"
   }
 }

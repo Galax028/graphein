@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from "react";
 
 type LabelGroupProps = {
-  header: string;
+  header?: string;
   footer?: string;
   // key?: number;
   children: ReactNode;
@@ -16,7 +16,7 @@ type LabelGroupProps = {
  */
 const LabelGroup: FC<LabelGroupProps> = ({ header, footer, children }) => (
   <div className="flex flex-col gap-1">
-    <p className="text-body-sm opacity-50">{header}</p>
+    {header && <p className="text-body-sm opacity-50">{header}</p>}
     {children}
     {footer && <p className="text-body-sm opacity-50">{footer}</p>}
   </div>

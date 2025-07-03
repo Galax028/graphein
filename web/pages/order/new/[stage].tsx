@@ -6,14 +6,15 @@ import cn from "@/utils/helpers/cn";
 import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 import generateFileUploadURL from "@/utils/helpers/order/new/generateFileUploadURL";
+import type { PageProps } from "@/utils/types/common";
 import useUserContext from "@/utils/useUserContext";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-const BuildOrderPage = () => {
+const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
   const user = useUserContext();
 

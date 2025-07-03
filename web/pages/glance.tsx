@@ -58,8 +58,8 @@ const GlancePage: FC<PageProps> = () => {
         user={user}
         title={t(getGreetingMessage(), { name: user.name })}
       />
-      <PageLoadTransition className="flex-grow justify-between">
-        <div className="flex flex-col gap-2">
+      <PageLoadTransition>
+        <div className="flex flex-col gap-2 mb-12">
           {sections.map((section, idx) => (
             <LabelGroup header={section.label} key={idx}>
               {section.orders.length !== 0 ? (
@@ -97,19 +97,22 @@ const GlancePage: FC<PageProps> = () => {
             </Button>
           </Link>
         </div>
-        <Button
-          appearance={"filled"}
-          icon={isOrderExpired ? "add" : "check"}
-          onClick={() => {
-            if (isOrderExpired) {
-              setShowNewOrderWarningDialog(true);
-            } else {
-              router.push("/order/new");
-            }
-          }}
-        >
-          {t(isOrderExpired ? "orderButton.new" : "orderButton.finish")}
-        </Button>
+        <div className="fixed px-3 w-full left-0 right-0 bottom-3">
+          <Button
+            className="w-full"
+            appearance={"filled"}
+            icon={isOrderExpired ? "add" : "check"}
+            onClick={() => {
+              if (isOrderExpired) {
+                setShowNewOrderWarningDialog(true);
+              } else {
+                router.push("/order/new");
+              }
+            }}
+          >
+            {t(isOrderExpired ? "orderButton.new" : "orderButton.finish")}
+          </Button>
+        </div>
       </PageLoadTransition>
       <AnimatePresence>
         {showNewOrderWarningDialog && (

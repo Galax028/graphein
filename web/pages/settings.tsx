@@ -3,11 +3,13 @@ import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
+import UserProfileSettings from "@/components/settings/UserProfileSettings";
+import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
 import useUserContext from "@/utils/useUserContext";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
@@ -72,74 +74,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
         backEnabled={true}
       />
       <PageLoadTransition className="flex flex-col gap-3 p-3">
-        <LabelGroup
-          header={t("userSettings.title")}
-          footer={t("userSettings.description")}
-        >
-          <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
-            <LabelGroup header={t("userSettings.profile")}>
-              <div className="m-auto">
-                <PersonAvatar
-                  profileUrl={user?.profileUrl}
-                  personName={user?.name}
-                  size={96}
-                />
-              </div>
-            </LabelGroup>
-            <LabelGroup header={t("userSettings.name")}>
-              <input
-                value={user?.name}
-                className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
-                disabled
-              />
-            </LabelGroup>
-            <LabelGroup header={t("userSettings.email")}>
-              <input
-                value={user?.email}
-                className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
-                disabled
-              />
-            </LabelGroup>
-            <LabelGroup header={t("userSettings.tel")}>
-              <input
-                value={phone ?? ""}
-                className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </LabelGroup>
-            <LabelGroup header={t("userSettings.classAndNo")}>
-              <SegmentedGroup>
-                <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                  <p>{t("userSettings.class")}</p>
-                </div>
-                <input
-                  value={classroom ?? ""}
-                  onChange={(e) => setClassroom(e.target.value)}
-                  type="text"
-                  className="w-full p-2 bg-background text-body-md"
-                />
-                <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                  <p>{t("userSettings.no")}</p>
-                </div>
-                <input
-                  value={classroomNo ?? ""}
-                  onChange={(e) => setClassroomNo(e.target.value)}
-                  type="text"
-                  className="w-full p-2 bg-background text-body-md"
-                />
-              </SegmentedGroup>
-            </LabelGroup>
-            <Button
-              appearance="filled"
-              onClick={handleUpdateProfileSettings}
-              className="w-full"
-              icon="save"
-              busy={busy}
-            >
-              {t("userSettings.save")}
-            </Button>
-          </div>
-        </LabelGroup>
+        <UserProfileSettings user={user} />
         <LabelGroup header={t("appearanceSettings.title")}>
           <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
             <LabelGroup header={t("appearanceSettings.language")}>
@@ -168,7 +103,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
           className="w-full text-error"
           icon={"logout"}
         >
-          {t("signOut.button")}
+          {tx("action.signOut")}
         </Button>
         <LabelGroup header="Developer Log">
           <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
@@ -220,7 +155,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     "settings",
   ]);
 
-  return { props: { locale, translations } };
+  const queryClient = new QueryClient();
+  const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
+  const signedIn = await prefetchUser(queryClient, sessionToken);
+  if (signedIn)
+    return {
+      props: { locale, translations, dehydratedState: dehydrate(queryClient) },
+    };
+
+  return { redirect: { destination: "/", permanent: false } };
 };
 
 export default SettingsPage;

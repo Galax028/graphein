@@ -1,24 +1,11 @@
 {
   "navigationBar": "Settings",
-  "userSettings": {
-    "title": "About You",
-    "description": "You cannot change your profile picture, name, or email here because they're synced with your Google account—please update them in your Google account settings.",
-    "profile": "Profile Picture",
-    "name": "Name",
-    "email": "Email",
-    "tel": "Phone Number",
-    "classAndNo": "Class / No.",
-    "class": "M.",
-    "no": "No.",
-    "save": "Save"
-  },
   "appearanceSettings": {
     "title": "Appearance",
     "language": "Language"
   },
   "signOut": {
-    "button": "Sign Out",
     "title": "Sign Out",
-    "description": "When you sign out, You won’t see your ongoing orders until you sign in again."
+    "description": "When you sign out, You won't see your ongoing orders until you sign in again."
   }
 }

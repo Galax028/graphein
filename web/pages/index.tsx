@@ -98,10 +98,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
         permanent: false,
       },
     };
-  } else
-    return {
-      props: { locale, translations, dehydratedState: dehydrate(queryClient) },
-    };
+  }
+
+  return {
+    props: { locale, translations, dehydratedState: dehydrate(queryClient) },
+  };
 };
 
 export default LandingPage;
