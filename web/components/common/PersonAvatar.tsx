@@ -1,8 +1,8 @@
+import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
 import getInitialsOfName from "@/utils/helpers/getInitialsOfName";
 import Image from "next/image";
 import type { FC } from "react";
-import MaterialIcon from "./MaterialIcon";
 
 type PersonAvatarProps = {
   profileUrl?: string;

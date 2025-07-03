@@ -1,8 +1,8 @@
+import Button from "@/components/common/Button";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import type { FC } from "react";
-import Button from "../common/Button";
 
 /**
  * The sign in button using the application's design language.

@@ -1,4 +1,9 @@
-import type { FileType, OrderStatus, UserRole, Uuid } from "./common";
+import type {
+  FileType,
+  OrderStatus,
+  UserRole,
+  Uuid,
+} from "@/utils/types/common";
 
 export type SuccessAPIResponse<T extends object> = {
   success: true;

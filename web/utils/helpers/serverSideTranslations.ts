@@ -1,6 +1,6 @@
+import type { TranslationRecord } from "@/utils/types/common";
 import type { IncomingMessage } from "http";
 import type { NextApiRequestCookies } from "next/dist/server/api-utils";
-import type { TranslationRecord } from "../types/common";
 
 const getServerSideTranslations = async (
   req: IncomingMessage & {

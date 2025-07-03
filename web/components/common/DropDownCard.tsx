@@ -1,7 +1,7 @@
+import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
 import { AnimatePresence, motion } from "motion/react";
 import { type FC, ReactNode, useState } from "react";
-import MaterialIcon from "./MaterialIcon";
 
 type DropDownCardProps = {
   header: string;
