@@ -3,32 +3,29 @@ import type { Locale } from "next-intl";
 const getFormattedDateTime = (
   locale: Locale,
   date: Date,
-  {
-    returnDate = true,
-    returnTime = true,
-  }: {
+  options: {
     returnDate?: boolean;
     returnTime?: boolean;
-  },
+  } = { returnDate: true, returnTime: true },
 ) => {
   let dateString = "";
   let timeString = "";
 
-  if (returnDate)
+  if (options.returnDate)
     dateString = date.toLocaleDateString(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
 
-  if (returnTime)
+  if (options.returnTime)
     timeString = date.toLocaleTimeString(locale === "en" ? "en-GB" : locale, {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
     });
 
-  if (returnDate && returnTime) return `${dateString}, ${timeString}`;
+  if (options.returnDate && options.returnTime) return `${dateString}, ${timeString}`;
   return dateString || timeString;
 };
 
