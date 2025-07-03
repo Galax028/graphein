@@ -1,14 +1,14 @@
-const getGreetingMessage = (t: any, username: string): string => {
+const getGreetingMessage = (): string => {
   const hour = new Date().getHours();
 
   if (hour >= 19 || (hour >= 0 && hour <= 3)) {
-    return t("greeting.midnight", { username });
+    return "greeting.midnight";
   } else if (hour >= 16) {
-    return t("greeting.evening", { username });
+    return "greeting.evening";
   } else if (hour >= 12) {
-    return t("greeting.afternoon", { username });
+    return "greeting.afternoon";
   } else {
-    return t("greeting.morning", { username });
+    return "greeting.morning";
   }
 };
 

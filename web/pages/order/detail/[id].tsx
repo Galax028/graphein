@@ -11,17 +11,18 @@ import {
 } from "@/query/fetchDetailedOrder";
 import { prefetchUser } from "@/query/fetchUser";
 import cn from "@/utils/helpers/cn";
-import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
+import getFormattedDateTime from "@/utils/helpers/getFormattedDateTime";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { OrderStatus, PageProps, Uuid } from "@/utils/types/common";
 import useUserContext from "@/utils/useUserContext";
 import { QueryClient } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 
 const OrderDetailsPage: FC<{ orderId: Uuid }> = ({ orderId }) => {
   const user = useUserContext();
+  const locale = useLocale();
   const tx = useTranslations("common");
 
   const { data: detailedOrder, status } = useDetailedOrderQuery(orderId);
@@ -34,7 +35,7 @@ const OrderDetailsPage: FC<{ orderId: Uuid }> = ({ orderId }) => {
   const aboutOrderProps = [
     {
       title: "Created",
-      content: getDateTimeString(createdTimestamp),
+      content: getFormattedDateTime(locale, createdTimestamp),
     },
     {
       title: "Price",
@@ -97,7 +98,10 @@ const OrderDetailsPage: FC<{ orderId: Uuid }> = ({ orderId }) => {
                           {statusTranslation[item.status]}
                         </p>
                         <p className="text-body-md">
-                          {getDateTimeString(new Date(item.timestamp))}
+                          {getFormattedDateTime(
+                            locale,
+                            new Date(item.timestamp),
+                          )}
                         </p>
                       </>
                     ))}

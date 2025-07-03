@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import getShortenedFileSizeString from "@/utils/helpers/order/details/getShortenedFileSizeString";
+import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import type { FileType } from "@/utils/types/common";
 import { motion } from "motion/react";
 import Image from "next/image";
@@ -110,7 +110,7 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
             </p>
             <p className="text-body-sm opacity-50">
               {copies} {copies != 1 ? "copies" : "copy"} •{" "}
-              {filetype.toUpperCase()} • {getShortenedFileSizeString(filesize)}
+              {filetype.toUpperCase()} • {getFormattedFilesize(filesize)}
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import cn from "@/utils/helpers/cn";
-import getInitialsOfString from "@/utils/helpers/common/getInitialsOfString";
+import getInitialsOfName from "@/utils/helpers/getInitialsOfName";
 import Image from "next/image";
 import type { FC } from "react";
 import MaterialIcon from "./MaterialIcon";
@@ -41,7 +41,7 @@ const PersonAvatar: FC<PersonAvatarProps> = ({
         className="aspect-square w-full h-full object-cover"
       />
     ) : personName ? (
-      <span className="text-body-sm">{getInitialsOfString(personName)}</span>
+      <span className="text-body-sm">{getInitialsOfName(personName)}</span>
     ) : (
       <MaterialIcon icon="account_circle" />
     )}

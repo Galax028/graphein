@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import getDateTimeString from "@/utils/helpers/common/getDateTimeString";
+import getFormattedDateTime from "@/utils/helpers/getFormattedDateTime";
 import type { OrderStatus } from "@/utils/types/common";
 import { motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
@@ -81,7 +81,8 @@ const OrderCard: FC<OrderCardProps> = ({
           )}
           <p>{t("orderCard.title", { orderNumber: orderNumber ?? "" })}</p>
           <p className="text-body-sm opacity-50">
-            {getDateTimeString(new Date(createdAt))} • {filesCount} File
+            {getFormattedDateTime(locale, new Date(createdAt))} • {filesCount}{" "}
+            File
             {filesCount != 1 && filesCount != -1 && "s"}
           </p>
         </div>

@@ -3,7 +3,7 @@ import Dialog from "@/components/common/Dialog";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
-import getShortenedFileSizeString from "@/utils/helpers/order/details/getShortenedFileSizeString";
+import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 import generateFileUploadURL from "@/utils/helpers/order/new/generateFileUploadURL";
 import useUserContext from "@/utils/useUserContext";
@@ -164,7 +164,7 @@ const BuildOrderPage = () => {
                         <p className="text-body-sm text-warning">Uploading</p>
                         <p>{file.name}</p>
                         <p className="text-body-sm opacity-50">
-                          {file.type} • {getShortenedFileSizeString(file.size)}
+                          {file.type} • {getFormattedFilesize(file.size)}
                         </p>
                       </div>
                     </motion.div>

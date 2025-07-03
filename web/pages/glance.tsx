@@ -65,7 +65,10 @@ const GlancePage: FC<PageProps> = () => {
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
-      <NavigationBar user={user} title={getGreetingMessage(t, user.name)} />
+      <NavigationBar
+        user={user}
+        title={t(getGreetingMessage(), { username: user.name })}
+      />
       <PageLoadTransition className="flex flex-col h-full overflow-auto gap-3 font-mono">
         <div
           className={cn(`flex flex-col p-3 gap-2 h-full overflow-auto pb-16`)}

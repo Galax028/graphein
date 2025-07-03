@@ -1,10 +1,10 @@
 {
   "navigationBar": "???",
   "greeting": {
-    "morning": "Good morning, {username}",
-    "afternoon": "Good afternoon, {username}",
-    "evening": "Good evening, {username}",
-    "midnight": "Hi, {username}"
+    "morning": "Good morning, {name}",
+    "afternoon": "Good afternoon, {name}",
+    "evening": "Good evening, {name}",
+    "midnight": "Hi, {name}"
   },
   "orders": {
     "ongoing": {
