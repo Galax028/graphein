@@ -80,6 +80,11 @@
     "opsz" 24;
 }
 
+.material-symbols-outlined.filled {
+  font-variation-settings:
+    "FILL" 1;
+}
+
 * {
   font-family: "Inter Variable", "Inter Thai Loopless", sans-serif;
   font-feature-settings:
