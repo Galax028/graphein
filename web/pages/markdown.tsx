@@ -1,4 +1,5 @@
 import Button from "@/components/common/Button";
+import Checkbox from "@/components/common/Checkbox";
 import Dialog from "@/components/common/Dialog";
 import DropDownCard from "@/components/common/DropDownCard";
 import MaterialIcon from "@/components/common/MaterialIcon";
@@ -17,6 +18,7 @@ const MarkdownPage: FC<PageProps> = () => {
   const [alphabet, setAlphabet] = useState("a");
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [checkbox, setCheckbox] = useState(false)
 
   const [count, setCount] = useState(0);
   const [textInput, setTextInput] = useState("");
@@ -29,6 +31,8 @@ const MarkdownPage: FC<PageProps> = () => {
         <title>Printing Facility</title>
       </Head>
       <main className="m-3">
+        <Checkbox checked={checkbox} setValue={setCheckbox} />
+        <Checkbox checked={checkbox} setValue={setCheckbox} appearance="indeterminate" />
         <p className="m-3">
           The quick brown fox jumps over the lazy dog.
           <br />

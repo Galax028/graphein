@@ -37,14 +37,14 @@ const OrderHistoryPage: FC<PageProps> = () => {
     <>
       <NavigationBar
         user={user}
-        title="Order History"
+        title={t("navigationBar")}
         backEnabled={true}
         backContextURL={"/glance"}
       />
       <PageLoadTransition>
-        <LabelGroup header={"Previous 30 days"}>
+        <LabelGroup header={t("withinLastMonth")}>
           {data.pages.length === 0 ? (
-            <OrderEmptyCard text={`Orders completed will appear here.`} />
+            <OrderEmptyCard text={t("empty")} />
           ) : (
             data.pages
               .flatMap((page) => page.orders)
@@ -92,10 +92,9 @@ const OrderHistoryPage: FC<PageProps> = () => {
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
-  // TODO: translations
   const [locale, translations] = await getServerSideTranslations(context.req, [
     "common",
-    "index", // TODO
+    "history",
   ]);
 
   const queryClient = new QueryClient();
