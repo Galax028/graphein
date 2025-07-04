@@ -4,15 +4,19 @@ import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import OrderCard from "@/components/glance/OrderCard";
 import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
 import cn from "@/utils/helpers/cn";
+import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
+import type { GetServerSideProps } from "next";
 import { CompactOrder } from "@/utils/types/backend";
 import type { PageProps } from "@/utils/types/common";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { type FC, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 const OrderHistoryPage: FC<PageProps> = () => {
   const [orderHistory, setOrderHistory] = useState<CompactOrder[] | null>(null);
   // const [orderHistoryPage, setOrderHistoryPage] = useState(1);
+  const t = useTranslations("history");
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -44,7 +48,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar
-        title="Order History"
+        title={t("navigationBar")}
         backEnabled={true}
         backContextURL={"/glance"}
       />
@@ -55,7 +59,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
           )}
         >
           {orderHistory && (
-            <LabelGroup header={"Previous 30 days"}>
+            <LabelGroup header={t("withinLastMonth")}>
               {orderHistory.length != 0 ? (
                 orderHistory.map((order, idx) => {
                   return (
@@ -83,7 +87,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
                   );
                 })
               ) : (
-                <OrderEmptyCard text={`Orders completed will appear here.`} />
+                <OrderEmptyCard text={t("empty")} />
               )}
             </LabelGroup>
           )}
@@ -91,6 +95,14 @@ const OrderHistoryPage: FC<PageProps> = () => {
       </PageLoadTransition>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [locale, translations] = await getServerSideTranslations(context.req, [
+    "history",
+  ]);
+
+  return { props: { locale, translations } };
 };
 
 export default OrderHistoryPage;

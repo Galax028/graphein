@@ -1,5 +1,5 @@
 {
-    "navigationBar": "Order Histtory",
+    "navigationBar": "Order History",
     "withinLastMonth": "Previous 30 days",
     "withinLastWeek": "Previous 7 days",
     "empty": "Orders completed will appear here."
