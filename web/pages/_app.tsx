@@ -14,20 +14,16 @@ import type { AppProps } from "next/app";
 import { type FC, type ReactNode, useState } from "react";
 
 const UserContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const userQuery = useUserQuery();
+  const { data: user, error, status } = useUserQuery();
 
   // TODO: loading page?
-  if (userQuery.isPending) return <></>;
+  if (status === "pending") return <h1>loading</h1>;
 
   // TODO: proper error handling
-  if (userQuery.isError)
-    return <h1>Error while fetching user: {String(userQuery.error)}</h1>;
+  if (status === "error")
+    return <h1>Error while fetching user: {error.message}</h1>;
 
-  return (
-    <UserContext.Provider value={userQuery.data}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 };
 
 const App: FC<AppProps<PageProps>> = ({ Component, pageProps }) => {

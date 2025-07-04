@@ -1,17 +1,31 @@
 import type { APIResponse, User } from "@/utils/types/backend";
 import { type QueryClient, useQuery } from "@tanstack/react-query";
 
-export const prefetchUser = async (
+export async function prefetchUser(
   queryClient: QueryClient,
   sessionToken: string,
-): Promise<boolean> => {
+  options: { returnUser: true },
+): Promise<User | null>;
+export async function prefetchUser(
+  queryClient: QueryClient,
+  sessionToken: string,
+  options?: { returnUser?: false },
+): Promise<boolean>;
+export async function prefetchUser(
+  queryClient: QueryClient,
+  sessionToken: string,
+  options: { returnUser?: boolean } = { returnUser: false },
+): Promise<(User | null) | boolean> {
   const user = await queryClient.fetchQuery({
     queryKey: ["user"],
     queryFn: () => fetchUser({ headers: { Cookie: sessionToken } }),
+    gcTime: Infinity,
+    staleTime: Infinity,
   });
 
-  return user !== null;
-};
+  if (options.returnUser) return user;
+  else return user !== null;
+}
 
 export const fetchUser = async (
   options: Omit<RequestInit, "method">,
@@ -43,5 +57,7 @@ export const useUserQuery = () => {
   return useQuery({
     queryKey: ["user"],
     queryFn: async () => fetchUser({ credentials: "include" }),
+    gcTime: Infinity,
+    staleTime: Infinity,
   });
 };

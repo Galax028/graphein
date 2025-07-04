@@ -3,7 +3,7 @@ import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
-import { fetchUser } from "@/query/fetchUser";
+import { prefetchUser } from "@/query/fetchUser";
 import cn from "@/utils/helpers/cn";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
@@ -12,18 +12,14 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type FC, useState } from "react";
+import { type FC } from "react";
 
-const LandingPage: FC<PageProps> = (props: { locale: string }) => {
+const LandingPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const t = useTranslations();
 
-  const [language, setLanguage] = useState(props.locale);
-
-  const changeLanguage = (lang: string) => {
-    setLanguage(lang);
+  const changeLanguage = (lang: string) =>
     router.replace(`${router.asPath}?lang=${lang}`);
-  };
 
   return (
     <div className="flex flex-col h-dvh">
@@ -51,14 +47,14 @@ const LandingPage: FC<PageProps> = (props: { locale: string }) => {
           <LabelGroup header={t("language")}>
             <SegmentedGroup>
               <Button
-                selected={language == "th"}
+                selected={locale == "th"}
                 appearance={"tonal"}
                 onClick={() => changeLanguage("th")}
               >
                 ไทย
               </Button>
               <Button
-                selected={language == "en"}
+                selected={locale == "en"}
                 appearance={"tonal"}
                 onClick={() => changeLanguage("en")}
               >
@@ -86,12 +82,13 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
 
   const queryClient = new QueryClient();
   const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
-  const user = await queryClient.fetchQuery({
-    queryKey: ["user"],
-    queryFn: () => fetchUser({ headers: { Cookie: sessionToken } }),
+  const user = await prefetchUser(queryClient, sessionToken, {
+    returnUser: true,
   });
-
   if (user) {
+    if (!user.isOnboarded)
+      return { redirect: { destination: "/onboard", permanent: false } };
+
     return {
       redirect: {
         destination: user.role === "merchant" ? "/merchant" : "/glance",

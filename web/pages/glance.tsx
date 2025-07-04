@@ -22,7 +22,7 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type FC, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 
 const GlancePage: FC<PageProps> = () => {
   const router = useRouter();
@@ -34,7 +34,9 @@ const GlancePage: FC<PageProps> = () => {
 
   const [showNewOrderWarningDialog, setShowNewOrderWarningDialog] =
     useState(false);
-  const [isOrderExpired] = useState(() => checkBuildingOrderExpired());
+  const [isOrderExpired, setIsOrderExpired] = useState(false);
+
+  useEffect(() => setIsOrderExpired(checkBuildingOrderExpired()), []);
 
   // TODO: This one should be self-descriptive
   if (status === "pending" || status == "error") return <></>;
@@ -53,13 +55,13 @@ const GlancePage: FC<PageProps> = () => {
   ] as const;
 
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex flex-col items-center h-dvh">
       <NavigationBar
         user={user}
         title={t(getGreetingMessage(), { name: user.name })}
       />
-      <PageLoadTransition>
-        <div className="flex flex-col gap-2 mb-12">
+      <PageLoadTransition className="w-full">
+        <div className="flex flex-col w-full gap-2 mb-12">
           {sections.map((section, idx) => (
             <LabelGroup header={section.label} key={idx}>
               {section.orders.length !== 0 ? (
@@ -97,7 +99,7 @@ const GlancePage: FC<PageProps> = () => {
             </Button>
           </Link>
         </div>
-        <div className="fixed px-3 w-full left-0 right-0 bottom-3">
+        <div className="fixed px-3 w-full max-w-lg md:w-[24rem] mx-auto left-0 right-0 bottom-3">
           <Button
             className="w-full"
             appearance={"filled"}
@@ -149,10 +151,14 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
 
   const queryClient = new QueryClient();
   const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
-  const signedIn = await prefetchUser(queryClient, sessionToken);
-  if (signedIn) {
-    await prefetchOrdersGlance(queryClient, sessionToken);
+  const user = await prefetchUser(queryClient, sessionToken, {
+    returnUser: true,
+  });
+  if (user) {
+    if (!user.isOnboarded)
+      return { redirect: { destination: "/onboard", permanent: false } };
 
+    await prefetchOrdersGlance(queryClient, sessionToken);
     return {
       props: { locale, translations, dehydratedState: dehydrate(queryClient) },
     };

@@ -1,4 +1,5 @@
 import Button from "@/components/common/Button";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -15,6 +16,7 @@ import type { FC } from "react";
 const SignInButton: FC = () => {
   const router = useRouter();
   const t = useTranslations();
+  const queryClient = useQueryClient();
 
   const onSignInButtonClick = () => {
     const signInWindow = window.open(
@@ -28,6 +30,7 @@ const SignInButton: FC = () => {
       (event) => {
         if (event.data == "oauthSuccess") {
           signInWindow?.close();
+          queryClient.invalidateQueries({ queryKey: ["user"], exact: true });
           router.push("/glance");
         }
       },

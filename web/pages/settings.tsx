@@ -22,43 +22,18 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
   const t = useTranslations("settings");
   const user = useUserContext();
 
-  const [busy, setBusy] = useState<boolean>(false);
-
-  const [phone, setPhone] = useState<string | null>("");
-  const [classroom, setClassroom] = useState<string | null>("");
-  const [classroomNo, setClassroomNo] = useState<string | null>("");
-
   const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
+  const [isSigningOut, setIsSigningOut] = useState<boolean>(false);
 
   const changeLanguage = (lang: string) =>
     router.replace(`${router.asPath}?lang=${lang}`);
 
-  const handleUpdateProfileSettings = async () => {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tel: String(phone),
-        class: Number(classroom),
-        classNo: Number(classroomNo),
-      }),
-    });
-
-    if (res.ok) {
-      return location.reload();
-    }
-  };
-
   const handleSignOut = async () => {
-    setBusy(true);
+    setIsSigningOut(true);
 
     const res = await fetch(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
-      {
-        method: "POST",
-        credentials: "include",
-      },
+      { method: "POST", credentials: "include" },
     );
 
     if (res.ok) {
@@ -67,7 +42,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
   };
 
   return (
-    <>
+    <div className="flex flex-col items-center">
       <NavigationBar
         user={user}
         title={t("navigationBar")}
@@ -131,13 +106,14 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
             <Button
               appearance="tonal"
               onClick={() => setShowSignOutDialog(false)}
+              disabled={isSigningOut}
             >
               {tx("action.nevermind")}
             </Button>
             <Button
               appearance="filled"
               onClick={handleSignOut}
-              busy={busy}
+              busy={isSigningOut}
               busyWithText={false}
             >
               {t("signOut.title")}
@@ -145,7 +121,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
           </Dialog>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 };
 

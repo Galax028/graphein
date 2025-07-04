@@ -1,10 +1,10 @@
 {
   "navigationBar": "???",
   "greeting": {
-    "morning": "อรุณสวัสดิ์{name}",
-    "afternoon": "สวัสดีตอนบ่าย{name}",
-    "evening": "สวัสดีตอนเย็น{name}",
-    "midnight": "สวัสดี{name}"
+    "morning": "อรุณสวัสดิ์ {name}",
+    "afternoon": "สวัสดีตอนบ่าย {name}",
+    "evening": "สวัสดีตอนเย็น {name}",
+    "midnight": "สวัสดี {name}"
   },
   "orders": {
     "ongoing": {

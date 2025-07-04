@@ -1,6 +1,4 @@
 const checkBuildingOrderExpired = (): boolean => {
-  if (typeof window === "undefined") return false;
-
   const existing = localStorage.getItem("skpf-buildingOrderCreated");
 
   if (existing) {
