@@ -14,7 +14,6 @@ use tokio::{
     },
 };
 use tokio_util::sync::CancellationToken;
-use tracing::info;
 
 use crate::{
     AppState, GOOGLE_SIGNING_KEYS, R2Bucket, Thumbnailer,
@@ -109,7 +108,9 @@ async fn fetch_google_jwks(http: ReqwestClient, token: CancellationToken) -> Any
 
             let keys = res.json::<JwkSet>().await?;
             GOOGLE_SIGNING_KEYS.store(Arc::new(keys));
-            info!("fetched OAuth signing keys successfully, sleeping for {max_age} second(s)");
+            tracing::info!(
+                "fetched OAuth signing keys successfully, sleeping for {max_age} second(s)",
+            );
 
             tokio::time::sleep(StdDuration::from_secs(max_age)).await;
         }

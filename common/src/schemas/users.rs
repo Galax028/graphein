@@ -2,7 +2,7 @@ use regex::Regex;
 use serde::{Deserialize, Deserializer, Serialize, de};
 use sqlx::{FromRow, Type as SqlxType};
 
-use crate::schemas::{enums::UserRole, UserId};
+use crate::schemas::{UserId, enums::UserRole};
 
 #[derive(Debug, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]

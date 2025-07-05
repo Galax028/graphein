@@ -12,7 +12,8 @@ use libvips::{
 };
 use tokio::{
     runtime::Handle,
-    sync::mpsc::{self, error::SendError, Receiver, Sender}, time::Instant,
+    sync::mpsc::{self, Receiver, Sender, error::SendError},
+    time::Instant,
 };
 
 use crate::{R2Bucket, schemas::enums::FileType};

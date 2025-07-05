@@ -5,7 +5,6 @@ use anyhow::{Context as _, Result};
 use axum::Router;
 use sqlx::postgres::PgPoolOptions;
 use tokio::{net::TcpListener, runtime::Handle};
-use tracing::{debug, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use graphein_app::expand_router;
@@ -26,21 +25,37 @@ async fn main() -> Result<()> {
     let config = Config::try_from_dotenv().context("Failed to parse config")?;
     let (host, port, root_uri) = (config.host(), config.port(), config.root_uri());
 
+    tracing::info!("Trying to establish a database connection pool...");
     let pool = PgPoolOptions::new()
         .connect_with(config.database_connect_options()?)
-        .await?;
-    sqlx::migrate!("../.sqlx/migrations").run(&pool).await?;
+        .await
+        .context("Failed to establish a connection pool with the database")?;
+    tracing::info!("Established a database connection pool successfully");
 
-    let bucket = R2Bucket::new(
-        config.r2_account_id().to_owned(),
-        config.r2_bucket_name().to_owned(),
-        config.r2_access_key_id(),
-        config.r2_secret_access_key(),
-    )?;
+    if config.no_migrate() {
+        tracing::warn!("`NO_MIGRATE` set to true, skipping database migrations");
+    } else {
+        tracing::info!("Running database migrations...");
+        sqlx::migrate!("../.sqlx/migrations")
+            .run(&pool)
+            .await
+            .context("Failed to run database migrations")?;
+        tracing::info!("Ran database migrations successfully");
+    }
 
     let (thumbnailer, thumbnailer_rx) = Thumbnailer::new();
 
-    let app_state = AppState::new(config.clone(), pool, bucket, thumbnailer);
+    let app_state = AppState::new(
+        config.clone(),
+        pool,
+        R2Bucket::new(
+            config.r2_account_id().to_owned(),
+            config.r2_bucket_name().to_owned(),
+            config.r2_access_key_id(),
+            config.r2_secret_access_key(),
+        )?,
+        thumbnailer,
+    );
     app_state.load_sessions().await?;
 
     let daemon_controller =
@@ -51,12 +66,12 @@ async fn main() -> Result<()> {
         .with_state(app_state.clone());
 
     let listener = TcpListener::bind((host, port)).await?;
-    info!(
-        "sk-online-printing (`graphein`) server version {}",
-        env!("CARGO_PKG_VERSION")
+    tracing::info!(
+        "sk-printing-facility (`graphein`) server version {}",
+        env!("CARGO_PKG_VERSION"),
     );
-    info!("server is listening on http://{}", listener.local_addr()?);
-    debug!("quick login: {root_uri}/auth/google/init");
+    tracing::info!("Server is listening on http://{}", listener.local_addr()?);
+    tracing::debug!("Quick login: {root_uri}/auth/google/init");
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal(daemon_controller, app_state))
         .await?;
@@ -83,8 +98,8 @@ async fn shutdown_signal(daemon_controller: DaemonController, app_state: AppStat
     let sigterm_handle = std::future::pending::<()>();
 
     tokio::select! {
-        () = sigint_handle => info!("stopping server due to user interruption"),
-        () = sigterm_handle => info!("stopping server due to system termination"),
+        () = sigint_handle => tracing::info!("stopping server due to user interruption"),
+        () = sigterm_handle => tracing::info!("stopping server due to system termination"),
     }
 
     daemon_controller.stop_all();
