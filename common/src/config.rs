@@ -34,12 +34,12 @@ impl Config {
     pub fn try_from_dotenv() -> AnyhowResult<Arc<Self>> {
         dotenvy::dotenv().ok();
 
-        let host = IpAddr::from_str(&var("HOST").unwrap_or(String::from("0.0.0.0")))
-            .context("Invalid value for environment variable `HOST`")?;
-        let port = var("PORT")
+        let host = IpAddr::from_str(&var("GRAPHEIN_HOST").unwrap_or(String::from("0.0.0.0")))
+            .context("Invalid value for environment variable `GRAPHEIN_HOST`")?;
+        let port = var("GRAPHEIN_PORT")
             .unwrap_or(String::from("8000"))
             .parse()
-            .context("Invalid value for environment variable `PORT`")?;
+            .context("Invalid value for environment variable `GRAPHEIN_PORT`")?;
         let root_uri = var("ROOT_URI").unwrap_or(format!("http://{host}:{port}"));
         let frontend_uri =
             var("FRONTEND_URI").context("Missing environment variable `FRONTEND_URI`")?;
