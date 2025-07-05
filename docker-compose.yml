@@ -1,24 +1,46 @@
 services:
   graphein:
     build: .
-    ports:
-      - "9000:80"
-    env_file: ".env"
     depends_on:
       db:
         condition: service_healthy
-    init: true
-    restart: always
-  db:
-    image: postgres:15-alpine
-    env_file: ".postgres.env"
-    volumes:
-      - graphein-postgres-data:/var/lib/postgresql/data
-    restart: always
+    environment:
+      GRAPHEIN_HOST: 0.0.0.0
+      GRAPHEIN_PORT: 80
+      ROOT_URI: ${ROOT_URI}
+      FRONTEND_URI: http://localhost:3000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/postgres
+      SECRET: ${SECRET}
+      SESSION_EXPIRY_TIME: ${SESSION_EXPIRY_TIME}
+      SHOP_UTC_OFFSET: ${SHOP_UTC_OFFSET}
+      THUMBNAIL_SIZE: ${THUMBNAIL_SIZE}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "curl -f http://localhost:80/_internal/healthcheck"]
       interval: 5s
       timeout: 5s
       retries: 5
+    ports:
+      - ${PORT}:80
+    restart: always
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -t 5 -U $$POSTGRES_USER -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - graphein-postgres-data:/var/lib/postgresql/data:Z
 volumes:
   graphein-postgres-data:
