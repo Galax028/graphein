@@ -18,6 +18,7 @@ pub struct Config {
     root_uri: String,
     frontend_uri: String,
     database_url: String,
+    no_migrate: bool,
     secret: String,
     session_expiry_time: StdDuration,
     shop_utc_offset: FixedOffset,
@@ -45,6 +46,10 @@ impl Config {
             var("FRONTEND_URI").context("Missing environment variable `FRONTEND_URI`")?;
         let database_url =
             var("DATABASE_URL").context("Missing environment variable `DATABASE_URL`")?;
+        let no_migrate = var("NO_MIGRATE")
+            .unwrap_or(String::from("false"))
+            .parse()
+            .context("Invalid value for environment variable `NO_MIGRATE`")?;
         let secret = var("SECRET").context("Missing environment variable `SECRET`")?;
         let session_expiry_time = StdDuration::from_secs(
             var("SESSION_EXPIRY_TIME")
@@ -81,6 +86,7 @@ impl Config {
             root_uri,
             frontend_uri,
             database_url,
+            no_migrate,
             secret,
             session_expiry_time,
             shop_utc_offset,
@@ -118,6 +124,11 @@ impl Config {
         self.database_url
             .parse()
             .context("Invalid value for environment variable `DATABASE_URL`")
+    }
+
+    #[must_use]
+    pub fn no_migrate(&self) -> bool {
+        self.no_migrate
     }
 
     #[must_use]

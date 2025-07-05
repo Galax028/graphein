@@ -12,7 +12,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --release --bin graphein-app
 
-# We have no choice but to use Debian Sid due to libvips being outdated in Debian Bookworm
+# We have no choice but to use Debian Sid due to `libvips` being outdated in Debian Bookworm
 FROM debian:sid-slim AS runtime
 WORKDIR /app
 RUN apt-get update \

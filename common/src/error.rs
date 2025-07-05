@@ -4,7 +4,6 @@ use anyhow::anyhow;
 use axum::response::{IntoResponse, Response};
 use http::StatusCode;
 use thiserror::Error;
-use tracing::error;
 
 use crate::response::ResponseBuilder;
 
@@ -154,7 +153,7 @@ impl IntoResponse for AppError {
         let status_code = self.to_status_code();
         let source = self.to_string();
         if status_code.is_server_error() {
-            error!("INTERNAL SERVER ERROR - {source}");
+            tracing::error!("INTERNAL SERVER ERROR - {source}");
         }
 
         (
