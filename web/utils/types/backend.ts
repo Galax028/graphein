@@ -1,4 +1,40 @@
-import type { FileType, OrderStatus, UserRole, Uuid } from "./common";
+import type {
+  FileType,
+  OrderStatus,
+  UserRole,
+  Uuid,
+} from "@/utils/types/common";
+
+export type SuccessAPIResponse<T extends object> = {
+  success: true;
+  timestamp: string;
+  data: T;
+  pagination: never;
+};
+
+export type PaginatedAPIResponse<T extends object> = {
+  success: true;
+  timestamp: string;
+  data: T;
+  pagination: {
+    page: string | null;
+    size: number;
+    count: number;
+    reverse: boolean;
+  };
+};
+
+export type FailedAPIResponse = {
+  success: false;
+  timestamp: string;
+  message: string;
+  error: string;
+};
+
+export type APIResponse<T extends object> =
+  | SuccessAPIResponse<T>
+  | PaginatedAPIResponse<T>
+  | FailedAPIResponse;
 
 type BaseUser = {
   id: Uuid;
@@ -9,9 +45,9 @@ type BaseUser = {
 };
 
 export type UnonboardedUser = {
-  tel?: string;
-  class?: number;
-  classNo?: number;
+  tel: string | null;
+  class: number | null;
+  classNo: number | null;
   isOnboarded: false;
 } & BaseUser;
 
@@ -36,7 +72,7 @@ export type File = {
   filetype: FileType;
   filesize: number;
   copies: number;
-  range?: string;
+  range: string | null;
   paperSizeId: number;
   paperOrientation: "portrait" | "landscape";
   isColour: boolean;
@@ -46,8 +82,8 @@ export type File = {
 
 export type Service = {
   serviceType: "bookbinding" | "bookbindingWithCover" | "laminate";
-  bookbindingTypeId?: number;
-  notes?: string;
+  bookbindingTypeId: number | null;
+  notes: string | null;
   fileIds: Uuid[];
 };
 
@@ -69,8 +105,8 @@ export type DetailedOrder = {
   createdAt: string;
   orderNumber: string;
   status: OrderStatus;
-  price?: number;
-  notes?: string;
+  price: number | null;
+  notes: string | null;
   statusHistory: OrderStatusUpdate[];
   files: File[];
   services: Service[];

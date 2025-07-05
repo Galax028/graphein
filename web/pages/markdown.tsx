@@ -6,12 +6,13 @@ import MaterialIcon from "@/components/common/MaterialIcon";
 import NumberInput from "@/components/common/NumberInput";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import TextInput from "@/components/common/TextInput";
+import type { PageProps } from "@/utils/types/common";
 import { AnimatePresence } from "motion/react";
 import Head from "next/head";
 import Link from "next/link";
 import { type FC, useState } from "react";
 
-const MarkdownPage: FC = () => {
+const MarkdownPage: FC<PageProps> = () => {
   const [language, setLanguage] = useState("th");
   const [theme, setTheme] = useState("auto");
   const [alphabet, setAlphabet] = useState("a");

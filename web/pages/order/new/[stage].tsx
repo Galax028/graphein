@@ -3,29 +3,29 @@ import Dialog from "@/components/common/Dialog";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
-import { getShortenedFileSizeString } from "@/utils/helpers/order/details/getShortenedFileSizeString";
+import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
 import generateFileUploadURL from "@/utils/helpers/order/new/generateFileUploadURL";
+import type { PageProps } from "@/utils/types/common";
+import useUserContext from "@/utils/useUserContext";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-const BuildOrderPage = () => {
+const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
+  const user = useUserContext();
 
   const [orderStage, setOrderStage] = useState("upload");
   const [orderId, setOrderId] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [orderCreated, setOrderCreated] = useState<string | null>(null);
+  const [_, setOrderCreated] = useState<string | null>(null);
   const [timeDiff, setTimeDiff] = useState<number | null>(null);
 
   const [files, setFiles] = useState<File[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [showFileLimitExceedDialog, setShowFileLimitExceedDialog] = useState(
-    files.length > 6,
-  );
+  const [showFileLimitExceedDialog] = useState(files.length > 6);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -133,6 +133,7 @@ const BuildOrderPage = () => {
   return (
     <div className="flex flex-col h-dvh overflow-hidden">
       <NavigationBar
+        user={user}
         title={defineURL[orderStage].title}
         backEnabled={true}
         backContextURL={defineURL[orderStage].context}
@@ -164,7 +165,7 @@ const BuildOrderPage = () => {
                         <p className="text-body-sm text-warning">Uploading</p>
                         <p>{file.name}</p>
                         <p className="text-body-sm opacity-50">
-                          {file.type} • {getShortenedFileSizeString(file.size)}
+                          {file.type} • {getFormattedFilesize(file.size)}
                         </p>
                       </div>
                     </motion.div>

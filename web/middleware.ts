@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
+export const middleware = (request: NextRequest) => {
   if (request.nextUrl.pathname.startsWith("/_next")) return;
 
   let response = NextResponse.next();
@@ -19,4 +19,4 @@ export function middleware(request: NextRequest) {
   }
 
   return response;
-}
+};

@@ -1,8 +1,9 @@
+import Button from "@/components/common/Button";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import Button from "../common/Button";
+import type { FC } from "react";
 
 /**
  * The sign in button using the application's design language.
@@ -12,9 +13,10 @@ import Button from "../common/Button";
  *
  * @returns The 'Sign in with Google' button.
  */
-const SignInButton = () => {
+const SignInButton: FC = () => {
   const router = useRouter();
   const t = useTranslations();
+  const queryClient = useQueryClient();
 
   const onSignInButtonClick = () => {
     const signInWindow = window.open(
@@ -28,26 +30,13 @@ const SignInButton = () => {
       (event) => {
         if (event.data == "oauthSuccess") {
           signInWindow?.close();
+          queryClient.invalidateQueries({ queryKey: ["user"], exact: true });
           router.push("/glance");
         }
       },
       { once: true },
     );
   };
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      // If the user is logged in, redirect the to /glance
-      if (res.ok) return router.push("/glance");
-    };
-
-    if (router.isReady) fetchUser();
-  }, [router]);
 
   return (
     <Button appearance={"tonal"} onClick={onSignInButtonClick}>

@@ -1,3 +1,4 @@
+import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
 import type {
   Dispatch,
@@ -5,7 +6,6 @@ import type {
   HTMLInputTypeAttribute,
   SetStateAction,
 } from "react";
-import MaterialIcon from "./MaterialIcon";
 
 type TextInputProps = {
   className?: string;

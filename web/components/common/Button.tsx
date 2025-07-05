@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import type { FC, MouseEventHandler, ReactNode } from "react";
+import type { ButtonHTMLAttributes, FC, ReactNode } from "react";
 
 type BaseButtonProps = {
   className?: string;
@@ -9,8 +9,7 @@ type BaseButtonProps = {
   disabled?: boolean;
   busy?: boolean;
   busyWithText?: boolean;
-  onClick?: MouseEventHandler<HTMLButtonElement>;
-};
+} & ButtonHTMLAttributes<HTMLButtonElement>;
 
 type IconButtonProps = BaseButtonProps & {
   icon: string | null;
@@ -34,7 +33,7 @@ type ButtonProps = IconButtonProps | TextButtonProps;
  * @param disabled      Darken the button, and don't allow interactions.
  * @param busy          Is the state busy? Show spinning circle or not.
  *                      (defaults to false)
- * @param busyShowText  Should the button show text or not when it's busy
+ * @param busyWithText  Should the button show text or not when it's busy
  *                      (defaults to true)
  * @param children      The contents inside the button.
  */
@@ -46,8 +45,8 @@ const Button: FC<ButtonProps> = ({
   disabled = false,
   busy = false,
   busyWithText = true,
-  onClick,
   children,
+  ...props
 }) => {
   return (
     <button
@@ -65,7 +64,7 @@ const Button: FC<ButtonProps> = ({
             (appearance == "tonal" ? "!bg-surface-container" : "!bg-primary"),
         className,
       )}
-      onClick={onClick}
+      {...props}
     >
       {busy ? (
         <div className="grid place-items-center">

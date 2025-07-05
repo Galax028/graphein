@@ -1,8 +1,12 @@
+import type { DehydratedState } from "@tanstack/react-query";
+import type { Locale } from "next-intl";
+
 export type TranslationRecord = { [k: string]: string | TranslationRecord };
 
 export type PageProps = {
-  locale: string;
+  locale: Locale;
   translations: TranslationRecord;
+  dehydratedState?: DehydratedState;
 };
 
 export const langCodes = ["en", "th"] as const;

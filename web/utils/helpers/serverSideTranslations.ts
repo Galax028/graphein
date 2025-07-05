@@ -1,21 +1,23 @@
+import type { TranslationRecord } from "@/utils/types/common";
 import type { IncomingMessage } from "http";
 import type { NextApiRequestCookies } from "next/dist/server/api-utils";
-import type { TranslationRecord } from "../types/common";
 
 const getServerSideTranslations = async (
   req: IncomingMessage & {
     cookies: NextApiRequestCookies;
   },
-  routes: string | string[],
+  routes: string[],
 ): Promise<[string, TranslationRecord]> => {
   const locale =
     req.cookies["NEXT_LOCALE"] ??
     process.env.NEXT_PUBLIC_DEFAULT_LOCALE ??
     "en";
-
   let translations = {} as TranslationRecord;
 
-  if (Array.isArray(routes)) {
+  if (routes.length === 1) {
+    translations = (await import(`@/translations/${locale}/${routes}.json`))
+      .default;
+  } else {
     await Promise.all(
       routes.map(
         async (route) =>
@@ -24,9 +26,6 @@ const getServerSideTranslations = async (
           ).default),
       ),
     );
-  } else {
-    translations = (await import(`@/translations/${locale}/${routes}.json`))
-      .default;
   }
 
   return [locale, translations];

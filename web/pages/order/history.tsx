@@ -1,108 +1,118 @@
+import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import OrderCard from "@/components/glance/OrderCard";
 import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
-import cn from "@/utils/helpers/cn";
+import {
+  prefetchOrderHistory,
+  useOrderHistoryInfiniteQuery,
+} from "@/query/fetchOrderHistory";
+import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import type { GetServerSideProps } from "next";
-import { CompactOrder } from "@/utils/types/backend";
 import type { PageProps } from "@/utils/types/common";
+import useUserContext from "@/utils/useUserContext";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
+import type { GetServerSideProps } from "next";
 import Link from "next/link";
-import { type FC, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import type { FC } from "react";
 
 const OrderHistoryPage: FC<PageProps> = () => {
-  const [orderHistory, setOrderHistory] = useState<CompactOrder[] | null>(null);
-  // const [orderHistoryPage, setOrderHistoryPage] = useState(1);
-  const t = useTranslations("history");
+  const user = useUserContext();
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_API_PATH +
-          // Intended solution
-          // `/orders/history?size=${15}&page=${orderHistoryPage}`,
+  const {
+    data,
+    isFetching,
+    status,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useOrderHistoryInfiniteQuery();
 
-          // Temp!!!!!! solutions (no pages yet coz im retarded)
-          `/orders/history?size=${15}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          // body: JSON.stringify({
-          //   size: 15,
-          //   page: orderHistoryPage,
-          // }),
-        },
-      );
-
-      const body = await res.json();
-      setOrderHistory(body.data as CompactOrder[]);
-    };
-
-    fetchHistory();
-  }, []);
+  // TODO: This one should be self-descriptive
+  if (status === "pending" || status === "error") return <></>;
 
   return (
-    <div className="flex flex-col h-dvh overflow-hidden">
+    <>
       <NavigationBar
+        user={user}
         title={t("navigationBar")}
         backEnabled={true}
         backContextURL={"/glance"}
       />
-      <PageLoadTransition className="flex flex-col h-full w-full overflow-auto gap-3 font-mono">
-        <div
-          className={cn(
-            `flex flex-col p-3 gap-2 [&>div]:w-full h-full overflow-auto pb-16`,
-          )}
-        >
-          {orderHistory && (
-            <LabelGroup header={t("withinLastMonth")}>
-              {orderHistory.length != 0 ? (
-                orderHistory.map((order, idx) => {
-                  return (
-                    <motion.div
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        y: { type: "spring", bounce: 0 },
-                        delay: idx * 0.2,
+      <PageLoadTransition>
+        <LabelGroup header={t("withinLastMonth")}>
+          {data.pages.length === 0 ? (
+            <OrderEmptyCard text={t("empty")} />
+          ) : (
+            data.pages
+              .flatMap((page) => page.orders)
+              .map((order, idx) => (
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    y: { type: "spring", bounce: 0 },
+                    delay: idx * 0.2,
+                  }}
+                  key={idx}
+                >
+                  <Link href={`/order/detail/${order.id}`}>
+                    <OrderCard
+                      status={order.status}
+                      orderNumber={order.orderNumber}
+                      createdAt={order.createdAt}
+                      filesCount={order.filesCount}
+                      options={{
+                        showNavigationIcon: false,
                       }}
-                      key={idx}
-                    >
-                      <Link href={`/order/detail/${order.id}`}>
-                        <OrderCard
-                          status={order.status}
-                          orderNumber={order.orderNumber}
-                          createdAt={order.createdAt}
-                          filesCount={order.filesCount}
-                          options={{
-                            showNavigationIcon: false,
-                          }}
-                        />
-                      </Link>
-                    </motion.div>
-                  );
-                })
-              ) : (
-                <OrderEmptyCard text={t("empty")} />
-              )}
-            </LabelGroup>
+                    />
+                  </Link>
+                </motion.div>
+              ))
           )}
-        </div>
+        </LabelGroup>
+        <Button
+          appearance="tonal"
+          onClick={() => fetchNextPage()}
+          disabled={!hasNextPage || isFetching}
+        >
+          {isFetchingNextPage
+            ? "Loading..."
+            : hasNextPage
+              ? "Load More"
+              : "No more items"}
+        </Button>
       </PageLoadTransition>
-    </div>
+    </>
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
   const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
     "history",
   ]);
 
-  return { props: { locale, translations } };
+  const queryClient = new QueryClient();
+  const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
+  const signedIn = await prefetchUser(queryClient, sessionToken);
+  if (signedIn) {
+    await prefetchOrderHistory(queryClient, sessionToken);
+
+    return {
+      props: {
+        locale,
+        translations,
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  }
+
+  return { redirect: { destination: "/", permanent: false } };
 };
 
 export default OrderHistoryPage;

@@ -3,64 +3,37 @@ import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
+import UserProfileSettings from "@/components/settings/UserProfileSettings";
+import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import { User } from "@/utils/types/backend";
+import type { PageProps } from "@/utils/types/common";
+import useUserContext from "@/utils/useUserContext";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "motion/react";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { type FC, useState } from "react";
 
-const SettingsPage = (props: { locale: string }) => {
+const SettingsPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const tx = useTranslations("common");
   const t = useTranslations("settings");
-
-  const [user, setUser] = useState<User | null>();
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-  const [busy, setBusy] = useState<boolean>(false);
-
-  const [phone, setPhone] = useState<string | null>("");
-  const [classroom, setClassroom] = useState<string | null>("");
-  const [classroomNo, setClassroomNo] = useState<string | null>("");
-
-  const [language, setLanguage] = useState(props.locale);
+  const user = useUserContext();
 
   const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
+  const [isSigningOut, setIsSigningOut] = useState<boolean>(false);
 
-  const changeLanguage = (lang: string) => {
-    setLanguage(lang);
+  const changeLanguage = (lang: string) =>
     router.replace(`${router.asPath}?lang=${lang}`);
-  };
-
-  const handleUpdateProfileSettings = async (role: User) => {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tel: String(phone),
-        class: Number(classroom),
-        classNo: Number(classroomNo),
-      }),
-    });
-
-    if (res.ok) {
-      return location.reload();
-    }
-  };
 
   const handleSignOut = async () => {
-    setBusy(true);
+    setIsSigningOut(true);
 
     const res = await fetch(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
-      {
-        method: "POST",
-        credentials: "include",
-      },
+      { method: "POST", credentials: "include" },
     );
 
     if (res.ok) {
@@ -68,119 +41,28 @@ const SettingsPage = (props: { locale: string }) => {
     }
   };
 
-  useEffect(() => {
-    const getUser = async () => {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_PATH + "/user", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const body = await res.json();
-
-      if (res.ok) {
-        if (isSignedIn == false) {
-          setIsSignedIn(true);
-          setUser(body.data as User);
-
-          setPhone(body.data.tel ?? "");
-          setClassroom(body.data.class ? String(body.data.class) : "");
-          setClassroomNo(body.data.classNo ? String(body.data.classNo) : "");
-        }
-      }
-    };
-
-    getUser();
-  }, [isSignedIn]);
-
   return (
-    <>
-      <NavigationBar title={t("navigationBar")} backEnabled={true} />
+    <div className="flex flex-col items-center">
+      <NavigationBar
+        user={user}
+        title={t("navigationBar")}
+        backEnabled={true}
+      />
       <PageLoadTransition className="flex flex-col gap-3 p-3">
-        {isSignedIn && (
-          <>
-            <LabelGroup
-              header={t("userSettings.title")}
-              footer={t("userSettings.description")}
-            >
-              <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
-                <LabelGroup header={t("userSettings.profile")}>
-                  <div className="m-auto">
-                    <PersonAvatar
-                      profileUrl={user?.profileUrl}
-                      personName={user?.name}
-                      size={96}
-                    />
-                  </div>
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.name")}>
-                  <input
-                    value={user?.name}
-                    className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
-                    disabled
-                  />
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.email")}>
-                  <input
-                    value={user?.email}
-                    className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
-                    disabled
-                  />
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.tel")}>
-                  <input
-                    value={phone ?? ""}
-                    className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </LabelGroup>
-                <LabelGroup header={t("userSettings.classAndNo")}>
-                  <SegmentedGroup>
-                    <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                      <p>{t("userSettings.class")}</p>
-                    </div>
-                    <input
-                      value={classroom ?? ""}
-                      onChange={(e) => setClassroom(e.target.value)}
-                      type="text"
-                      className="w-full p-2 bg-background text-body-md"
-                    />
-                    <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
-                      <p>{t("userSettings.no")}</p>
-                    </div>
-                    <input
-                      value={classroomNo ?? ""}
-                      onChange={(e) => setClassroomNo(e.target.value)}
-                      type="text"
-                      className="w-full p-2 bg-background text-body-md"
-                    />
-                  </SegmentedGroup>
-                </LabelGroup>
-                <Button
-                  appearance="filled"
-                  onClick={() => handleUpdateProfileSettings}
-                  className="w-full"
-                  icon="save"
-                  busy={busy}
-                >
-                  {t("userSettings.save")}
-                </Button>
-              </div>
-            </LabelGroup>
-          </>
-        )}
+        <UserProfileSettings user={user} />
         <LabelGroup header={t("appearanceSettings.title")}>
           <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
             <LabelGroup header={t("appearanceSettings.language")}>
               <SegmentedGroup>
                 <Button
-                  selected={language == "th"}
+                  selected={locale === "th"}
                   appearance={"tonal"}
                   onClick={() => changeLanguage("th")}
                 >
                   ไทย
                 </Button>
                 <Button
-                  selected={language == "en"}
+                  selected={locale == "en"}
                   appearance={"tonal"}
                   onClick={() => changeLanguage("en")}
                 >
@@ -196,7 +78,7 @@ const SettingsPage = (props: { locale: string }) => {
           className="w-full text-error"
           icon={"logout"}
         >
-          {t("signOut.button")}
+          {tx("action.signOut")}
         </Button>
         <LabelGroup header="Developer Log">
           <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
@@ -224,13 +106,14 @@ const SettingsPage = (props: { locale: string }) => {
             <Button
               appearance="tonal"
               onClick={() => setShowSignOutDialog(false)}
+              disabled={isSigningOut}
             >
               {tx("action.nevermind")}
             </Button>
             <Button
               appearance="filled"
               onClick={handleSignOut}
-              busy={busy}
+              busy={isSigningOut}
               busyWithText={false}
             >
               {t("signOut.title")}
@@ -238,7 +121,7 @@ const SettingsPage = (props: { locale: string }) => {
           </Dialog>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 };
 
@@ -248,7 +131,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     "settings",
   ]);
 
-  return { props: { locale, translations } };
+  const queryClient = new QueryClient();
+  const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
+  const signedIn = await prefetchUser(queryClient, sessionToken);
+  if (signedIn)
+    return {
+      props: { locale, translations, dehydratedState: dehydrate(queryClient) },
+    };
+
+  return { redirect: { destination: "/", permanent: false } };
 };
 
 export default SettingsPage;
