@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS settings (
     created_at                timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    latest_orders_flushed_at  timestamptz,
     is_accepting              boolean     NOT NULL,
     is_lamination_serviceable boolean     NOT NULL,
     open_time                 time        NOT NULL,
@@ -32,7 +33,7 @@ CREATE TABLE IF NOT EXISTS sessions (
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS bookbinding_types (
+CREATE TABLE IF NOT EXISTS bindings (
     id           integer     NOT NULL GENERATED ALWAYS AS IDENTITY,
     created_at   timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name         text        NOT NULL,
@@ -41,34 +42,49 @@ CREATE TABLE IF NOT EXISTS bookbinding_types (
     UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS paper_sizes (
-    id              integer     NOT NULL GENERATED ALWAYS AS IDENTITY,
-    created_at      timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    name            text        NOT NULL,
-    length          integer     NOT NULL,
-    width           integer     NOT NULL,
-    is_default      boolean     NOT NULL DEFAULT false,
-    is_available    boolean     NOT NULL DEFAULT true,
-    is_laminatable  boolean     NOT NULL DEFAULT false,
+CREATE TABLE IF NOT EXISTS binding_colours (
+    id           integer     NOT NULL GENERATED ALWAYS AS IDENTITY,
+    created_at   timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    binding_id   integer     NOT NULL,
+    colour       text        NOT NULL,
+    is_available boolean     NOT NULL DEFAULT true,
+    PRIMARY KEY (id),
+    FOREIGN KEY (binding_id) REFERENCES bindings (id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS papers (
+    id         integer     NOT NULL GENERATED ALWAYS AS IDENTITY,
+    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    name       text        NOT NULL,
+    length     integer     NOT NULL,
+    width      integer     NOT NULL,
+    is_default boolean     NOT NULL DEFAULT false,
     PRIMARY KEY (id),
     UNIQUE (name)
 );
 
-INSERT INTO paper_sizes (name, length, width, is_default, is_laminatable)
-VALUES ('A4 (80 gsm)', 297, 210, true, true) ON CONFLICT DO NOTHING;
+CREATE TABLE IF NOT EXISTS paper_variants (
+    id             integer     NOT NULL GENERATED ALWAYS AS IDENTITY,
+    created_at     timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    paper_id       integer     NOT NULL,
+    name           text        NOT NULL,
+    is_default     boolean     NOT NULL DEFAULT false,
+    is_available   boolean     NOT NULL DEFAULT true,
+    is_laminatable boolean     NOT NULL DEFAULT false,
+    PRIMARY KEY (id),
+    FOREIGN KEY (paper_id) REFERENCES papers (id)
+        ON DELETE CASCADE
+);
 
-CREATE FUNCTION default_paper_size() RETURNS integer LANGUAGE 'sql' COST 100 AS $$
-    SELECT id FROM paper_sizes WHERE is_default = true LIMIT 1;
-$$;
-
-CREATE TABLE IF NOT EXISTS bookbinding_types_paper_sizes (
-    bookbinding_type_id integer NOT NULL,
-    paper_size_id       integer NOT NULL,
-    coverable           boolean NOT NULL DEFAULT false,
-    PRIMARY KEY (bookbinding_type_id, paper_size_id),
-    FOREIGN KEY (bookbinding_type_id) REFERENCES bookbinding_types (id)
+CREATE TABLE IF NOT EXISTS bindings_papers (
+    binding_id integer NOT NULL,
+    paper_id   integer NOT NULL,
+    coverable  boolean NOT NULL DEFAULT false,
+    PRIMARY KEY (binding_id, paper_id),
+    FOREIGN KEY (binding_id) REFERENCES bindings (id)
         ON DELETE CASCADE,
-    FOREIGN KEY (paper_size_id) REFERENCES paper_sizes (id)
+    FOREIGN KEY (paper_id) REFERENCES papers (id)
         ON DELETE CASCADE
 );
 
@@ -96,44 +112,55 @@ CREATE TABLE IF NOT EXISTS order_status_updates (
 );
 
 CREATE TABLE IF NOT EXISTS files (
-    id                uuid              NOT NULL DEFAULT gen_random_uuid(),
-    created_at        timestamptz       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    order_id          uuid              NOT NULL,
-    object_key        text              NOT NULL,
-    filename          text              NOT NULL,
-    filetype          filetype          NOT NULL,
-    filesize          bigint            NOT NULL,
-    copies            integer           NOT NULL DEFAULT 1,
-    range             text,
-    scaling           integer           NOT NULL DEFAULT 100,
-    paper_size_id     integer           NOT NULL DEFAULT default_paper_size(),
-    paper_orientation paper_orientation NOT NULL DEFAULT 'portrait',
-    is_double_sided   boolean           NOT NULL DEFAULT false,
-    is_colour         boolean           NOT NULL DEFAULT false,
-    index             integer           NOT NULL,
+    id         uuid        NOT NULL DEFAULT gen_random_uuid(),
+    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    order_id   uuid        NOT NULL,
+    object_key text        NOT NULL,
+    filename   text        NOT NULL,
+    filetype   filetype    NOT NULL,
+    filesize   bigint      NOT NULL,
+    index      integer     NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (order_id) REFERENCES orders (id)
         ON DELETE CASCADE,
-    FOREIGN KEY (paper_size_id) REFERENCES paper_sizes (id)
-        ON DELETE SET NULL,
     UNIQUE (object_key),
     UNIQUE (order_id, index)
 );
 
-CREATE TABLE IF NOT EXISTS services (
-    id                  uuid         NOT NULL DEFAULT gen_random_uuid(),
-    created_at          timestamptz  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    order_id            uuid         NOT NULL,
-    service_type        service_type NOT NULL,
-    bookbinding_type_id integer,
-    notes               text,
-    index integer NOT NULL,
-    CONSTRAINT services_pkey PRIMARY KEY (id),
-    CONSTRAINT services_order_id_service_type_key UNIQUE (order_id, service_type),
-    FOREIGN KEY (bookbinding_type_id) REFERENCES bookbinding_types (id)
+CREATE TABLE IF NOT EXISTS file_ranges (
+    id                uuid              NOT NULL DEFAULT gen_random_uuid(),
+    created_at        timestamptz       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    file_id           uuid              NOT NULL,
+    range             text,
+    copies            integer           NOT NULL DEFAULT 1,
+    paper_variant_id  integer,
+    paper_orientation paper_orientation NOT NULL DEFAULT 'portrait',
+    is_double_sided   boolean           NOT NULL DEFAULT false,
+    is_colour         boolean           NOT NULL DEFAULT false,
+    index             integer NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (file_id) REFERENCES files (id)
         ON DELETE CASCADE,
+    FOREIGN KEY (paper_variant_id) REFERENCES paper_variants (id)
+        ON DELETE SET NULL,
+    UNIQUE (file_id, range),
+    UNIQUE (file_id, index)
+);
+
+CREATE TABLE IF NOT EXISTS services (
+    id                uuid         NOT NULL DEFAULT gen_random_uuid(),
+    created_at        timestamptz  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    order_id          uuid         NOT NULL,
+    type              service_type NOT NULL,
+    binding_colour_id integer,
+    notes             text,
+    index             integer NOT NULL,
+    CONSTRAINT services_pkey PRIMARY KEY (id),
+    CONSTRAINT services_order_id_type_key UNIQUE (order_id, type),
     FOREIGN KEY (order_id) REFERENCES orders (id)
         ON DELETE CASCADE,
+    FOREIGN KEY (binding_colour_id) REFERENCES binding_colours (id)
+        ON DELETE SET NULL,
     UNIQUE (order_id, index)
 );
 

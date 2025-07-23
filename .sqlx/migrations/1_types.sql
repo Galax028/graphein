@@ -20,8 +20,8 @@ CREATE TYPE paper_orientation AS ENUM (
 );
 
 CREATE TYPE service_type AS ENUM (
-    'bookbinding',
-    'bookbinding_with_cover',
+    'binding',
+    'binding_with_cover',
     'laminate'
 );
 
@@ -29,4 +29,14 @@ CREATE TYPE user_role AS ENUM (
     'student',
     'teacher',
     'merchant'
+);
+
+CREATE TYPE file_range AS (
+    id                uuid,
+    range             text,
+    copies            integer,
+    paper_variant_id  integer,
+    paper_orientation paper_orientation,
+    is_colour         boolean,
+    is_double_sided   boolean
 );

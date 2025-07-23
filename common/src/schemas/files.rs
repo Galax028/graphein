@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
-use sqlx::prelude::FromRow;
+use sqlx::{FromRow, Type as SqlxType};
 
 use crate::schemas::{
-    FileId, PaperSizeId,
+    FileId, PaperVariantId,
     enums::{FileType, PaperOrientation},
+    ids::FileRangeId,
 };
 
 #[derive(Debug, Deserialize, FromRow, Serialize)]
@@ -15,12 +16,19 @@ pub struct File {
     pub(crate) filesize: i64,
     #[serde(skip_serializing)]
     pub(crate) object_key: String,
-    pub(crate) copies: i32,
+    pub(crate) ranges: Vec<FileRange>,
+}
+
+#[derive(Debug, Deserialize, FromRow, Serialize, SqlxType)]
+#[serde(rename_all = "camelCase")]
+#[sqlx(type_name = "file_range")]
+pub struct FileRange {
+    pub(crate) id: FileRangeId,
     pub(crate) range: Option<String>,
-    pub(crate) paper_size_id: Option<PaperSizeId>,
+    pub(crate) copies: i32,
+    pub(crate) paper_variant_id: Option<PaperVariantId>,
     pub(crate) paper_orientation: PaperOrientation,
     pub(crate) is_colour: bool,
-    pub(crate) scaling: i32,
     pub(crate) is_double_sided: bool,
 }
 
@@ -51,12 +59,17 @@ pub struct FileUploadResponse {
 pub struct FileCreate {
     pub id: FileId,
     pub filename: String,
-    pub copies: i32,
+    pub ranges: Vec<FileRangeCreate>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FileRangeCreate {
     pub range: Option<String>,
-    pub paper_size_id: PaperSizeId,
+    pub copies: i32,
+    pub paper_variant_id: PaperVariantId,
     pub paper_orientation: PaperOrientation,
     pub is_colour: bool,
-    pub scaling: i32,
     pub is_double_sided: bool,
 }
 

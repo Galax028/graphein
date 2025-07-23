@@ -24,12 +24,12 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
                 .delete(delete_opts_papers)
                 .route_layer(middleware::from_fn_with_state(state.clone(), merchant_only)),
         )
-        .route("/services/bookbinding", get(get_opts_services_bookbinding))
+        .route("/services/binding", get(get_opts_services_binding))
         .route(
-            "/services/bookbinding",
-            post(post_opts_services_bookbinding)
-                .put(put_opts_services_bookbinding)
-                .delete(delete_opts_services_bookbinding)
+            "/services/binding",
+            post(post_opts_services_binding)
+                .put(put_opts_services_binding)
+                .delete(delete_opts_services_binding)
                 .route_layer(middleware::from_fn_with_state(state.clone(), merchant_only)),
         )
         .route("/services/laminate", get(get_opts_services_laminate))
@@ -65,19 +65,19 @@ async fn delete_opts_papers() -> HandlerResponse<()> {
     todo!()
 }
 
-async fn get_opts_services_bookbinding() -> HandlerResponse<()> {
+async fn get_opts_services_binding() -> HandlerResponse<()> {
     todo!()
 }
 
-async fn post_opts_services_bookbinding() -> HandlerResponse<()> {
+async fn post_opts_services_binding() -> HandlerResponse<()> {
     todo!()
 }
 
-async fn put_opts_services_bookbinding() -> HandlerResponse<()> {
+async fn put_opts_services_binding() -> HandlerResponse<()> {
     todo!()
 }
 
-async fn delete_opts_services_bookbinding() -> HandlerResponse<()> {
+async fn delete_opts_services_binding() -> HandlerResponse<()> {
     todo!()
 }
 

@@ -7,7 +7,13 @@ use uuid::Uuid;
 #[repr(transparent)]
 #[serde(transparent)]
 #[sqlx(transparent)]
-pub struct BookbindingTypeId(i32);
+pub struct BindingId(i32);
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, From, Hash, PartialEq, Serialize, SqlxType)]
+#[repr(transparent)]
+#[serde(transparent)]
+#[sqlx(transparent)]
+pub struct BindingColourId(i32);
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, From, Hash, PartialEq, Serialize, SqlxType)]
 #[repr(transparent)]
@@ -19,7 +25,19 @@ pub struct FileId(Uuid);
 #[repr(transparent)]
 #[serde(transparent)]
 #[sqlx(transparent)]
-pub struct PaperSizeId(i32);
+pub struct FileRangeId(Uuid);
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, From, Hash, PartialEq, Serialize, SqlxType)]
+#[repr(transparent)]
+#[serde(transparent)]
+#[sqlx(transparent)]
+pub struct PaperId(i32);
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, From, Hash, PartialEq, Serialize, SqlxType)]
+#[repr(transparent)]
+#[serde(transparent)]
+#[sqlx(transparent)]
+pub struct PaperVariantId(i32);
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, From, Hash, Into, PartialEq, Serialize, SqlxType)]
 #[repr(transparent)]

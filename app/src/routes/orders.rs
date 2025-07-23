@@ -14,6 +14,7 @@ use graphein_common::{
     auth::Session,
     database::{FilesTable, OrdersTable},
     dto::RequestData,
+    error::NotFoundError,
     extract::{Json, Path, QsQuery},
     middleware::{client_only, merchant_only, requires_onboarding},
     response::ResponseBuilder,
@@ -353,9 +354,14 @@ async fn get_orders_id_files_id_thumbnail(
     Path((order_id, file_id)): Path<(OrderId, FileId)>,
 ) -> Result<Response, AppError> {
     let (object_key, filetype) = if draft_orders.exists(session.user_id, order_id).is_ok() {
-        let draft_file = draft_orders.get_file(session.user_id, file_id)?;
+        let draft_order = draft_orders.get_order(session.user_id)?;
+        let draft_file = draft_order
+            .files
+            .iter()
+            .find(|file| file.id == file_id)
+            .ok_or(NotFoundError::ResourceNotFound)?;
 
-        (draft_file.object_key, draft_file.filetype)
+        (draft_file.object_key.clone(), draft_file.filetype)
     } else {
         let mut conn = pool.acquire().await?;
         OrdersTable::permissions_checker(order_id, session)
@@ -398,7 +404,13 @@ async fn delete_orders_id_files_id(
     Path((order_id, file_id)): Path<(OrderId, FileId)>,
 ) -> Result<StatusCode, AppError> {
     draft_orders.exists(user_id, order_id)?;
-    let draft_file = draft_orders.get_file(user_id, file_id)?;
+    let draft_order = draft_orders.get_order(user_id)?;
+    let draft_file = draft_order
+        .files
+        .iter()
+        .find(|file| file.id == file_id)
+        .ok_or(NotFoundError::ResourceNotFound)?;
+
     bucket
         .delete_file(&draft_file.object_key, draft_file.filetype)
         .await?;
