@@ -21,6 +21,7 @@ use crate::{
 use super::R2Bucket;
 
 const MAX_QUEUE_SEQ: u16 = 25974; /* 26 * 999 */
+const MAX_FILE_RANGES: usize = 5;
 
 #[derive(Debug)]
 pub struct DraftFile {
@@ -92,18 +93,21 @@ impl DraftOrderStore {
         }
     }
 
-    pub fn insert(&self, owner_id: UserId) -> OrderId {
-        if let Some(draft_id) = self.orders.read(&owner_id, |_, draft| draft.id) {
+    pub async fn insert(&self, owner_id: UserId) -> OrderId {
+        if let Some(draft_id) = self.orders.read_async(&owner_id, |_, draft| draft.id).await {
             return draft_id;
         }
 
         let order_id = Uuid::new_v4().into();
-        self.orders.insert(owner_id, DraftOrder::new(order_id)).ok();
+        self.orders
+            .insert_async(owner_id, DraftOrder::new(order_id))
+            .await
+            .ok();
 
         order_id
     }
 
-    pub fn add_file(
+    pub async fn add_file(
         &self,
         owner_id: UserId,
         filetype: FileType,
@@ -111,7 +115,8 @@ impl DraftOrderStore {
     ) -> Result<(FileId, String), AppError> {
         let mut draft = self
             .orders
-            .get(&owner_id)
+            .get_async(&owner_id)
+            .await
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
 
         if draft.files_len() == MAX_FILE_LIMIT {
@@ -126,10 +131,11 @@ impl DraftOrderStore {
         Ok((file_id, object_key))
     }
 
-    pub fn exists(&self, owner_id: UserId, order_id: OrderId) -> Result<(), AppError> {
+    pub async fn exists(&self, owner_id: UserId, order_id: OrderId) -> Result<(), AppError> {
         if self
             .orders
-            .read(&owner_id, |_, draft| draft.id)
+            .read_async(&owner_id, |_, draft| draft.id)
+            .await
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?
             == order_id
         {
@@ -139,25 +145,28 @@ impl DraftOrderStore {
         }
     }
 
-    pub fn get_order(
+    pub async fn get_order(
         &self,
         owner_id: UserId,
     ) -> Result<OccupiedEntry<UserId, DraftOrder>, AppError> {
         self.orders
-            .get(&owner_id)
+            .get_async(&owner_id)
+            .await
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))
     }
 
-    pub fn get_created_at(&self, owner_id: UserId) -> Result<DateTime<Utc>, AppError> {
+    pub async fn get_created_at(&self, owner_id: UserId) -> Result<DateTime<Utc>, AppError> {
         self.orders
-            .read(&owner_id, |_, draft| draft.created_at)
+            .read_async(&owner_id, |_, draft| draft.created_at)
+            .await
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))
     }
 
-    pub fn remove_file(&self, owner_id: UserId, file_id: FileId) -> Result<(), AppError> {
+    pub async fn remove_file(&self, owner_id: UserId, file_id: FileId) -> Result<(), AppError> {
         let mut draft = self
             .orders
-            .get(&owner_id)
+            .get_async(&owner_id)
+            .await
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
 
         draft.remove_file(file_id);
@@ -165,8 +174,8 @@ impl DraftOrderStore {
         Ok(())
     }
 
-    pub fn delete(&self, owner_id: UserId) -> bool {
-        self.orders.remove(&owner_id).is_some()
+    pub async fn delete(&self, owner_id: UserId) -> bool {
+        self.orders.remove_async(&owner_id).await.is_some()
     }
 
     #[allow(clippy::cast_possible_wrap)]
@@ -182,7 +191,8 @@ impl DraftOrderStore {
     ) -> Result<DetailedOrder, AppError> {
         let mut draft_order = self
             .orders
-            .remove(&owner_id)
+            .remove_async(&owner_id)
+            .await
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?
             .1;
 
@@ -192,14 +202,16 @@ impl DraftOrderStore {
             ));
         }
 
-        if !files.iter().all(|file| draft_order.contains_file(file.id))
-            || !services.iter().all(|service| {
-                service
-                    .file_ids
-                    .iter()
-                    .all(|file_id| draft_order.contains_file(*file_id))
-            })
-        {
+        if !files.iter().all(|file| {
+            draft_order.contains_file(file.id)
+                && !file.ranges.is_empty()
+                && file.ranges.len() <= MAX_FILE_RANGES
+        }) || !services.iter().all(|service| {
+            service
+                .file_ids
+                .iter()
+                .all(|file_id| draft_order.contains_file(*file_id))
+        }) {
             return Err(AppError::BadRequest(
                 "[4008] Malformed or missing files and/or services were provided.".into(),
             ));
@@ -269,6 +281,7 @@ impl DraftOrderStore {
         })
     }
 
+    // TODO: delete files in R2
     pub(crate) fn clear_expired(&self) {
         let now = Utc::now();
         self.orders
@@ -292,18 +305,21 @@ impl DraftOrderStore {
         next
     }
 
+    pub fn load_queue_from_db(&self, queue: u16) {
+        self.queue.store(queue - 1, Ordering::SeqCst);
+    }
+
     pub fn reset_queue(&self) {
-        self.queue.store(1, Ordering::Release);
+        self.queue.store(0, Ordering::Release);
     }
 
     #[must_use]
     #[allow(clippy::cast_possible_truncation)]
     fn convert_queue_seq_to_order_number(queue_seq: u16) -> String {
-        let (alphabet, number) = match queue_seq % 999 {
-            0 => (((queue_seq / 999) - 1 + 65), 999),
-            other => (((queue_seq / 999) + 65), other),
-        };
+        let queue_seq = queue_seq - 1;
+        let alphabet = ((queue_seq / 999) as u8 + b'A') as char;
+        let number = (queue_seq % 999) + 1;
 
-        format!("{}-{:03}", alphabet as u8 as char, number)
+        format!("{alphabet}-{number:03}")
     }
 }
