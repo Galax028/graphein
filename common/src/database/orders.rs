@@ -382,11 +382,8 @@ impl DetailedOrderQuery {
 
         let status_history = sqlx::query_as(
             "\
-            SELECT u.created_at, u.status \
-            FROM order_status_updates AS u \
-                JOIN orders AS o ON o.id = u.order_id \
-            WHERE u.order_id = $1 \
-                ORDER BY u.created_at\
+            SELECT created_at, status FROM order_status_updates \
+            WHERE order_id = $1 ORDER BY created_at\
             ",
         )
         .bind(self.id)
@@ -395,17 +392,16 @@ impl DetailedOrderQuery {
 
         let files = sqlx::query_as(
             "\
-            SELECT \
-                f.id, f.object_key, f.filename, f.filetype, f.filesize,\
-                COALESCE(ARRAY_AGG(ROW(\
-                    r.id, r.range, r.copies, r.paper_variant_id, r.paper_orientation, r.is_colour,\
-                    r.is_double_sided\
-                )::file_range ORDER BY r.index), '{}') AS ranges \
+            SELECT f.id, f.object_key, f.filename, f.filetype, f.filesize, r.ranges \
             FROM files AS f \
-                JOIN file_ranges AS r ON r.file_id = f.id \
-                JOIN orders AS o ON o.id = f.order_id \
+                JOIN LATERAL (SELECT \
+                    ARRAY_AGG(ROW(\
+                        id, range, copies, paper_variant_id, paper_orientation, is_colour,\
+                        is_double_sided \
+                    )::file_range ORDER BY index) AS ranges \
+                FROM file_ranges \
+                WHERE file_id = f.id) AS r ON true \
             WHERE f.order_id = $1 \
-                GROUP BY f.id, f.object_key, f.filename, f.filetype \
                 ORDER BY f.index\
             ",
         )
@@ -416,13 +412,13 @@ impl DetailedOrderQuery {
         let services = sqlx::query_as(
             "\
             SELECT \
-                s.type, s.binding_id, s.notes, ARRAY_AGG(f.id ORDER BY f.index) AS file_ids \
+                s.type, s.binding_colour_id, s.notes, ARRAY_AGG(f.id ORDER BY f.index) AS file_ids \
             FROM services AS s \
                 JOIN orders AS o ON o.id = s.order_id \
                 JOIN services_files AS sf ON sf.order_id = o.id AND sf.service_id = s.id \
                 JOIN files AS f ON f.id = sf.file_id \
             WHERE s.order_id = $1 \
-                GROUP BY s.index, s.type, s.binding_id, s.notes \
+                GROUP BY s.index, s.type, s.binding_colour_id, s.notes \
                 ORDER BY s.index\
             ",
         )

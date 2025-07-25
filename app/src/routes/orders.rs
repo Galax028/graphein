@@ -145,7 +145,7 @@ async fn post_orders(
     State(AppState { draft_orders, .. }): State<AppState>,
     Session { user_id, .. }: Session,
 ) -> HandlerResponse<OrderId> {
-    let order_id = draft_orders.insert(user_id);
+    let order_id = draft_orders.insert(user_id).await;
 
     Ok(ResponseBuilder::new().data(order_id).build())
 }
@@ -216,7 +216,7 @@ async fn post_orders_id_build(
     Path(order_id): Path<OrderId>,
     Json(mut request_data): Json<OrderCreate>,
 ) -> HandlerResponse<DetailedOrder> {
-    draft_orders.exists(user_id, order_id)?;
+    draft_orders.exists(user_id, order_id).await?;
     if request_data.files.is_empty() {
         return Err(AppError::BadRequest(
             "[4008] There are no files present in this order.".into(),
@@ -254,7 +254,7 @@ async fn delete_orders_id(
     session: Session,
     Path(order_id): Path<OrderId>,
 ) -> Result<StatusCode, AppError> {
-    if draft_orders.delete(session.user_id) {
+    if draft_orders.delete(session.user_id).await {
         return Ok(StatusCode::NO_CONTENT);
     }
 
@@ -320,12 +320,12 @@ async fn post_orders_id_files(
     Path(order_id): Path<OrderId>,
     Json(FileUploadCreate { filetype, filesize }): Json<FileUploadCreate>,
 ) -> HandlerResponse<FileUploadResponse> {
-    draft_orders.exists(user_id, order_id)?;
+    draft_orders.exists(user_id, order_id).await?;
 
-    let (file_id, object_key) = draft_orders.add_file(user_id, filetype, filesize)?;
+    let (file_id, object_key) = draft_orders.add_file(user_id, filetype, filesize).await?;
     let upload_url = bucket
         .presign_put(
-            &draft_orders.get_created_at(user_id)?,
+            &draft_orders.get_created_at(user_id).await?,
             filetype,
             filesize,
             &object_key,
@@ -353,8 +353,8 @@ async fn get_orders_id_files_id_thumbnail(
     session: Session,
     Path((order_id, file_id)): Path<(OrderId, FileId)>,
 ) -> Result<Response, AppError> {
-    let (object_key, filetype) = if draft_orders.exists(session.user_id, order_id).is_ok() {
-        let draft_order = draft_orders.get_order(session.user_id)?;
+    let (object_key, filetype) = if draft_orders.exists(session.user_id, order_id).await.is_ok() {
+        let draft_order = draft_orders.get_order(session.user_id).await?;
         let draft_file = draft_order
             .files
             .iter()
@@ -403,8 +403,8 @@ async fn delete_orders_id_files_id(
     Session { user_id, .. }: Session,
     Path((order_id, file_id)): Path<(OrderId, FileId)>,
 ) -> Result<StatusCode, AppError> {
-    draft_orders.exists(user_id, order_id)?;
-    let draft_order = draft_orders.get_order(user_id)?;
+    draft_orders.exists(user_id, order_id).await?;
+    let draft_order = draft_orders.get_order(user_id).await?;
     let draft_file = draft_order
         .files
         .iter()
@@ -414,7 +414,7 @@ async fn delete_orders_id_files_id(
     bucket
         .delete_file(&draft_file.object_key, draft_file.filetype)
         .await?;
-    draft_orders.remove_file(user_id, file_id)?;
+    draft_orders.remove_file(user_id, file_id).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
