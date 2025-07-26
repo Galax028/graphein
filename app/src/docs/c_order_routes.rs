@@ -216,7 +216,7 @@
 //! | `filetype`         | [`FileType`]         | No        |
 //! | `copies`           | [`i32`]              | No        |
 //! | `range`            | [`String`]           | Yes       |
-//! | `paperSizeId`      | [`Uuid`]             | No        |
+//! | `paperId`      | [`Uuid`]             | No        |
 //! | `paperOrientation` | [`PaperOrientation`] | No        |
 //! | `isColour`         | [`bool`]             | No        |
 //! | `scaling`          | [`i32`]              | No        |
@@ -317,7 +317,7 @@
 //! | `id`               | [`Uuid`]             | Yes       |
 //! | `copies`           | [`i32`]              | Yes       |
 //! | `range`            | [`String`]           | No        |
-//! | `paperSizeId`      | [`Uuid`]             | Yes       |
+//! | `paperId`      | [`Uuid`]             | Yes       |
 //! | `paperOrientation` | [`PaperOrientation`] | Yes       |
 //! | `isColour`         | [`bool`]             | Yes       |
 //! | `scaling`          | [`i32`]              | Yes       |
@@ -383,7 +383,7 @@
 //! | `filetype`         | [`FileType`]         | No        |
 //! | `copies`           | [`i32`]              | No        |
 //! | `range`            | [`String`]           | Yes       |
-//! | `paperSizeId`      | [`Uuid`]             | No        |
+//! | `paperId`      | [`Uuid`]             | No        |
 //! | `paperOrientation` | [`PaperOrientation`] | No        |
 //! | `isColour`         | [`bool`]             | No        |
 //! | `scaling`          | [`i32`]              | No        |
@@ -427,7 +427,7 @@
 //! # DELETE `/orders/{id}`
 //!
 //! Changes the status of an order to [`Cancelled`] for clients. Alternatively, changes the status
-//! of an order to [`Rejected`] for merchants.
+//! of an order to [`Rejected`] for merchants. If the order is in draft, then the draft is deleted.
 //!
 //! ## Request
 //!

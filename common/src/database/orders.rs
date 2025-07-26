@@ -50,40 +50,53 @@ impl OrdersTable {
         for (index, file) in order.files.iter().enumerate() {
             sqlx::query(
                 "\
-                INSERT INTO files (\
-                    id, order_id, filename, filetype, filesize, object_key, copies, range,\
-                    paper_size_id, paper_orientation, is_colour, scaling, is_double_sided, index\
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\
+                INSERT INTO files (id, order_id, object_key, filename, filetype, filesize, index)\
+                VALUES ($1, $2, $3, $4, $5, $6, $7)\
                 ",
             )
             .bind(file.id)
             .bind(order.id)
+            .bind(file.object_key.as_str())
             .bind(file.filename.as_str())
             .bind(file.filetype)
             .bind(file.filesize)
-            .bind(file.object_key.as_str())
-            .bind(file.copies)
-            .bind(file.range.as_ref())
-            .bind(file.paper_size_id)
-            .bind(file.paper_orientation)
-            .bind(file.is_colour)
-            .bind(file.scaling)
-            .bind(file.is_double_sided)
             .bind(index as i32)
             .execute(&mut *conn)
             .await?;
+
+            for (range_index, file_range) in file.ranges.iter().enumerate() {
+                sqlx::query(
+                    "\
+                    INSERT INTO file_ranges (\
+                        id, file_id, copies, range, paper_variant_id, paper_orientation,\
+                        is_colour, is_double_sided, index\
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\
+                    ",
+                )
+                .bind(file_range.id)
+                .bind(file.id)
+                .bind(file_range.copies)
+                .bind(file_range.range.as_ref())
+                .bind(file_range.paper_variant_id)
+                .bind(file_range.paper_orientation)
+                .bind(file_range.is_colour)
+                .bind(file_range.is_double_sided)
+                .bind(range_index as i32)
+                .execute(&mut *conn)
+                .await?;
+            }
         }
 
         for (index, service) in order.services.iter().enumerate() {
             let service_id: ServiceId = sqlx::query_scalar(
                 "\
-                INSERT INTO services (order_id, service_type, bookbinding_type_id, notes, index)\
+                INSERT INTO services (order_id, type, binding_colour_id, notes, index)\
                 VALUES ($1, $2, $3, $4, $5) RETURNING id\
                 ",
             )
             .bind(order.id)
-            .bind(service.service_type)
-            .bind(service.bookbinding_type_id.as_ref())
+            .bind(service.r#type)
+            .bind(service.binding_colour_id.as_ref())
             .bind(service.notes.as_ref())
             .bind(index as i32)
             .fetch_one(&mut *conn)
@@ -369,11 +382,8 @@ impl DetailedOrderQuery {
 
         let status_history = sqlx::query_as(
             "\
-            SELECT u.created_at, u.status \
-            FROM order_status_updates AS u \
-                JOIN orders AS o ON o.id = u.order_id \
-            WHERE u.order_id = $1 \
-                ORDER BY u.created_at\
+            SELECT created_at, status FROM order_status_updates \
+            WHERE order_id = $1 ORDER BY created_at\
             ",
         )
         .bind(self.id)
@@ -382,11 +392,15 @@ impl DetailedOrderQuery {
 
         let files = sqlx::query_as(
             "\
-            SELECT \
-                f.id, f.filename, f.filetype, f.filesize, f.object_key, f.copies, f.range,\
-                f.paper_size_id, f.paper_orientation, f.is_colour, f.scaling, f.is_double_sided \
+            SELECT f.id, f.object_key, f.filename, f.filetype, f.filesize, r.ranges \
             FROM files AS f \
-                JOIN orders AS o ON o.id = f.order_id \
+                JOIN LATERAL (SELECT \
+                    ARRAY_AGG(ROW(\
+                        id, range, copies, paper_variant_id, paper_orientation, is_colour,\
+                        is_double_sided \
+                    )::file_range ORDER BY index) AS ranges \
+                FROM file_ranges \
+                WHERE file_id = f.id) AS r ON true \
             WHERE f.order_id = $1 \
                 ORDER BY f.index\
             ",
@@ -398,14 +412,13 @@ impl DetailedOrderQuery {
         let services = sqlx::query_as(
             "\
             SELECT \
-                s.service_type, s.bookbinding_type_id, s.notes,\
-                ARRAY_AGG(f.id ORDER BY f.index) AS file_ids \
+                s.type, s.binding_colour_id, s.notes, ARRAY_AGG(f.id ORDER BY f.index) AS file_ids \
             FROM services AS s \
                 JOIN orders AS o ON o.id = s.order_id \
                 JOIN services_files AS sf ON sf.order_id = o.id AND sf.service_id = s.id \
                 JOIN files AS f ON f.id = sf.file_id \
             WHERE s.order_id = $1 \
-                GROUP BY s.index, s.service_type, s.bookbinding_type_id, s.notes \
+                GROUP BY s.index, s.type, s.binding_colour_id, s.notes \
                 ORDER BY s.index\
             ",
         )

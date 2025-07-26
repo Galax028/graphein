@@ -74,8 +74,8 @@ pub enum PaperOrientation {
 #[serde(rename_all = "camelCase")]
 #[sqlx(type_name = "service_type", rename_all = "snake_case")]
 pub enum ServiceType {
-    Bookbinding,
-    BookbindingWithCover,
+    Binding,
+    BindingWithCover,
     Laminate,
 }
 
