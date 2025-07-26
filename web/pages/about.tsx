@@ -122,9 +122,9 @@ const AboutPage: FC<PageProps> = () => {
           </div>
         </LabelGroup>
         <LabelGroup header={t("developers")}>
-          {developers.map((developer) => (
+          {developers.map((developer, idx) => (
             <DeveloperProfile
-              key={developer.name}
+              key={idx}
               name={developer.name}
               role={developer.role}
               image={developer.image}

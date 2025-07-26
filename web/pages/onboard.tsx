@@ -69,7 +69,7 @@ const OnboardPage: FC<PageProps> = () => {
   return (
     <div className="flex flex-col h-dvh">
       <NavigationBar title={t("navigationBar")} />
-      <PageLoadTransition className="relative">
+      <PageLoadTransition className="mx-auto">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <h1 className="text-title-md">{t("title")}</h1>

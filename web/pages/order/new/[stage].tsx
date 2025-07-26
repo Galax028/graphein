@@ -149,7 +149,7 @@ const BuildOrderPage: FC<PageProps> = () => {
               <>
                 {/* No files uploaded */}
                 <div className="flex flex-col gap-1">
-                  {files.map((file: File, idx) => (
+                  {files.map((file, idx) => (
                     <motion.div
                       initial={{ opacity: 0, y: 64 }}
                       animate={{ opacity: 1, y: 0 }}

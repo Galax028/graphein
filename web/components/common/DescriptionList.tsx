@@ -1,8 +1,8 @@
 import cn from "@/utils/helpers/cn";
-import type { FC } from "react";
+import { Fragment, type FC } from "react";
 
 type DescriptionListProps = {
-  data: {
+  list: {
     title: string;
     content: string;
   }[];
@@ -12,25 +12,25 @@ type DescriptionListProps = {
 /**
  * The title, description row styled in a list.
  *
- * @param data The data to show in a list. [{title: str, content: str}, ...]
+ * @param list The list to show.
  * @param expand Expanded into 2 columns in big screens or not. (Default false)
  */
 const DescriptionList: FC<DescriptionListProps> = ({
-  data,
+  list,
   expand = false,
 }) => (
   <div
     className={cn(
       `grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center`,
       // Expand is true, and the dataset has more than 1 value, use 2 columns.
-      expand && data.length > 1 && `md:grid-cols-[4.5rem_1fr_4.5rem_1fr]`,
+      expand && list.length > 1 && `md:grid-cols-[4.5rem_1fr_4.5rem_1fr]`,
     )}
   >
-    {data.map((i) => (
-      <>
-        <p className="text-body-sm opacity-50">{i.title}</p>
-        <p className="text-body-md">{i.content}</p>
-      </>
+    {list.map((item, idx) => (
+      <Fragment key={idx}>
+        <p className="text-body-sm opacity-50">{item.title}</p>
+        <p className="text-body-md">{item.content}</p>
+      </Fragment>
     ))}
   </div>
 );

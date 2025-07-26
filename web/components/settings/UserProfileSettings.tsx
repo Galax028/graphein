@@ -34,11 +34,16 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
     formState: { errors },
   } = useForm({
     mode: "onChange",
+    // @ts-expect-error This really shouldn't happen, TypeScript...
     resolver: superstructResolver(formSchema),
     defaultValues:
       // To allow for non-students to leave `class` and `classNo` fields as blank
       user.role === "student"
-        ? undefined
+        ? {
+            tel: user.tel as string | null,
+            class: user.class,
+            classNo: user.classNo,
+          }
         : {
             class: null,
             classNo: null,

@@ -48,7 +48,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
         title={t("navigationBar")}
         backEnabled={true}
       />
-      <PageLoadTransition className="flex flex-col gap-3 p-3">
+      <PageLoadTransition>
         <UserProfileSettings user={user} />
         <LabelGroup header={t("appearanceSettings.title")}>
           <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">

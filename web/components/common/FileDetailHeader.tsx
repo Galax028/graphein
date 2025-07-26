@@ -12,7 +12,6 @@ type FileDetailHeaderProps = {
   filetype: FileType;
   orderId: string;
   fileId: string;
-  copies: number;
 };
 
 /**
@@ -31,7 +30,6 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
   filetype,
   orderId,
   fileId,
-  copies,
 }) => {
   const [thumbnailSrc, setThumbnailSrc] = useState<string | null>(null);
 
@@ -109,7 +107,6 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
               {filename}.{filetype}
             </p>
             <p className="text-body-sm opacity-50">
-              {copies} {copies != 1 ? "copies" : "copy"} •{" "}
               {filetype.toUpperCase()} • {getFormattedFilesize(filesize)}
             </p>
           </div>

@@ -61,9 +61,9 @@ const DropDownCard: FC<DropDownCardProps> = ({
                   className={cn(`flex justify-between gap-2 p-2 pl-3 border-t 
             border-outline`)}
                 >
-                  {footer.map((i) => (
-                    <span key={i} className="opacity-50 text-body-sm">
-                      {i}
+                  {footer.map((item, idx) => (
+                    <span key={idx} className="opacity-50 text-body-sm">
+                      {item}
                     </span>
                   ))}
                 </div>

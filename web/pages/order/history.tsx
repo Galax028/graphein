@@ -15,10 +15,12 @@ import useUserContext from "@/utils/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import type { GetServerSideProps } from "next";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import type { FC } from "react";
 
 const OrderHistoryPage: FC<PageProps> = () => {
+  const t = useTranslations("history");
   const user = useUserContext();
 
   const {

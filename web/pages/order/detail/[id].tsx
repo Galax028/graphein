@@ -18,7 +18,7 @@ import useUserContext from "@/utils/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
 import { useLocale, useTranslations } from "next-intl";
-import type { FC } from "react";
+import { Fragment, type FC } from "react";
 
 const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
   const locale = useLocale();
@@ -83,21 +83,21 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
             }}
           />
           <DropDownCard header="About Order">
-            <DescriptionList data={aboutOrderProps} />
+            <DescriptionList list={aboutOrderProps} />
           </DropDownCard>
           <DropDownCard header="Time Log">
             <div
               className={`grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center`}
             >
-              {detailedOrder.statusHistory.map((item) => (
-                <>
+              {detailedOrder.statusHistory.map((item, idx) => (
+                <Fragment key={idx}>
                   <p className="text-body-sm opacity-50">
                     {statusTranslation[item.status]}
                   </p>
                   <p className="text-body-md">
                     {getFormattedDateTime(locale, new Date(item.timestamp))}
                   </p>
-                </>
+                </Fragment>
               ))}
             </div>
           </DropDownCard>
@@ -124,7 +124,6 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
                 filetype={file.filetype}
                 orderId={detailedOrder.id}
                 fileId={file.id}
-                copies={file.copies}
                 key={idx}
               />
             ))}

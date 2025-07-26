@@ -71,13 +71,16 @@ export type File = {
   filename: string;
   filetype: FileType;
   filesize: number;
-  copies: number;
+  ranges: FileRange[];
+};
+
+export type FileRange = {
   range: string | null;
-  paperSizeId: number;
+  copies: number;
+  paperVariantId: number;
   paperOrientation: "portrait" | "landscape";
-  isColour: boolean;
-  scaling: number;
   isDoubleSided: boolean;
+  isColour: boolean;
 };
 
 export type Service = {
