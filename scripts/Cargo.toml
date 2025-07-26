@@ -1,0 +1,15 @@
+[package]
+name = "scripts"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+clap = { version = "4.5.41", features = ["derive", "env"]}
+clap_derive = "4.5.41"
+dotenvy.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
