@@ -281,11 +281,29 @@ impl DraftOrderStore {
         })
     }
 
-    // TODO: delete files in R2
-    pub(crate) fn clear_expired(&self) {
+    pub(crate) async fn clear_expired(&self, bucket: &R2Bucket) {
         let now = Utc::now();
+        let mut expired_files = Vec::new();
         self.orders
-            .retain(|_, draft| (now - draft.created_at).num_minutes() <= 15);
+            .retain_async(|_, draft| {
+                if (now - draft.created_at).num_minutes() <= 15 {
+                    true
+                } else {
+                    draft.files.iter().for_each(|draft_file| {
+                        expired_files.push((draft_file.object_key.clone(), draft_file.filetype))
+                    });
+
+                    false
+                }
+            })
+            .await;
+
+        stream::iter(expired_files.iter().map(Ok))
+            .try_for_each_concurrent(None, |(object_key, filetype)| {
+                bucket.delete_file(object_key, *filetype)
+            })
+            .await
+            .ok();
     }
 
     #[must_use]

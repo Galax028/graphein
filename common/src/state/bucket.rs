@@ -14,13 +14,13 @@ use crate::{AppError, error::NotFoundError, schemas::enums::FileType};
 #[derive(Clone, Debug)]
 pub struct R2Bucket {
     inner: Arc<Bucket>,
-    bucket_name: String,
+    bucket_name: Arc<str>,
 }
 
 impl R2Bucket {
     pub fn new(
         account_id: String,
-        bucket_name: String,
+        bucket_name: &str,
         access_key_id: &str,
         secret_access_key: &str,
     ) -> AnyhowResult<Self> {
@@ -38,7 +38,7 @@ impl R2Bucket {
             )?
             .with_path_style()
             .into(),
-            bucket_name,
+            bucket_name: Arc::from(bucket_name),
         })
     }
 
@@ -89,7 +89,7 @@ impl R2Bucket {
         let buckets = self.inner.list(object_key.to_string(), None).await?;
         let objects = buckets
             .iter()
-            .filter_map(|b| (b.name == self.bucket_name).then_some(&b.contents))
+            .filter_map(|b| (*b.name == *self.bucket_name).then_some(&b.contents))
             .flatten()
             .map(|o| o.key.as_str())
             .collect::<Vec<&str>>();
