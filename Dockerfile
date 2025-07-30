@@ -3,14 +3,14 @@ WORKDIR /app
 
 FROM chef AS planner
 COPY . .
-RUN cargo chef prepare --recipe-path recipe.json
+RUN cargo chef prepare --bin graphein-app
 
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN apt-get update && apt-get install -y pkg-config libssl-dev libvips-dev
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --release --bin graphein-app
+RUN cargo build --bin graphein-app --release
 
 # We have no choice but to use Debian Sid due to `libvips` being outdated in Debian Bookworm
 FROM debian:sid-slim AS runtime
