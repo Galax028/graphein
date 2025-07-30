@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
         pool,
         R2Bucket::new(
             config.r2_account_id().to_owned(),
-            config.r2_bucket_name().to_owned(),
+            config.r2_bucket_name(),
             config.r2_access_key_id(),
             config.r2_secret_access_key(),
         )?,

@@ -63,6 +63,7 @@ impl DaemonController {
         tokio::task::Builder::new()
             .name("Draft Orders Cleaner")
             .spawn(clean_draft_orders(
+                self.app_state.bucket.clone(),
                 self.app_state.draft_orders.clone(),
                 self.canceller.clone(),
             ))
@@ -149,10 +150,14 @@ async fn clean_oauth_states(oauth_states: Arc<Mutex<OAuthStates>>, token: Cancel
     }
 }
 
-async fn clean_draft_orders(draft_orders: DraftOrderStore, token: CancellationToken) {
-    async fn inner(draft_orders: DraftOrderStore) {
+async fn clean_draft_orders(
+    bucket: R2Bucket,
+    draft_orders: DraftOrderStore,
+    token: CancellationToken,
+) {
+    async fn inner(bucket: R2Bucket, draft_orders: DraftOrderStore) {
         loop {
-            draft_orders.clear_expired();
+            draft_orders.clear_expired(&bucket).await;
 
             tokio::time::sleep(StdDuration::from_secs(60)).await;
         }
@@ -160,7 +165,7 @@ async fn clean_draft_orders(draft_orders: DraftOrderStore, token: CancellationTo
 
     tokio::select! {
         () = token.cancelled() => (),
-        res = inner(draft_orders) => res,
+        res = inner(bucket, draft_orders) => res,
     }
 }
 
