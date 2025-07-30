@@ -5,14 +5,14 @@ import type {
   Uuid,
 } from "@/utils/types/common";
 
-export type SuccessAPIResponse<T extends object> = {
+export type SuccessAPIResponse<T> = {
   success: true;
   timestamp: string;
   data: T;
   pagination: never;
 };
 
-export type PaginatedAPIResponse<T extends object> = {
+export type PaginatedAPIResponse<T> = {
   success: true;
   timestamp: string;
   data: T;
@@ -31,7 +31,7 @@ export type FailedAPIResponse = {
   error: string;
 };
 
-export type APIResponse<T extends object> =
+export type APIResponse<T> =
   | SuccessAPIResponse<T>
   | PaginatedAPIResponse<T>
   | FailedAPIResponse;
@@ -83,12 +83,40 @@ export type FileRange = {
   isColour: boolean;
 };
 
-export type Service = {
-  serviceType: "bookbinding" | "bookbindingWithCover" | "laminate";
-  bookbindingTypeId: number | null;
-  notes: string | null;
-  fileIds: Uuid[];
+export type FileCreate = {
+  id: Uuid;
+  filename: string;
+  ranges: FileRangeCreate[];
 };
+
+export type FileRangeCreate = {
+  range: string | null;
+  copies: number;
+  paperVariantId: number;
+  paperOrientation: "portrait" | "landscape";
+  isColour: boolean;
+  isDoubleSided: boolean;
+};
+
+export type FileUploadResponse = {
+  id: Uuid;
+  objectKey: string;
+  uploadUrl: string;
+};
+
+type BaseService = { notes: string | null; fileIds: Uuid[] };
+
+export type BookbindingService = {
+  serviceType: "bookbinding" | "bookbindingWithCover";
+  bookbindingTypeId: number;
+} & BaseService;
+
+export type LaminateService = {
+  serviceType: "laminate";
+  bookbindingTypeId: null;
+} & BaseService;
+
+export type Service = BookbindingService | LaminateService;
 
 export type OrderStatusUpdate = {
   timestamp: string;

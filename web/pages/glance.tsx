@@ -11,7 +11,7 @@ import {
 } from "@/query/fetchOrdersGlance";
 import { prefetchUser } from "@/query/fetchUser";
 import getGreetingMessage from "@/utils/helpers/glance/getGreetingMessage";
-import checkBuildingOrderExpired from "@/utils/helpers/order/new/checkBuildingOrderExpired";
+import checkIsBuildingOrder from "@/utils/helpers/order/new/checkIsBuildingOrder";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { CompactOrder } from "@/utils/types/backend";
 import type { PageProps } from "@/utils/types/common";
@@ -32,14 +32,14 @@ const GlancePage: FC<PageProps> = () => {
 
   const { data: ordersGlance, status } = useOrdersGlanceQuery();
 
-  const [showNewOrderWarningDialog, setShowNewOrderWarningDialog] =
-    useState(false);
-  const [isOrderExpired, setIsOrderExpired] = useState(false);
+  const [isBuildingOrder, setIsBuildingOrder] = useState<boolean | null>(null);
+  const [showNewOrderWarning, setShowNewOrderWarning] = useState(false);
 
-  useEffect(() => setIsOrderExpired(checkBuildingOrderExpired()), []);
+  useEffect(() => setIsBuildingOrder(checkIsBuildingOrder()), []);
 
   // TODO: This one should be self-descriptive
-  if (status === "pending" || status == "error") return <></>;
+  if (status === "pending" || status === "error" || isBuildingOrder === null)
+    return <></>;
 
   const sections = [
     {
@@ -99,37 +99,39 @@ const GlancePage: FC<PageProps> = () => {
             </Button>
           </Link>
         </div>
-        <div className="fixed px-3 w-full max-w-lg md:w-[24rem] mx-auto left-0 right-0 bottom-3">
-          <Button
-            className="w-full"
-            appearance={"filled"}
-            icon={isOrderExpired ? "add" : "check"}
-            onClick={() => {
-              if (isOrderExpired) {
-                setShowNewOrderWarningDialog(true);
-              } else {
-                router.push("/order/new");
-              }
-            }}
-          >
-            {t(isOrderExpired ? "orderButton.new" : "orderButton.finish")}
-          </Button>
-        </div>
       </PageLoadTransition>
+
+      <div className="fixed px-3 w-full max-w-lg md:w-[24rem] mx-auto left-0 right-0 bottom-3">
+        <Button
+          className="w-full"
+          appearance="filled"
+          icon={isBuildingOrder ? "check" : "add"}
+          onClick={() => {
+            if (isBuildingOrder) {
+              router.push("/order/new/upload");
+            } else {
+              setShowNewOrderWarning(true);
+            }
+          }}
+        >
+          {t(isBuildingOrder ? "orderButton.finish" : "orderButton.new")}
+        </Button>
+      </div>
+
       <AnimatePresence>
-        {showNewOrderWarningDialog && (
+        {showNewOrderWarning && (
           <Dialog
             title={t("expiryWarning.title")}
             desc={t("expiryWarning.description")}
-            setClickOutside={setShowNewOrderWarningDialog}
+            setClickOutside={setShowNewOrderWarning}
           >
             <Button
               appearance="tonal"
-              onClick={() => setShowNewOrderWarningDialog(false)}
+              onClick={() => setShowNewOrderWarning(false)}
             >
               {tx("action.nevermind")}
             </Button>
-            <Link href={"/order/new"} className="w-full">
+            <Link href="/order/new/upload" className="w-full">
               <Button appearance="filled" className="w-full">
                 {tx("action.start")}
               </Button>

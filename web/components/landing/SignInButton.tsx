@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import type { FC } from "react";
+import { useState, type FC } from "react";
 
 /**
  * The sign in button using the application's design language.
@@ -18,12 +18,21 @@ const SignInButton: FC = () => {
   const t = useTranslations();
   const queryClient = useQueryClient();
 
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
   const onSignInButtonClick = () => {
+    setIsSigningIn(true);
     const signInWindow = window.open(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/google/init",
       "_blank",
       "popup, width=800, height=600",
     );
+    const popupCloseCheckInterval = window.setInterval(() => {
+      if (signInWindow?.closed) {
+        clearTimeout(popupCloseCheckInterval);
+        setIsSigningIn(false);
+      }
+    }, 500);
 
     window.addEventListener(
       "message",
@@ -39,15 +48,20 @@ const SignInButton: FC = () => {
   };
 
   return (
-    <Button appearance={"tonal"} onClick={onSignInButtonClick}>
+    <Button
+      appearance="tonal"
+      onClick={onSignInButtonClick}
+      busy={isSigningIn}
+      busyWithText={false}
+    >
       <Image
-        src={"/images/common/google-logo_light.svg"}
+        src="/images/common/google-logo_light.svg"
         width={18}
         height={18}
         alt="Google Logo"
         className="aspect-square"
       />
-      <span className="block w-full pr-3">{t("container.signInButton")}</span>
+        <span className="block w-full pr-3">{t("container.signInButton")}</span>
     </Button>
   );
 };

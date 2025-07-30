@@ -18,6 +18,14 @@ export type UserRole = (typeof userRoles)[number];
 export const fileTypes = ["pdf", "png", "jpg"] as const;
 export type FileType = (typeof fileTypes)[number];
 
+export const orderStages = [
+  "uploadFiles",
+  "configOrder",
+  "configServices",
+  "review",
+] as const;
+export type OrderStage = (typeof orderStages)[number];
+
 export const orderStatuses = [
   "reviewing",
   "processing",
@@ -29,3 +37,6 @@ export const orderStatuses = [
 export type OrderStatus = (typeof orderStatuses)[number];
 
 export type Uuid = string;
+
+export const MAX_FILE_LIMIT = 10;
+export const MAX_FILE_RANGES = 5;

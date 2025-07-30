@@ -13,6 +13,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@material-symbols/font-300": "^0.31.2",
     "@tanstack/react-query": "^5.81.5",
+    "dayjs": "^1.11.13",
     "motion": "^12.10.5",
     "motion-utils": "^12.19.0",
     "next": "15.3.1",

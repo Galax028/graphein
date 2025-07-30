@@ -64,6 +64,7 @@ const Button: FC<ButtonProps> = ({
             (appearance == "tonal" ? "!bg-surface-container" : "!bg-primary"),
         className,
       )}
+      disabled={disabled}
       {...props}
     >
       {busy ? (

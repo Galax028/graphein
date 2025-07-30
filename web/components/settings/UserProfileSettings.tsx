@@ -2,6 +2,7 @@ import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
+import cn from "@/utils/helpers/cn";
 import type { User } from "@/utils/types/backend";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { useTranslations } from "next-intl";
@@ -40,11 +41,12 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
       // To allow for non-students to leave `class` and `classNo` fields as blank
       user.role === "student"
         ? {
-            tel: user.tel as string | null,
+            tel: user.tel,
             class: user.class,
             classNo: user.classNo,
           }
         : {
+            tel: user.role === "teacher" ? user.tel : undefined,
             class: null,
             classNo: null,
           },
@@ -95,7 +97,10 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           />
         </LabelGroup>
         <LabelGroup
-          className="[&>p]:last:text-error [&>p]:last:opacity-100!"
+          className={cn(
+            "[&>p]:last:text-error [&>p]:last:opacity-100!",
+            user.role !== "student" && "hidden",
+          )}
           header={tx("userSettings.classAndNo")}
           footer={
             (errors.class || errors.classNo) &&

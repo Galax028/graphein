@@ -3,7 +3,6 @@ import cn from "@/utils/helpers/cn";
 import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import type { FileType } from "@/utils/types/common";
 import { motion } from "motion/react";
-import Image from "next/image";
 import { type FC, useEffect, useState } from "react";
 
 type FileDetailHeaderProps = {
@@ -93,7 +92,8 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
               }}
               className="p-1 bg-outline !w-16 !h-16 aspect-square rounded-sm"
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={thumbnailSrc}
                 width={56}
                 height={56}
