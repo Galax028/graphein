@@ -20,6 +20,7 @@ pub struct Config {
     database_url: String,
     no_migrate: bool,
     secret: String,
+    healthcheck_token: String,
     session_expiry_time: StdDuration,
     shop_utc_offset: FixedOffset,
     thumbnail_size: NonZeroU32,
@@ -51,6 +52,8 @@ impl Config {
             .parse()
             .context("Invalid value for environment variable `NO_MIGRATE`")?;
         let secret = var("SECRET").context("Missing environment variable `SECRET`")?;
+        let healthcheck_token =
+            var("HEALTHCHECK_TOKEN").context("Missing environment variable `HEALTHCHECK_TOKEN`")?;
         let session_expiry_time = StdDuration::from_secs(
             var("SESSION_EXPIRY_TIME")
                 .unwrap_or(String::from("604800")) // 1 Week
@@ -88,6 +91,7 @@ impl Config {
             database_url,
             no_migrate,
             secret,
+            healthcheck_token,
             session_expiry_time,
             shop_utc_offset,
             thumbnail_size,
@@ -134,6 +138,11 @@ impl Config {
     #[must_use]
     pub fn secret(&self) -> &str {
         &self.secret
+    }
+
+    #[must_use]
+    pub fn healthcheck_token(&self) -> &str {
+        &self.healthcheck_token
     }
 
     #[must_use]

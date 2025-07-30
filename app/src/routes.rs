@@ -1,13 +1,22 @@
 use std::time::Duration;
 
-use axum::{Router, extract::Request, response::Response, routing::get};
+use axum::{
+    Router,
+    extract::{Request, State},
+    response::Response,
+    routing::get,
+};
 use http::{HeaderValue, Method};
+use serde::Deserialize;
 use tower_http::{
     cors::{AllowHeaders, CorsLayer},
     trace::TraceLayer,
 };
 
-use graphein_common::{AppError, AppState, error::NotFoundError};
+use graphein_common::{
+    AppError, AppState, HandlerResponse, error::NotFoundError, extract::QsQuery,
+    response::ResponseBuilder,
+};
 use tracing::Span;
 
 mod auth;
@@ -21,6 +30,7 @@ mod user;
 #[allow(clippy::needless_pass_by_value)]
 pub fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
+        .route("/_internal/healthcheck", get(get_healthcheck))
         .nest("/auth", auth::expand_router(state.clone()))
         .nest("/user", user::expand_router(state.clone()))
         .nest("/orders", orders::expand_router(state.clone()))
@@ -62,4 +72,25 @@ pub fn expand_router(state: AppState) -> Router<AppState> {
                     );
                 }),
         )
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+struct HealthCheckQueryParams {
+    token: String,
+}
+
+async fn get_healthcheck(
+    State(AppState {
+        config, ref pool, ..
+    }): State<AppState>,
+    QsQuery(HealthCheckQueryParams { ref token }): QsQuery<HealthCheckQueryParams>,
+) -> HandlerResponse<&'static str> {
+    if token != config.healthcheck_token() {
+        return Err(AppError::NotFound(NotFoundError::PathNotFound));
+    }
+
+    sqlx::query("SELECT 1").execute(pool).await?;
+
+    Ok(ResponseBuilder::new().data("ok").build())
 }

@@ -12,6 +12,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/postgres
       NO_MIGRATE: ${NO_MIGRATE}
       SECRET: ${SECRET}
+      HEALTHCHECK_TOKEN: ${HEALTHCHECK_TOKEN}
       SESSION_EXPIRY_TIME: ${SESSION_EXPIRY_TIME}
       SHOP_UTC_OFFSET: ${SHOP_UTC_OFFSET}
       THUMBNAIL_SIZE: ${THUMBNAIL_SIZE}
@@ -21,11 +22,15 @@ services:
       R2_BUCKET_NAME: ${R2_BUCKET_NAME}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -f http://localhost:80/_internal/healthcheck"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 5
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:80/_internal/healthcheck?token=$$HEALTHCHECK_TOKEN",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - ${GRAPHEIN_PORT}:80
     restart: always
