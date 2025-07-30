@@ -3,6 +3,7 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Phawat Suksiriwan <phawat@suksiriwan.com>"]
 publish = false
+rust-version = "1.88"
 
 [workspace]
 resolver = "3"
