@@ -3,5 +3,4 @@
 .next/
 .vscode/
 node_modules/
-scripts/
 target/
