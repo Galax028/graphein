@@ -5,6 +5,8 @@ use anyhow::{Context as _, Result};
 use axum::Router;
 use sqlx::postgres::PgPoolOptions;
 use tokio::{net::TcpListener, runtime::Handle};
+#[cfg(debug_assertions)]
+use tracing_subscriber::Layer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use graphein_app::expand_router;
@@ -12,14 +14,26 @@ use graphein_common::{AppState, Config, R2Bucket, Thumbnailer, daemons::DaemonCo
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::builder().parse(
-            #[cfg(debug_assertions)]
-            "graphein_app=debug,graphein_common=debug,sqlx=trace,tower_http=trace",
-            #[cfg(not(debug_assertions))]
-            "graphein_app=info,graphein_common=info,sqlx=warn,tower_http=warn",
-        )?)
-        .with(tracing_subscriber::fmt::layer())
+    #[cfg(debug_assertions)]
+    let tracing_registry = tracing_subscriber::registry().with(
+        console_subscriber::ConsoleLayer::builder()
+            .with_default_env()
+            .spawn()
+            .with_filter(
+                tracing_subscriber::EnvFilter::builder().parse("tokio=trace,runtime=trace")?,
+            ),
+    );
+    #[cfg(not(debug_assertions))]
+    let tracing_registry = tracing_subscriber::registry();
+    tracing_registry
+        .with(tracing_subscriber::fmt::layer().with_filter(
+            tracing_subscriber::EnvFilter::builder().parse(
+                #[cfg(debug_assertions)]
+                "graphein_app=debug,graphein_common=debug,sqlx=trace,tower_http=trace",
+                #[cfg(not(debug_assertions))]
+                "graphein_app=info,graphein_common=info,sqlx=warn,tower_http=warn",
+            )?,
+        ))
         .try_init()?;
 
     let config = Config::try_from_dotenv().context("Failed to parse config")?;
