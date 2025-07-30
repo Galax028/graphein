@@ -44,20 +44,29 @@ impl DaemonController {
         handle: Handle,
         thumbnailer_rx: Receiver<(String, FileType)>,
     ) -> Self {
-        tokio::spawn(fetch_google_jwks(
-            self.app_state.http.clone(),
-            self.canceller.clone(),
-        ));
+        tokio::task::Builder::new()
+            .name("Google JWKS Fetcher")
+            .spawn(fetch_google_jwks(
+                self.app_state.http.clone(),
+                self.canceller.clone(),
+            ))
+            .unwrap();
 
-        tokio::spawn(clean_oauth_states(
-            Arc::clone(&self.app_state.oauth_states),
-            self.canceller.clone(),
-        ));
+        tokio::task::Builder::new()
+            .name("OAuth States Cleaner")
+            .spawn(clean_oauth_states(
+                Arc::clone(&self.app_state.oauth_states),
+                self.canceller.clone(),
+            ))
+            .unwrap();
 
-        tokio::spawn(clean_draft_orders(
-            self.app_state.draft_orders.clone(),
-            self.canceller.clone(),
-        ));
+        tokio::task::Builder::new()
+            .name("Draft Orders Cleaner")
+            .spawn(clean_draft_orders(
+                self.app_state.draft_orders.clone(),
+                self.canceller.clone(),
+            ))
+            .unwrap();
 
         let bucket = self.app_state.bucket.clone();
         let thumbnail_size = self.app_state.config.thumbnail_size();

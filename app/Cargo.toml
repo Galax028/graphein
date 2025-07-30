@@ -12,6 +12,7 @@ axum.workspace = true
 axum-extra.workspace = true
 axum-macros.workspace = true
 chrono.workspace = true
+console-subscriber.workspace = true
 futures.workspace = true
 graphein-common = { path = "../common" }
 headers.workspace = true
