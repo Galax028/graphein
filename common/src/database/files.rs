@@ -9,6 +9,7 @@ use crate::{
 pub struct FilesTable;
 
 impl FilesTable {
+    #[tracing::instrument(skip_all, err)]
     pub async fn fetch_one_for_metadata_from_order(
         conn: &mut PgConnection,
         order_id: OrderId,

@@ -96,6 +96,7 @@ impl DaemonController {
     }
 }
 
+#[tracing::instrument(skip_all, err)]
 async fn fetch_google_jwks(http: ReqwestClient, token: CancellationToken) -> AnyhowResult<()> {
     async fn inner(http: ReqwestClient) -> AnyhowResult<()> {
         loop {
@@ -170,6 +171,7 @@ async fn clean_draft_orders(
 }
 
 #[allow(clippy::needless_pass_by_value)]
+#[tracing::instrument(skip_all, err)]
 fn thumbnailer_loop(
     handle: Handle,
     bucket: R2Bucket,

@@ -60,6 +60,7 @@ pub fn hmac_sign(key: &[u8], state: [u8; 32]) -> String {
     format!("{hmac:x}")
 }
 
+#[tracing::instrument(skip_all, err)]
 pub fn hmac_verify(key: &[u8], state: &[u8], sig: &[u8]) -> Result<(), AuthError> {
     Hmac::<Sha256>::new_from_slice(key)
         .unwrap() // Infallible
@@ -68,6 +69,7 @@ pub fn hmac_verify(key: &[u8], state: &[u8], sig: &[u8]) -> Result<(), AuthError
         .map_err(|_| AuthError::InvalidOAuthFlow)
 }
 
+#[tracing::instrument(skip_all, err)]
 pub fn decode_and_verify_id_token(
     id_token: &str,
     jwks: &ArcSwap<JwkSet>,

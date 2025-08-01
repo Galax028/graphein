@@ -27,6 +27,7 @@ impl SessionId {
         Self(id)
     }
 
+    #[tracing::instrument(skip_all, err)]
     fn new_from_str(session_id: &str) -> Result<Self, AuthError> {
         Ok(Self::new(
             hex::decode(session_id)?
@@ -35,6 +36,7 @@ impl SessionId {
         ))
     }
 
+    #[tracing::instrument(skip_all, err)]
     fn new_from_token(session_token: &str) -> Result<(Self, [u8; 32]), AuthError> {
         let (id, signature) = session_token
             .split_once('.')
@@ -79,6 +81,7 @@ impl SessionStore {
     }
 
     /// Issues a new session in the session store and returns the session ID signed with HMAC.
+    #[tracing::instrument(skip_all, err)]
     pub async fn issue(
         &self,
         user_id: UserId,
@@ -122,6 +125,7 @@ impl SessionStore {
     }
 
     /// Sets the `is_onboarded` value of a session to `true`.
+    #[tracing::instrument(skip_all, err)]
     pub async fn set_onboard(&self, session_id: &str) -> Result<(), AuthError> {
         let (session_id, signature) = SessionId::new_from_token(session_id)?;
         self.verify_session_signature(session_id, signature).await?;
@@ -136,6 +140,7 @@ impl SessionStore {
 
     /// Retrieves a session from the session store. Will return an error if HMAC signature is
     /// incorrect or the session ID token is malformed.
+    #[tracing::instrument(skip_all, err)]
     pub async fn get(&self, session_id: &str) -> Result<Session, AuthError> {
         let (session_id, signature) = SessionId::new_from_token(session_id)?;
         self.verify_session_signature(session_id, signature).await?;
@@ -159,6 +164,7 @@ impl SessionStore {
     }
 
     /// Removes a session from the session store.
+    #[tracing::instrument(skip_all, err)]
     pub async fn remove(&self, session_id: &str) -> Result<(), AuthError> {
         let (session_id, signature) = SessionId::new_from_token(session_id)?;
         self.verify_session_signature(session_id, signature).await?;
@@ -172,6 +178,7 @@ impl SessionStore {
     }
 
     /// Loads all the sessions from the database into the session store.
+    #[tracing::instrument(skip_all, err)]
     pub async fn load(&self, pool: PgPool) -> AnyhowResult<()> {
         sqlx::query!(
             "\
@@ -209,6 +216,7 @@ impl SessionStore {
     }
 
     /// Commits all the sessions in the session store into the database.
+    #[tracing::instrument(skip_all, err)]
     pub async fn commit(&self, pool: PgPool) -> SqlxResult<()> {
         let now = Utc::now();
         self.store
@@ -251,6 +259,7 @@ impl SessionStore {
         Ok(())
     }
 
+    #[tracing::instrument(skip_all, err)]
     async fn verify_session_signature(
         &self,
         session_id: SessionId,
