@@ -14,7 +14,6 @@ axum-extra.workspace = true
 axum-macros.workspace = true
 bytes.workspace = true
 chrono.workspace = true
-dashmap.workspace = true
 derive_more.workspace = true
 dotenvy.workspace = true
 futures.workspace = true
