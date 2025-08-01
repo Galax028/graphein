@@ -1,4 +1,4 @@
-use anyhow::Result as AnyhowResult;
+use anyhow::{Context as _, Result as AnyhowResult};
 use chrono::NaiveTime;
 use clap_derive::Args;
 
@@ -38,7 +38,8 @@ pub(super) async fn run(database_url: String, args: Args) -> AnyhowResult<()> {
         args.close_time,
     )
     .execute(&mut *tx)
-    .await?;
+    .await
+    .context("Failed while trying to create settings")?;
     println!("Created settings");
 
     let paper_id = sqlx::query_scalar!(
@@ -49,7 +50,8 @@ pub(super) async fn run(database_url: String, args: Args) -> AnyhowResult<()> {
         true,
     )
     .fetch_one(&mut *tx)
-    .await?;
+    .await
+    .context("Failed while trying to create paper")?;
     sqlx::query!(
         "\
         INSERT INTO paper_variants (paper_id, name, is_default, is_laminatable)\
@@ -61,7 +63,8 @@ pub(super) async fn run(database_url: String, args: Args) -> AnyhowResult<()> {
         true,
     )
     .execute(&mut *tx)
-    .await?;
+    .await
+    .context("Failed while trying to create paper variant")?;
     println!("Created a default paper size and variant");
 
     let merchant_id = sqlx::query_scalar!(
@@ -75,7 +78,8 @@ pub(super) async fn run(database_url: String, args: Args) -> AnyhowResult<()> {
         "<empty-by-design>",
     )
     .fetch_one(&mut *tx)
-    .await?;
+    .await
+    .context("Failed while trying to create a merchant account")?;
     println!("Created a merchant user with ID `{merchant_id}`");
 
     Ok(tx.commit().await?)

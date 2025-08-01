@@ -3,7 +3,7 @@
 
 use anyhow::Result as AnyhowResult;
 use clap::Parser as _;
-use scripts::{Cli, run_command};
+use graphein_scripts::{Cli, run_command};
 
 #[tokio::main]
 async fn main() -> AnyhowResult<()> {

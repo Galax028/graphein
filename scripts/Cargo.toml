@@ -1,5 +1,5 @@
 [package]
-name = "scripts"
+name = "graphein-scripts"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

@@ -13,7 +13,7 @@ use sqlx::{PgPool, postgres::PgPoolOptions};
 use crate::commands::Command;
 
 #[derive(Debug, Parser)]
-#[command(name = "graphein-scripts", version)]
+#[command(version)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
