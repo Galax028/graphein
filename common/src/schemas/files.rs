@@ -19,7 +19,7 @@ pub struct File {
     pub(crate) ranges: Vec<FileRange>,
 }
 
-#[derive(Debug, Deserialize, FromRow, SqlxType, Serialize)]
+#[derive(Debug, Deserialize, FromRow, Serialize, SqlxType)]
 #[serde(rename_all = "camelCase")]
 #[sqlx(type_name = "file_range")]
 pub struct FileRange {

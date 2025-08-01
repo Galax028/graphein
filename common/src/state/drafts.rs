@@ -122,7 +122,7 @@ impl DraftOrderStore {
 
         if draft.files_len() == MAX_FILE_LIMIT {
             return Err(AppError::BadRequest(
-                "[4008] This order has already reached the maximum file limit.".into(),
+                "[4006] This order has already reached the maximum file limit.".into(),
             ));
         }
 
@@ -203,7 +203,7 @@ impl DraftOrderStore {
 
         if draft_order.files_len() == 0 {
             return Err(AppError::BadRequest(
-                "[4008] There are no files present in this order.".into(),
+                "[4006] There are no files present in this order.".into(),
             ));
         }
 
@@ -218,7 +218,7 @@ impl DraftOrderStore {
                 .all(|file_id| draft_order.contains_file(*file_id))
         }) {
             return Err(AppError::BadRequest(
-                "[4008] Malformed or missing files and/or services were provided.".into(),
+                "[4006] Malformed or missing files and/or services were provided.".into(),
             ));
         }
 
@@ -230,7 +230,7 @@ impl DraftOrderStore {
             .is_err()
         {
             return Err(AppError::BadRequest(
-                "[4008] Object(s) bound to the order were not provided.".into(),
+                "[4006] Object(s) bound to the order were not provided.".into(),
             ));
         }
 

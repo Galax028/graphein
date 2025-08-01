@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::prelude::FromRow;
+use sqlx::FromRow;
 
 use crate::schemas::{File, FileCreate, OrderId, Service, User, UserId, enums::OrderStatus};
 

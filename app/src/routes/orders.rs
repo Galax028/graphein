@@ -177,8 +177,7 @@ async fn post_orders_id_status(
         .await?;
 
     let mut tx = conn.begin().await?;
-    let previous_status = OrdersTable::fetch_status_for_update(&mut tx, order_id)
-        .await?;
+    let previous_status = OrdersTable::fetch_status_for_update(&mut tx, order_id).await?;
     let next_status = match previous_status {
         OrderStatus::Reviewing => OrderStatus::Processing,
         OrderStatus::Processing => OrderStatus::Ready,
@@ -189,8 +188,7 @@ async fn post_orders_id_status(
             ));
         }
     };
-    let order_status_update = OrdersTable::update_status(&mut tx, order_id, next_status)
-        .await?;
+    let order_status_update = OrdersTable::update_status(&mut tx, order_id, next_status).await?;
     tx.commit().await?;
 
     Ok(ResponseBuilder::new().data(order_status_update).build())
@@ -210,7 +208,7 @@ async fn post_orders_id_build(
     draft_orders.exists(user_id, order_id).await?;
     if request_data.files.is_empty() {
         return Err(AppError::BadRequest(
-            "[4008] There are no files present in this order.".into(),
+            "[4006] There are no files present in this order.".into(),
         ));
     }
 
@@ -227,8 +225,7 @@ async fn post_orders_id_build(
 
     let order = draft_orders.build(&bucket, user_id, request_data).await?;
     let mut tx = pool.begin().await?;
-    OrdersTable::create_new(&mut tx, &order)
-        .await?;
+    OrdersTable::create_new(&mut tx, &order).await?;
     tx.commit().await?;
 
     Ok(ResponseBuilder::new()
@@ -258,8 +255,7 @@ async fn delete_orders_id(
         UserRole::Student | UserRole::Teacher => OrderStatus::Cancelled,
         UserRole::Merchant => OrderStatus::Rejected,
     };
-    OrdersTable::update_status(&mut conn, order_id, cancelled_or_rejected)
-        .await?;
+    OrdersTable::update_status(&mut conn, order_id, cancelled_or_rejected).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -357,8 +353,8 @@ async fn get_orders_id_files_id_thumbnail(
             .test(&mut conn)
             .await?;
 
-        let file = FilesTable::fetch_one_for_metadata_from_order(&mut conn, order_id, file_id)
-            .await?;
+        let file =
+            FilesTable::fetch_one_for_metadata_from_order(&mut conn, order_id, file_id).await?;
 
         (file.object_key, file.filetype)
     };
