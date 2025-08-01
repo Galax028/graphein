@@ -40,3 +40,11 @@ CREATE TYPE file_range AS (
     is_colour         boolean,
     is_double_sided   boolean
 );
+
+CREATE TYPE paper_variant AS (
+    id             integer,
+    name           text,
+    is_default     boolean,
+    is_available   boolean,
+    is_laminatable boolean
+);

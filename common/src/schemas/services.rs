@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
-use sqlx::prelude::FromRow;
+use sqlx::FromRow;
 
-use crate::schemas::{
-    BindingColourId, BindingId, FileId, PaperId, PaperVariantId, enums::ServiceType,
-};
+use crate::schemas::{BindingColourId, BindingId, FileId, enums::ServiceType};
 
 #[derive(Debug, Deserialize, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -12,27 +10,6 @@ pub struct Service {
     pub(crate) binding_colour_id: Option<BindingColourId>,
     pub(crate) notes: Option<String>,
     pub(crate) file_ids: Vec<FileId>,
-}
-
-#[derive(Debug, Deserialize, FromRow, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Paper {
-    id: PaperId,
-    name: String,
-    length: i32,
-    width: i32,
-    is_default: bool,
-    variants: Vec<PaperVariant>,
-}
-
-#[derive(Debug, Deserialize, FromRow, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PaperVariant {
-    id: PaperVariantId,
-    name: String,
-    is_default: bool,
-    is_available: bool,
-    is_laminatable: bool,
 }
 
 #[derive(Debug, Deserialize, FromRow, Serialize)]

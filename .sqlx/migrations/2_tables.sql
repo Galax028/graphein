@@ -74,7 +74,8 @@ CREATE TABLE IF NOT EXISTS paper_variants (
     is_laminatable boolean     NOT NULL DEFAULT false,
     PRIMARY KEY (id),
     FOREIGN KEY (paper_id) REFERENCES papers (id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    UNIQUE (paper_id, name)
 );
 
 CREATE TABLE IF NOT EXISTS bindings_papers (

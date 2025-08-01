@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::{
     AppError, SqlxResult,
     auth::Session,
-    database::UsersTable,
+    database::{FilesTable, UsersTable},
     dto::{PaginationRequest, PaginationResponse},
     error::ForbiddenError,
     request::PageKey,
@@ -49,43 +49,7 @@ impl OrdersTable {
         .await?;
 
         for (index, file) in order.files.iter().enumerate() {
-            sqlx::query(
-                "\
-                INSERT INTO files (id, order_id, object_key, filename, filetype, filesize, index)\
-                VALUES ($1, $2, $3, $4, $5, $6, $7)\
-                ",
-            )
-            .bind(file.id)
-            .bind(order.id)
-            .bind(file.object_key.as_str())
-            .bind(file.filename.as_str())
-            .bind(file.filetype)
-            .bind(file.filesize)
-            .bind(index as i32)
-            .execute(&mut *conn)
-            .await?;
-
-            for (range_index, file_range) in file.ranges.iter().enumerate() {
-                sqlx::query(
-                    "\
-                    INSERT INTO file_ranges (\
-                        id, file_id, copies, range, paper_variant_id, paper_orientation,\
-                        is_colour, is_double_sided, index\
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\
-                    ",
-                )
-                .bind(file_range.id)
-                .bind(file.id)
-                .bind(file_range.copies)
-                .bind(file_range.range.as_ref())
-                .bind(file_range.paper_variant_id)
-                .bind(file_range.paper_orientation)
-                .bind(file_range.is_colour)
-                .bind(file_range.is_double_sided)
-                .bind(range_index as i32)
-                .execute(&mut *conn)
-                .await?;
-            }
+            FilesTable::create_new(conn, order.id, file, index as i32).await?;
         }
 
         for (index, service) in order.services.iter().enumerate() {
@@ -103,19 +67,17 @@ impl OrdersTable {
             .fetch_one(&mut *conn)
             .await?;
 
-            for file_id in &service.file_ids {
-                sqlx::query(
-                    "\
-                    INSERT INTO services_files (order_id, service_id, file_id)\
-                    VALUES ($1, $2, $3)\
-                    ",
-                )
-                .bind(order.id)
-                .bind(service_id)
-                .bind(file_id)
-                .execute(&mut *conn)
-                .await?;
-            }
+            sqlx::query(
+                "\
+                INSERT INTO services_files (order_id, service_id, file_id)\
+                SELECT $1, $2, * FROM UNNEST($3::uuid[])\
+                ",
+            )
+            .bind(order.id)
+            .bind(service_id)
+            .bind(&service.file_ids)
+            .execute(&mut *conn)
+            .await?;
         }
 
         Ok(())
