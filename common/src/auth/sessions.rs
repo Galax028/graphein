@@ -5,15 +5,16 @@ use std::{
 
 use anyhow::Result as AnyhowResult;
 use chrono::{DateTime, TimeDelta, Utc};
-use dashmap::DashMap;
+use futures::TryStreamExt as _;
 use hmac::{Hmac, Mac as _};
 use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
+use scc::HashMap as SccMap;
 use serde::Serialize;
 use sha2::Sha256;
 use sqlx::PgPool;
 
 use crate::{
-    SqlxResult,
+    AppError, SqlxResult,
     error::AuthError,
     schemas::{UserId, enums::UserRole},
 };
@@ -63,7 +64,7 @@ pub struct Session {
 
 #[derive(Clone, Debug)]
 pub struct SessionStore {
-    store: Arc<DashMap<SessionId, Session>>,
+    store: Arc<SccMap<SessionId, Session>>,
     hmac_instance: Arc<StdMutex<Hmac<Sha256>>>,
     session_expiry_time: TimeDelta,
 }
@@ -71,7 +72,7 @@ pub struct SessionStore {
 impl SessionStore {
     pub(crate) fn new(secret: &[u8], session_expiry_time: StdDuration) -> Self {
         Self {
-            store: Arc::new(DashMap::new()),
+            store: Arc::new(SccMap::new()),
             hmac_instance: Arc::new(StdMutex::new(Hmac::new_from_slice(secret).unwrap())),
             session_expiry_time: TimeDelta::from_std(session_expiry_time).unwrap(),
         }
@@ -101,16 +102,18 @@ impl SessionStore {
         .map_err(|_| AuthError::Unprocessable)?;
 
         let issued_at = Utc::now();
-        self.store.insert(
-            session_id,
-            Session {
-                user_id,
-                user_role,
-                is_onboarded,
-                issued_at,
-                expires_at: issued_at + self.session_expiry_time,
-            },
-        );
+        self.store
+            .upsert_async(
+                session_id,
+                Session {
+                    user_id,
+                    user_role,
+                    is_onboarded,
+                    issued_at,
+                    expires_at: issued_at + self.session_expiry_time,
+                },
+            )
+            .await;
 
         Ok(format!(
             "{}.{signature}",
@@ -123,11 +126,10 @@ impl SessionStore {
         let (session_id, signature) = SessionId::new_from_token(session_id)?;
         self.verify_session_signature(session_id, signature).await?;
 
-        self.store.alter(&session_id, |_, mut session| {
-            session.is_onboarded = true;
-
-            session
-        });
+        self.store
+            .update_async(&session_id, |_, session| session.is_onboarded = true)
+            .await
+            .ok_or(AuthError::MissingAuth)?;
 
         Ok(())
     }
@@ -138,12 +140,20 @@ impl SessionStore {
         let (session_id, signature) = SessionId::new_from_token(session_id)?;
         self.verify_session_signature(session_id, signature).await?;
 
-        let session = self.store.get(&session_id).ok_or(AuthError::MissingAuth)?;
-        if session.expires_at <= Utc::now() {
-            self.store.remove(&session_id);
-
+        if self
+            .store
+            .remove_if_async(&session_id, |session| session.expires_at <= Utc::now())
+            .await
+            .is_some()
+        {
             return Err(AuthError::MissingAuth);
         }
+
+        let session = self
+            .store
+            .get_async(&session_id)
+            .await
+            .ok_or(AuthError::MissingAuth)?;
 
         Ok(*session)
     }
@@ -154,7 +164,8 @@ impl SessionStore {
         self.verify_session_signature(session_id, signature).await?;
 
         self.store
-            .remove(&session_id)
+            .remove_async(&session_id)
+            .await
             .ok_or(AuthError::Unprocessable)?;
 
         Ok(())
@@ -170,23 +181,26 @@ impl SessionStore {
             WHERE s.expires_at > CURRENT_TIMESTAMP\
             "
         )
-        .fetch_all(&pool)
-        .await?
-        .into_iter()
-        .try_for_each(|session| -> Result<(), AuthError> {
-            self.store.insert(
-                SessionId::new_from_str(&session.id)?,
-                Session {
-                    user_id: session.user_id.into(),
-                    user_role: session.role,
-                    is_onboarded: session.is_onboarded,
-                    issued_at: session.issued_at,
-                    expires_at: session.expires_at,
-                },
-            );
+        .fetch(&pool)
+        .err_into::<AppError>()
+        .try_for_each_concurrent(None, async |session| {
+            self.store
+                .insert_async(
+                    SessionId::new_from_str(&session.id)?,
+                    Session {
+                        user_id: session.user_id.into(),
+                        user_role: session.role,
+                        is_onboarded: session.is_onboarded,
+                        issued_at: session.issued_at,
+                        expires_at: session.expires_at,
+                    },
+                )
+                .await
+                .ok();
 
             Ok(())
-        })?;
+        })
+        .await?;
 
         sqlx::query("TRUNCATE sessions").execute(&pool).await?;
 
@@ -197,20 +211,23 @@ impl SessionStore {
     /// Commits all the sessions in the session store into the database.
     pub async fn commit(&self, pool: PgPool) -> SqlxResult<()> {
         let now = Utc::now();
-        self.store.retain(|_, session| session.expires_at > now);
+        self.store
+            .retain_async(|_, session| session.expires_at > now)
+            .await;
 
-        let (session_ids, (user_ids, issued_ats, expires_ats)): (Vec<_>, (Vec<_>, Vec<_>, Vec<_>)) =
-            self.store
-                .iter()
-                .map(|session| {
-                    (
-                        hex::encode(session.key().as_slice()),
-                        (session.user_id, session.issued_at, session.expires_at),
-                    )
-                })
-                .unzip();
+        let store_len = self.store.len();
+        let mut session_ids = Vec::with_capacity(store_len);
+        let mut user_ids = Vec::with_capacity(store_len);
+        let mut issued_ats = Vec::with_capacity(store_len);
+        let mut expires_ats = Vec::with_capacity(store_len);
+        self.store.scan(|session_id, session| {
+            session_ids.push(hex::encode(session_id.as_slice()));
+            user_ids.push(session.user_id);
+            issued_ats.push(session.issued_at);
+            expires_ats.push(session.expires_at);
+        });
 
-        sqlx::query(
+        let rows_affected = sqlx::query(
             "\
             INSERT INTO sessions \
             SELECT * FROM UNNEST(\
@@ -226,9 +243,10 @@ impl SessionStore {
         .bind(&issued_ats[..])
         .bind(&expires_ats[..])
         .execute(&pool)
-        .await?;
+        .await?
+        .rows_affected();
 
-        tracing::debug!("committed {} session(s) to database", self.store.len());
+        tracing::debug!("committed {rows_affected} session(s) to database");
 
         Ok(())
     }

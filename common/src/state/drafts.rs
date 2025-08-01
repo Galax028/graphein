@@ -301,12 +301,6 @@ impl DraftOrderStore {
             })
             .await;
 
-        // stream::iter(expired_files.iter().map(Ok))
-        //     .try_for_each_concurrent(None, |(object_key, filetype)| {
-        //         bucket.delete_file(object_key, *filetype)
-        //     })
-        //     .await
-        //     .ok();
         if !expired_files.is_empty() {
             bucket.delete_files(&expired_files).await.ok();
         }
