@@ -44,13 +44,14 @@ impl AppState {
     pub fn new(
         config: Arc<Config>,
         pool: PgPool,
+        http: ReqwestClient,
         bucket: R2Bucket,
         thumbnailer: Thumbnailer,
     ) -> Self {
         AppState {
             config: config.clone(),
             pool,
-            http: ReqwestClient::new(),
+            http,
             bucket,
             sessions: SessionStore::new(config.secret().as_bytes(), config.session_expiry_time()),
             oauth_states: Arc::new(Mutex::new(Vec::new())),

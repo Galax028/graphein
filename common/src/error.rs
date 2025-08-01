@@ -109,12 +109,6 @@ impl<T> From<tokio::sync::mpsc::error::SendError<T>> for AppError {
     }
 }
 
-impl From<s3::error::S3Error> for AppError {
-    fn from(source: s3::error::S3Error) -> Self {
-        AppError::InternalServerError(anyhow!(source))
-    }
-}
-
 impl From<jsonwebtoken::errors::Error> for AppError {
     fn from(_: jsonwebtoken::errors::Error) -> Self {
         AppError::Unauthorized(AuthError::InvalidOAuthFlow)

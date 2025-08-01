@@ -293,12 +293,16 @@ async fn get_orders_id_files(
         .map(move |meta| meta.map(|meta| (meta, tx.clone())))
         .err_into::<AppError>()
         .try_for_each_concurrent(MAX_FILE_LIMIT, async |(meta, tx)| {
-            let url = bucket
-                .presign_get_file(&meta.object_key, &meta.filename, meta.filetype)
-                .await?;
-
-            tx.send(FilePresignResponse { id: meta.id, url }).await?;
-            Ok(())
+            Ok(tx
+                .send(FilePresignResponse {
+                    id: meta.id,
+                    url: bucket.presign_get_file(
+                        &meta.object_key,
+                        &meta.filename,
+                        meta.filetype,
+                    )?,
+                })
+                .await?)
         })
         .instrument(Span::current())
         .await?;
@@ -323,14 +327,12 @@ async fn post_orders_id_files(
     draft_orders.exists(user_id, order_id).await?;
 
     let (file_id, object_key) = draft_orders.add_file(user_id, filetype, filesize).await?;
-    let upload_url = bucket
-        .presign_put(
-            &draft_orders.get_created_at(user_id).await?,
-            filetype,
-            filesize,
-            &object_key,
-        )
-        .await?;
+    let upload_url = bucket.presign_put(
+        &draft_orders.get_created_at(user_id).await?,
+        filetype,
+        filesize,
+        &object_key,
+    )?;
 
     Ok(ResponseBuilder::new()
         .data(FileUploadResponse {

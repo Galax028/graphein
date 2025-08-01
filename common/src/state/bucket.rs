@@ -1,129 +1,154 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    fmt::{Debug, Display},
+    sync::Arc,
+    time::Duration as StdDuration,
+};
 
 use anyhow::Result as AnyhowResult;
 use bytes::Bytes;
 use chrono::{DateTime, TimeDelta, Utc};
-use http::{
-    HeaderMap,
-    header::{CONTENT_LENGTH, CONTENT_TYPE},
-};
-use s3::{Bucket, Region, creds::Credentials, error::S3Error};
+use http::header::CONTENT_TYPE;
+use reqwest::Client as ReqwestClient;
+use rusty_s3::{Bucket, Credentials, S3Action as _, UrlStyle, actions::ObjectIdentifier};
 
 use crate::{AppError, error::NotFoundError, schemas::enums::FileType};
 
+const DEFAULT_SIGN_DURATION: StdDuration = StdDuration::from_secs(60);
+
 #[derive(Clone, Debug)]
 pub struct R2Bucket {
+    http: ReqwestClient,
     inner: Arc<Bucket>,
-    bucket_name: Arc<str>,
+    creds: Arc<Credentials>,
 }
 
 impl R2Bucket {
     pub fn new(
-        account_id: String,
-        bucket_name: &str,
+        http: ReqwestClient,
+        account_id: &str,
+        bucket_name: String,
         access_key_id: &str,
         secret_access_key: &str,
     ) -> AnyhowResult<Self> {
         Ok(Self {
-            inner: Bucket::new(
-                &bucket_name,
-                Region::R2 { account_id },
-                Credentials::new(
-                    Some(access_key_id),
-                    Some(secret_access_key),
-                    None,
-                    None,
-                    None,
-                )?,
-            )?
-            .with_path_style()
-            .into(),
-            bucket_name: Arc::from(bucket_name),
+            http,
+            inner: Arc::new(Bucket::new(
+                format!("https://{account_id}.r2.cloudflarestorage.com").parse()?,
+                UrlStyle::VirtualHost,
+                bucket_name,
+                "auto",
+            )?),
+            creds: Arc::new(Credentials::new(access_key_id, secret_access_key)),
         })
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn exists(&self, object_key: &str, filetype: FileType) -> Result<(), AppError> {
-        self.inner
-            .object_exists(format!("{object_key}.{filetype}"))
-            .await?;
+        let url = self
+            .inner
+            .head_object(Some(&self.creds), &format!("/{object_key}.{filetype}"))
+            .sign(DEFAULT_SIGN_DURATION);
+        self.http.head(url).send().await?.error_for_status()?;
 
         Ok(())
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn get_file_for_thumbnail_processing(
         &self,
         object_key: &str,
         filetype: FileType,
-    ) -> Result<Bytes, S3Error> {
-        Ok(self
+    ) -> Result<Bytes, AppError> {
+        let url = self
             .inner
-            .get_object(format!("/{object_key}.{filetype}"))
+            .get_object(Some(&self.creds), &format!("/{object_key}.{filetype}"))
+            .sign(DEFAULT_SIGN_DURATION);
+
+        Ok(self
+            .http
+            .get(url)
+            .send()
             .await?
-            .into_bytes())
+            .error_for_status()?
+            .bytes()
+            .await?)
     }
 
-    pub async fn presign_get_file(
+    #[tracing::instrument(skip_all, err)]
+    pub fn presign_get_file(
         &self,
         object_key: &str,
         filename: &str,
         filetype: FileType,
     ) -> Result<String, AppError> {
-        let mut queries = HashMap::new();
-        queries.insert(
-            String::from("response-content-disposition"),
+        let object = format!("/{object_key}.{filetype}");
+        let mut get_object = self.inner.get_object(Some(&self.creds), &object);
+        let query_params = get_object.query_mut();
+        query_params.insert("response-cache-control", "must-revalidate, private");
+        query_params.insert(
+            "response-content-disposition",
             format!("attachment; filename*=UTF-8''{filename}.{filetype}"),
         );
+        query_params.insert("response-content-type", filetype.to_mime());
+        query_params.insert(
+            "response-expires",
+            (Utc::now() + TimeDelta::hours(1))
+                .format("%a, %d %b %Y %H:%M:%S GMT")
+                .to_string(),
+        );
 
-        Ok(self
-            .inner
-            .presign_get(format!("/{object_key}.{filetype}"), 3600, Some(queries))
-            .await?)
+        Ok(get_object.sign(StdDuration::from_secs(3600)).into())
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn presign_get_file_thumbnail(
         &self,
         object_key: &str,
         filetype: FileType,
     ) -> Result<Option<String>, AppError> {
-        let thumbnail_path = format!("/{object_key}.t.webp");
-        let buckets = self.inner.list(object_key.to_string(), None).await?;
-        let objects = buckets
-            .iter()
-            .filter_map(|b| (*b.name == *self.bucket_name).then_some(&b.contents))
-            .flatten()
-            .map(|o| o.key.as_str())
-            .collect::<Vec<&str>>();
-
-        if !objects.contains(&format!("{object_key}.{filetype}").as_str()) {
+        if self.exists(object_key, filetype).await.is_err() {
             return Err(AppError::NotFound(NotFoundError::ResourceNotFound));
         }
-        if !objects.contains(&&thumbnail_path[1..]) {
+        if self.exists(object_key, FileType::Webp).await.is_err() {
             return Ok(None);
         }
 
-        let mut queries = HashMap::new();
-        queries.insert(
-            String::from("response-content-disposition"),
-            String::from("inline"),
+        let thumbnail_object = format!("/{object_key}.t.webp");
+        let mut get_object = self.inner.get_object(Some(&self.creds), &thumbnail_object);
+        let query_params = get_object.query_mut();
+        query_params.insert("response-cache-control", "must-revalidate, private");
+        query_params.insert("response-content-disposition", "inline");
+        query_params.insert("response-content-type", FileType::Webp.to_mime());
+        query_params.insert(
+            "response-expires",
+            (Utc::now() + TimeDelta::hours(1))
+                .format("%a, %d %b %Y %H:%M:%S GMT")
+                .to_string(),
         );
 
-        Ok(Some(
-            self.inner
-                .presign_get(thumbnail_path, 3600, Some(queries))
-                .await?,
-        ))
+        Ok(Some(get_object.sign(StdDuration::from_secs(3600)).into()))
     }
 
-    pub async fn put_thumbnail(&self, buffer: &[u8], object_key: &str) -> Result<(), S3Error> {
-        self.inner
-            .put_object(format!("/{object_key}.t.webp"), buffer)
-            .await?;
+    #[tracing::instrument(skip_all, err)]
+    pub async fn put_thumbnail(&self, buffer: Bytes, object_key: &str) -> Result<(), AppError> {
+        let url = self
+            .inner
+            .put_object(Some(&self.creds), &format!("/{object_key}.t.webp"))
+            .sign(DEFAULT_SIGN_DURATION);
+        self.http
+            .put(url)
+            .header(CONTENT_TYPE, FileType::Webp.to_mime())
+            .body(buffer)
+            .send()
+            .await?
+            .error_for_status()?;
 
         Ok(())
     }
 
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    pub async fn presign_put(
+    #[tracing::instrument(skip_all, err)]
+    pub fn presign_put(
         &self,
         created_at: &DateTime<Utc>,
         filetype: FileType,
@@ -137,25 +162,68 @@ impl R2Bucket {
             ));
         }
 
-        let path = format!("/{object_key}.{filetype}");
-        let expires_at = (TimeDelta::minutes(15) - (Utc::now() - *created_at)).num_seconds() as u32;
-        let mut headers = HeaderMap::new();
-        headers.insert(CONTENT_TYPE, filetype.to_mime().parse().unwrap()); // Infallible
-        headers.insert(CONTENT_LENGTH, length.to_string().parse().unwrap()); // Infallible
+        let object = format!("/{object_key}.{filetype}");
+        let expiry = (TimeDelta::minutes(15) - (Utc::now() - *created_at))
+            .to_std()
+            .unwrap();
+        let mut put_object = self.inner.put_object(Some(&self.creds), &object);
+        let headers = put_object.headers_mut();
+        headers.insert("content-type", filetype.to_mime());
+        headers.insert("content-length", length.to_string());
 
-        Ok(self
-            .inner
-            .presign_put(path, expires_at, Some(headers), None)
-            .await?)
+        Ok(put_object.sign(expiry).into())
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn delete_file(&self, object_key: &str, filetype: FileType) -> Result<(), AppError> {
-        self.inner
-            .delete_object(format!("/{object_key}.{filetype}"))
-            .await?;
-        self.inner
-            .delete_object(format!("/{object_key}.t.webp"))
-            .await?;
+        let objects = [
+            ObjectIdentifier::new(format!("/{object_key}.{filetype}")),
+            ObjectIdentifier::new(format!("/{object_key}.t.webp")),
+        ];
+
+        let mut delete_objects = self.inner.delete_objects(Some(&self.creds), objects.iter());
+        delete_objects.set_quiet(true);
+        let url = delete_objects.sign(DEFAULT_SIGN_DURATION);
+        let (body, content_md5) = delete_objects.body_with_md5();
+        self.http
+            .post(url)
+            .header(CONTENT_TYPE, "application/xml")
+            .header("content-md5", content_md5)
+            .body(body)
+            .send()
+            .await?
+            .error_for_status()?;
+
+        Ok(())
+    }
+
+    #[tracing::instrument(skip_all, err)]
+    pub async fn delete_files<S: AsRef<str> + Display>(
+        &self,
+        files: &[(S, FileType)],
+    ) -> Result<(), AppError> {
+        let objects = files
+            .iter()
+            .flat_map(|(object_key, filetype)| {
+                [
+                    ObjectIdentifier::new(format!("/{object_key}.{filetype}")),
+                    ObjectIdentifier::new(format!("/{object_key}.t.webp")),
+                ]
+            })
+            .collect::<Vec<ObjectIdentifier>>();
+
+        let mut delete_objects = self.inner.delete_objects(Some(&self.creds), objects.iter());
+        delete_objects.set_quiet(true);
+        let url = delete_objects.sign(DEFAULT_SIGN_DURATION);
+        let (body, content_md5) = delete_objects.body_with_md5();
+        self.http
+            .post(url)
+            .header(CONTENT_TYPE, "application/xml")
+            .header("content-md5", content_md5)
+            .body(body)
+            .send()
+            .await?
+            .error_for_status()?;
 
         Ok(())
     }

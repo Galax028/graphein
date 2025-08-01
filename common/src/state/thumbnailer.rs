@@ -89,7 +89,7 @@ impl Thumbnailer {
                 ..Default::default()
             },
         )?;
-        handle.block_on(bucket.put_thumbnail(&thumbnail_buffer, object_key))?;
+        handle.block_on(bucket.put_thumbnail(thumbnail_buffer.into(), object_key))?;
 
         Ok(time.elapsed())
     }

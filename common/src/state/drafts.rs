@@ -191,10 +191,9 @@ impl DraftOrderStore {
     ) -> Result<DetailedOrder, AppError> {
         let mut draft_order = self
             .orders
-            .remove_async(&owner_id)
+            .get_async(&owner_id)
             .await
-            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?
-            .1;
+            .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
 
         if draft_order.files_len() == 0 {
             return Err(AppError::BadRequest(
@@ -266,7 +265,7 @@ impl DraftOrderStore {
             })
             .collect();
 
-        Ok(DetailedOrder {
+        let order = DetailedOrder {
             id: draft_order.id,
             created_at: draft_order.created_at,
             owner_id: Some(owner_id),
@@ -278,7 +277,10 @@ impl DraftOrderStore {
             status_history: Vec::with_capacity(0),
             files,
             services,
-        })
+        };
+        let _ = draft_order.remove_entry();
+
+        Ok(order)
     }
 
     pub(crate) async fn clear_expired(&self, bucket: &R2Bucket) {
@@ -289,8 +291,9 @@ impl DraftOrderStore {
                 if (now - draft.created_at).num_minutes() <= 15 {
                     true
                 } else {
+                    tracing::warn!("clearing draft order `{:?}`", draft.id);
                     draft.files.iter().for_each(|draft_file| {
-                        expired_files.push((draft_file.object_key.clone(), draft_file.filetype))
+                        expired_files.push((draft_file.object_key.clone(), draft_file.filetype));
                     });
 
                     false
@@ -298,12 +301,15 @@ impl DraftOrderStore {
             })
             .await;
 
-        stream::iter(expired_files.iter().map(Ok))
-            .try_for_each_concurrent(None, |(object_key, filetype)| {
-                bucket.delete_file(object_key, *filetype)
-            })
-            .await
-            .ok();
+        // stream::iter(expired_files.iter().map(Ok))
+        //     .try_for_each_concurrent(None, |(object_key, filetype)| {
+        //         bucket.delete_file(object_key, *filetype)
+        //     })
+        //     .await
+        //     .ok();
+        if !expired_files.is_empty() {
+            bucket.delete_files(&expired_files).await.ok();
+        }
     }
 
     #[must_use]

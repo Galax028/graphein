@@ -209,7 +209,7 @@ fn thumbnailer_loop(
                             &to_be_processed.0,
                             data.1,
                         )?;
-                        tracing::info!(?elapsed, "finished thumbnail processing",);
+                        tracing::info!(?elapsed, "finished thumbnail processing");
 
                         Ok(())
                     })?;
