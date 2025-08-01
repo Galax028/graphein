@@ -13,6 +13,10 @@ pub enum FileType {
     Pdf,
     Png,
     Jpg,
+
+    #[serde(skip)]
+    #[sqlx(skip)]
+    Webp,
 }
 
 impl FileType {
@@ -22,6 +26,8 @@ impl FileType {
             Self::Pdf => "application/pdf",
             Self::Png => "image/png",
             Self::Jpg => "image/jpeg",
+
+            Self::Webp => "image/webp",
         }
     }
 }
@@ -32,6 +38,8 @@ impl Display for FileType {
             Self::Pdf => write!(f, "pdf"),
             Self::Png => write!(f, "png"),
             Self::Jpg => write!(f, "jpg"),
+
+            Self::Webp => write!(f, "t.webp"),
         }
     }
 }

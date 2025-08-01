@@ -3,6 +3,7 @@
 
 use anyhow::{Context as _, Result};
 use axum::Router;
+use reqwest::Client as ReqwestClient;
 use sqlx::postgres::PgPoolOptions;
 use tokio::{net::TcpListener, runtime::Handle};
 #[cfg(debug_assertions)]
@@ -57,14 +58,18 @@ async fn main() -> Result<()> {
         tracing::info!("Ran database migrations successfully");
     }
 
+    let http = ReqwestClient::new();
+
     let (thumbnailer, thumbnailer_rx) = Thumbnailer::new();
 
     let app_state = AppState::new(
         config.clone(),
         pool,
+        http.clone(),
         R2Bucket::new(
-            config.r2_account_id().to_owned(),
-            config.r2_bucket_name(),
+            http,
+            config.r2_account_id(),
+            config.r2_bucket_name().to_owned(),
             config.r2_access_key_id(),
             config.r2_secret_access_key(),
         )?,
