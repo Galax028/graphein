@@ -10,7 +10,6 @@ use graphein_common::{
     schemas::{CompactOrder, MerchantOrdersGlance, enums::OrderStatus},
 };
 use serde::Deserialize;
-use tracing::{Instrument as _, Span};
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
@@ -27,13 +26,11 @@ async fn get_merchant_orders_glance(
     let incoming = OrdersTable::query_compact()
         .bind_statuses(&[OrderStatus::Reviewing])
         .fetch_all(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     let accepted = OrdersTable::query_compact()
         .bind_statuses(&[OrderStatus::Processing, OrderStatus::Ready])
         .fetch_all(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     let finished = OrdersTable::query_compact()
@@ -44,7 +41,6 @@ async fn get_merchant_orders_glance(
         ])
         .with_limit(10)
         .fetch_all(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     Ok(ResponseBuilder::new()
@@ -81,7 +77,6 @@ async fn get_merchant_orders_history(
         ))
         .with_pagination(&pagination)
         .fetch_paginated(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     Ok(ResponseBuilder::new()

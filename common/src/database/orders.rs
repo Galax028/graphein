@@ -19,6 +19,7 @@ pub struct OrdersTable;
 
 impl OrdersTable {
     #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
+    #[tracing::instrument(skip_all, err)]
     pub async fn create_new(conn: &mut PgConnection, order: &DetailedOrder) -> SqlxResult<()> {
         sqlx::query(
             "\
@@ -128,6 +129,7 @@ impl OrdersTable {
         }
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn fetch_status_for_update(
         conn: &mut PgConnection,
         order_id: OrderId,
@@ -157,6 +159,7 @@ impl OrdersTable {
         }
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn update_status(
         conn: &mut PgConnection,
         order_id: OrderId,
@@ -299,6 +302,7 @@ impl<'args> CompactOrdersQuery<'args> {
         }
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn fetch_all(&mut self, conn: &mut PgConnection) -> SqlxResult<Vec<CompactOrder>> {
         assert!(
             !(self.limit.is_some() && self.pagination.is_some()),
@@ -315,6 +319,7 @@ impl<'args> CompactOrdersQuery<'args> {
     }
 
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[tracing::instrument(skip_all, err)]
     pub async fn fetch_paginated(
         &mut self,
         conn: &mut PgConnection,
@@ -363,6 +368,7 @@ impl DetailedOrderQuery {
         self
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn fetch_one(self, conn: &mut PgConnection) -> SqlxResult<DetailedOrder> {
         let order = sqlx::query!(
             "\
@@ -455,6 +461,7 @@ impl OrderPermissionsChecker {
         self
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn test(self, conn: &mut PgConnection) -> Result<(), AppError> {
         if self.allow_merchant && matches!(self.session.user_role, UserRole::Merchant) {
             return Ok(());

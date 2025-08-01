@@ -146,7 +146,7 @@ impl R2Bucket {
         Ok(())
     }
 
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    // #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     #[tracing::instrument(skip_all, err)]
     pub fn presign_put(
         &self,

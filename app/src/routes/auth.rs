@@ -31,7 +31,6 @@ use graphein_common::{
 
 #[cfg(debug_assertions)]
 use graphein_common::{HandlerResponse, response::ResponseBuilder};
-use tracing::{Instrument as _, Span};
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
@@ -205,7 +204,6 @@ async fn get_finish_google_oauth(
             &decoded.name,
             &decoded.profile_url,
         )
-        .instrument(Span::current())
         .await?;
 
         Ok((user_id, user_role, user_is_onboarded, session_expiry))

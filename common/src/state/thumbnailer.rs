@@ -49,6 +49,7 @@ impl Thumbnailer {
         (Self(tx), rx)
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn signal_for_processing(
         &self,
         object_key: String,
@@ -57,6 +58,7 @@ impl Thumbnailer {
         self.0.send((object_key, filetype)).await
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub(crate) fn process_single_thumbnail(
         handle: &Handle,
         bucket: &R2Bucket,

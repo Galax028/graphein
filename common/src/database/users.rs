@@ -9,6 +9,7 @@ use crate::{
 pub struct UsersTable;
 
 impl UsersTable {
+    #[tracing::instrument(skip_all, err)]
     pub async fn create_new(
         conn: &mut PgConnection,
         role: UserRole,
@@ -32,6 +33,7 @@ impl UsersTable {
         Ok(row.id)
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn fetch_one(conn: &mut PgConnection, id: UserId) -> SqlxResult<User> {
         sqlx::query_as(
             "\
@@ -44,6 +46,7 @@ impl UsersTable {
         .await
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn fetch_role(conn: &mut PgConnection, id: UserId) -> SqlxResult<UserRole> {
         sqlx::query_scalar("SELECT role FROM users WHERE id = $1")
             .bind(id)
@@ -51,6 +54,7 @@ impl UsersTable {
             .await
     }
 
+    #[tracing::instrument(skip_all, err)]
     async fn fetch_for_session(
         conn: &mut PgConnection,
         email: &str,
@@ -80,6 +84,7 @@ impl UsersTable {
         }
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn get_or_create_user_for_session(
         conn: &mut PgConnection,
         email: &str,
@@ -150,6 +155,7 @@ impl<'args> UserUpdateBuilder<'args> {
         self
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn execute(&mut self, conn: &mut PgConnection) -> SqlxResult<User> {
         self.qb
             .push(" WHERE id = ")

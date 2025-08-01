@@ -27,7 +27,6 @@ use graphein_common::{
 use http::StatusCode;
 use sqlx::Acquire;
 use tokio::sync::mpsc;
-use tracing::{Instrument as _, Span};
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
     Router::new()
@@ -97,7 +96,6 @@ async fn get_orders_glance(
             OrderStatus::Ready,
         ])
         .fetch_all(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     let finished = OrdersTable::query_compact()
@@ -109,7 +107,6 @@ async fn get_orders_glance(
         ])
         .with_limit(5)
         .fetch_all(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     Ok(ResponseBuilder::new()
@@ -132,7 +129,6 @@ async fn get_orders_history(
         ])
         .with_pagination(&pagination)
         .fetch_paginated(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     Ok(ResponseBuilder::new()
@@ -159,13 +155,11 @@ async fn get_orders_id(
     OrdersTable::permissions_checker(id, session)
         .allow_merchant(true)
         .test(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     let order = OrdersTable::query_detailed(id)
         .with_owner(matches!(session.user_role, UserRole::Merchant))
         .fetch_one(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     Ok(ResponseBuilder::new().data(order).build())
@@ -180,12 +174,10 @@ async fn post_orders_id_status(
     OrdersTable::permissions_checker(order_id, session)
         .allow_merchant(true)
         .test(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     let mut tx = conn.begin().await?;
     let previous_status = OrdersTable::fetch_status_for_update(&mut tx, order_id)
-        .instrument(Span::current())
         .await?;
     let next_status = match previous_status {
         OrderStatus::Reviewing => OrderStatus::Processing,
@@ -198,7 +190,6 @@ async fn post_orders_id_status(
         }
     };
     let order_status_update = OrdersTable::update_status(&mut tx, order_id, next_status)
-        .instrument(Span::current())
         .await?;
     tx.commit().await?;
 
@@ -237,7 +228,6 @@ async fn post_orders_id_build(
     let order = draft_orders.build(&bucket, user_id, request_data).await?;
     let mut tx = pool.begin().await?;
     OrdersTable::create_new(&mut tx, &order)
-        .instrument(Span::current())
         .await?;
     tx.commit().await?;
 
@@ -262,7 +252,6 @@ async fn delete_orders_id(
     OrdersTable::permissions_checker(order_id, session)
         .allow_merchant(true)
         .test(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     let cancelled_or_rejected = match session.user_role {
@@ -270,7 +259,6 @@ async fn delete_orders_id(
         UserRole::Merchant => OrderStatus::Rejected,
     };
     OrdersTable::update_status(&mut conn, order_id, cancelled_or_rejected)
-        .instrument(Span::current())
         .await?;
 
     Ok(StatusCode::NO_CONTENT)
@@ -285,7 +273,6 @@ async fn get_orders_id_files(
     OrdersTable::permissions_checker(order_id, session)
         .allow_merchant(true)
         .test(&mut conn)
-        .instrument(Span::current())
         .await?;
 
     let (tx, mut rx) = mpsc::channel(MAX_FILE_LIMIT);
@@ -304,7 +291,6 @@ async fn get_orders_id_files(
                 })
                 .await?)
         })
-        .instrument(Span::current())
         .await?;
 
     let mut responses = Vec::new();
@@ -369,11 +355,9 @@ async fn get_orders_id_files_id_thumbnail(
         OrdersTable::permissions_checker(order_id, session)
             .allow_merchant(true)
             .test(&mut conn)
-            .instrument(Span::current())
             .await?;
 
         let file = FilesTable::fetch_one_for_metadata_from_order(&mut conn, order_id, file_id)
-            .instrument(Span::current())
             .await?;
 
         (file.object_key, file.filetype)

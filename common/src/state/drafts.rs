@@ -107,6 +107,7 @@ impl DraftOrderStore {
         order_id
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn add_file(
         &self,
         owner_id: UserId,
@@ -131,6 +132,7 @@ impl DraftOrderStore {
         Ok((file_id, object_key))
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn exists(&self, owner_id: UserId, order_id: OrderId) -> Result<(), AppError> {
         if self
             .orders
@@ -145,6 +147,7 @@ impl DraftOrderStore {
         }
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn get_order(
         &self,
         owner_id: UserId,
@@ -155,6 +158,7 @@ impl DraftOrderStore {
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn get_created_at(&self, owner_id: UserId) -> Result<DateTime<Utc>, AppError> {
         self.orders
             .read_async(&owner_id, |_, draft| draft.created_at)
@@ -162,6 +166,7 @@ impl DraftOrderStore {
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn remove_file(&self, owner_id: UserId, file_id: FileId) -> Result<(), AppError> {
         let mut draft = self
             .orders
@@ -179,6 +184,7 @@ impl DraftOrderStore {
     }
 
     #[allow(clippy::cast_possible_wrap)]
+    #[tracing::instrument(skip_all, err)]
     pub async fn build(
         &self,
         bucket: &R2Bucket,

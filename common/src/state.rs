@@ -60,6 +60,7 @@ impl AppState {
         }
     }
 
+    #[tracing::instrument(skip_all, err)]
     pub async fn load_sessions(&self) -> AnyhowResult<()> {
         self.sessions.load(self.pool.clone()).await
     }
