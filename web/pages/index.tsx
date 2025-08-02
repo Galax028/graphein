@@ -12,14 +12,28 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 
 const LandingPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const t = useTranslations();
 
-  const changeLanguage = (lang: string) =>
-    router.replace(`${router.asPath}?lang=${lang}`);
+  const [asMerchant, setAsMerchant] = useState<boolean | null>(null);
+
+  useEffect(
+    () => {
+      if (!router.isReady) return;
+
+      setAsMerchant(router.query.asMerchant === "true" ? true : false);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [router.query.asMerchant],
+  );
+
+  const changeLanguage = (lang: string) => {
+    router.query.lang = lang;
+    router.replace(router);
+  };
 
   return (
     <div className="flex flex-col h-dvh">
@@ -40,7 +54,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
               <h1 className="text-title-md">{t("container.title")}</h1>
               <p className="opacity-50">{t("container.description")}</p>
             </div>
-            <SignInButton />
+            <SignInButton asMerchant={asMerchant} />
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full md:max-w-lg md:my-4 md:m-auto">
@@ -91,7 +105,8 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
 
     return {
       redirect: {
-        destination: user.role === "merchant" ? "/merchant" : "/glance",
+        destination:
+          user.role === "merchant" ? "/merchant/dashboard" : "/glance",
         permanent: false,
       },
     };

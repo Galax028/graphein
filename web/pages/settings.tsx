@@ -133,11 +133,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const queryClient = new QueryClient();
   const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
-  const signedIn = await prefetchUser(queryClient, sessionToken);
-  if (signedIn)
+  const user = await prefetchUser(queryClient, sessionToken, {
+    returnUser: true,
+  });
+  if (user) {
+    if (user.role === "merchant")
+      return {
+        redirect: { destination: "/merchant/dashboard", permanent: false },
+      };
+
     return {
       props: { locale, translations, dehydratedState: dehydrate(queryClient) },
     };
+  }
 
   return { redirect: { destination: "/", permanent: false } };
 };
