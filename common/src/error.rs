@@ -3,6 +3,7 @@ use std::borrow::Cow;
 use anyhow::anyhow;
 use axum::response::{IntoResponse, Response};
 use http::StatusCode;
+use sqlx::postgres::PgDatabaseError;
 use thiserror::Error;
 
 use crate::response::ResponseBuilder;
@@ -13,7 +14,7 @@ static UNEXPECTED_ERR: &str = "An unexpected error had occurred on the server.";
 #[derive(Debug, Error)]
 pub enum AppError {
     #[error("{0}")]
-    BadRequest(Cow<'static, str>),
+    BadRequest(#[from] BadRequestError),
 
     #[error("{0}")]
     Unauthorized(#[from] AuthError),
@@ -34,9 +35,31 @@ pub enum AppError {
     #[cfg(not(debug_assertions))]
     #[error("[500] {}", UNEXPECTED_ERR)]
     InternalServerError(#[from] anyhow::Error),
+
+    #[error("[503] Service currently unavailable.")]
+    TimeoutError,
 }
 
-pub static MISSING_FIELDS: &str = "[4004] Request data is missing required field(s).";
+#[derive(Debug, Error)]
+pub enum BadRequestError {
+    #[error("[4001] {0}.")]
+    MalformedPath(String),
+
+    #[error("[4002] {0}.")]
+    MalformedQuery(String),
+
+    #[error("[4003] {0}.")]
+    MalformedJson(Cow<'static, str>),
+
+    #[error("[4004] Request data is missing required field(s).")]
+    MissingFields,
+
+    #[error("[4005] Cannot process status updates for this order any further.")]
+    UnprocessableStatusUpdate,
+
+    #[error("[4006] {0}")]
+    MalformedFiles(&'static str),
+}
 
 #[derive(Debug, Error)]
 pub enum AuthError {
@@ -66,6 +89,12 @@ pub enum ForbiddenError {
 
     #[error("[4033] Insufficient permissions to access this resource.")]
     InsufficientPermissions,
+
+    #[error("[4034] One or more identical records already exist in the database.")]
+    AlreadyExists,
+
+    #[error("[4035] Forbidden to remove one or more records due to constraint violation(s).")]
+    DeleteConstraintViolation,
 }
 
 #[derive(Debug, Error)]
@@ -85,14 +114,31 @@ impl From<reqwest::Error> for AppError {
 
 impl From<sqlx::Error> for AppError {
     fn from(source: sqlx::Error) -> Self {
-        if matches!(source, sqlx::Error::RowNotFound) {
-            AppError::NotFound(NotFoundError::ResourceNotFound)
-        } else {
-            #[cfg(debug_assertions)]
-            return AppError::DatabaseError(format!("[sqlx] {source}").into());
+        match source {
+            sqlx::Error::Database(database_error) => {
+                let database_error = database_error.downcast::<PgDatabaseError>();
+                match database_error.code() {
+                    "23505" => AppError::Forbidden(ForbiddenError::AlreadyExists),
+                    _ => {
+                        #[cfg(debug_assertions)]
+                        return AppError::DatabaseError(format!("[psql] {database_error}").into());
 
-            #[cfg(not(debug_assertions))]
-            return AppError::DatabaseError(UNEXPECTED_ERR.into());
+                        #[cfg(not(debug_assertions))]
+                        return AppError::DatabaseError(UNEXPECTED_ERR.into());
+                    }
+                }
+            }
+            sqlx::Error::RowNotFound => AppError::NotFound(NotFoundError::ResourceNotFound),
+            sqlx::Error::Tls(_) | sqlx::Error::PoolClosed | sqlx::Error::PoolTimedOut => {
+                AppError::TimeoutError
+            }
+            _ => {
+                #[cfg(debug_assertions)]
+                return AppError::DatabaseError(format!("[sqlx] {source}").into());
+
+                #[cfg(not(debug_assertions))]
+                return AppError::DatabaseError(UNEXPECTED_ERR.into());
+            }
         }
     }
 }
@@ -138,6 +184,7 @@ impl AppError {
             Self::DatabaseError { .. } | Self::InternalServerError { .. } => {
                 StatusCode::INTERNAL_SERVER_ERROR
             }
+            Self::TimeoutError => StatusCode::SERVICE_UNAVAILABLE,
         }
     }
 }
@@ -145,16 +192,12 @@ impl AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let status_code = self.to_status_code();
-        let source = self.to_string();
-        if status_code.is_server_error() {
-            tracing::error!("INTERNAL SERVER ERROR - {source}");
-        }
 
         (
             status_code,
             ResponseBuilder::new_error(
                 status_code.canonical_reason().unwrap_or("Unknown").into(),
-                source.into(),
+                self.to_string().into(),
             )
             .build(),
         )

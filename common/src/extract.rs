@@ -16,7 +16,7 @@ use serde_qs::axum::QsQueryRejection;
 use crate::{
     AppState,
     auth::{Session, SessionStore},
-    error::{AppError, AuthError},
+    error::{AppError, AuthError, BadRequestError},
 };
 
 #[derive(FromRequestParts)]
@@ -39,28 +39,25 @@ impl<T: Serialize> IntoResponse for Json<T> {
 }
 
 impl From<PathRejection> for AppError {
-    fn from(value: PathRejection) -> Self {
-        Self::BadRequest(format!("[4001] {}.", value.body_text()).into())
+    fn from(rejection: PathRejection) -> Self {
+        BadRequestError::MalformedPath(rejection.body_text()).into()
     }
 }
 
 impl From<QsQueryRejection> for AppError {
-    fn from(value: QsQueryRejection) -> Self {
-        Self::BadRequest(
-            format!(
-                "[4002] {}.",
-                value
-                    .source()
-                    .map_or(String::from("unknown"), ToString::to_string)
-            )
-            .into(),
+    fn from(rejection: QsQueryRejection) -> Self {
+        BadRequestError::MalformedQuery(
+            rejection
+                .source()
+                .map_or(String::from("unknown"), ToString::to_string),
         )
+        .into()
     }
 }
 
 impl From<JsonRejection> for AppError {
-    fn from(value: JsonRejection) -> Self {
-        Self::BadRequest(format!("[4003] {}.", value.body_text()).into())
+    fn from(rejection: JsonRejection) -> Self {
+        BadRequestError::MalformedJson(rejection.body_text().into()).into()
     }
 }
 

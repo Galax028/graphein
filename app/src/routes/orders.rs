@@ -14,7 +14,7 @@ use graphein_common::{
     auth::Session,
     database::{FilesTable, OrdersTable},
     dto::RequestData,
-    error::NotFoundError,
+    error::{BadRequestError, NotFoundError},
     extract::{Json, Path, QsQuery},
     middleware::{client_only, merchant_only, requires_onboarding},
     response::ResponseBuilder,
@@ -25,7 +25,6 @@ use graphein_common::{
     },
 };
 use http::StatusCode;
-use sqlx::Acquire;
 use tokio::sync::mpsc;
 
 pub(super) fn expand_router(state: AppState) -> Router<AppState> {
@@ -170,13 +169,12 @@ async fn post_orders_id_status(
     session: Session,
     Path(order_id): Path<OrderId>,
 ) -> HandlerResponse<OrderStatusUpdate> {
-    let mut conn = pool.acquire().await?;
     OrdersTable::permissions_checker(order_id, session)
         .allow_merchant(true)
-        .test(&mut conn)
+        .test(&mut *(pool.acquire().await?))
         .await?;
 
-    let mut tx = conn.begin().await?;
+    let mut tx = pool.begin().await?;
     let previous_status = OrdersTable::fetch_status_for_update(&mut tx, order_id).await?;
     let next_status = match previous_status {
         OrderStatus::Reviewing => OrderStatus::Processing,
@@ -184,7 +182,7 @@ async fn post_orders_id_status(
         OrderStatus::Ready => OrderStatus::Completed,
         _ => {
             return Err(AppError::BadRequest(
-                "[4005] Cannot process status updates for this order any further.".into(),
+                BadRequestError::UnprocessableStatusUpdate,
             ));
         }
     };
@@ -207,9 +205,9 @@ async fn post_orders_id_build(
 ) -> HandlerResponse<DetailedOrder> {
     draft_orders.exists(user_id, order_id).await?;
     if request_data.files.is_empty() {
-        return Err(AppError::BadRequest(
-            "[4006] There are no files present in this order.".into(),
-        ));
+        return Err(AppError::BadRequest(BadRequestError::MalformedFiles(
+            "There are no files present in this order",
+        )));
     }
 
     request_data.files.iter_mut().for_each(|file| {

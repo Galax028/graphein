@@ -5,6 +5,16 @@ use crate::schemas::{PaperId, PaperVariantId};
 
 #[derive(Debug, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct PaperWithoutVariants {
+    pub id: PaperId,
+    pub name: String,
+    pub length: i32,
+    pub width: i32,
+    pub is_default: bool,
+}
+
+#[derive(Debug, FromRow, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Paper {
     pub id: PaperId,
     pub name: String,
@@ -12,17 +22,6 @@ pub struct Paper {
     pub width: i32,
     pub is_default: bool,
     pub variants: Vec<PaperVariant>,
-}
-
-#[derive(Debug, FromRow, Serialize, SqlxType)]
-#[serde(rename_all = "camelCase")]
-#[sqlx(type_name = "paper_variant")]
-pub struct PaperVariant {
-    id: PaperVariantId,
-    name: String,
-    is_default: bool,
-    is_available: bool,
-    is_laminatable: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -37,9 +36,29 @@ pub struct PaperCreate {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct PaperUpdate {
+    pub name: String,
+    pub length: i32,
+    pub width: i32,
+    pub is_default: bool,
+}
+
+#[derive(Debug, FromRow, Serialize, SqlxType)]
+#[serde(rename_all = "camelCase")]
+#[sqlx(type_name = "paper_variant")]
+pub struct PaperVariant {
+    pub id: PaperVariantId,
+    pub name: String,
+    pub is_default: bool,
+    pub is_available: bool,
+    pub is_laminatable: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PaperVariantCreate {
-    pub(crate) name: String,
-    pub(crate) is_default: bool,
-    pub(crate) is_available: bool,
-    pub(crate) is_laminatable: bool,
+    pub name: String,
+    pub is_default: bool,
+    pub is_available: bool,
+    pub is_laminatable: bool,
 }
