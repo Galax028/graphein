@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use crate::{
     AppError, MAX_FILE_LIMIT,
-    error::NotFoundError,
+    error::{BadRequestError, NotFoundError},
     schemas::{
         DetailedOrder, File, FileId, FileRange, OrderCreate, OrderId, UserId,
         enums::{FileType, OrderStatus},
@@ -121,9 +121,9 @@ impl DraftOrderStore {
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
 
         if draft.files_len() == MAX_FILE_LIMIT {
-            return Err(AppError::BadRequest(
-                "[4006] This order has already reached the maximum file limit.".into(),
-            ));
+            return Err(AppError::BadRequest(BadRequestError::MalformedFiles(
+                "This order has already reached the maximum file limit.",
+            )));
         }
 
         let file_id = Uuid::new_v4().into();
@@ -202,9 +202,9 @@ impl DraftOrderStore {
             .ok_or(AppError::NotFound(NotFoundError::ResourceNotFound))?;
 
         if draft_order.files_len() == 0 {
-            return Err(AppError::BadRequest(
-                "[4006] There are no files present in this order.".into(),
-            ));
+            return Err(AppError::BadRequest(BadRequestError::MalformedFiles(
+                "There are no files present in this order.",
+            )));
         }
 
         if !files.iter().all(|file| {
@@ -217,9 +217,9 @@ impl DraftOrderStore {
                 .iter()
                 .all(|file_id| draft_order.contains_file(*file_id))
         }) {
-            return Err(AppError::BadRequest(
-                "[4006] Malformed or missing files and/or services were provided.".into(),
-            ));
+            return Err(AppError::BadRequest(BadRequestError::MalformedJson(
+                "Request data contains malformed data for files and/or services".into(),
+            )));
         }
 
         if stream::iter(draft_order.files.iter().map(Ok))
@@ -229,9 +229,9 @@ impl DraftOrderStore {
             .await
             .is_err()
         {
-            return Err(AppError::BadRequest(
-                "[4006] Object(s) bound to the order were not provided.".into(),
-            ));
+            return Err(AppError::BadRequest(BadRequestError::MalformedFiles(
+                "[4006] Object(s) bound to the order were not provided.",
+            )));
         }
 
         let files = files

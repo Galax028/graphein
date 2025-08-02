@@ -11,7 +11,11 @@ use http::header::CONTENT_TYPE;
 use reqwest::Client as ReqwestClient;
 use rusty_s3::{Bucket, Credentials, S3Action as _, UrlStyle, actions::ObjectIdentifier};
 
-use crate::{AppError, error::NotFoundError, schemas::enums::FileType};
+use crate::{
+    AppError,
+    error::{BadRequestError, NotFoundError},
+    schemas::enums::FileType,
+};
 
 const DEFAULT_SIGN_DURATION: StdDuration = StdDuration::from_secs(60);
 
@@ -156,9 +160,9 @@ impl R2Bucket {
     ) -> Result<String, AppError> {
         // 50 MB
         if length > 50 * 1_000_000 {
-            return Err(AppError::BadRequest(
-                "[4007] File size exceeded limit.".into(),
-            ));
+            return Err(AppError::BadRequest(BadRequestError::MalformedFiles(
+                "File size exceeded limit.",
+            )));
         }
 
         let object = format!("/{object_key}.{filetype}");

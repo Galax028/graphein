@@ -5,10 +5,6 @@ use sqlx::FromRow;
 #[derive(Debug, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
-    #[serde(skip_serializing)]
-    created_at: DateTime<Utc>,
-    #[serde(skip_serializing)]
-    updated_at: DateTime<Utc>,
     latest_orders_flushed_at: Option<DateTime<Utc>>,
     is_accepting: bool,
     is_lamination_serviceable: bool,
