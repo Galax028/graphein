@@ -173,8 +173,15 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
 
   const queryClient = new QueryClient();
   const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
-  const signedIn = await prefetchUser(queryClient, sessionToken);
-  if (signedIn) {
+  const user = await prefetchUser(queryClient, sessionToken, {
+    returnUser: true,
+  });
+  if (user) {
+    if (user.role === "merchant")
+      return {
+        redirect: { destination: "/merchant/dashboard", permanent: false },
+      };
+
     const orderId = context.query.id;
     if (typeof orderId !== "string") return { notFound: true };
     await prefetchDetailedOrder(queryClient, orderId, sessionToken);

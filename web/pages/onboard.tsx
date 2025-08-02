@@ -142,7 +142,8 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     if (user.isOnboarded)
       return {
         redirect: {
-          destination: user.role === "merchant" ? "/merchant" : "/glance",
+          destination:
+            user.role === "merchant" ? "/merchant/dashboard" : "/glance",
           permanent: false,
         },
       };

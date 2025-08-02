@@ -159,6 +159,10 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   if (user) {
     if (!user.isOnboarded)
       return { redirect: { destination: "/onboard", permanent: false } };
+    if (user.role === "merchant")
+      return {
+        redirect: { destination: "/merchant/dashboard", permanent: false },
+      };
 
     await prefetchOrdersGlance(queryClient, sessionToken);
     return {
