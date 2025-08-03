@@ -1,5 +1,6 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
+import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
 import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import type {
@@ -10,14 +11,28 @@ import type {
 import { MAX_FILE_LIMIT, Uuid } from "@/utils/types/common";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
-import { useState, type Dispatch, type FC, type SetStateAction } from "react";
+import {
+  useEffect,
+  useState,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+} from "react";
 import { useDropzone } from "react-dropzone";
+import { v4 as uuidv4 } from "uuid";
 
-export type DraftFile = {
+type DraftFile = {
   key: number;
   progress: number;
   meta: FileCreate | null;
-  raw: File;
+  raw: {
+    name: string;
+    size: number;
+    type: string;
+    path?: string;
+    relativePath?: string;
+  };
+  file?: File;
 };
 
 type UploadFilesProps = {
@@ -34,6 +49,34 @@ const UploadFiles: FC<UploadFilesProps> = ({
   setReadyForNextStage,
 }) => {
   const [fileLimitExceeded, setFileLimitExceeded] = useState(false);
+  const [stageContinuable, setStageContinuable] = useState(true);
+
+  // TODO: KEEP SERVER FILE ID, GET SERVER FILE ID
+  const deleteDraftFile = async (id: string) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      },
+    );
+
+    if (res.status == 204) {
+      // Add logic to remove from localStorage
+      window.alert(`Successfully deleted file ${id}, from order ${orderId}.`);
+    } else {
+      window.alert(`Unable to delete file ${id}, from order ${orderId}.`);
+    }
+  };
+
+  // Enable back button when:
+  //   1. There're files in the draft order.
+  //   2. All files in the order are confirmed to be uploaded to cloud bucket.
+  //
+  // TODO: The uploaded check (2.) is still flawed. When refreshed, the file 
+  // isn't uploaded to cloud yet, but still appears in draftFiles list. 
+  // Which creates a "ghost file".
+  setReadyForNextStage(draftFiles.length != 0 && stageContinuable);
 
   const fileUploadMutation = useMutation({
     mutationFn: async (variables: DraftFile) => {
@@ -44,9 +87,9 @@ const UploadFiles: FC<UploadFilesProps> = ({
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            filename: variables.raw.name,
+            filename: variables.file?.name,
             filetype: "pdf",
-            filesize: variables.raw.size,
+            filesize: variables.file?.size,
           }),
         },
       );
@@ -82,15 +125,15 @@ const UploadFiles: FC<UploadFilesProps> = ({
           if (fileUploadXHR.readyState === 4 && fileUploadXHR.status === 200)
             resolve({
               id: body.data.id,
-              filename: variables.raw.name,
+              filename: variables.file?.name ?? "",
               ranges: [],
             });
           else reject(new Error("Failed to execute `fileUploadXHR`"));
         });
 
         fileUploadXHR.open("PUT", body.data.uploadUrl, true);
-        fileUploadXHR.setRequestHeader("Content-Type", variables.raw.type);
-        fileUploadXHR.send(variables.raw);
+        fileUploadXHR.setRequestHeader("Content-Type", variables.file?.type);
+        fileUploadXHR.send(variables.file);
       });
       setDraftFiles((draftFiles) =>
         draftFiles.map((file) =>
@@ -98,7 +141,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
         ),
       );
     },
-    onSuccess: () => setReadyForNextStage(true),
+    onSuccess: () => setStageContinuable(true),
   });
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -113,15 +156,26 @@ const UploadFiles: FC<UploadFilesProps> = ({
       if (draftFiles.length + droppedRawFiles.length > MAX_FILE_LIMIT)
         return setFileLimitExceeded(true);
 
-      setReadyForNextStage(false);
+      console.warn("DROPPED:", droppedRawFiles);
+
+      setStageContinuable(false);
       const updatedDraftFiles = [
         ...draftFiles,
         ...droppedRawFiles.map((droppedFile) => {
+          // Normalize the file object
+          const normalizedRaw = {
+            name: droppedFile.name,
+            size: droppedFile.size,
+            type: droppedFile.type,
+            path: (droppedFile as any).path,
+            relativePath: (droppedFile as any).relativePath,
+          };
           const newDraftFile = {
-            key: Math.round(Math.random() * 100_000 ** 2),
+            key: uuidv4(),
             progress: 0,
             meta: null,
-            raw: droppedFile,
+            raw: normalizedRaw,
+            file: droppedFile,
           };
           fileUploadMutation.mutate(newDraftFile);
 
@@ -140,8 +194,10 @@ const UploadFiles: FC<UploadFilesProps> = ({
     },
   });
 
+  console.warn("DRAFT:", draftFiles);
+
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-1">
         <AnimatePresence>
           {draftFiles.map((draftFile, idx) => (
@@ -153,24 +209,32 @@ const UploadFiles: FC<UploadFilesProps> = ({
                 delay: idx * 0.1,
                 y: { type: "spring", bounce: 0 },
               }}
-              className="flex flex-col gap-1 border border-outline p-3 rounded-lg bg-surface-container"
+              className="flex gap-2 items-center border border-outline p-3 rounded-lg bg-surface-container"
               key={draftFile.key}
             >
-              <p
-                className={cn(
-                  "text-body-sm",
-                  draftFile.progress === 100 ? "text-success" : "text-warning",
-                )}
-              >
-                {draftFile.progress === 100
-                  ? "Uploaded"
-                  : `Uploading (${draftFile.progress}%)`}
-              </p>
-              <p>{draftFile.raw.name}</p>
-              <p className="text-body-sm opacity-50">
-                {draftFile.raw.type} •{" "}
-                {getFormattedFilesize(draftFile.raw.size)}
-              </p>
+              <div className="flex flex-col gap-1 w-full">
+                <p
+                  className={cn(
+                    "text-body-sm",
+                    draftFile.progress === 100
+                      ? "text-success"
+                      : "text-warning",
+                  )}
+                >
+                  {draftFile.progress === 100
+                    ? "Uploaded"
+                    : `Uploading (${draftFile.progress}%)`}
+                </p>
+                <p>{draftFile.meta?.filename ?? draftFile.raw.name}</p>
+                <p className="text-body-sm opacity-50">
+                  {/* TODO: Implement other file types. */}
+                  {/* {draftFile.raw.type} •{" "} */}
+                  PDF • {getFormattedFilesize(draftFile.raw.size)}
+                </p>
+              </div>
+              <div>
+                <MaterialIcon icon="close_small" />
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
@@ -193,29 +257,31 @@ const UploadFiles: FC<UploadFilesProps> = ({
         {draftFiles.length === 0 && (
           <div>
             <p className="text-body-md text-center">
-              Drop a file here, or click to browse rawFiles.
+              Drop a file here, or click to browse files.
             </p>
             <p className="text-body-sm opacity-50 text-center">
-              PDF, PNG, JPEG • {MAX_FILE_LIMIT} draftFiles • 50 MB max
+              PDF • {MAX_FILE_LIMIT} files max • 50 MB limit
             </p>
           </div>
         )}
       </div>
 
-      {fileLimitExceeded && (
-        <Dialog
-          title={`You can only upload ${MAX_FILE_LIMIT} draftFiles per order.`}
-          desc={`To minimize wait time for others, you can only upload a maximum of ${MAX_FILE_LIMIT} draftFiles per order. To upload more, visit the storefront, or start another order after this one.`}
-        >
-          <Button
-            appearance="filled"
-            onClick={() => setFileLimitExceeded(false)}
+      <AnimatePresence>
+        {fileLimitExceeded && (
+          <Dialog
+            title={`You can only upload ${MAX_FILE_LIMIT} draftFiles per order.`}
+            desc={`To minimize wait time for others, you can only upload a maximum of ${MAX_FILE_LIMIT} draftFiles per order. To upload more, visit the storefront, or start another order after this one.`}
           >
-            OK
-          </Button>
-        </Dialog>
-      )}
-    </>
+            <Button
+              appearance="filled"
+              onClick={() => setFileLimitExceeded(false)}
+            >
+              OK
+            </Button>
+          </Dialog>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
