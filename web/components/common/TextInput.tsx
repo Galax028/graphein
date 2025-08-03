@@ -44,10 +44,11 @@ const TextInput: FC<TextInputProps> = ({
 }) => (
   <div
     className={cn(
-      `flex gap-2 items-center px-2 rounded-lg text-body-md border focus-within:border-warning`,
+      `flex gap-2 items-center px-2 rounded-lg text-body-md border focus-within:border-accent`,
       error
         ? "border-error focus-within:border-error bg-error/20 z-10"
         : "border-outline",
+      className,
     )}
   >
     {prefixIcon && (
@@ -65,7 +66,6 @@ const TextInput: FC<TextInputProps> = ({
               [&::-webkit-inner-spin-button]:appearance-none
               outline-none
             `,
-          className,
           alignment == "left"
             ? "text-left"
             : alignment == "right"
