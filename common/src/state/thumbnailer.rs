@@ -38,7 +38,6 @@ pub(crate) fn vips_version_check(version: &str) -> AnyhowResult<()> {
     }
 }
 
-// TODO: maybe make a cache
 #[derive(Clone, Debug)]
 pub struct Thumbnailer(Sender<(String, FileType)>);
 
