@@ -22,17 +22,21 @@ const SegmentedGroup: FC<SegmentedGroupProps> = ({
   return (
     <div
       className={cn(
-        `flex border border-outline rounded-lg
-          [&>button,&>div,&>input]:rounded-none 
-          [&>div,&>input]:p-2 [&>input]:z-10 [&>button]:flex-[10%] 
-          [&>button,&>div,&>input]:border-0 
-          [&>button,&>div,&>input]:not-first:border-l
-          [&>button,&>div,&>input]:first:rounded-l-lg 
+        `flex border border-outline rounded-lg [&>button,&>div,&>input]:border-0
+          [&>button,&>div,&>input]:rounded-none [&>button]:bg-background
+          [&>div,&>input]:p-2 [&>input]:z-10 [&>button]:flex-[10%] [&>div]:h-10
+          
           [&>button,&>div,&>input]:border-outline
           [&>div.border-error]:outline [&>div.border-error]:outline-error 
           [&>div.border-error]:border-none [&>div.border-error]:py-0,
-          [&>button,&>div,&>input]:last:rounded-r-lg [&>button]:bg-background`,
-        direction == "horizontal" ? "flex-row" : "flex-col",
+        `,
+        direction == "horizontal"
+          ? `flex-row [&>button,&>div,&>input]:first:rounded-l-lg 
+            [&>button,&>div,&>input]:last:rounded-r-lg 
+            [&>button,&>div,&>input]:not-first:border-l`
+          : `flex-col [&>button,&>div,&>input]:first:rounded-t-lg 
+            [&>button,&>div,&>input]:last:rounded-b-lg
+            [&>button,&>div,&>input]:not-first:border-t`,
         className,
       )}
     >
