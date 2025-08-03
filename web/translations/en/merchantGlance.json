@@ -1,0 +1,29 @@
+{
+  "navigationBar": "Dashboard",
+  "orders": {
+    "incoming": {
+      "title": "Incoming Orders",
+      "footer": "{count, plural, =1 {# order} other {# orders}} waiting for review",
+      "empty": "There are no incoming orders at the moment."
+    },
+    "accepted": {
+      "title": "Accepted Orders",
+      "footer": "{count, plural, =1 {# order} other {# orders}} accepted",
+      "empty": "You have not accepted any orders."
+    },
+    "waiting": {
+      "title": "Waiting for Pickup",
+      "footer": "{count, plural, =1 {# order} other {# orders}} ready for pickup",
+      "empty": "All completed orders have been picked up."
+    },
+    "finished": {
+      "title": "Finished Orders",
+      "footer": "{count, plural, =1 {# order} other {# orders}} finished",
+      "empty": "Finished orders will show up here."
+    }
+  },
+  "signOut": {
+    "title": "Sign Out",
+    "description": "TODO"
+  }
+}

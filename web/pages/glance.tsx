@@ -13,7 +13,6 @@ import { prefetchUser } from "@/query/fetchUser";
 import getGreetingMessage from "@/utils/helpers/glance/getGreetingMessage";
 import checkIsBuildingOrder from "@/utils/helpers/order/new/checkIsBuildingOrder";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import type { CompactOrder } from "@/utils/types/backend";
 import type { PageProps } from "@/utils/types/common";
 import useUserContext from "@/utils/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
@@ -45,12 +44,12 @@ const GlancePage: FC<PageProps> = () => {
     {
       label: t("orders.ongoing.title"),
       orders: ordersGlance.ongoing,
-      fallback: t("orders.ongoing.empty"),
+      empty: t("orders.ongoing.empty"),
     },
     {
       label: t("orders.finished.title"),
       orders: ordersGlance.finished,
-      fallback: t("orders.finished.empty"),
+      empty: t("orders.finished.empty"),
     },
   ] as const;
 
@@ -62,10 +61,10 @@ const GlancePage: FC<PageProps> = () => {
       />
       <PageLoadTransition className="w-full">
         <div className="flex flex-col w-full gap-2 mb-12">
-          {sections.map((section, idx) => (
-            <LabelGroup header={section.label} key={idx}>
+          {sections.map((section) => (
+            <LabelGroup header={section.label} key={section.label}>
               {section.orders.length !== 0 ? (
-                section.orders.map((order: CompactOrder, idx) => (
+                section.orders.map((order, idx) => (
                   <motion.div
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -73,7 +72,7 @@ const GlancePage: FC<PageProps> = () => {
                       y: { type: "spring", bounce: 0 },
                       delay: idx * 0.2,
                     }}
-                    key={idx}
+                    key={order.id}
                   >
                     <Link key={order.id} href={`/order/detail/${order.id}`}>
                       <OrderCard
@@ -81,15 +80,13 @@ const GlancePage: FC<PageProps> = () => {
                         orderNumber={order.orderNumber}
                         createdAt={order.createdAt}
                         filesCount={order.filesCount}
-                        options={{
-                          showNavigationIcon: true,
-                        }}
+                        options={{ showNavigationIcon: true }}
                       />
                     </Link>
                   </motion.div>
                 ))
               ) : (
-                <OrderEmptyCard text={section.fallback} />
+                <OrderEmptyCard text={section.empty} />
               )}
             </LabelGroup>
           ))}

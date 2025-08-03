@@ -1,4 +1,5 @@
-import DescriptionList from "./DescriptionList"
+import { FC } from "react";
+import DescriptionList from "./DescriptionList";
 
 type FileDetailRangeProps = {
   label: "page" | "image" | "service";
@@ -6,7 +7,8 @@ type FileDetailRangeProps = {
   details: {
     title: string;
     content: string;
-  }[];}
+  }[];
+};
 
 /**
  * The configuration options for each PDF, or image file.
@@ -14,29 +16,31 @@ type FileDetailRangeProps = {
  * @param value   Range, or type of service. (string)
  * @param details The details within of a card. (title: str; content: str;)
  */
-
-const FileDetailRange = ({label, value, details}: FileDetailRangeProps) => {
+const FileDetailRange: FC<FileDetailRangeProps> = ({
+  label,
+  value,
+  details,
+}) => {
   // TODO: Add localization to these types
   const labelNames = {
-    "page": "Page",
-    "image": "Image",
-    "service": "Service"
-  }
+    page: "Page",
+    image: "Image",
+    service: "Service",
+  } as const;
 
   return (
     <div className="bg-surface-container border border-outline rounded-lg">
       <div className="flex">
-        <div className="border-r border-outline text-body-md px-3 py-2">{labelNames[label]}</div>
+        <div className="border-r border-outline text-body-md px-3 py-2">
+          {labelNames[label]}
+        </div>
         <div className="text-body-md px-3 py-2">{value}</div>
       </div>
       <div className="p-3 border-t border-outline">
-        <DescriptionList 
-          list={details}
-          expand={true}
-        />
+        <DescriptionList list={details} expand={true} />
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default FileDetailRange;

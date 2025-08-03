@@ -25,14 +25,19 @@ const DescriptionList: FC<DescriptionListProps> = ({
     const col2 = list.slice(half);
 
     return (
-      <div className={cn("grid gap-2 md:grid-cols-2")}>
+      <div className="grid gap-2 md:grid-cols-2">
         {[col1, col2].map((list, idx) => (
-          <div className="flex flex-col gap-y-2" key={idx}>
-            {list.map((item, idx) => (
-              <div className="grid grid-cols-[4.5rem_1fr] gap-x-4" key={idx}>
-                <p className="text-body-sm opacity-50">{item.title}</p>
+          <div
+            className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2"
+            key={idx}
+          >
+            {list.map((item) => (
+              <Fragment key={item.title}>
+                <p className="text-body-sm opacity-50 select-none">
+                  {item.title}
+                </p>
                 <p className="text-body-md">{item.content}</p>
-              </div>
+              </Fragment>
             ))}
           </div>
         ))}
@@ -43,7 +48,7 @@ const DescriptionList: FC<DescriptionListProps> = ({
       <div className={cn("grid gap-2", expand && "md:grid-cols-2")}>
         {list.map((item, idx) => (
           <div className="grid grid-cols-[4.5rem_1fr] gap-x-4" key={idx}>
-            <p className="text-body-sm opacity-50">{item.title}</p>
+            <p className="text-body-sm opacity-50 select-none">{item.title}</p>
             <p className="text-body-md">{item.content}</p>
           </div>
         ))}

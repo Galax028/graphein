@@ -134,6 +134,7 @@ export type CompactOrder = {
 export type DetailedOrder = {
   id: Uuid;
   createdAt: string;
+  owner?: User | undefined;
   orderNumber: string;
   status: OrderStatus;
   price: number | null;
@@ -145,5 +146,12 @@ export type DetailedOrder = {
 
 export type OrdersGlance = {
   ongoing: CompactOrder[];
+  finished: CompactOrder[];
+};
+
+export type MerchantOrdersGlance = {
+  incoming: CompactOrder[];
+  accepted: CompactOrder[];
+  waiting: CompactOrder[];
   finished: CompactOrder[];
 };

@@ -26,10 +26,7 @@ const PersonAvatar: FC<PersonAvatarProps> = ({
 }) => (
   <div
     style={{ width: `${size / 16}rem`, height: `${size / 16}rem` }}
-    className={cn(
-      `grid place-content-center rounded-full aspect-square 
-        overflow-hidden border border-outline bg-primary text-onPrimary`,
-    )}
+    className="grid place-content-center rounded-full aspect-square overflow-hidden border border-outline"
   >
     {profileUrl ? (
       <Image
