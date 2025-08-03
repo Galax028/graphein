@@ -14,6 +14,7 @@ pub struct ClientOrdersGlance {
 pub struct MerchantOrdersGlance {
     pub incoming: Vec<CompactOrder>,
     pub accepted: Vec<CompactOrder>,
+    pub waiting: Vec<CompactOrder>,
     pub finished: Vec<CompactOrder>,
 }
 
