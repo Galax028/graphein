@@ -15,9 +15,9 @@ type DialogProps = {
  *
  * @param title            The title to put on the dialog (string)
  * @param desc             The description to put on the dialog (string)
- * @param children         The title to put on the dialog (string)
+ * @param children         The title to put on the dialog (HTML Element)
  * @param setClickOutside  The useState function name to trigger when
- *                         clicked outside. (Always set to false)
+ *                         clicked outside. (Will do nothing if not provided.)
  */
 const Dialog: FC<DialogProps> = ({
   className,
