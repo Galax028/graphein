@@ -101,7 +101,7 @@ const GlancePage: FC<PageProps> = () => {
         </div>
       </PageLoadTransition>
 
-      <div className="fixed px-3 w-full max-w-lg md:w-[24rem] mx-auto left-0 right-0 bottom-3">
+      <div className="fixed px-3 max-w-lg mx-auto left-0 right-0 bottom-3">
         <Button
           className="w-full"
           appearance="filled"

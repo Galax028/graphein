@@ -29,11 +29,11 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
         })}
       />
       <div className="flex flex-col justify-between flex-grow p-3 md:p-0">
-        <div className="md:grid md:place-items-center md:flex-grow md:w-[24rem] md:m-auto">
+        <div className="md:grid md:place-items-center md:flex-grow md:m-auto">
           <div
             className={cn(
               `flex flex-col gap-3 md:border md:border-outline 
-                md:bg-surface-container md:p-6 md:rounded-xl`,
+                md:bg-surface-container md:p-6 md:rounded-xl w-full md:max-w-lg`,
             )}
           >
             <div className="flex flex-col gap-1">
@@ -43,7 +43,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
             <SignInButton />
           </div>
         </div>
-        <div className="flex flex-col gap-3 md:w-[24rem] md:my-4 md:m-auto">
+        <div className="flex flex-col gap-3 w-full md:max-w-lg md:my-4 md:m-auto">
           <LabelGroup header={t("language")}>
             <SegmentedGroup>
               <Button
