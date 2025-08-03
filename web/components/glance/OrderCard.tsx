@@ -4,10 +4,11 @@ import getFormattedDateTime from "@/utils/helpers/getFormattedDateTime";
 import type { OrderStatus } from "@/utils/types/common";
 import { motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
-import type { FC } from "react";
+import type { FC, MouseEventHandler } from "react";
 
 type OrderCardProps = {
   status: "building" | OrderStatus;
+  selected?: boolean;
   orderNumber: string;
   filesCount: number;
   createdAt: string;
@@ -16,6 +17,7 @@ type OrderCardProps = {
     showProgressBar?: boolean;
     showNavigationIcon?: boolean;
   };
+  onClick?: MouseEventHandler<HTMLDivElement>;
 };
 
 /**
@@ -30,6 +32,7 @@ type OrderCardProps = {
  */
 const OrderCard: FC<OrderCardProps> = ({
   status = "building",
+  selected = false,
   orderNumber,
   filesCount,
   createdAt,
@@ -38,6 +41,7 @@ const OrderCard: FC<OrderCardProps> = ({
     showProgressBar = false,
     showNavigationIcon = false,
   } = {},
+  onClick,
 }) => {
   const locale = useLocale();
   const t = useTranslations("common");
@@ -61,7 +65,15 @@ const OrderCard: FC<OrderCardProps> = ({
   } as const;
 
   return (
-    <div className="bg-surface-container border border-outline rounded-lg">
+    <div
+      className={cn(
+        "rounded-lg cursor-pointer transition-colors",
+        selected
+          ? "bg-primary text-onPrimary hover:brightness-80"
+          : "bg-surface-container border border-outline hover:bg-background",
+      )}
+      onClick={onClick}
+    >
       <div className="flex items-center gap-4 p-3 pl-4">
         <div className="flex-grow">
           {showStatusText && (

@@ -1,4 +1,5 @@
-import DescriptionList from "@/components/common/DescriptionList";
+import type { FC } from "react";
+import DescriptionList from "./DescriptionList";
 
 type FileDetailRangeProps = {
   label: "page" | "image" | "service";
@@ -15,14 +16,17 @@ type FileDetailRangeProps = {
  * @param value   Range, or type of service. (string)
  * @param details The details within of a card. (title: str; content: str;)
  */
-
-const FileDetailRange = ({ label, value, details }: FileDetailRangeProps) => {
+const FileDetailRange: FC<FileDetailRangeProps> = ({
+  label,
+  value,
+  details,
+}) => {
   // TODO: Add localization to these types
   const labelNames = {
     page: "Page",
     image: "Image",
     service: "Service",
-  };
+  } as const;
 
   return (
     <div className="bg-surface-container border border-outline rounded-lg">
