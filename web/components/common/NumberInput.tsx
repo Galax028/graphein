@@ -20,7 +20,7 @@ type NumberInputProps = {
  * @param max       The maximum value for this field.
  */
 const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
-  const [tempCount, setTempCount] = useState<number>(count);
+  const [tempCount, setTempCount] = useState<string>(count.toString());
 
   // Get the value within range.
   const clampedValue = (i: number) =>
@@ -28,8 +28,9 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
 
   // Buttons
   const updateCount = (i: number) => {
-    setTempCount(clampedValue(i));
-    setCount(clampedValue(i));
+    const clamped = clampedValue(i);
+    setTempCount(clamped.toString());
+    setCount(clamped);
   };
 
   // Text Input
@@ -48,12 +49,12 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
     // If the number is not valid, set it to 0.
     // Note: If 0 is not in range, we set it to min or max afterwards.
     if (isNaN(tempNumber)) {
-      setTempCount(0);
+      setTempCount("0");
       setCount(0);
       return;
     }
 
-    setTempCount(clampedValue(tempNumber));
+    setTempCount(clampedValue(tempNumber).toString());
     setCount(clampedValue(tempNumber));
   };
 
@@ -75,8 +76,8 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
           `,
         )}
         type="text"
-        onChange={(e) => setTempCount(parseInt(e.target.value))}
-        onBlur={() => validateUpdateCount(`${tempCount}`)}
+        onChange={(e) => setTempCount(e.target.value)}
+        onBlur={() => validateUpdateCount(tempCount)}
         value={tempCount}
       />
       <Button
