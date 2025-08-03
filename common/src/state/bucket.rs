@@ -88,18 +88,15 @@ impl R2Bucket {
         let object = format!("/{object_key}.{filetype}");
         let mut get_object = self.inner.get_object(Some(&self.creds), &object);
         let query_params = get_object.query_mut();
-        query_params.insert("response-cache-control", "must-revalidate, private");
+        query_params.insert(
+            "response-cache-control",
+            "max-age=3600, must-revalidate, private",
+        );
         query_params.insert(
             "response-content-disposition",
             format!("attachment; filename*=UTF-8''{filename}.{filetype}"),
         );
         query_params.insert("response-content-type", filetype.to_mime());
-        query_params.insert(
-            "response-expires",
-            (Utc::now() + TimeDelta::hours(1))
-                .format("%a, %d %b %Y %H:%M:%S GMT")
-                .to_string(),
-        );
 
         Ok(get_object.sign(StdDuration::from_secs(3600)).into())
     }
@@ -120,15 +117,12 @@ impl R2Bucket {
         let thumbnail_object = format!("/{object_key}.t.webp");
         let mut get_object = self.inner.get_object(Some(&self.creds), &thumbnail_object);
         let query_params = get_object.query_mut();
-        query_params.insert("response-cache-control", "must-revalidate, private");
+        query_params.insert(
+            "response-cache-control",
+            "max-age=3600, must-revalidate, private",
+        );
         query_params.insert("response-content-disposition", "inline");
         query_params.insert("response-content-type", FileType::Webp.to_mime());
-        query_params.insert(
-            "response-expires",
-            (Utc::now() + TimeDelta::hours(1))
-                .format("%a, %d %b %Y %H:%M:%S GMT")
-                .to_string(),
-        );
 
         Ok(Some(get_object.sign(StdDuration::from_secs(3600)).into()))
     }
