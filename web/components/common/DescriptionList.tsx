@@ -1,7 +1,7 @@
 import cn from "@/utils/helpers/cn";
 import { Fragment, type FC } from "react";
 
-type DescriptionListProps = {
+export type DescriptionListProps = {
   list: {
     title: string;
     content: string;
@@ -18,21 +18,38 @@ type DescriptionListProps = {
 const DescriptionList: FC<DescriptionListProps> = ({
   list,
   expand = false,
-}) => (
-  <div
-    className={cn(
-      `grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center`,
-      // Expand is true, and the dataset has more than 1 value, use 2 columns.
-      expand && list.length > 1 && `md:grid-cols-[4.5rem_1fr_4.5rem_1fr]`,
-    )}
-  >
-    {list.map((item, idx) => (
-      <Fragment key={idx}>
-        <p className="text-body-sm opacity-50">{item.title}</p>
-        <p className="text-body-md">{item.content}</p>
-      </Fragment>
-    ))}
-  </div>
-);
+}) => {
+  if (expand) {
+    const half = Math.ceil(list.length / 2);
+    const col1 = list.slice(0, half);
+    const col2 = list.slice(half);
+
+    return (
+      <div className={cn("grid gap-2 md:grid-cols-2")}>
+        {[col1, col2].map((list, idx) => (
+          <div className="flex flex-col gap-y-2" key={idx}>
+            {list.map((item, idx) => (
+              <div className="grid grid-cols-[4.5rem_1fr] gap-x-4" key={idx}>
+                <p className="text-body-sm opacity-50">{item.title}</p>
+                <p className="text-body-md">{item.content}</p>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  } else {
+    return (
+      <div className={cn("grid gap-2", expand && "md:grid-cols-2")}>
+        {list.map((item, idx) => (
+          <div className="grid grid-cols-[4.5rem_1fr] gap-x-4" key={idx}>
+            <p className="text-body-sm opacity-50">{item.title}</p>
+            <p className="text-body-md">{item.content}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+};
 
 export default DescriptionList;
