@@ -29,9 +29,13 @@ export const fetchDetailedOrder = async (
   } else throw new Error(`Uncaught API Error (${body.error}): ${body.message}`);
 };
 
-export const useDetailedOrderQuery = (orderId: Uuid) => {
+export const useDetailedOrderQuery = (
+  orderId: Uuid,
+  enabled: boolean = false,
+) => {
   return useQuery({
     queryKey: ["detailedOrder", orderId],
     queryFn: () => fetchDetailedOrder(orderId, { credentials: "include" }),
+    enabled,
   });
 };

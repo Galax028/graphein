@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { type FC, ReactNode, useState } from "react";
 
 type DropDownCardProps = {
+  className?: string;
   header: string;
   footer?: string[];
   collapsed?: boolean;
@@ -21,6 +22,7 @@ type DropDownCardProps = {
  * @param children      The content inside the main box.
  */
 const DropDownCard: FC<DropDownCardProps> = ({
+  className,
   header,
   footer,
   collapsed = true,
@@ -39,11 +41,8 @@ const DropDownCard: FC<DropDownCardProps> = ({
         <p className="text-body-md">{header}</p>
         {isCollapsible && (
           <MaterialIcon
-            icon={"arrow_drop_up"}
-            className={cn(
-              "transition-all duration-250",
-              open ? "rotate-180" : "",
-            )}
+            icon="arrow_drop_up"
+            className={cn("transition-all duration-250", open && "rotate-180")}
           />
         )}
       </div>
@@ -55,14 +54,13 @@ const DropDownCard: FC<DropDownCardProps> = ({
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
             >
-              <div className="p-3 border-t border-outline">{children}</div>
+              <div className={cn("p-3 border-t border-outline", className)}>
+                {children}
+              </div>
               {footer && (
-                <div
-                  className={cn(`flex justify-between gap-2 p-2 pl-3 border-t 
-            border-outline`)}
-                >
-                  {footer.map((item, idx) => (
-                    <span key={idx} className="opacity-50 text-body-sm">
+                <div className="flex justify-between gap-2 p-2 pl-3 border-t border-outline">
+                  {footer.map((item) => (
+                    <span key={item} className="opacity-50 text-body-sm">
                       {item}
                     </span>
                   ))}

@@ -73,46 +73,44 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
   }, [orderId, fileId]);
 
   return (
-    <div className="flex items-start w-full">
-      <div
-        className={cn(
-          `flex justify-between items-center gap-2 bg-surface-container 
-          border border-outline rounded-lg w-[calc(100vw-1.5rem)] max-w-lg pr-3`,
-          thumbnailSrc !== null ? "p-2" : "p-4",
+    <div
+      className={cn(
+        `flex justify-between items-center gap-2 bg-surface-container 
+          border border-outline rounded-lg max-w-lg pr-3`,
+        thumbnailSrc !== null ? "p-2" : "p-4",
+      )}
+    >
+      <div className="flex gap-3 items-center min-w-0">
+        {thumbnailSrc && (
+          <motion.div
+            initial={{ x: -8, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -8, opacity: 0 }}
+            transition={{
+              x: { type: "spring", bounce: 0 },
+            }}
+            className="p-1 bg-outline !w-16 !h-16 aspect-square rounded-sm"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={thumbnailSrc}
+              width={56}
+              height={56}
+              alt={filename}
+              className="w-14 h-14 object-contain"
+            />
+          </motion.div>
         )}
-      >
-        <div className="flex gap-3 items-center min-w-0">
-          {thumbnailSrc && (
-            <motion.div
-              initial={{ x: -8, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -8, opacity: 0 }}
-              transition={{
-                x: { type: "spring", bounce: 0 },
-              }}
-              className="p-1 bg-outline !w-16 !h-16 aspect-square rounded-sm"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={thumbnailSrc}
-                width={56}
-                height={56}
-                alt={filename}
-                className="w-14 h-14 object-contain"
-              />
-            </motion.div>
-          )}
-          <div className="flex flex-col grow gap-1 min-w-0">
-            <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
-              {filename}.{filetype}
-            </p>
-            <p className="text-body-sm opacity-50">
-              {filetype.toUpperCase()} • {getFormattedFilesize(filesize)}
-            </p>
-          </div>
+        <div className="flex flex-col grow gap-1 min-w-0">
+          <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
+            {filename}.{filetype}
+          </p>
+          <p className="text-body-sm opacity-50">
+            {filetype.toUpperCase()} • {getFormattedFilesize(filesize)}
+          </p>
         </div>
-        <MaterialIcon icon="arrow_drop_down" />
       </div>
+      <MaterialIcon icon="arrow_drop_down" />
     </div>
   );
 };

@@ -94,17 +94,11 @@ const NavigationBar: FC<NavigationBarProps> = ({
       </div>
       <div>
         {children}
-        {
-          // If the user is signed in, display the profile picture.
-          user && (
-            <Link href="/settings">
-              <PersonAvatar
-                profileUrl={user.profileUrl}
-                personName={user.name}
-              />
-            </Link>
-          )
-        }
+        {user && user.role !== "merchant" && (
+          <Link href="/settings">
+            <PersonAvatar profileUrl={user.profileUrl} personName={user.name} />
+          </Link>
+        )}
       </div>
     </nav>
   );

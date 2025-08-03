@@ -9,11 +9,11 @@
   "orders": {
     "ongoing": {
       "title": "Ongoing",
-      "empty": "You have no active order in progress."
+      "empty": "You have no active orders in progress."
     },
     "finished": {
       "title": "Completed",
-      "empty": "Orders completed will appear here."
+      "empty": "Completed orders will appear here."
     }
   },
   "orderHistory": "Order History",

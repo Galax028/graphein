@@ -1,0 +1,29 @@
+{
+  "navigationBar": "ภาพรวมระบบ",
+  "orders": {
+    "incoming": {
+      "title": "incoming",
+      "footer": "{count}",
+      "empty": "incoming empty"
+    },
+    "accepted": {
+      "title": "accepted",
+      "footer": "{count}",
+      "empty": "accepted empty"
+    },
+    "waiting": {
+      "title": "กำลังดำเนินการ",
+      "footer": "{count}",
+      "empty": "waiting empty"
+    },
+    "finished": {
+      "title": "สำเร็จแล้ว",
+      "footer": "{count}",
+      "empty": "finished empty"
+    }
+  },
+  "signOut": {
+    "title": "ออกจากระบบ",
+    "description": "TODO"
+  }
+}
