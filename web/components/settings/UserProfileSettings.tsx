@@ -137,7 +137,6 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             type="submit"
             appearance="filled"
             className="w-full"
-            icon="save"
           >
             {tx("userSettings.save")}
           </Button>
