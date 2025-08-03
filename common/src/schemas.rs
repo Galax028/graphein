@@ -24,5 +24,5 @@ pub use papers::{
     Paper, PaperCreate, PaperUpdate, PaperVariant, PaperVariantCreate, PaperWithoutVariants,
 };
 pub use services::{Binding, Service};
-pub use settings::{IsAcceptingResponse, Settings, SettingsUpdate};
+pub use settings::{Settings, SettingsUpdate};
 pub use users::{Tel, User, UserUpdate};

@@ -12,13 +12,6 @@ pub struct Settings {
     close_time: NaiveTime,
 }
 
-#[derive(Debug, FromRow, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct IsAcceptingResponse {
-    is_accepting: bool,
-    is_lamination_serviceable: bool,
-}
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SettingsUpdate {

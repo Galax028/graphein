@@ -90,10 +90,13 @@ pub enum ForbiddenError {
     #[error("[4033] Insufficient permissions to access this resource.")]
     InsufficientPermissions,
 
-    #[error("[4034] One or more identical records already exist in the database.")]
+    #[error("[4034] This resource currently cannot be accessed.")]
+    Inaccessible,
+
+    #[error("[4035] One or more identical records already exist in the database.")]
     AlreadyExists,
 
-    #[error("[4035] Forbidden to remove one or more records due to constraint violation(s).")]
+    #[error("[4036] Forbidden to remove one or more records due to constraint violation(s).")]
     DeleteConstraintViolation,
 }
 

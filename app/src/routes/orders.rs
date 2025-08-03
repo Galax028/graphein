@@ -16,7 +16,7 @@ use graphein_common::{
     dto::RequestData,
     error::{BadRequestError, NotFoundError},
     extract::{Json, Path, QsQuery},
-    middleware::{client_only, merchant_only, requires_onboarding},
+    middleware::{client_only, is_accepting_only, merchant_only, requires_onboarding},
     response::ResponseBuilder,
     schemas::{
         ClientOrdersGlance, CompactOrder, DetailedOrder, FileId, FilePresignResponse,
@@ -42,13 +42,21 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
         .route(
             "/",
             post(post_orders)
-                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only))
+                .route_layer(middleware::from_fn_with_state(
+                    state.clone(),
+                    is_accepting_only,
+                )),
         )
         .route("/{id}", get(get_orders_id))
         .route(
             "/{id}",
             delete(delete_orders_id)
-                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only))
+                .route_layer(middleware::from_fn_with_state(
+                    state.clone(),
+                    is_accepting_only,
+                )),
         )
         .route(
             "/{id}/status",
@@ -58,7 +66,11 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
         .route(
             "/{id}/build",
             post(post_orders_id_build)
-                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only))
+                .route_layer(middleware::from_fn_with_state(
+                    state.clone(),
+                    is_accepting_only,
+                )),
         )
         .route(
             "/{id}/files",
@@ -68,7 +80,11 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
         .route(
             "/{id}/files",
             post(post_orders_id_files)
-                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only))
+                .route_layer(middleware::from_fn_with_state(
+                    state.clone(),
+                    is_accepting_only,
+                )),
         )
         .route(
             "/{id}/files/{id}/thumbnail",
@@ -77,7 +93,11 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
         .route(
             "/{id}/files/{id}",
             delete(delete_orders_id_files_id)
-                .route_layer(middleware::from_fn_with_state(state.clone(), client_only)),
+                .route_layer(middleware::from_fn_with_state(state.clone(), client_only))
+                .route_layer(middleware::from_fn_with_state(
+                    state.clone(),
+                    is_accepting_only,
+                )),
         )
         .route_layer(middleware::from_fn_with_state(state, requires_onboarding))
 }

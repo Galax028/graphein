@@ -1,18 +1,27 @@
+use chrono::{FixedOffset, Utc};
 use sqlx::PgConnection;
 
 use crate::{
     SqlxResult,
-    schemas::{IsAcceptingResponse, Settings, SettingsUpdate},
+    schemas::{Settings, SettingsUpdate},
 };
 
 pub struct SettingsTable;
 
 impl SettingsTable {
     #[tracing::instrument(skip_all, err)]
-    pub async fn check_is_accepting(conn: &mut PgConnection) -> SqlxResult<IsAcceptingResponse> {
-        sqlx::query_as("SELECT is_accepting, is_lamination_serviceable FROM settings")
-            .fetch_one(conn)
-            .await
+    pub async fn check_is_accepting(conn: &mut PgConnection, tz: &FixedOffset) -> SqlxResult<bool> {
+        sqlx::query_scalar(
+            "\
+            SELECT EXISTS (\
+                SELECT FROM settings \
+                WHERE is_accepting = true AND open_time <= $1 AND close_time > $1\
+            )\
+            ",
+        )
+        .bind(Utc::now().with_timezone(tz).time())
+        .fetch_one(conn)
+        .await
     }
 
     #[tracing::instrument(skip_all, err)]
