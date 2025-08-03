@@ -29,7 +29,12 @@ async fn get_merchant_orders_glance(
         .await?;
 
     let accepted = OrdersTable::query_compact()
-        .bind_statuses(&[OrderStatus::Processing, OrderStatus::Ready])
+        .bind_statuses(&[OrderStatus::Processing])
+        .fetch_all(&mut conn)
+        .await?;
+
+    let waiting = OrdersTable::query_compact()
+        .bind_statuses(&[OrderStatus::Ready])
         .fetch_all(&mut conn)
         .await?;
 
@@ -47,6 +52,7 @@ async fn get_merchant_orders_glance(
         .data(MerchantOrdersGlance {
             incoming,
             accepted,
+            waiting,
             finished,
         })
         .build())
