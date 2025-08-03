@@ -55,7 +55,8 @@ const Button: FC<ButtonProps> = ({
           transition text-body-md h-10 select-none`,
         icon && children && !busy && "pr-3.5",
         (busy || disabled) &&
-          "brightness-75 dark:brightness-50 !select-none !pointer-events-none",
+          "opacity-25 bg-background !select-none !pointer-events-none",
+          // "brightness-75 dark:brightness-50 !select-none !pointer-events-none",
         appearance == "tonal"
           ? "border border-outline bg-surface-container hover:bg-background"
           : "bg-primary text-onPrimary hover:brightness-80",
