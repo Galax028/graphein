@@ -71,7 +71,7 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
           `p-2 h-10 w-full text-center !border-r z-10 text-body-md
             border border-outline [appearance:textfield] 
             [&::-webkit-outer-spin-button]:appearance-none 
-            [&::-webkit-inner-spin-button]:appearance-none
+            [&::-webkit-inner-spin-button]:appearance-none bg-background
           `,
         )}
         type="text"
