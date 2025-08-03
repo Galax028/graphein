@@ -13,8 +13,8 @@ use graphein_common::{
     middleware::{merchant_only, requires_onboarding},
     response::ResponseBuilder,
     schemas::{
-        IsAcceptingResponse, Paper, PaperCreate, PaperId, PaperUpdate, PaperVariant,
-        PaperVariantCreate, PaperVariantId, PaperWithoutVariants, Settings, SettingsUpdate,
+        Paper, PaperCreate, PaperId, PaperUpdate, PaperVariant, PaperVariantCreate, PaperVariantId,
+        PaperWithoutVariants, Settings, SettingsUpdate,
     },
 };
 use http::StatusCode;
@@ -68,10 +68,11 @@ pub(super) fn expand_router(state: AppState) -> Router<AppState> {
 }
 
 async fn get_opts_accepting(
-    State(AppState { pool, .. }): State<AppState>,
-) -> HandlerResponse<IsAcceptingResponse> {
+    State(AppState { config, pool, .. }): State<AppState>,
+) -> HandlerResponse<bool> {
     let mut conn = pool.acquire().await?;
-    let is_accepting = SettingsTable::check_is_accepting(&mut conn).await?;
+    let is_accepting =
+        SettingsTable::check_is_accepting(&mut conn, &config.shop_utc_offset()).await?;
 
     Ok(ResponseBuilder::new().data(is_accepting).build())
 }

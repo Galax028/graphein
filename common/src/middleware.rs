@@ -1,20 +1,37 @@
 use axum::{
-    extract::Request,
+    extract::{Request, State},
     middleware::Next,
-    response::{IntoResponse as _, Response},
+    response::Response,
 };
 
-use crate::{AppError, auth::Session, error::ForbiddenError, schemas::enums::UserRole};
+use crate::{
+    AppError, AppState, auth::Session, database::SettingsTable, error::ForbiddenError,
+    schemas::enums::UserRole,
+};
+
+pub async fn is_accepting_only(
+    State(AppState { config, pool, .. }): State<AppState>,
+    request: Request,
+    next: Next,
+) -> Result<Response, AppError> {
+    if SettingsTable::check_is_accepting(&mut *(pool.acquire().await?), &config.shop_utc_offset())
+        .await?
+    {
+        Ok(next.run(request).await)
+    } else {
+        Err(AppError::Forbidden(ForbiddenError::Inaccessible))
+    }
+}
 
 pub async fn requires_onboarding(
     Session { is_onboarded, .. }: Session,
     request: Request,
     next: Next,
-) -> Response {
+) -> Result<Response, AppError> {
     if is_onboarded {
-        next.run(request).await
+        Ok(next.run(request).await)
     } else {
-        AppError::Forbidden(ForbiddenError::OnboardingRequired).into_response()
+        Err(AppError::Forbidden(ForbiddenError::OnboardingRequired))
     }
 }
 

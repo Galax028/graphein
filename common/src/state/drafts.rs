@@ -230,7 +230,7 @@ impl DraftOrderStore {
             .is_err()
         {
             return Err(AppError::BadRequest(BadRequestError::MalformedFiles(
-                "[4006] Object(s) bound to the order were not provided.",
+                "Object(s) bound to the order were not provided.",
             )));
         }
 
