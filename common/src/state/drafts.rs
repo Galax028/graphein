@@ -89,7 +89,7 @@ impl DraftOrderStore {
     pub(super) fn new() -> Self {
         Self {
             orders: Arc::new(SccMap::new()),
-            queue: Arc::new(AtomicU16::new(1)),
+            queue: Arc::new(AtomicU16::new(0)),
         }
     }
 
