@@ -8,7 +8,15 @@ type FileDetailRangeProps = {
     content: string;
   }[];}
 
+/**
+ * The configuration options for each PDF, or image file.
+ * @param label   Indicates the card's info type. ("page" | "image" | "service")
+ * @param value   Range, or type of service. (string)
+ * @param details The details within of a card. (title: str; content: str;)
+ */
+
 const FileDetailRange = ({label, value, details}: FileDetailRangeProps) => {
+  // TODO: Add localization to these types
   const labelNames = {
     "page": "Page",
     "image": "Image",
