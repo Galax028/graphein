@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Type as SqlxType};
 
@@ -76,5 +78,5 @@ pub struct FileRangeCreate {
 #[derive(Debug, Serialize)]
 pub struct FilePresignResponse {
     pub id: FileId,
-    pub url: String,
+    pub url: Arc<str>,
 }

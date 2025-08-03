@@ -10,6 +10,7 @@ use chrono::{DateTime, TimeDelta, Utc};
 use http::header::CONTENT_TYPE;
 use reqwest::Client as ReqwestClient;
 use rusty_s3::{Bucket, Credentials, S3Action as _, UrlStyle, actions::ObjectIdentifier};
+use scc::HashIndex;
 
 use crate::{
     AppError,
@@ -24,6 +25,7 @@ pub struct R2Bucket {
     http: ReqwestClient,
     inner: Arc<Bucket>,
     creds: Arc<Credentials>,
+    presign_cache: Arc<HashIndex<String, (Arc<str>, DateTime<Utc>)>>,
 }
 
 impl R2Bucket {
@@ -43,6 +45,7 @@ impl R2Bucket {
                 "auto",
             )?),
             creds: Arc::new(Credentials::new(access_key_id, secret_access_key)),
+            presign_cache: Arc::new(HashIndex::new()),
         })
     }
 
@@ -84,21 +87,38 @@ impl R2Bucket {
         object_key: &str,
         filename: &str,
         filetype: FileType,
-    ) -> Result<String, AppError> {
+    ) -> Result<Arc<str>, AppError> {
         let object = format!("/{object_key}.{filetype}");
+        if let Some(Some(presigned)) = self.presign_cache.peek_with(&object, |k, presigned| {
+            if presigned.1 < Utc::now() {
+                self.presign_cache.remove(k);
+                None
+            } else {
+                Some(Arc::clone(&presigned.0))
+            }
+        }) {
+            return Ok(presigned);
+        }
+
+        let expiry = Utc::now() + TimeDelta::hours(1);
         let mut get_object = self.inner.get_object(Some(&self.creds), &object);
         let query_params = get_object.query_mut();
-        query_params.insert(
-            "response-cache-control",
-            "max-age=3600, must-revalidate, private",
-        );
+        query_params.insert("response-cache-control", "must-revalidate, private");
         query_params.insert(
             "response-content-disposition",
             format!("attachment; filename*=UTF-8''{filename}.{filetype}"),
         );
         query_params.insert("response-content-type", filetype.to_mime());
+        query_params.insert(
+            "response-expires",
+            expiry.format("%a, %d %b %Y %H:%M:%S GMT").to_string(),
+        );
+        let presigned = Arc::from(get_object.sign(StdDuration::from_secs(3600)).as_ref());
+        self.presign_cache
+            .insert(object, (Arc::clone(&presigned), expiry))
+            .ok();
 
-        Ok(get_object.sign(StdDuration::from_secs(3600)).into())
+        Ok(presigned)
     }
 
     #[tracing::instrument(skip_all, err)]
@@ -106,7 +126,22 @@ impl R2Bucket {
         &self,
         object_key: &str,
         filetype: FileType,
-    ) -> Result<Option<String>, AppError> {
+    ) -> Result<Option<Arc<str>>, AppError> {
+        let thumbnail_object = format!("/{object_key}.t.webp");
+        if let Some(Some(presigned)) =
+            self.presign_cache
+                .peek_with(&thumbnail_object, |k, presigned| {
+                    if presigned.1 < Utc::now() {
+                        self.presign_cache.remove(k);
+                        None
+                    } else {
+                        Some(Arc::clone(&presigned.0))
+                    }
+                })
+        {
+            return Ok(Some(presigned));
+        }
+
         if self.exists(object_key, filetype).await.is_err() {
             return Err(AppError::NotFound(NotFoundError::ResourceNotFound));
         }
@@ -114,7 +149,7 @@ impl R2Bucket {
             return Ok(None);
         }
 
-        let thumbnail_object = format!("/{object_key}.t.webp");
+        let expiry = Utc::now() + TimeDelta::hours(1);
         let mut get_object = self.inner.get_object(Some(&self.creds), &thumbnail_object);
         let query_params = get_object.query_mut();
         query_params.insert(
@@ -123,8 +158,17 @@ impl R2Bucket {
         );
         query_params.insert("response-content-disposition", "inline");
         query_params.insert("response-content-type", FileType::Webp.to_mime());
+        query_params.insert(
+            "response-expires",
+            expiry.format("%a, %d %b %Y %H:%M:%S GMT").to_string(),
+        );
+        let presigned = Arc::from(get_object.sign(StdDuration::from_secs(3600)).as_ref());
+        self.presign_cache
+            .insert_async(thumbnail_object.clone(), (Arc::clone(&presigned), expiry))
+            .await
+            .ok();
 
-        Ok(Some(get_object.sign(StdDuration::from_secs(3600)).into()))
+        Ok(Some(presigned))
     }
 
     #[tracing::instrument(skip_all, err)]
