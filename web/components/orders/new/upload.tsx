@@ -21,7 +21,7 @@ import {
 import { useDropzone } from "react-dropzone";
 import { v4 as uuidv4 } from "uuid";
 
-type DraftFile = {
+export type DraftFile = {
   key: number;
   progress: number;
   meta: FileCreate | null;
@@ -205,9 +205,11 @@ const UploadFiles: FC<UploadFilesProps> = ({
                 delay: idx * 0.1,
                 y: { type: "spring", bounce: 0 },
               }}
-              className="flex gap-2 items-center border border-outline p-3 rounded-lg bg-surface-container"
+              className="flex gap-3 items-center border border-outline p-2 rounded-lg bg-surface-container"
               key={draftFile.key}
             >
+              {/* TODO: Add thumbnail */}
+              <div className="w-16 h-16 aspect-square bg-outline rounded-sm"></div>
               <div className="flex flex-col gap-1 w-full">
                 <p
                   className={cn(
