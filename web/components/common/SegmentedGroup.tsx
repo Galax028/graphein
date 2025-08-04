@@ -25,7 +25,7 @@ const SegmentedGroup: FC<SegmentedGroupProps> = ({
         `flex border border-outline rounded-lg [&>button,&>div,&>input]:border-0
           [&>button,&>div,&>input]:rounded-none [&>button]:bg-background
           [&>div,&>input]:p-2 [&>input]:z-10 [&>button]:flex-[10%] [&>div]:h-10
-          
+ 
           [&>button,&>div,&>input]:border-outline
           [&>div.border-error]:outline [&>div.border-error]:outline-error 
           [&>div.border-error]:border-none [&>div.border-error]:py-0,

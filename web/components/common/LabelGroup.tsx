@@ -22,9 +22,9 @@ const LabelGroup: FC<LabelGroupProps> = ({
   children,
 }) => (
   <div className={cn("flex flex-col gap-1", className)}>
-    {header && <p className="text-body-sm opacity-50">{header}</p>}
+    {header && <p className="text-body-sm opacity-50 select-none">{header}</p>}
     {children}
-    {footer && <p className="text-body-sm opacity-50">{footer}</p>}
+    {footer && <p className="text-body-sm opacity-50 select-none">{footer}</p>}
   </div>
 );
 
