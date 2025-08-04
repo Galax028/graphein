@@ -128,35 +128,6 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
               />
             ))}
         </LabelGroup>
-
-        {process.env.NODE_ENV === "development" && (
-          <LabelGroup header="Developer Log">
-            <div
-              className={cn(
-                `p-3 border border-outline bg-surface-container rounded-lg 
-              text-body-sm`,
-              )}
-            >
-              <b>
-                <a
-                  className="!font-mono break-all"
-                  href={
-                    process.env.NEXT_PUBLIC_API_PATH +
-                    "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"
-                  }
-                  target="_blank"
-                >
-                  {process.env.NEXT_PUBLIC_API_PATH +
-                    "/orders/844d2794-e378-4c77-b1bc-d5ff9685c744"}
-                </a>
-              </b>
-              <br />
-              <span className="!font-mono break-all">
-                {JSON.stringify(detailedOrder)}
-              </span>
-            </div>
-          </LabelGroup>
-        )}
       </PageLoadTransition>
     </>
   );

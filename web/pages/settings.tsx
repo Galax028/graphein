@@ -80,21 +80,6 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
         >
           {tx("action.signOut")}
         </Button>
-        <LabelGroup header="Developer Log">
-          <div className="p-3 text-body-sm bg-surface-container border border-outline rounded-lg">
-            <b>
-              <a
-                className="!font-mono break-all"
-                href={process.env.NEXT_PUBLIC_API_PATH + "/user"}
-                target="_blank"
-              >
-                {process.env.NEXT_PUBLIC_API_PATH + "/user"}
-              </a>
-            </b>
-            <br />
-            <span className="!font-mono break-all">{JSON.stringify(user)}</span>
-          </div>
-        </LabelGroup>
       </PageLoadTransition>
       <AnimatePresence>
         {showSignOutDialog && (
