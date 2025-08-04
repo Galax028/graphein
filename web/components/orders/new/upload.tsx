@@ -73,8 +73,8 @@ const UploadFiles: FC<UploadFilesProps> = ({
   //   1. There're files in the draft order.
   //   2. All files in the order are confirmed to be uploaded to cloud bucket.
   //
-  // TODO: The uploaded check (2.) is still flawed. When refreshed, the file 
-  // isn't uploaded to cloud yet, but still appears in draftFiles list. 
+  // TODO: The uploaded check (2.) is still flawed. When refreshed, the file
+  // isn't uploaded to cloud yet, but still appears in draftFiles list.
   // Which creates a "ghost file".
   setReadyForNextStage(draftFiles.length != 0 && stageContinuable);
 
@@ -156,8 +156,6 @@ const UploadFiles: FC<UploadFilesProps> = ({
       if (draftFiles.length + droppedRawFiles.length > MAX_FILE_LIMIT)
         return setFileLimitExceeded(true);
 
-      console.warn("DROPPED:", droppedRawFiles);
-
       setStageContinuable(false);
       const updatedDraftFiles = [
         ...draftFiles,
@@ -193,8 +191,6 @@ const UploadFiles: FC<UploadFilesProps> = ({
         setFileLimitExceeded(true);
     },
   });
-
-  console.warn("DRAFT:", draftFiles);
 
   return (
     <div className="flex flex-col gap-2">

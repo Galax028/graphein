@@ -1,7 +1,7 @@
 import cn from "@/utils/helpers/cn";
-import { Fragment, type FC } from "react";
+import { type FC } from "react";
 
-export type DescriptionListProps = {
+type DescriptionListProps = {
   list: {
     title: string;
     content: string;
