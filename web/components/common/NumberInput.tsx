@@ -1,11 +1,11 @@
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import cn from "@/utils/helpers/cn";
-import { type Dispatch, type FC, type SetStateAction, useState } from "react";
+import { type FC, useState } from "react";
 
 type NumberInputProps = {
-  count: number;
-  setCount: Dispatch<SetStateAction<number>>;
+  value: number;
+  onChange: (value: number) => void;
   min?: number;
   max?: number;
 };
@@ -14,23 +14,23 @@ type NumberInputProps = {
  * A number input that accepts numbers, negatives,
  * and remove invalid characters automatically.
  *
- * @param count     The initial count.
- * @param setCount  The react state variable to send values to parent.
+ * @param value     The initial count.
+ * @param onChange  The react state variable to send values to parent.
  * @param min       The minimum value for this field.
  * @param max       The maximum value for this field.
  */
-const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
-  const [tempCount, setTempCount] = useState<string>(count.toString());
+const NumberInput: FC<NumberInputProps> = ({ value, onChange, min, max }) => {
+  const [tempCount, setTempCount] = useState<string>(value.toString());
 
   // Get the value within range.
   const clampedValue = (i: number) =>
     Math.min(Math.max(i, min ?? -Infinity), max ?? Infinity);
 
   // Buttons
-  const updateCount = (i: number) => {
-    const clamped = clampedValue(i);
+  const updateCount = (value: number) => {
+    const clamped = clampedValue(value);
     setTempCount(clamped.toString());
-    setCount(clamped);
+    onChange(clamped);
   };
 
   // Text Input
@@ -50,12 +50,12 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
     // Note: If 0 is not in range, we set it to min or max afterwards.
     if (isNaN(tempNumber)) {
       setTempCount("0");
-      setCount(0);
+      onChange(0);
       return;
     }
 
     setTempCount(clampedValue(tempNumber).toString());
-    setCount(clampedValue(tempNumber));
+    onChange(clampedValue(tempNumber));
   };
 
   return (
@@ -64,8 +64,8 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
         className="!bg-surface-container"
         appearance="tonal"
         icon="remove"
-        disabled={min !== undefined && count <= min}
-        onClick={() => updateCount(count - 1)}
+        disabled={min !== undefined && value <= min}
+        onClick={() => updateCount(value - 1)}
       />
       <input
         className={cn(
@@ -76,7 +76,7 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
           `,
         )}
         type="text"
-        onChange={(e) => setTempCount(e.target.value)}
+        onChange={(event) => setTempCount(event.target.value)}
         onBlur={() => validateUpdateCount(tempCount)}
         value={tempCount}
       />
@@ -84,8 +84,8 @@ const NumberInput: FC<NumberInputProps> = ({ count, setCount, min, max }) => {
         className="!bg-surface-container !border-l-0"
         appearance="tonal"
         icon="add"
-        disabled={max !== undefined && count >= max}
-        onClick={() => updateCount(count + 1)}
+        disabled={max !== undefined && value >= max}
+        onClick={() => updateCount(value + 1)}
       />
     </SegmentedGroup>
   );

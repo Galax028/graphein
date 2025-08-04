@@ -1,30 +1,29 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import { DraftFile } from "@/pages/order/new/[stage]";
 import cn from "@/utils/helpers/cn";
+import { mimeToExt } from "@/utils/helpers/mime";
 import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import type {
   APIResponse,
   FileCreate,
   FileUploadResponse,
 } from "@/utils/types/backend";
-import { MAX_FILE_LIMIT, Uuid } from "@/utils/types/common";
+import {
+  DraftFile,
+  MAX_FILE_LIMIT,
+  UnuploadedDraftFile,
+  Uuid,
+} from "@/utils/types/common";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
-import {
-  useState,
-  type Dispatch,
-  type FC,
-  type SetStateAction
-} from "react";
+import { useState, type Dispatch, type FC, type SetStateAction } from "react";
 import { useDropzone } from "react-dropzone";
-import { v4 as uuidv4 } from "uuid";
 
 type UploadFilesProps = {
   orderId: Uuid;
   draftFiles: DraftFile[];
-  setDraftFiles: Dispatch<SetStateAction<DraftFile[]>>;
+  setDraftFiles: Dispatch<SetStateAction<DraftFile[] | undefined>>;
   setReadyForNextStage: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -35,37 +34,9 @@ const UploadFiles: FC<UploadFilesProps> = ({
   setReadyForNextStage,
 }) => {
   const [fileLimitExceeded, setFileLimitExceeded] = useState(false);
-  const [stageContinuable, setStageContinuable] = useState(true);
-
-  // TODO: KEEP SERVER FILE ID, GET SERVER FILE ID
-  const deleteDraftFile = async (id: string) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${id}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      },
-    );
-
-    if (res.status == 204) {
-      // Add logic to remove from localStorage
-      window.alert(`Successfully deleted file ${id}, from order ${orderId}.`);
-    } else {
-      window.alert(`Unable to delete file ${id}, from order ${orderId}.`);
-    }
-  };
-
-  // Enable back button when:
-  //   1. There're files in the draft order.
-  //   2. All files in the order are confirmed to be uploaded to cloud bucket.
-  //
-  // TODO: The uploaded check (2.) is still flawed. When refreshed, the file
-  // isn't uploaded to cloud yet, but still appears in draftFiles list.
-  // Which creates a "ghost file".
-  setReadyForNextStage(draftFiles.length != 0 && stageContinuable);
 
   const fileUploadMutation = useMutation({
-    mutationFn: async (variables: DraftFile) => {
+    mutationFn: async (draftFile: UnuploadedDraftFile) => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files`,
         {
@@ -73,9 +44,9 @@ const UploadFiles: FC<UploadFilesProps> = ({
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            filename: variables.file?.name,
-            filetype: "pdf",
-            filesize: variables.file?.size,
+            filename: draftFile.name,
+            filetype: mimeToExt(draftFile.type),
+            filesize: draftFile.size,
           }),
         },
       );
@@ -88,20 +59,24 @@ const UploadFiles: FC<UploadFilesProps> = ({
       const uploadRes: FileCreate = await new Promise((resolve, reject) => {
         fileUploadXHR.upload.addEventListener("progress", (event) => {
           if (!event.lengthComputable) {
-            console.warn(`incomputable length for key \`${variables.key}\``);
-            return;
+            return console.warn(
+              `(upload) incomputable progress length for key: ${draftFile.key}`,
+            );
           }
 
           const updatedProgress = Math.floor(
             (event.loaded / event.total) * 100,
           );
-          console.log(
-            `upload progress for key \`${variables.key}\`: ${updatedProgress}`,
-          );
           setDraftFiles((draftFiles) =>
-            draftFiles.map((file) =>
-              file.key === variables.key
-                ? { ...file, progress: updatedProgress }
+            draftFiles!.map((file) =>
+              file.key === draftFile.key
+                ? {
+                    ...file,
+                    uploaded: false,
+                    progress: updatedProgress,
+                    blob: draftFile.blob,
+                    draft: undefined,
+                  }
                 : file,
             ),
           );
@@ -111,63 +86,84 @@ const UploadFiles: FC<UploadFilesProps> = ({
           if (fileUploadXHR.readyState === 4 && fileUploadXHR.status === 200)
             resolve({
               id: body.data.id,
-              filename: variables.file?.name ?? "",
+              filename: draftFile.name,
               ranges: [],
             });
           else reject(new Error("Failed to execute `fileUploadXHR`"));
         });
 
         fileUploadXHR.open("PUT", body.data.uploadUrl, true);
-        fileUploadXHR.setRequestHeader("Content-Type", variables.file!.type);
-        fileUploadXHR.send(variables.file);
+        fileUploadXHR.setRequestHeader("Content-Type", draftFile.type);
+        fileUploadXHR.send(draftFile.blob);
       });
       setDraftFiles((draftFiles) =>
-        draftFiles.map((file) =>
-          file.key === variables.key ? { ...file, meta: uploadRes } : file,
+        draftFiles!.map((file) =>
+          file.key === draftFile.key
+            ? {
+                ...file,
+                uploaded: true,
+                progress: undefined,
+                blob: undefined,
+                draft: uploadRes,
+              }
+            : file,
         ),
       );
     },
-    onSuccess: () => setStageContinuable(true),
+    onSuccess: () => setReadyForNextStage(true),
+  });
+
+  const fileDeleteMutation = useMutation({
+    mutationFn: async (fileId: Uuid) => {
+      setReadyForNextStage(false);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${fileId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
+
+      if (res.status == 204) {
+        setDraftFiles((draftFiles) => {
+          const newDraftFiles = draftFiles!.filter(
+            (file) => file.draft?.id !== fileId,
+          );
+          setReadyForNextStage(newDraftFiles.length !== 0);
+
+          return newDraftFiles;
+        });
+      }
+    },
   });
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: {
-      //   "image/png": [".png"],
-      //   "image/jpeg": [".jpg", ".jpeg"],
-      "application/pdf": [".pdf"],
-    },
+    accept: { "application/pdf": [".pdf"] },
     maxFiles: MAX_FILE_LIMIT,
     maxSize: 50 * 1_000_000,
-    onDropAccepted: (droppedRawFiles) => {
+    onDropAccepted: (droppedRawFiles: File[]) => {
       if (draftFiles.length + droppedRawFiles.length > MAX_FILE_LIMIT)
         return setFileLimitExceeded(true);
 
-      setStageContinuable(false);
-      const updatedDraftFiles = [
-        ...draftFiles,
+      setReadyForNextStage(false);
+      setDraftFiles((draftFiles) => [
+        ...draftFiles!,
         ...droppedRawFiles.map((droppedFile) => {
-          // Normalize the file object
-          const normalizedRaw = {
+          const newDraftFile = {
+            key: window.crypto.randomUUID(),
+            uploaded: false,
+            progress: 0,
             name: droppedFile.name,
             size: droppedFile.size,
             type: droppedFile.type,
-            path: (droppedFile as any).path,
-            relativePath: (droppedFile as any).relativePath,
-          };
-          const newDraftFile = {
-            key: uuidv4(),
-            progress: 0,
-            meta: null,
-            range: [],
-            raw: normalizedRaw,
-            file: droppedFile,
-          };
+            blob: droppedFile,
+            draft: undefined,
+          } as UnuploadedDraftFile;
           fileUploadMutation.mutate(newDraftFile);
 
           return newDraftFile;
         }),
-      ];
-      setDraftFiles(updatedDraftFiles);
+      ]);
     },
     onDropRejected: (rejections) => {
       if (
@@ -183,45 +179,56 @@ const UploadFiles: FC<UploadFilesProps> = ({
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-1">
         <AnimatePresence>
-          {draftFiles.map((draftFile, idx) => (
-            <motion.div
-              initial={{ opacity: 0, y: 64 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 64 }}
-              transition={{
-                delay: idx * 0.1,
-                y: { type: "spring", bounce: 0 },
-              }}
-              className="flex gap-3 items-center border border-outline p-2 rounded-lg bg-surface-container"
-              key={draftFile.key}
-            >
-              {/* TODO: Add thumbnail */}
-              <div className="w-16 h-16 aspect-square bg-outline rounded-sm"></div>
-              <div className="flex flex-col gap-1 w-full">
-                <p
+          {draftFiles.map((draftFile, idx) => {
+            const isUploaded = draftFile.uploaded;
+
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: 64 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 64 }}
+                transition={{
+                  delay: idx * 0.1,
+                  y: { type: "spring", bounce: 0 },
+                }}
+                className="flex gap-3 items-center border border-outline p-2 rounded-lg bg-surface-container"
+                key={draftFile.key}
+              >
+                {/* TODO: Add thumbnail */}
+                <div className="w-16 h-16 aspect-square bg-outline rounded-sm"></div>
+                <div className="flex flex-col gap-1 w-full">
+                  <p
+                    className={cn(
+                      "text-body-sm",
+                      isUploaded ? "text-success" : "text-warning",
+                    )}
+                  >
+                    {isUploaded
+                      ? "Uploaded"
+                      : `Uploading (${draftFile.progress}%)`}
+                  </p>
+                  <p>{draftFile.name}</p>
+                  <p className="text-body-sm opacity-50">
+                    {/* TODO: Implement other file types. */}
+                    {draftFile.type.toUpperCase()} •{" "}
+                    {getFormattedFilesize(draftFile.size)}
+                  </p>
+                </div>
+                <button
                   className={cn(
-                    "text-body-sm",
-                    draftFile.progress === 100
-                      ? "text-success"
-                      : "text-warning",
+                    "grid place-items-center",
+                    isUploaded ? "cursor-pointer" : "cursor-not-allowed",
                   )}
+                  disabled={!isUploaded}
+                  onClick={() =>
+                    isUploaded && fileDeleteMutation.mutate(draftFile.draft.id)
+                  }
                 >
-                  {draftFile.progress === 100
-                    ? "Uploaded"
-                    : `Uploading (${draftFile.progress}%)`}
-                </p>
-                <p>{draftFile.meta?.filename ?? draftFile.raw.name}</p>
-                <p className="text-body-sm opacity-50">
-                  {/* TODO: Implement other file types. */}
-                  {/* {draftFile.raw.type} •{" "} */}
-                  PDF • {getFormattedFilesize(draftFile.raw.size)}
-                </p>
-              </div>
-              <div>
-                <MaterialIcon icon="close_small" />
-              </div>
-            </motion.div>
-          ))}
+                  <MaterialIcon className="block" icon="close_small" />
+                </button>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
       <div

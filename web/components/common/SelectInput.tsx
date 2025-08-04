@@ -1,23 +1,27 @@
 import cn from "@/utils/helpers/cn";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 
-type SelectInputProps = {
-  value: number;
-  setValue: Dispatch<SetStateAction<number>>;
-  options: string[];
+type SelectInputProps<T extends object> = {
+  value: T;
+  onChange?: (value: T) => void;
+  displayKey: keyof T;
+  matchKey: keyof T;
+  options: T[];
 };
 
 /**
  * The SelectInput element, sometimes also referred to as drop down element.
  *
- * @param value       useState constant to get value    (useState const)
- * @param setValue    useState function to set value    (useState func.)
- * @param options     The array list of the options     (string[])
  */
-
-const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
+const SelectInput = <T extends { [K: string]: string | number | boolean }>({
+  value,
+  onChange,
+  displayKey,
+  matchKey,
+  options,
+}: SelectInputProps<T>) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
@@ -38,9 +42,9 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
     };
   }, []);
 
-  const handleOptionClick = (value: number) => {
+  const onOptionChange = (value: T) => {
     setOpen(false);
-    setValue(value);
+    if (onChange) onChange(value);
   };
 
   return (
@@ -65,7 +69,7 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
               "flex items-center bg-background w-full !rounded-none",
             )}
           >
-            <p className="text-body-md select-none">{options[value]}</p>
+            <p className="text-body-md select-none">{value[displayKey]}</p>
           </div>
           <Button
             className="!bg-surface-container"
@@ -84,23 +88,23 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
               overflow-auto z-50`,
           )}
         >
-          {options.map((i, idx) => (
+          {options.map((option) => (
             <div
-              key={idx}
               className={cn(
                 `p-2 bg-surface-container hover:bg-background rounded-sm 
-                  cursor-pointer transition-color `,
+              cursor-pointer transition-color `,
               )}
               role="option"
-              aria-selected={value === idx}
+              aria-selected={option[matchKey] === value[matchKey]}
               tabIndex={0}
-              onClick={() => handleOptionClick(idx)}
+              onClick={() => onOptionChange(option)}
               onKeyDown={(event) =>
                 (event.key === "Enter" || event.key === " ") &&
-                handleOptionClick(idx)
+                onOptionChange(option)
               }
+              key={option[matchKey].toString()}
             >
-              <p className="text-body-md select-none">{i}</p>
+              <p className="text-body-md select-none">{option[displayKey]}</p>
             </div>
           ))}
         </div>

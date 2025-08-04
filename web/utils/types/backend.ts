@@ -79,8 +79,8 @@ export type FileRange = {
   copies: number;
   paperVariantId: number;
   paperOrientation: "portrait" | "landscape";
-  isDoubleSided: boolean;
   isColour: boolean;
+  isDoubleSided: boolean;
 };
 
 export type FileCreate = {
@@ -90,6 +90,7 @@ export type FileCreate = {
 };
 
 export type FileRangeCreate = {
+  key: Uuid;
   range: string | null;
   copies: number;
   paperVariantId: number;
@@ -102,6 +103,23 @@ export type FileUploadResponse = {
   id: Uuid;
   objectKey: string;
   uploadUrl: string;
+};
+
+export type Paper = {
+  id: number;
+  name: string;
+  length: number;
+  width: number;
+  isDefault: boolean;
+  variants: PaperVariant[];
+};
+
+export type PaperVariant = {
+  id: number;
+  name: string;
+  isDefault: boolean;
+  isAvailable: boolean;
+  isLaminatable: boolean;
 };
 
 type BaseService = { notes: string | null; fileIds: Uuid[] };

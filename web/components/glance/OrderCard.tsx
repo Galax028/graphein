@@ -67,10 +67,14 @@ const OrderCard: FC<OrderCardProps> = ({
   return (
     <div
       className={cn(
-        "rounded-lg cursor-pointer transition-colors",
+        "rounded-lg transition-colors",
+        !showProgressBar &&
+          (selected
+            ? "cursor-pointer hover:brightness-80"
+            : "cursor-pointer hover:bg-background"),
         selected
-          ? "bg-primary text-onPrimary hover:brightness-80"
-          : "bg-surface-container border border-outline hover:bg-background",
+          ? "bg-primary text-onPrimary"
+          : "bg-surface-container border border-outline",
       )}
       onClick={onClick}
     >

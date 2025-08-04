@@ -1,3 +1,4 @@
+import { FileCreate } from "@/utils/types/backend";
 import type { DehydratedState } from "@tanstack/react-query";
 import type { Locale } from "next-intl";
 
@@ -40,3 +41,26 @@ export type Uuid = string;
 
 export const MAX_FILE_LIMIT = 10;
 export const MAX_FILE_RANGES = 5;
+
+type BaseDraftFile = {
+  key: Uuid;
+  name: string;
+  size: number;
+  type: string;
+};
+
+export type UnuploadedDraftFile = {
+  uploaded: false;
+  progress: number;
+  blob: Blob | null;
+  draft: undefined;
+} & BaseDraftFile;
+
+export type UploadedDraftFile = {
+  uploaded: true;
+  progress: undefined;
+  blob: undefined;
+  draft: FileCreate;
+} & BaseDraftFile;
+
+export type DraftFile = UnuploadedDraftFile | UploadedDraftFile;

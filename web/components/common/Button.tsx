@@ -3,10 +3,8 @@ import cn from "@/utils/helpers/cn";
 import type { ButtonHTMLAttributes, FC, ReactNode } from "react";
 
 type BaseButtonProps = {
-  className?: string;
   appearance: "tonal" | "filled";
   selected?: boolean;
-  disabled?: boolean;
   busy?: boolean;
   busyWithText?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>;

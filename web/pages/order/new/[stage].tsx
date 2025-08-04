@@ -6,44 +6,25 @@ import ConfigOrder from "@/components/orders/new/configOrder";
 import ConfigServices from "@/components/orders/new/configServices";
 import Review from "@/components/orders/new/review";
 import UploadFiles from "@/components/orders/new/upload";
+import { prefetchPapers } from "@/query/fetchPapers";
+import { prefetchUser } from "@/query/fetchUser";
 import checkIsBuildingOrder from "@/utils/helpers/order/new/checkIsBuildingOrder";
+import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { APIResponse, Service } from "@/utils/types/backend";
-import { FileCreate } from "@/utils/types/backend";
-import {
-  type OrderStage,
-  type PageProps,
-  type Uuid,
+import type {
+  DraftFile,
+  OrderStage,
+  PageProps,
+  Uuid,
 } from "@/utils/types/common";
 import useUserContext from "@/utils/useUserContext";
+import { dehydrate, QueryClient, useMutation } from "@tanstack/react-query";
 import dayjs, { type Dayjs } from "dayjs";
 import { AnimatePresence } from "motion/react";
+import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { type FC, type ReactElement, useEffect, useState } from "react";
-
-export type DraftFile = {
-  key: string;
-  progress: number;
-  meta: FileCreate | null;
-  raw: {
-    name: string;
-    size: number;
-    type: string;
-    path?: string;
-    relativePath?: string;
-  };
-  file?: File;
-  range: ConfigItem[];
-};
-
-// paperSize and paperType data is collected from the same field.
-export type ConfigItem = {
-  paperSize: string;
-  paperType: string;
-  colorized: boolean;
-  twoSided: boolean;
-  copies: number;
-};
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
@@ -52,34 +33,71 @@ const BuildOrderPage: FC<PageProps> = () => {
   const [orderStage, setOrderStage] = useState<OrderStage | null>(null);
   const [draftOrderId, setDraftOrderId] = useState<Uuid | null>(null);
   const [draftOrderExpiry, setDraftOrderExpiry] = useState<Dayjs | null>(null);
-  const [draftOrderNotes, setDraftOrderNotes] = useState<string | null>(null);
-  const [draftFiles, setDraftFiles] = useState<DraftFile[]>([]);
-  const [draftServices, setDraftServices] = useState<Service[]>([]);
+  const [draftOrderNotes, setDraftOrderNotes] = useState<
+    string | null | undefined
+  >(undefined);
+  const [draftFiles, setDraftFiles] = useState<DraftFile[] | undefined>(
+    undefined,
+  );
+  const [draftServices, setDraftServices] = useState<Service[] | undefined>(
+    undefined,
+  );
   const [readyForNextStage, setReadyForNextStage] = useState(false);
   const [showDiscardConfirmationDialog, setShowDiscardConfirmationDialog] =
     useState(false);
 
-  const discardOrder = async () => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_PATH}/orders/${draftOrderId}`,
-      {
-        method: "DELETE",
+  const createOrderMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/orders`, {
+        method: "POST",
         credentials: "include",
-      },
-    );
+      });
 
-    if (res.status == 204) {
-      // Cleanup active order data. (if nescessary)
-      localStorage.removeItem("draftOrderData");
-      localStorage.removeItem("draftOrderExpiry");
-      localStorage.removeItem("draftOrderId");
-      localStorage.removeItem("orderStage");
+      const body = (await res.json()) as APIResponse<Uuid>;
+      if (body.success) {
+        setDraftOrderId(body.data);
+        setDraftOrderExpiry(dayjs(body.timestamp).add(15, "minutes"));
+        setDraftOrderNotes(null);
+        setDraftFiles([]);
+        setDraftServices([]);
+      } else {
+        throw new Error(`Uncaught API Error (${body.error}): ${body.message}`);
+      }
+    },
+  });
 
-      return router.push("/glance");
-    } else {
-      window.alert(`Unable to cancel order ${draftOrderId}.`);
-    }
-  };
+  const discardOrderMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${draftOrderId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
+
+      if (res.status === 204) {
+        localStorage.removeItem("draftOrderData");
+        localStorage.removeItem("draftOrderExpiry");
+        localStorage.removeItem("draftOrderId");
+        localStorage.removeItem("orderStage");
+
+        router.push("/glance");
+      }
+    },
+  });
+
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener("beforeunload", beforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", beforeUnload);
+    };
+  }, []);
 
   useEffect(
     () => {
@@ -97,9 +115,9 @@ const BuildOrderPage: FC<PageProps> = () => {
         case "configure-order":
           stage = "configOrder";
           break;
-        case "configure-services":
-          stage = "configServices";
-          break;
+        // case "configure-services":
+        //   stage = "configServices";
+        //   break;
         case "review":
           stage = "review";
           break;
@@ -107,27 +125,6 @@ const BuildOrderPage: FC<PageProps> = () => {
           router.push("/glance");
           return;
       }
-
-      const createDraftOrder = async () => {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/orders`, {
-          method: "POST",
-          credentials: "include",
-        });
-
-        const body = (await res.json()) as APIResponse<Uuid>;
-        if (body.success) {
-          setDraftOrderId(body.data);
-          setDraftOrderExpiry(dayjs(body.timestamp).add(15, "minutes"));
-          localStorage.setItem(
-            "draftOrderData",
-            JSON.stringify({ notes: null, files: [], services: [] }),
-          );
-        } else {
-          throw new Error(
-            `Uncaught API Error (${body.error}): ${body.message}`,
-          );
-        }
-      };
 
       if (checkIsBuildingOrder()) {
         setOrderStage(stage);
@@ -137,13 +134,12 @@ const BuildOrderPage: FC<PageProps> = () => {
         const draftOrderData = JSON.parse(
           localStorage.getItem("draftOrderData")!,
         ) as { notes: string | null; files: DraftFile[]; services: Service[] };
-        console.log("stored data: ", draftOrderData);
         setDraftOrderNotes(draftOrderData.notes);
         setDraftFiles(draftOrderData.files);
         setDraftServices(draftOrderData.services);
       } else {
         setOrderStage(stage);
-        createDraftOrder();
+        createOrderMutation.mutate();
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -183,25 +179,31 @@ const BuildOrderPage: FC<PageProps> = () => {
 
   useEffect(() => {
     if (
-      draftOrderNotes === null &&
-      draftFiles.length === 0 &&
-      draftServices.length === 0
+      draftOrderNotes === undefined ||
+      draftFiles === undefined ||
+      draftServices === undefined
     )
       return;
 
-    const updatedData = {
-      ...JSON.parse(localStorage.getItem("draftOrderData")!),
-      notes: draftOrderNotes,
-      files: draftFiles,
-      services: draftServices,
-    };
-
-    localStorage.setItem("draftOrderData", JSON.stringify(updatedData));
-    console.log("set to localStorage: ", updatedData);
+    localStorage.setItem(
+      "draftOrderData",
+      JSON.stringify({
+        notes: draftOrderNotes,
+        // Do not save `draftFile`s that have not been successfully uploaded,
+        // since it they would be impossible to recover after a page refresh.
+        files: draftFiles.filter((draftFile) => draftFile.uploaded),
+        services: draftServices,
+      }),
+    );
   }, [draftOrderNotes, draftFiles, draftServices]);
 
   // TODO: Loading again...
-  if (orderStage === null || draftOrderId === null || draftOrderExpiry === null)
+  if (
+    orderStage === null ||
+    draftOrderId === null ||
+    draftOrderExpiry === null ||
+    draftFiles === undefined
+  )
     return <></>;
 
   const stages: {
@@ -228,10 +230,10 @@ const BuildOrderPage: FC<PageProps> = () => {
     configOrder: {
       title: "Configure order",
       backContext: "/order/new/upload",
-      href: "/order/new/configure-services",
+      href: "/order/new/review",
       component: (
-        <ConfigOrder
-          draftFiles={draftFiles}
+        <ConfigOrder // @ts-expect-error ---
+          draftFiles={draftFiles} // @ts-expect-error ---
           setDraftFiles={setDraftFiles}
           setReadyForNextStage={setReadyForNextStage}
         />
@@ -247,7 +249,8 @@ const BuildOrderPage: FC<PageProps> = () => {
       title: "Review order",
       backContext: "/order/new/configure-services",
       href: "/order/new/review",
-      component: <Review />,
+      // @ts-expect-error ---
+      component: <Review draftFiles={draftFiles} />,
     },
   } as const;
 
@@ -288,7 +291,7 @@ const BuildOrderPage: FC<PageProps> = () => {
             )}
             <Button
               appearance="tonal"
-              icon={"contract_delete"}
+              icon="contract_delete"
               onClick={() => setShowDiscardConfirmationDialog(true)}
             >
               Discard Order
@@ -296,6 +299,7 @@ const BuildOrderPage: FC<PageProps> = () => {
           </div>
         </div>
       </PageLoadTransition>
+
       <AnimatePresence>
         {showDiscardConfirmationDialog && (
           <Dialog
@@ -309,7 +313,10 @@ const BuildOrderPage: FC<PageProps> = () => {
             >
               Nevermind
             </Button>
-            <Button appearance="filled" onClick={discardOrder}>
+            <Button
+              appearance="filled"
+              onClick={() => discardOrderMutation.mutate()}
+            >
               Discard
             </Button>
           </Dialog>
@@ -317,6 +324,38 @@ const BuildOrderPage: FC<PageProps> = () => {
       </AnimatePresence>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
+  const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
+  ]);
+
+  const queryClient = new QueryClient();
+  const sessionToken = `session_token=${context.req.cookies["session_token"]}`;
+  const user = await prefetchUser(queryClient, sessionToken, {
+    returnUser: true,
+  });
+  if (user) {
+    if (user.role === "merchant")
+      return {
+        redirect: { destination: "/merchant/dashboard", permanent: false },
+      };
+
+    await prefetchPapers(queryClient, sessionToken);
+
+    return {
+      props: {
+        locale,
+        translations,
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  }
+
+  return { redirect: { destination: "/", permanent: false } };
 };
 
 export default BuildOrderPage;

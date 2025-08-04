@@ -1,46 +1,34 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import type {
-  Dispatch,
-  FC,
-  HTMLInputTypeAttribute,
-  SetStateAction,
-} from "react";
+import type { FC, InputHTMLAttributes } from "react";
+import { FieldError } from "react-hook-form";
 
 type TextInputProps = {
-  className?: string;
-  type?: HTMLInputTypeAttribute;
-  value: string;
-  setValue: Dispatch<SetStateAction<string>>;
   alignment?: "left" | "center" | "right";
-  error?: boolean;
-  errorText?: string;
+  error?: FieldError | boolean;
+  errorMessage?: string;
   showErrorIcon?: boolean;
-  placeholder?: string;
   label?: string;
   prefixText?: string;
   prefixIcon?: string;
   suffixText?: string;
   suffixIcon?: string;
   showClearButton?: boolean;
-};
+} & InputHTMLAttributes<HTMLInputElement>;
 
 const TextInput: FC<TextInputProps> = ({
   className,
   type = "text",
-  value,
-  setValue,
   alignment = "left",
-  error = false,
-  errorText,
+  error,
+  errorMessage,
   showErrorIcon = true,
-  placeholder,
   label,
   prefixText,
   prefixIcon,
   suffixText,
   suffixIcon,
-  showClearButton,
+  ...props
 }) => (
   <div
     className={cn(
@@ -66,24 +54,22 @@ const TextInput: FC<TextInputProps> = ({
               [&::-webkit-inner-spin-button]:appearance-none
               outline-none
             `,
-          alignment == "left"
+          alignment === "left"
             ? "text-left"
-            : alignment == "right"
+            : alignment === "right"
               ? "text-right"
               : "text-center",
         )}
         type={type}
-        placeholder={placeholder}
-        onChange={(e) => setValue(e.target.value)}
-        value={value}
+        {...props}
       />
       {suffixText && <div className="opacity-50 select-none">{suffixText}</div>}
     </div>
-    {showClearButton && (
+    {/* {showClearButton && (
       <div className="h-6" onClick={() => setValue("")}>
         <MaterialIcon icon={"backspace"} />
       </div>
-    )}
+    )} */}
     {suffixIcon && (
       <div className="h-6">
         <MaterialIcon icon={suffixIcon} />
@@ -94,7 +80,7 @@ const TextInput: FC<TextInputProps> = ({
         <MaterialIcon icon="error" className="text-error" />
       </div>
     )}
-    {error && errorText && <div className="text-error">{errorText}</div>}
+    {error && <div className="text-error">{errorMessage}</div>}
   </div>
 );
 

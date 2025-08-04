@@ -1,15 +1,23 @@
 import Button from "@/components/common/Button";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import OrderRange from "@/components/common/order/OrderRange";
-import { ConfigItem, DraftFile } from "@/pages/order/new/[stage]";
+import FileRangeConfig from "@/components/common/order/FileRangeConfig";
+import { usePapersQuery } from "@/query/fetchPapers";
 import cn from "@/utils/helpers/cn";
 import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
+import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
+import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/router";
-import { useState, type Dispatch, type FC, type SetStateAction } from "react";
+import {
+  useEffect,
+  useState,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+} from "react";
 
 type ConfigOrderProps = {
-  draftFiles: DraftFile[];
-  setDraftFiles: Dispatch<SetStateAction<DraftFile[]>>;
+  draftFiles: UploadedDraftFile[];
+  setDraftFiles: Dispatch<SetStateAction<UploadedDraftFile[]>>;
   setReadyForNextStage: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -20,62 +28,130 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
 }) => {
   const router = useRouter();
 
-  // The stage is always ready for continuing
-  setReadyForNextStage(true);
+  const { data: papers, status } = usePapersQuery();
 
-  const addRange = () => {
-    return window.alert("range added");
-  };
+  const [open, setOpen] = useState(true);
 
-  // When there's no files, redirect to the upload page.
-  if (draftFiles.length == 0) {
-    router.push("/order/new/upload");
-  }
+  useEffect(
+    () => {
+      if (!router.isReady) return;
 
-  const [draftConfig, setDraftConfig] = useState<ConfigItem[]>(
-    (draftFiles ?? []).map((i: DraftFile) => {
-      return {
-        paperSize: "A4",
-        paperType: "plain",
-        colorized: false,
-        twoSided: false,
-        copies: 0,
-      };
-    }),
+      if (
+        draftFiles.length === 0 ||
+        draftFiles.some((draftFile) => !draftFile.uploaded)
+      )
+        router.push("/order/new/upload");
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [draftFiles],
   );
 
-  console.warn(draftFiles);
-  console.warn(draftConfig);
+  // TODO: load
+  if (status === "pending" || status === "error") return <></>;
+
+  const paperVariants = papers.flatMap((paper) =>
+    paper.variants.map((variant) => ({
+      ...variant,
+      name: `${paper.name} - ${variant.name}`,
+    })),
+  );
+
+  const addRange = (fileId: Uuid) => {
+    setReadyForNextStage(false);
+    setDraftFiles((draftFiles) => {
+      const newDraftFiles = draftFiles.map((draftFile) =>
+        draftFile.draft.id === fileId
+          ? {
+              ...draftFile,
+              draft: {
+                ...draftFile.draft,
+                ranges: [
+                  ...draftFile.draft.ranges,
+                  {
+                    key: window.crypto.randomUUID(),
+                    range: null,
+                    copies: 1,
+                    paperVariantId: papers
+                      .find((paper) => paper.isDefault)!
+                      .variants.find((variant) => variant.isDefault)!.id,
+                    paperOrientation: "portrait",
+                    isColour: false,
+                    isDoubleSided: false,
+                  },
+                ],
+              },
+            }
+          : draftFile,
+      ) as UploadedDraftFile[];
+      setReadyForNextStage(true);
+
+      return newDraftFiles;
+    });
+  };
 
   return (
     <div className="flex flex-col gap-2">
-      {draftFiles.map((i) => (
+      {draftFiles.map((draftFile) => (
         <div
-          key={i.key}
+          key={draftFile.key}
           className={cn(
-            `flex flex-col gap-2 bg-surface-container 
-              border border-outline p-2 rounded-lg`,
+            `flex flex-col bg-surface-container border border-outline p-2 rounded-lg`,
           )}
         >
-          <div className="flex gap-3 items-center pr-1">
+          <div
+            className="flex gap-3 items-center pr-1 cursor-pointer"
+            onClick={() => setOpen((open) => !open)}
+          >
             {/* TODO: Add thumbnail */}
             <div className="w-16 h-16 bg-outline rounded-sm animate-pulse"></div>
             <div className="flex flex-col gap-1 grow">
-              <p>{i.raw.name}</p>
+              <p>{draftFile.name}</p>
               <p className="opacity-50 text-body-sm">
-                PDF • {getFormattedFilesize(i.raw.size)}
+                PDF • {getFormattedFilesize(draftFile.size)}
               </p>
             </div>
-            <MaterialIcon icon={"arrow_drop_down"} />
+            <button className="grid place-items-center">
+              <MaterialIcon
+                icon="arrow_drop_down"
+                className={cn(
+                  "transition-all duration-250",
+                  open && "rotate-180",
+                )}
+              />
+            </button>
           </div>
-          <div className="flex flex-col gap-2">
-            {[...Array(3)].map((i, idx) => (
-              <OrderRange index={i} key={idx} />
-            ))}
+          <div className="overflow-hidden">
+            <AnimatePresence initial={false}>
+              {open && (
+                <motion.div
+                  className="flex flex-col gap-2 mt-2"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                >
+                  {draftFile.draft.ranges.map((range) => (
+                    <FileRangeConfig
+                      open={true}
+                      setOpen={() => {}}
+                      fileId={draftFile.draft.id}
+                      rangeKey={range.key}
+                      paperVariants={paperVariants}
+                      draftFiles={draftFiles as UploadedDraftFile[]}
+                      setDraftFiles={setDraftFiles}
+                      key={range.key}
+                    />
+                  ))}
+                  <Button
+                    appearance="tonal"
+                    icon="add"
+                    onClick={() => addRange(draftFile.draft.id)}
+                  >
+                    Add range
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <Button appearance="tonal" icon={"add"} onClick={addRange}>
-            Add range
-          </Button>
         </div>
       ))}
     </div>

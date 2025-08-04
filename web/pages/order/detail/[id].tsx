@@ -39,7 +39,7 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
     },
     {
       title: "Price",
-      content: (detailedOrder.price ?? NaN).toString(),
+      content: detailedOrder.price?.toString() ?? "--",
     },
     {
       title: "Order ID",
