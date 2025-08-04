@@ -83,7 +83,7 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
             <div
               key={idx}
               className={cn(
-                `p-2 bg-surface-container hover:bg-outline rounded-sm 
+                `p-2 bg-surface-container hover:bg-background rounded-sm 
                   cursor-pointer transition-color `,
               )}
               onClick={() => handleOptionClick(idx)}
