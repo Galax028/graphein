@@ -93,6 +93,8 @@
     "cv11" on;
 
   line-height: 1.4;
+
+  @apply transition-colors
 }
 
 body {
