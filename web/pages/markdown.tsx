@@ -2,7 +2,6 @@ import Button from "@/components/common/Button";
 import Checkbox from "@/components/common/Checkbox";
 import Dialog from "@/components/common/Dialog";
 import DropDownCard from "@/components/common/DropDownCard";
-import MaterialIcon from "@/components/common/MaterialIcon";
 import NumberInput from "@/components/common/NumberInput";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import TextInput from "@/components/common/TextInput";
@@ -11,6 +10,9 @@ import { AnimatePresence } from "motion/react";
 import Head from "next/head";
 import Link from "next/link";
 import { type FC, useState } from "react";
+import OrderRange from "@/components/common/order/OrderRange";
+import FileDetailRange from "@/components/common/FileDetailRange";
+import SelectInput from "@/components/common/SelectInput";
 
 const MarkdownPage: FC<PageProps> = () => {
   const [language, setLanguage] = useState("th");
@@ -18,7 +20,8 @@ const MarkdownPage: FC<PageProps> = () => {
   const [alphabet, setAlphabet] = useState("a");
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [checkbox, setCheckbox] = useState(false)
+  const [checkbox, setCheckbox] = useState(false);
+  const [dropdown, setDropdown] = useState(0);
 
   const [count, setCount] = useState(0);
   const [textInput, setTextInput] = useState("");
@@ -32,7 +35,11 @@ const MarkdownPage: FC<PageProps> = () => {
       </Head>
       <main className="m-3">
         <Checkbox checked={checkbox} setValue={setCheckbox} />
-        <Checkbox checked={checkbox} setValue={setCheckbox} appearance="indeterminate" />
+        <Checkbox
+          checked={checkbox}
+          setValue={setCheckbox}
+          appearance="indeterminate"
+        />
         <p className="m-3">
           The quick brown fox jumps over the lazy dog.
           <br />
@@ -52,6 +59,36 @@ const MarkdownPage: FC<PageProps> = () => {
           </Link>
         </div>
 
+        <FileDetailRange
+          label="page"
+          value="2-4"
+          details={[
+            { title: "Paper Size", content: "A4" },
+            { title: "Type", content: "Thick Paper (230 gsm.)" },
+            { title: "Colorized", content: "Color" },
+            { title: "Orientation", content: "Portrait" },
+            { title: "Sides", content: "One-sided" },
+            { title: "Copies", content: "1" },
+          ]}
+        />
+
+        <SelectInput
+          value={dropdown}
+          setValue={setDropdown}
+          options={[
+            "Option 1",
+            "Option 2",
+            "Option 3",
+            "Option 4",
+            "Option 5",
+            "Option 6",
+            "Option 7",
+            "Option 8",
+            "Option 9",
+            "Option 10",
+          ]}
+        />
+
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <DropDownCard
             header={"Title"}
@@ -61,7 +98,6 @@ const MarkdownPage: FC<PageProps> = () => {
             order stuff you think about it idk
           </DropDownCard>
         </div>
-
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <SegmentedGroup className="bg-surface-container">
             <div>Range</div>
