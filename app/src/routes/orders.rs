@@ -414,6 +414,8 @@ async fn delete_orders_id_files_id(
     bucket
         .delete_file(&draft_file.object_key, draft_file.filetype)
         .await?;
+
+    drop(draft_order);
     draft_orders.remove_file(user_id, file_id).await?;
 
     Ok(StatusCode::NO_CONTENT)
