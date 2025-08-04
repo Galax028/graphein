@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO paper_variants (paper_id, name, is_default, is_laminatable)VALUES ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text",
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9887e0d8d7a220a6977ac4a8f54e560f957d4fc18cd1b2f006305ab7dbf51344"
+}
