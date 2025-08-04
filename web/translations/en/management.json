@@ -1,0 +1,50 @@
+{
+  "navigationBar": "Store Management",
+  "shopOperation": {
+    "title": "Shop Operation",
+    "openingHours": {
+      "header": "Opening Hours",
+      "to": "to",
+      "footer": "The shop’s opening hours for customer can walk-in or collect orders."
+    },
+    "acceptingOrders": {
+      "header": "Accepting Orders",
+      "yes": "Yes",
+      "no": "No",
+      "footer": "Select either ‘Yes’ or ‘No’ to manually override the shop’s opening hours and control order acceptance in real-time. Alternatively, choose ‘Auto’ to follow the scheduled opening hours and the order acceptance will be managed by the system."
+    }
+  },
+  "defaults": {
+    "title": "Defaults",
+    "paper": {
+      "header": "Paper",
+      "footer": "This will be what the customer first sees when ordering."
+    }
+  },
+  "serviceManagement": {
+    "title": "Service Management",
+    "sidebarLabel": "Service",
+    "paper": {
+      "title": "Paper",
+      "sidebarLabel": "Sizes",
+      "name": {
+        "header": "Paper Name",
+        "footer": "In some cases, this will appear as a prefix—for example: “A4 - [Variant]”."
+      },
+      "size": {
+        "header": "Paper Size",
+        "length": "Length",
+        "width": "Width",
+        "unit": "mm",
+        "footer": "The dimensions of the paper in millimetres. The longer side must come first."
+      },
+      "variants": {
+        "title": "Variants",
+        "inStock": "In Stock",
+        "variantName": "Variant Name",
+        "delete": "Delete",
+        "addVariant": "Add Variant"
+      }
+    }
+  }
+}
