@@ -6,7 +6,6 @@ use axum::Router;
 use reqwest::Client as ReqwestClient;
 use sqlx::postgres::PgPoolOptions;
 use tokio::{net::TcpListener, runtime::Handle};
-#[cfg(debug_assertions)]
 use tracing_subscriber::Layer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
