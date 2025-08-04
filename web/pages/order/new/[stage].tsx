@@ -1,12 +1,14 @@
 import Button from "@/components/common/Button";
+import Dialog from "@/components/common/Dialog";
 import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import ConfigOrder from "@/components/orders/new/configOrder";
 import ConfigServices from "@/components/orders/new/configServices";
 import Review from "@/components/orders/new/review";
-import UploadFiles, { type DraftFile } from "@/components/orders/new/upload";
+import UploadFiles from "@/components/orders/new/upload";
 import checkIsBuildingOrder from "@/utils/helpers/order/new/checkIsBuildingOrder";
 import type { APIResponse, Service } from "@/utils/types/backend";
+import { FileCreate } from "@/utils/types/backend";
 import {
   type OrderStage,
   type PageProps,
@@ -14,9 +16,34 @@ import {
 } from "@/utils/types/common";
 import useUserContext from "@/utils/useUserContext";
 import dayjs, { type Dayjs } from "dayjs";
+import { AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { type FC, type ReactElement, useEffect, useState } from "react";
+
+export type DraftFile = {
+  key: string;
+  progress: number;
+  meta: FileCreate | null;
+  raw: {
+    name: string;
+    size: number;
+    type: string;
+    path?: string;
+    relativePath?: string;
+  };
+  file?: File;
+  range: ConfigItem[];
+};
+
+// paperSize and paperType data is collected from the same field.
+export type ConfigItem = {
+  paperSize: string;
+  paperType: string;
+  colorized: boolean;
+  twoSided: boolean;
+  copies: number;
+};
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
@@ -29,6 +56,30 @@ const BuildOrderPage: FC<PageProps> = () => {
   const [draftFiles, setDraftFiles] = useState<DraftFile[]>([]);
   const [draftServices, setDraftServices] = useState<Service[]>([]);
   const [readyForNextStage, setReadyForNextStage] = useState(false);
+  const [showDiscardConfirmationDialog, setShowDiscardConfirmationDialog] =
+    useState(false);
+
+  const discardOrder = async () => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_PATH}/orders/${draftOrderId}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      },
+    );
+
+    if (res.status == 204) {
+      // Cleanup active order data. (if nescessary)
+      localStorage.removeItem("draftOrderData");
+      localStorage.removeItem("draftOrderExpiry");
+      localStorage.removeItem("draftOrderId");
+      localStorage.removeItem("orderStage");
+
+      return router.push("/glance");
+    } else {
+      window.alert(`Unable to cancel order ${draftOrderId}.`);
+    }
+  };
 
   useEffect(
     () => {
@@ -79,7 +130,7 @@ const BuildOrderPage: FC<PageProps> = () => {
       };
 
       if (checkIsBuildingOrder()) {
-        setOrderStage(localStorage.getItem("orderStage") as OrderStage);
+        setOrderStage(stage);
         setDraftOrderId(localStorage.getItem("draftOrderId"));
         setDraftOrderExpiry(dayjs(localStorage.getItem("draftOrderExpiry")));
 
@@ -98,6 +149,23 @@ const BuildOrderPage: FC<PageProps> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [router.query.stage],
   );
+
+  // To show that the 15 min order window has expired, and to start a new one then.
+  // const expiryString = localStorage.getItem("draftOrderExpiry");
+  // const expiryDateFromStorage = expiryString
+  //   ? new Date(expiryString)
+  //   : new Date();
+  // const expirationCalc = (expiryDateFromStorage.getTime() - new Date().getTime() - 1000)
+  // setTimeout(
+  //   () => {
+  //     window.confirm(
+  //       "15 mins order limit expired lol, create a new one then...",
+  //     );
+  //   },
+  //   expirationCalc,
+  // );
+
+  // console.error(expirationCalc / 1000 / 60, "mins");
 
   useEffect(() => {
     if (orderStage !== null) localStorage.setItem("orderStage", orderStage);
@@ -161,7 +229,13 @@ const BuildOrderPage: FC<PageProps> = () => {
       title: "Configure order",
       backContext: "/order/new/upload",
       href: "/order/new/configure-services",
-      component: <ConfigOrder />,
+      component: (
+        <ConfigOrder
+          draftFiles={draftFiles}
+          setDraftFiles={setDraftFiles}
+          setReadyForNextStage={setReadyForNextStage}
+        />
+      ),
     },
     configServices: {
       title: "Add services",
@@ -186,34 +260,61 @@ const BuildOrderPage: FC<PageProps> = () => {
         backContextURL={stages[orderStage].backContext}
       />
       <PageLoadTransition className="flex flex-col w-full h-full gap-3 font-mono">
-        <PageLoadTransition key={orderStage}>
+        <div className="w-full pb-27" key={orderStage}>
           {stages[orderStage].component}
-        </PageLoadTransition>
-
-        <div className="fixed p-3 bottom-0 left-0 right-0 w-full flex flex-col h-16 max-w-lg z-10">
-          {orderStage === "review" ? (
-            <Button
-              appearance="filled"
-              icon="shopping_bag_speed"
-              className="w-full"
-              disabled={!readyForNextStage}
-              onClick={() => alert("send order")}
-            >
-              Send Order
-            </Button>
-          ) : readyForNextStage ? (
-            <Link href={stages[orderStage].href}>
-              <Button appearance="filled" className="w-full">
+        </div>
+        <div className="fixed px-3 max-w-lg mx-auto left-0 right-0 bottom-3 z-50">
+          <div className="flex flex-col gap-2">
+            {orderStage === "review" ? (
+              <Button
+                appearance="filled"
+                icon="send"
+                disabled={!readyForNextStage}
+                onClick={() => alert("send order")}
+              >
+                Send Order
+              </Button>
+            ) : readyForNextStage ? (
+              // ) : (readyForNextStage || (draftFiles.length != 0 && orderStage == "uploadFiles")) ? (
+              <Link href={stages[orderStage].href}>
+                <Button appearance="filled" className="w-full">
+                  Next
+                </Button>
+              </Link>
+            ) : (
+              <Button appearance="filled" className="w-full" disabled={true}>
                 Next
               </Button>
-            </Link>
-          ) : (
-            <Button appearance="filled" className="w-full" disabled={true}>
-              Next
+            )}
+            <Button
+              appearance="tonal"
+              icon={"contract_delete"}
+              onClick={() => setShowDiscardConfirmationDialog(true)}
+            >
+              Discard Order
             </Button>
-          )}
+          </div>
         </div>
       </PageLoadTransition>
+      <AnimatePresence>
+        {showDiscardConfirmationDialog && (
+          <Dialog
+            title="Discard Order"
+            desc="When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!"
+            setClickOutside={() => setShowDiscardConfirmationDialog(false)}
+          >
+            <Button
+              appearance="tonal"
+              onClick={() => setShowDiscardConfirmationDialog(false)}
+            >
+              Nevermind
+            </Button>
+            <Button appearance="filled" onClick={discardOrder}>
+              Discard
+            </Button>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
