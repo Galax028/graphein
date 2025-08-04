@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO settings (is_accepting, is_lamination_serviceable, open_time, close_time)VALUES ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Bool",
+        "Time",
+        "Time"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0b806ebbfa151abaedb796b6c7f7515c96e7a7727fae16f42c15e3ab73f7a3fb"
+}
