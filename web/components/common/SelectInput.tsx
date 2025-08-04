@@ -51,9 +51,16 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
         }}
       >
         <SegmentedGroup
-          className={cn("cursor-pointer", open && "rounded-b-none")}
+          className={cn(
+            "cursor-pointer overflow-hidden",
+            open && "rounded-b-none",
+          )}
         >
-          <div className="flex items-center bg-background w-full">
+          <div
+            className={cn(
+              "flex items-center bg-background w-full !rounded-none",
+            )}
+          >
             <p className="text-body-md select-none">{options[value]}</p>
           </div>
           <Button
@@ -68,7 +75,7 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
         <div
           className={cn(
             `absolute flex flex-col top-[calc(2.5rem+1px)] p-1 w-full max-h-51
-              bg-surface-container border border-outline rounded-b-lg shadow-lg 
+              bg-surface-container border border-outline rounded-b-lg shadow-xl 
               overflow-auto z-50`,
           )}
         >
@@ -77,7 +84,7 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
               key={idx}
               className={cn(
                 `p-2 bg-surface-container hover:bg-outline rounded-sm 
-                  cursor-pointer transition-color `
+                  cursor-pointer transition-color `,
               )}
               onClick={() => handleOptionClick(idx)}
             >
