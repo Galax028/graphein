@@ -1,6 +1,7 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import MaterialIcon from "@/components/common/MaterialIcon";
+import { DraftFile } from "@/pages/order/new/[stage]";
 import cn from "@/utils/helpers/cn";
 import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
 import type {
@@ -12,28 +13,13 @@ import { MAX_FILE_LIMIT, Uuid } from "@/utils/types/common";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  useEffect,
   useState,
   type Dispatch,
   type FC,
-  type SetStateAction,
+  type SetStateAction
 } from "react";
 import { useDropzone } from "react-dropzone";
 import { v4 as uuidv4 } from "uuid";
-
-export type DraftFile = {
-  key: number;
-  progress: number;
-  meta: FileCreate | null;
-  raw: {
-    name: string;
-    size: number;
-    type: string;
-    path?: string;
-    relativePath?: string;
-  };
-  file?: File;
-};
 
 type UploadFilesProps = {
   orderId: Uuid;
@@ -132,7 +118,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
         });
 
         fileUploadXHR.open("PUT", body.data.uploadUrl, true);
-        fileUploadXHR.setRequestHeader("Content-Type", variables.file?.type);
+        fileUploadXHR.setRequestHeader("Content-Type", variables.file!.type);
         fileUploadXHR.send(variables.file);
       });
       setDraftFiles((draftFiles) =>
@@ -172,6 +158,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
             key: uuidv4(),
             progress: 0,
             meta: null,
+            range: [],
             raw: normalizedRaw,
             file: droppedFile,
           };

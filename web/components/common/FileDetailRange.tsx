@@ -1,4 +1,4 @@
-import DescriptionList from "./DescriptionList"
+import DescriptionList from "@/components/common/DescriptionList";
 
 type FileDetailRangeProps = {
   label: "page" | "image" | "service";

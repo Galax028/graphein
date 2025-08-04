@@ -1,5 +1,5 @@
 import { Dispatch, FC, SetStateAction } from "react";
-import MaterialIcon from "./MaterialIcon";
+import MaterialIcon from "@/components/common/MaterialIcon";
 
 type CheckboxProps = {
   checked?: boolean;
