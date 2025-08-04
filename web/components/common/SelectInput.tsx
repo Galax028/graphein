@@ -1,7 +1,7 @@
 import cn from "@/utils/helpers/cn";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import Button from "./Button";
-import SegmentedGroup from "./SegmentedGroup";
+import Button from "@/components/common/Button";
+import SegmentedGroup from "@/components/common/SegmentedGroup";
 
 type SelectInputProps = {
   value: number;

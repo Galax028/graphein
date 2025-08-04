@@ -1,5 +1,5 @@
 import DescriptionList from "@/components/common/DescriptionList";
-import { FC } from "react";
+import type { FC } from "react";
 
 type FileDetailRangeProps = {
   label: "page" | "image" | "service";
