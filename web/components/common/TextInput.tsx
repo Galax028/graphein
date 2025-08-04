@@ -44,7 +44,7 @@ const TextInput: FC<TextInputProps> = ({
 }) => (
   <div
     className={cn(
-      `flex gap-2 items-center px-2 rounded-lg text-body-md border focus-within:border-accent`,
+      `flex gap-2 items-center px-2 rounded-lg text-body-md border bg-background focus-within:border-accent`,
       error
         ? "border-error focus-within:border-error bg-error/20 z-10"
         : "border-outline",
@@ -58,10 +58,10 @@ const TextInput: FC<TextInputProps> = ({
     )}
     {label && <div>{label}</div>}
     <div className="flex items-center w-full gap-1">
-      {prefixText && <div className="opacity-50">{prefixText}</div>}
+      {prefixText && <div className="opacity-50 select-none">{prefixText}</div>}
       <input
         className={cn(
-          `py-2 h-10 w-full text-body-md
+          `py-2 h-10 w-full text-body-md bg-background
               [&::-webkit-outer-spin-button]:appearance-none 
               [&::-webkit-inner-spin-button]:appearance-none
               outline-none
@@ -77,7 +77,7 @@ const TextInput: FC<TextInputProps> = ({
         onChange={(e) => setValue(e.target.value)}
         value={value}
       />
-      {suffixText && <div className="opacity-50">{suffixText}</div>}
+      {suffixText && <div className="opacity-50 select-none">{suffixText}</div>}
     </div>
     {showClearButton && (
       <div className="h-6" onClick={() => setValue("")}>

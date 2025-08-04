@@ -38,7 +38,7 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
     };
   }, []);
 
-  const handleOptionClick = (value: any) => {
+  const handleOptionClick = (value: number) => {
     setOpen(false);
     setValue(value);
   };
@@ -46,9 +46,13 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
   return (
     <div className="relative" ref={wrapperRef}>
       <div
+        tabIndex={0}
         onClick={() => {
           setOpen(!open);
         }}
+        onKeyDown={(event) =>
+          (event.key === "Enter" || event.key === " ") && setOpen(!open)
+        }
       >
         <SegmentedGroup
           className={cn(
@@ -64,9 +68,10 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
             <p className="text-body-md select-none">{options[value]}</p>
           </div>
           <Button
-            appearance="tonal"
-            icon={"arrow_drop_down"}
             className="!bg-surface-container"
+            appearance="tonal"
+            icon="arrow_drop_down"
+            tabIndex={-1}
           />
         </SegmentedGroup>
       </div>
@@ -86,7 +91,14 @@ const SelectInput = ({ value, setValue, options }: SelectInputProps) => {
                 `p-2 bg-surface-container hover:bg-background rounded-sm 
                   cursor-pointer transition-color `,
               )}
+              role="option"
+              aria-selected={value === idx}
+              tabIndex={0}
               onClick={() => handleOptionClick(idx)}
+              onKeyDown={(event) =>
+                (event.key === "Enter" || event.key === " ") &&
+                handleOptionClick(idx)
+              }
             >
               <p className="text-body-md select-none">{i}</p>
             </div>
