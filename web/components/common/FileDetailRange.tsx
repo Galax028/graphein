@@ -8,6 +8,7 @@ type FileDetailRangeProps = {
     title: string;
     content: string;
   }[];
+  expand?: boolean;
 };
 
 /**
@@ -20,6 +21,7 @@ const FileDetailRange: FC<FileDetailRangeProps> = ({
   label,
   value,
   details,
+  expand = false,
 }) => {
   // TODO: Add localization to these types
   const labelNames = {
@@ -37,7 +39,7 @@ const FileDetailRange: FC<FileDetailRangeProps> = ({
         <div className="text-body-md px-3 py-2">{value}</div>
       </div>
       <div className="p-3 border-t border-outline">
-        <DescriptionList list={details} expand={true} />
+        <DescriptionList list={details} expand={expand} />
       </div>
     </div>
   );
