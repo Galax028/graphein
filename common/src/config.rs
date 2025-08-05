@@ -11,7 +11,7 @@ use chrono::FixedOffset;
 use dotenvy::var;
 use sqlx::postgres::PgConnectOptions;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Config {
     host: IpAddr,
     port: u16,

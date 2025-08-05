@@ -1,9 +1,10 @@
+use chrono::{DateTime, FixedOffset};
 use futures::stream::BoxStream;
 use sqlx::PgConnection;
 
 use crate::{
     SqlxResult,
-    schemas::{File, FileId, FileMetadata, OrderId},
+    schemas::{File, FileId, FileMetadata, OrderId, enums::FileType},
 };
 
 pub struct FilesTable;
@@ -118,5 +119,24 @@ impl FilesTable {
         )
         .bind(order_id)
         .fetch(conn)
+    }
+
+    #[tracing::instrument(skip_all, err)]
+    pub(crate) async fn fetch_object_keys_for_deletion(
+        conn: &mut PgConnection,
+        timestamp: DateTime<FixedOffset>,
+    ) -> SqlxResult<Vec<(String, FileType)>> {
+        Ok(sqlx::query!(
+            "\
+            SELECT object_key, filetype as \"filetype: FileType\" \
+            FROM files WHERE created_at < $1\
+            ",
+            timestamp,
+        )
+        .fetch_all(conn)
+        .await?
+        .into_iter()
+        .map(|file| (file.object_key, file.filetype))
+        .collect())
     }
 }
