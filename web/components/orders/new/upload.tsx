@@ -34,7 +34,17 @@ const UploadFiles: FC<UploadFilesProps> = ({
   setReadyForNextStage,
 }) => {
   const [fileLimitExceeded, setFileLimitExceeded] = useState(false);
+  const [stageContinuable, setStageContinuable] = useState(true);
 
+  // Enable back button when:
+  //   1. There're files in the draft order.
+  //   2. All files in the order are confirmed to be uploaded to cloud bucket.
+  //
+  // TODO: The uploaded check (2.) is still flawed. When refreshed, the file
+  // isn't uploaded to cloud yet, but still appears in draftFiles list.
+  // Which creates a "ghost file".
+  setReadyForNextStage(draftFiles.length != 0 && stageContinuable);
+  
   const fileUploadMutation = useMutation({
     mutationFn: async (draftFile: UnuploadedDraftFile) => {
       const res = await fetch(
@@ -110,12 +120,12 @@ const UploadFiles: FC<UploadFilesProps> = ({
         ),
       );
     },
-    onSuccess: () => setReadyForNextStage(true),
+    onSuccess: () => setStageContinuable(true),
   });
 
   const fileDeleteMutation = useMutation({
     mutationFn: async (fileId: Uuid) => {
-      setReadyForNextStage(false);
+      setStageContinuable(false);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${fileId}`,
         {
@@ -129,7 +139,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
           const newDraftFiles = draftFiles!.filter(
             (file) => file.draft?.id !== fileId,
           );
-          setReadyForNextStage(newDraftFiles.length !== 0);
+          setStageContinuable(newDraftFiles.length !== 0);
 
           return newDraftFiles;
         });
