@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{DateTime, FixedOffset, Utc};
 use sqlx::{PgConnection, Postgres, QueryBuilder};
 use uuid::Uuid;
 
@@ -116,6 +116,7 @@ impl OrdersTable {
             count_qb: None,
             owner_id: None,
             statuses: &[],
+            older_than_date: None,
             limit: None,
             pagination: None,
         }
@@ -145,6 +146,21 @@ impl OrdersTable {
         .await
     }
 
+    #[tracing::instrument(skip_all, err)]
+    pub(crate) async fn update_statuses(
+        conn: &mut PgConnection,
+        order_ids: &[OrderId],
+        status: OrderStatus,
+    ) -> SqlxResult<()> {
+        sqlx::query("UPDATE orders SET status = $1 WHERE id = ANY($2)")
+            .bind(status)
+            .bind(order_ids)
+            .execute(conn)
+            .await?;
+
+        Ok(())
+    }
+
     #[must_use]
     pub fn permissions_checker(order_id: OrderId, session: Session) -> OrderPermissionsChecker {
         OrderPermissionsChecker {
@@ -160,6 +176,7 @@ pub struct CompactOrdersQuery<'args> {
     count_qb: Option<QueryBuilder<'args, Postgres>>,
     owner_id: Option<UserId>,
     statuses: &'args [OrderStatus],
+    older_than_date: Option<DateTime<FixedOffset>>,
     limit: Option<i64>,
     pagination: Option<&'args PaginationRequest>,
 }
@@ -186,6 +203,12 @@ impl<'args> CompactOrdersQuery<'args> {
 
     pub fn bind_statuses(&mut self, statuses: &'args [OrderStatus]) -> &mut Self {
         self.statuses = statuses;
+
+        self
+    }
+
+    pub(crate) fn bind_older_than_date(&mut self, date: DateTime<FixedOffset>) -> &mut Self {
+        self.older_than_date = Some(date);
 
         self
     }
@@ -225,6 +248,13 @@ impl<'args> CompactOrdersQuery<'args> {
             Self::push_sep(first_bind, qb)
                 .push("o.status = ANY(")
                 .push_bind(statuses)
+                .push(')');
+        }
+
+        if let Some(older_than_date) = self.older_than_date {
+            Self::push_sep(first_bind, qb)
+                .push("o.created_at < ")
+                .push_bind(older_than_date)
                 .push(')');
         }
 

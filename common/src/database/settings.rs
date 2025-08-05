@@ -10,6 +10,19 @@ pub struct SettingsTable;
 
 impl SettingsTable {
     #[tracing::instrument(skip_all, err)]
+    pub(crate) async fn fetch(conn: &mut PgConnection) -> SqlxResult<Settings> {
+        sqlx::query_as(
+            "\
+            SELECT \
+                latest_orders_flushed_at, is_accepting, is_lamination_serviceable, open_time,\
+                close_time\
+            ",
+        )
+        .fetch_one(conn)
+        .await
+    }
+
+    #[tracing::instrument(skip_all, err)]
     pub async fn check_is_accepting(conn: &mut PgConnection, tz: &FixedOffset) -> SqlxResult<bool> {
         sqlx::query_scalar(
             "\
@@ -42,5 +55,16 @@ impl SettingsTable {
         .bind(settings.close_time)
         .fetch_one(conn)
         .await
+    }
+
+    #[tracing::instrument(skip_all, err)]
+    pub(crate) async fn set_latest_orders_flushed_at(conn: &mut PgConnection) -> SqlxResult<()> {
+        let now = Utc::now();
+        sqlx::query("UPDATE settings SET updated_at = $1 AND latest_orders_flushed_at = $1")
+            .bind(now)
+            .execute(conn)
+            .await?;
+
+        Ok(())
     }
 }

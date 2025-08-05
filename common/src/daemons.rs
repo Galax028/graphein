@@ -1,10 +1,11 @@
 use std::{sync::Arc, thread, time::Duration as StdDuration};
 
 use anyhow::{Context as _, Result as AnyhowResult};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, FixedOffset, NaiveTime, TimeDelta, Utc};
 use jsonwebtoken::jwk::JwkSet;
 use libvips::VipsApp;
 use reqwest::{Client as ReqwestClient, header::CACHE_CONTROL};
+use sqlx::PgPool;
 use tokio::{
     runtime::Handle,
     sync::{
@@ -16,8 +17,12 @@ use tokio::{
 use tokio_util::sync::CancellationToken;
 
 use crate::{
-    AppState, GOOGLE_SIGNING_KEYS, R2Bucket, Thumbnailer,
-    schemas::enums::FileType,
+    AppState, Config, GOOGLE_SIGNING_KEYS, R2Bucket, Thumbnailer,
+    database::{FilesTable, OrdersTable, SettingsTable},
+    schemas::{
+        Settings,
+        enums::{FileType, OrderStatus},
+    },
     state::{DraftOrderStore, OAuthStates, vips_version_check},
 };
 
@@ -65,6 +70,16 @@ impl DaemonController {
             .spawn(clean_draft_orders(
                 self.app_state.bucket.clone(),
                 self.app_state.draft_orders.clone(),
+                self.canceller.clone(),
+            ))
+            .unwrap();
+
+        tokio::task::Builder::new()
+            .name("Daily Orders Flusher")
+            .spawn(flush_unfinished_orders(
+                self.app_state.config.clone(),
+                self.app_state.pool.clone(),
+                self.app_state.bucket.clone(),
                 self.canceller.clone(),
             ))
             .unwrap();
@@ -167,6 +182,56 @@ async fn clean_draft_orders(
     tokio::select! {
         () = token.cancelled() => (),
         res = inner(bucket, draft_orders) => res,
+    }
+}
+
+async fn flush_unfinished_orders(
+    config: Arc<Config>,
+    pool: PgPool,
+    bucket: R2Bucket,
+    token: CancellationToken,
+) -> AnyhowResult<()> {
+    async fn inner(offset: FixedOffset, pool: PgPool, bucket: R2Bucket) -> AnyhowResult<()> {
+        loop {
+            let now = Utc::now().with_timezone(&offset);
+            let Settings {
+                latest_orders_flushed_at,
+                open_time,
+                ..
+            } = SettingsTable::fetch(&mut *(pool.acquire().await?)).await?;
+
+            let mut until = (now + TimeDelta::days(1))
+                .with_time(NaiveTime::MIN)
+                .unwrap();
+            if let Some(latest_orders_flushed_at) = latest_orders_flushed_at
+                && latest_orders_flushed_at.with_timezone(&offset).date_naive() < now.date_naive()
+            {
+                until = now;
+            }
+
+            tokio::time::sleep((until - now).to_std()?).await;
+
+            let mut tx = pool.begin().await?;
+            let unfinished_orders = OrdersTable::query_compact()
+                .bind_statuses(&[OrderStatus::Reviewing])
+                .bind_older_than_date(now.with_time(open_time).unwrap())
+                .fetch_all(&mut tx)
+                .await?
+                .iter()
+                .map(|order| order.id)
+                .collect::<Vec<_>>();
+            OrdersTable::update_statuses(&mut tx, &unfinished_orders, OrderStatus::Rejected)
+                .await?;
+            let old_files = FilesTable::fetch_object_keys_for_deletion(&mut tx, now).await?;
+            bucket.delete_files(&old_files).await?;
+            SettingsTable::set_latest_orders_flushed_at(&mut tx).await?;
+            tx.commit().await?;
+        }
+    }
+
+    tokio::select! {
+        () = token.cancelled() => Ok(()),
+        res = inner(config.shop_utc_offset(), pool, bucket) => res,
     }
 }
 
