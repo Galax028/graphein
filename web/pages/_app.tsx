@@ -1,3 +1,4 @@
+import MaterialIcon from "@/components/common/MaterialIcon";
 import { useUserQuery } from "@/query/fetchUser";
 import "@/styles/globals.css";
 import type { PageProps } from "@/utils/types/common";
@@ -17,7 +18,12 @@ const UserContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { data: user, error, status } = useUserQuery();
 
   // TODO: loading page?
-  if (status === "pending") return <h1>loading</h1>;
+  if (status === "pending")
+    return (
+      <div className="w-max m-auto p-10">
+        <MaterialIcon icon={"progress_activity"} className="animate-spin" />
+      </div>
+    );
 
   // TODO: proper error handling
   if (status === "error")
