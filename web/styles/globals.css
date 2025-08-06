@@ -2,7 +2,7 @@
 @import "./fonts.css";
 
 :root {
-  --outline: #e5e5e5;
+  --outline: #e0e0e0;
 
   --background: #f3f3f6;
   --on-background: #1c1b1f;
@@ -93,8 +93,6 @@
     "cv11" on;
 
   line-height: 1.4;
-
-  @apply transition-colors
 }
 
 body {
