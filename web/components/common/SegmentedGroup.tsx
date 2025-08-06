@@ -28,7 +28,7 @@ const SegmentedGroup: FC<SegmentedGroupProps> = ({
  
           [&>button,&>div,&>input]:border-outline
           [&>div.border-error]:outline [&>div.border-error]:outline-error 
-          [&>div.border-error]:border-none [&>div.border-error]:py-0,
+          [&>div.border-error]:border-none [&>div.border-error]:py-0
         `,
         direction == "horizontal"
           ? `flex-row [&>button,&>div,&>input]:first:rounded-l-lg 
