@@ -13,6 +13,9 @@ import { type FC, useState } from "react";
 import FileDetailRange from "@/components/common/FileDetailRange";
 import SelectInput from "@/components/common/SelectInput";
 import MaterialIcon from "@/components/common/MaterialIcon";
+import cn from "@/utils/helpers/cn";
+import TreeViewContainer from "@/components/common/tree/TreeViewContainer";
+import TreeViewWrapper from "@/components/common/tree/TreeViewWrapper";
 
 const MarkdownPage: FC<PageProps> = () => {
   const [language, setLanguage] = useState("th");
@@ -59,6 +62,13 @@ const MarkdownPage: FC<PageProps> = () => {
           </Link>
         </div>
 
+        <div className="w-max m-auto p-10">
+          <MaterialIcon
+            icon={"progress_activity"}
+            className="animate-spin"
+          />
+        </div>
+
         <FileDetailRange
           label="page"
           value="2-4"
@@ -70,10 +80,11 @@ const MarkdownPage: FC<PageProps> = () => {
             { title: "Sides", content: "One-sided" },
             { title: "Copies", content: "1" },
           ]}
+          expand={true}
         />
 
-        <SelectInput
-          value={dropdown}
+        {/* <SelectInput
+          value={"Option 1"}
           setValue={setDropdown}
           options={[
             "Option 1",
@@ -87,7 +98,7 @@ const MarkdownPage: FC<PageProps> = () => {
             "Option 9",
             "Option 10",
           ]}
-        />
+        /> */}
 
         <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
           <DropDownCard
@@ -103,7 +114,9 @@ const MarkdownPage: FC<PageProps> = () => {
             <div>Range</div>
             <TextInput
               value={textInput}
-              setValue={setTextInput}
+              onChange={(event) => {
+                setTextInput(event.target.value);
+              }}
               placeholder="Range"
               error={
                 textInput
@@ -120,20 +133,102 @@ const MarkdownPage: FC<PageProps> = () => {
             </div>
           </SegmentedGroup>
 
+          {/* tree */}
+          <div className="flex flex-col w-full">
+            <TreeViewContainer isLast={false} index={0}>
+              <FileDetailRange
+                label="service"
+                value="Binding"
+                details={[
+                  { title: "Type", content: "Plastic Rod Binding (Navy Blue)" },
+                  {
+                    title: "Note",
+                    content: "report_cover.pdf เป็นหน้าปกหน้าหลัง",
+                  },
+                ]}
+                expand={false}
+              />
+              <FileDetailRange
+                label="service"
+                value="Binding"
+                details={[
+                  {
+                    title: "Typeings a",
+                    content: "Plastic Rod Binding (Navy Blue)",
+                  },
+                  {
+                    title: "Note",
+                    content: "report_cover.pdf เป็นหน้าปกหน้าหลัง",
+                  },
+                ]}
+                expand={false}
+              />
+            </TreeViewContainer>
+            {/* Wrapper for level b */}
+            <TreeViewWrapper index={1}>
+              <TreeViewContainer isLast={false} index={1}>
+                <FileDetailRange
+                  label="page"
+                  value="smth test test"
+                  details={[{ title: "asd", content: "sdf" }]}
+                  expand={false}
+                />
+              </TreeViewContainer>
+              <TreeViewWrapper index={2}>
+                <TreeViewContainer isLast={false} index={2}>
+                  <FileDetailRange
+                    label="page"
+                    value="smth test test"
+                    details={[{ title: "asd", content: "sdf" }]}
+                    expand={false}
+                  />
+                </TreeViewContainer>
+                <TreeViewContainer isLast={false} index={2}>
+                  <FileDetailRange
+                    label="page"
+                    value="smth test test"
+                    details={[{ title: "asd", content: "sdf" }]}
+                    expand={false}
+                  />
+                </TreeViewContainer>
+                <TreeViewContainer isLast={true} index={2}>
+                  <FileDetailRange
+                    label="page"
+                    value="smth test test"
+                    details={[{ title: "asd", content: "sdf" }]}
+                    expand={false}
+                  />
+                </TreeViewContainer>
+              </TreeViewWrapper>
+              <TreeViewContainer isLast={true} index={1}>
+                <FileDetailRange
+                  label="page"
+                  value="smth test test"
+                  details={[{ title: "asd", content: "sdf" }]}
+                  expand={false}
+                />
+              </TreeViewContainer>
+            </TreeViewWrapper>
+          </div>
+
           <TextInput
             value={textInput}
-            setValue={setTextInput}
+            onChange={(event) => {
+              setTextInput(event.target.value);
+            }}
             placeholder="Range"
             error={true}
-            errorText="Invalid"
+            errorMessage="Invalid"
             showErrorIcon={false}
           />
           <TextInput
             value={textInput}
-            setValue={setTextInput}
+            onChange={(event) => {
+              setTextInput(event.target.value);
+            }}
             placeholder="Range"
             error={false}
-            errorText="Invalid"
+            errorMessage="Invalid"
             showErrorIcon={false}
           />
           <p>{textInput}</p>
@@ -297,7 +392,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
           </SegmentedGroup>
 
-          <NumberInput count={count} setCount={setCount} min={-99} max={99} />
+          <NumberInput value={count} onChange={setCount} min={-99} max={99} />
           <p className="text-body-sm">{count} copies</p>
 
           <SegmentedGroup>
