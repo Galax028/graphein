@@ -45,15 +45,12 @@ const DescriptionList: FC<DescriptionListProps> = ({
     );
   } else {
     return (
-      <div className={cn("grid gap-2", expand && "md:grid-cols-2")}>
+      <div className="grid gap-2 grid-cols-[4rem_1fr] items-center gap-x-3">
         {list.map((item, idx) => (
-          <div
-            className="grid grid-cols-[4.5rem_1fr] items-center gap-x-4"
-            key={idx}
-          >
+          <Fragment key={idx}>
             <p className="text-body-sm opacity-50 select-none">{item.title}</p>
             <p className="text-body-md">{item.content}</p>
-          </div>
+          </Fragment>
         ))}
       </div>
     );
