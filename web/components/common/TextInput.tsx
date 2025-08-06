@@ -14,6 +14,7 @@ type TextInputProps = {
   suffixText?: string;
   suffixIcon?: string;
   showClearButton?: boolean;
+  disabled?: boolean;
 } & InputHTMLAttributes<HTMLInputElement>;
 
 const TextInput: FC<TextInputProps> = ({
@@ -28,6 +29,7 @@ const TextInput: FC<TextInputProps> = ({
   prefixIcon,
   suffixText,
   suffixIcon,
+  disabled = false,
   ...props
 }) => (
   <div
@@ -37,6 +39,7 @@ const TextInput: FC<TextInputProps> = ({
         ? "border-error focus-within:border-error bg-error/20 z-10"
         : "border-outline",
       className,
+      disabled && "select-none pointer-events-none bg-surface-container",
     )}
   >
     {prefixIcon && (
@@ -49,7 +52,7 @@ const TextInput: FC<TextInputProps> = ({
       {prefixText && <div className="opacity-50 select-none">{prefixText}</div>}
       <input
         className={cn(
-          `py-2 h-10 w-full text-body-md bg-background
+          `py-2 h-10 w-full text-body-md
               [&::-webkit-outer-spin-button]:appearance-none 
               [&::-webkit-inner-spin-button]:appearance-none
               outline-none
@@ -60,6 +63,7 @@ const TextInput: FC<TextInputProps> = ({
               ? "text-right"
               : "text-center",
         )}
+        disabled={disabled}
         type={type}
         {...props}
       />
@@ -75,12 +79,16 @@ const TextInput: FC<TextInputProps> = ({
         <MaterialIcon icon={suffixIcon} />
       </div>
     )}
-    {error && showErrorIcon && (
-      <div className="h-6">
-        <MaterialIcon icon="error" className="text-error" />
-      </div>
-    )}
-    {error && <div className="text-error">{errorMessage}</div>}
+    <div className="flex gap-1 items-center">
+      {error && showErrorIcon && (
+        <div className="h-6">
+          <MaterialIcon icon="error" className="text-error" />
+        </div>
+      )}
+      {error && errorMessage && (
+        <div className="text-error">{errorMessage}</div>
+      )}
+    </div>
   </div>
 );
 
