@@ -239,15 +239,15 @@ const BuildOrderPage: FC<PageProps> = () => {
         />
       ),
     },
-    configServices: {
-      title: "Add services",
-      backContext: "/order/new/configure-order",
-      href: "/order/new/review",
-      component: <ConfigServices />,
-    },
+    // configServices: {
+    //   title: "Add services",
+    //   backContext: "/order/new/configure-order",
+    //   href: "/order/new/review",
+    //   component: <ConfigServices />,
+    // },
     review: {
       title: "Review order",
-      backContext: "/order/new/configure-services",
+      backContext: "/order/new/configure-order",
       href: "/order/new/review",
       // @ts-expect-error ---
       component: <Review draftFiles={draftFiles} />,
