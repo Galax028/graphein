@@ -2,6 +2,7 @@ import cn from "@/utils/helpers/cn";
 import { useEffect, useRef, useState } from "react";
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
+import MaterialIcon from "./MaterialIcon";
 
 type SelectInputProps<T extends object> = {
   value: T;
@@ -9,6 +10,8 @@ type SelectInputProps<T extends object> = {
   displayKey: keyof T;
   matchKey: keyof T;
   options: T[];
+  className?: string;
+  appearance?: "individual" | "inset";
 };
 
 /**
@@ -21,6 +24,8 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
   displayKey,
   matchKey,
   options,
+  appearance = "individual",
+  className,
 }: SelectInputProps<T>) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -48,7 +53,7 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
   };
 
   return (
-    <div className="relative" ref={wrapperRef}>
+    <div className={cn("relative !p-0", className)} ref={wrapperRef}>
       <div
         tabIndex={0}
         onClick={() => {
@@ -62,6 +67,7 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
           className={cn(
             "cursor-pointer overflow-hidden",
             open && "rounded-b-none",
+            appearance == "inset" && "rounded-none border-none",
           )}
         >
           <div
@@ -71,21 +77,27 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
           >
             <p className="text-body-md select-none">{value[displayKey]}</p>
           </div>
-          <Button
-            className="!bg-surface-container"
-            appearance="tonal"
-            icon="arrow_drop_down"
-            tabIndex={-1}
-          />
+          <div className="!bg-surface-container" tabIndex={-1}>
+            <MaterialIcon
+              icon="arrow_drop_up"
+              className={cn(
+                "transition-transform duration-250",
+                open && "rotate-180",
+              )}
+            />{" "}
+          </div>
         </SegmentedGroup>
       </div>
 
       {open && (
         <div
           className={cn(
-            `absolute flex flex-col top-[calc(2.5rem+1px)] p-1 w-full max-h-51
+            `absolute flex flex-col p-1 max-h-51
               bg-surface-container border border-outline rounded-b-lg shadow-xl 
               overflow-auto z-50`,
+            appearance == "inset"
+              ? "top-10 -left-0.25 w-[calc(100%+0.125rem)]"
+              : "w-full top-[calc(2.5rem+1px)]",
           )}
         >
           {options.map((option) => (
