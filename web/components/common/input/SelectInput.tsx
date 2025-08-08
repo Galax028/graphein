@@ -74,7 +74,7 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
         >
           <div
             className={cn(
-              "flex items-center bg-background w-full !rounded-none",
+              "flex w-full items-center !rounded-none bg-background",
             )}
           >
             <p className="text-body-md select-none">{value[displayKey]}</p>
@@ -94,19 +94,23 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
       {open && (
         <div
           className={cn(
-            `absolute flex flex-col p-1 max-h-51
-              bg-surface-container border border-outline rounded-b-lg shadow-xl 
-              overflow-auto z-50`,
+            `
+              absolute z-50 flex max-h-51 flex-col overflow-auto rounded-b-lg
+              border border-outline bg-surface-container p-1 shadow-xl
+            `,
             appearance === "inset"
               ? "top-10 -left-0.25 w-[calc(100%+0.125rem)]"
-              : "w-full top-[calc(2.5rem+1px)]",
+              : "top-[calc(2.5rem+1px)] w-full",
           )}
         >
           {options.map((option) => (
             <div
               className={cn(
-                `p-2 bg-surface-container hover:bg-background rounded-sm 
-              cursor-pointer transition-color `,
+                `
+                  cursor-pointer rounded-sm bg-surface-container p-2
+                  transition-colors
+                  hover:bg-background
+                `,
               )}
               role="option"
               aria-selected={option[matchKey] === value[matchKey]}

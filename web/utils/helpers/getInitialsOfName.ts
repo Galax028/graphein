@@ -1,8 +1,8 @@
 /**
  * Generates a string of initials from a full name.
  *
- * @param {string} name The full name to get initials from.
- * @returns {string} The initials of the provided name.
+ * @param name  The full name to get initials from.
+ * @returns     The initials of the provided name.
  * @example
  * // returns "JD"
  * getInitialsOfName("John Doe");

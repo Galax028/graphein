@@ -69,10 +69,13 @@ const NumberInput: FC<NumberInputProps> = ({ value, onChange, min, max }) => {
       />
       <input
         className={cn(
-          `p-2 h-10 w-full text-center !border-r z-10 text-body-md
-            border border-outline [appearance:textfield] 
-            [&::-webkit-outer-spin-button]:appearance-none 
-            [&::-webkit-inner-spin-button]:appearance-none bg-background
+          `
+            z-10 h-10 w-full
+            [appearance:textfield]
+            border !border-r border-outline bg-background p-2 text-center
+            text-body-md
+            [&::-webkit-inner-spin-button]:appearance-none
+            [&::-webkit-outer-spin-button]:appearance-none
           `,
         )}
         type="text"
@@ -81,7 +84,7 @@ const NumberInput: FC<NumberInputProps> = ({ value, onChange, min, max }) => {
         value={tempCount}
       />
       <Button
-        className="!bg-surface-container !border-l-0"
+        className="!border-l-0 !bg-surface-container"
         appearance="tonal"
         icon="add"
         disabled={max !== undefined && value >= max}

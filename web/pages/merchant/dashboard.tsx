@@ -84,7 +84,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                 />
               ))
             ) : (
-              <span className="opacity-50 text-body-md">{section.empty}</span>
+              <span className="text-body-md opacity-50">{section.empty}</span>
             )}
           </DropDownCard>
         ))}

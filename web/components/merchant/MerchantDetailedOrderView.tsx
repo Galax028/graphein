@@ -26,7 +26,10 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
 
   if (orderId === null)
     return (
-      <div className="col-span-3 border border-outline rounded-lg bg-surface-container p-2 grid place-items-center">
+      <div className={`
+        col-span-3 grid place-items-center rounded-lg border border-outline
+        bg-surface-container p-2
+      `}>
         <h1 className="text-body-lg opacity-50 select-none">
           Click on any order from the sidebar to display it here.
         </h1>
@@ -37,11 +40,16 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
 
   return (
     <motion.div
-      className="col-span-3 flex flex-col gap-px rounded-lg border border-outline bg-outline overflow-scroll"
+      className={`
+        col-span-3 flex flex-col gap-px overflow-scroll rounded-lg border
+        border-outline bg-outline
+      `}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <div className="flex justify-between items-center bg-surface-container p-2 pl-3">
+      <div className={`
+        flex items-center justify-between bg-surface-container p-2 pl-3
+      `}>
         <h1>{tx("orderCard.title", { orderNumber: order.orderNumber })}</h1>
         <div className="flex gap-2">
           <Button appearance="tonal">Accept Order</Button>
@@ -50,8 +58,8 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
           </Button>
         </div>
       </div>
-      <div className="flex-grow flex gap-px">
-        <div className="flex flex-col gap-px min-w-96">
+      <div className="flex flex-grow gap-px">
+        <div className="flex min-w-96 flex-col gap-px">
           <div className="flex flex-col gap-2 bg-surface-container p-3">
             <span className="text-body-sm opacity-50">
               Customer Information
@@ -73,7 +81,7 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
               {order.notes ?? "No notes."}
             </p>
           </div>
-          <div className="flex flex-col gap-2 bg-surface-container p-3 h-full">
+          <div className="flex h-full flex-col gap-2 bg-surface-container p-3">
             <span className="text-body-sm opacity-50">Attached Files</span>
             <div className="flex flex-col gap-1">
               {order.files.map((file) => (
@@ -89,7 +97,7 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
             </div>
           </div>
         </div>
-        <div className="flex-grow flex flex-col gap-2 bg-surface-container p-3">
+        <div className="flex flex-grow flex-col gap-2 bg-surface-container p-3">
           <span className="text-body-sm opacity-50">Details</span>
           {order.files.map((file) => (
             <div className="flex flex-col gap-1" key={file.id}>

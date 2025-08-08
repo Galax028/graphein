@@ -255,18 +255,22 @@ const BuildOrderPage: FC<PageProps> = () => {
   } as const;
 
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex h-dvh flex-col">
       <NavigationBar
         user={user}
         title={stages[orderStage].title}
         backEnabled={true}
         backContextURL={stages[orderStage].backContext}
       />
-      <PageLoadTransition className="flex flex-col w-full h-full gap-3 font-mono">
+      <PageLoadTransition className={`
+        flex h-full w-full flex-col gap-3 font-mono
+      `}>
         <div className="w-full pb-27" key={orderStage}>
           {stages[orderStage].component}
         </div>
-        <div className="fixed px-3 max-w-lg mx-auto left-0 right-0 bottom-3 z-50">
+        <div className={`
+          fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg px-3
+        `}>
           <div className="flex flex-col gap-2">
             {orderStage === "review" ? (
               <Button

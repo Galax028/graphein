@@ -11,13 +11,21 @@ type DialogProps = {
 };
 
 /**
- * A dialog with actions that accepts DOM elements at the bottom.
+ * A modal dialog component with an overlay and support for actions.
  *
- * @param title            The title to put on the dialog (string)
- * @param desc             The description to put on the dialog (string)
- * @param children         The title to put on the dialog (HTML Element)
- * @param setClickOutside  The useState function name to trigger when
- *                         clicked outside. (Will do nothing if not provided.)
+ * It renders a title, a description, and a container for child elements,
+ * typically buttons. The dialog can be configured to close when the user
+ * clicks on the backdrop overlay. It features animations for appearing and
+ * disappearing.
+ *
+ * @param props.className        Additional classes to apply to the backdrop.
+ * @param props.title            The title to display at the top of the dialog.
+ * @param props.desc             An optional description to display below the
+ *                               title.
+ * @param props.children         React elements, typically action buttons, to
+ *                               render at the bottom of the dialog.
+ * @param props.setClickOutside  A state setter function that is called with
+ *                               `false` when the backdrop is clicked.
  */
 const Dialog: FC<DialogProps> = ({
   className,
@@ -32,11 +40,13 @@ const Dialog: FC<DialogProps> = ({
     exit={{ opacity: 0, pointerEvents: "none" }}
     transition={{ duration: 0.1 }}
     className={cn(
-      `fixed top-0 left-0 grid place-items-center w-dvw h-dvh p-3 z-50
-          backdrop-filter backdrop-brightness-50 dark:backdrop-brightness-25`,
+      `
+        fixed top-0 left-0 z-50 grid h-dvh w-dvw place-items-center p-3
+        backdrop-brightness-50 backdrop-filter
+        dark:backdrop-brightness-25
+      `,
       className,
     )}
-    // If there's onIgnore value, set value to false.
     onClick={() => setClickOutside && setClickOutside(false)}
   >
     <motion.div
@@ -48,14 +58,16 @@ const Dialog: FC<DialogProps> = ({
         scale: { type: "spring", bounce: 0 },
       }}
       onClick={(e) => e.stopPropagation()}
-      className={cn(`flex flex-col gap-4 w-full max-w-96 p-4
-            bg-surface-container border border-outline rounded-lg`)}
+      className={cn(`
+        flex w-full max-w-96 flex-col gap-4 rounded-lg border border-outline
+        bg-surface-container p-4
+      `)}
     >
       <div className={cn(`flex flex-col gap-1`)}>
         <p className="text-title-sm">{title}</p>
         <p className="min-h-12 text-body-md">{desc}</p>
       </div>
-      <div className="flex gap-1 w-full [&>button]:w-full">{children}</div>
+      <div className="flex w-full gap-1 [&>button]:w-full">{children}</div>
     </motion.div>
   </motion.div>
 );

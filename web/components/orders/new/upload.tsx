@@ -202,12 +202,15 @@ const UploadFiles: FC<UploadFilesProps> = ({
                   delay: idx * 0.1,
                   y: { type: "spring", bounce: 0 },
                 }}
-                className="flex gap-3 items-center border border-outline p-2 rounded-lg bg-surface-container"
+                className={`
+                  flex items-center gap-3 rounded-lg border border-outline
+                  bg-surface-container p-2
+                `}
                 key={draftFile.key}
               >
                 {/* TODO: Add thumbnail */}
-                <div className="w-16 h-16 aspect-square bg-outline rounded-sm"></div>
-                <div className="flex flex-col gap-1 w-full">
+                <div className="aspect-square h-16 w-16 rounded-sm bg-outline"></div>
+                <div className="flex w-full flex-col gap-1">
                   <p
                     className={cn(
                       "text-body-sm",
@@ -245,7 +248,10 @@ const UploadFiles: FC<UploadFilesProps> = ({
       <div
         className={cn(
           draftFiles.length === 0 &&
-            "flex flex-col gap-2 justify-center items-center border border-outline p-3 h-96 rounded-lg cursor-pointer",
+            `
+              flex h-96 cursor-pointer flex-col items-center justify-center
+              gap-2 rounded-lg border border-outline p-3
+            `,
         )}
         {...getRootProps()}
       >
@@ -259,10 +265,10 @@ const UploadFiles: FC<UploadFilesProps> = ({
         </Button>
         {draftFiles.length === 0 && (
           <div>
-            <p className="text-body-md text-center">
+            <p className="text-center text-body-md">
               Drop a file here, or click to browse files.
             </p>
-            <p className="text-body-sm opacity-50 text-center">
+            <p className="text-center text-body-sm opacity-50">
               PDF • {MAX_FILE_LIMIT} files max • 50 MB limit
             </p>
           </div>

@@ -9,10 +9,14 @@ type DescriptionListProps = {
 };
 
 /**
- * The title, description row styled in a list.
+ * A component that renders a list of titles and their corresponding content.
  *
- * @param list The list to show.
- * @param expand Expanded into 2 columns in big screens or not. (Default false)
+ * It can display the list in a single column or expand into two columns on
+ * larger screens for better readability and space utilization.
+ *
+ * @param props.list     The array of title-content pairs to display.
+ * @param props.expand   Whether the list should expand into two columns on
+ *                       larger screens. Defaults to false.
  */
 const DescriptionList: FC<DescriptionListProps> = ({
   list,
@@ -27,7 +31,9 @@ const DescriptionList: FC<DescriptionListProps> = ({
       <div className="grid gap-2 md:grid-cols-2">
         {[col1, col2].map((list, idx) => (
           <div
-            className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2"
+            className={`
+              grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2
+            `}
             key={idx}
           >
             {list.map((item) => (
@@ -44,7 +50,7 @@ const DescriptionList: FC<DescriptionListProps> = ({
     );
   } else {
     return (
-      <div className="grid gap-2 grid-cols-[4rem_1fr] items-center gap-x-3">
+      <div className="grid grid-cols-[4rem_1fr] items-center gap-2 gap-x-3">
         {list.map((item, idx) => (
           <Fragment key={idx}>
             <p className="text-body-sm opacity-50 select-none">{item.title}</p>

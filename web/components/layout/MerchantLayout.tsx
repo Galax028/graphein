@@ -40,7 +40,7 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center h-dvh overflow-hidden">
+    <div className="flex h-dvh flex-col items-center overflow-hidden">
       <NavigationBar title={t("navigationBar")}>
         <SegmentedGroup>
           <Button
@@ -66,7 +66,10 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
           onClick={() => setShowSignOutDialog(true)}
         />
       </NavigationBar>
-      <PageLoadTransition className="md:!w-full !max-w-full h-full !grid grid-cols-4 gap-2">
+      <PageLoadTransition className={`
+        !grid h-full !max-w-full grid-cols-4 gap-2
+        md:!w-full
+      `}>
         {children}
       </PageLoadTransition>
 

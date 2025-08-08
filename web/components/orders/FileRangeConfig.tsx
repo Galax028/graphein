@@ -76,12 +76,12 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
     <>
       <div
         className={cn(
-          "flex flex-col border border-outline rounded-lg overflow-hidden",
+          "flex flex-col overflow-hidden rounded-lg border border-outline",
         )}
       >
         <SegmentedGroup
           className={cn(
-            "bg-surface-container border-none rounded-none rounded-t-lg",
+            "rounded-none rounded-t-lg border-none bg-surface-container",
             !open && "rounded-b-lg",
           )}
         >
@@ -96,7 +96,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
             displayKey="type"
             matchKey="type"
             options={[{ type: "All Pages" }, { type: "Range" }]}
-            className={"w-72 !border-r !border-outline"}
+            className="w-72 !border-r !border-outline"
             appearance="inset"
           />
           <TextInput
@@ -117,7 +117,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
             showErrorIcon={true}
             errorMessage="Invalid"
             className={cn(
-              "w-full bg-background transition-opacity border-none",
+              "w-full border-none bg-background transition-opacity",
               pageRangeType !== "Range" && "opacity-0",
             )}
           />
@@ -145,7 +145,10 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
               >
-                <div className="flex flex-col gap-2 bg-surface-container p-3 border-t border-outline rounded-b-lg">
+                <div className={`
+                  flex flex-col gap-2 rounded-b-lg border-t border-outline
+                  bg-surface-container p-3
+                `}>
                   <LabelGroup header="Paper Type">
                     <SelectInput
                       value={

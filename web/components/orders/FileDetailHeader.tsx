@@ -75,12 +75,14 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
   return (
     <div
       className={cn(
-        `flex justify-between items-center gap-2 bg-surface-container 
-          border border-outline rounded-lg max-w-lg pr-3`,
+        `
+          flex max-w-lg items-center justify-between gap-2 rounded-lg border
+          border-outline bg-surface-container pr-3
+        `,
         thumbnailSrc !== null ? "p-2" : "p-4",
       )}
     >
-      <div className="flex gap-3 items-center min-w-0">
+      <div className="flex min-w-0 items-center gap-3">
         {thumbnailSrc && (
           <motion.div
             initial={{ x: -8, opacity: 0 }}
@@ -89,7 +91,7 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
             transition={{
               x: { type: "spring", bounce: 0 },
             }}
-            className="p-1 bg-outline !w-16 !h-16 aspect-square rounded-sm"
+            className="aspect-square !h-16 !w-16 rounded-sm bg-outline p-1"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -97,12 +99,12 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
               width={56}
               height={56}
               alt={filename}
-              className="w-14 h-14 object-contain"
+              className="h-14 w-14 object-contain"
             />
           </motion.div>
         )}
-        <div className="flex flex-col grow gap-1 min-w-0">
-          <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
+        <div className="flex min-w-0 grow flex-col gap-1">
+          <p className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
             {filename}.{filetype}
           </p>
           <p className="text-body-sm opacity-50">

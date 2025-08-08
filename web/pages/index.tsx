@@ -38,18 +38,21 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
   };
 
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex h-dvh flex-col">
       <NavigationBar
         title={t("navigationBar", {
           appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
         })}
       />
-      <div className="flex flex-col justify-between flex-grow p-3 md:p-0">
-        <div className="md:grid md:place-items-center md:flex-grow md:m-auto">
+      <div className="flex flex-grow flex-col justify-between p-3 md:p-0">
+        <div className="md:m-auto md:grid md:flex-grow md:place-items-center">
           <div
             className={cn(
-              `flex flex-col gap-3 md:border md:border-outline 
-                md:bg-surface-container md:p-6 md:rounded-xl w-full md:max-w-lg`,
+              `
+                flex w-full flex-col gap-3
+                md:max-w-lg md:rounded-xl md:border md:border-outline
+                md:bg-surface-container md:p-6
+              `,
             )}
           >
             <div className="flex flex-col gap-1">
@@ -63,7 +66,10 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
             />
           </div>
         </div>
-        <div className="flex flex-col gap-3 w-full md:max-w-lg md:my-4 md:m-auto">
+        <div className={`
+          flex w-full flex-col gap-3
+          md:m-auto md:my-4 md:max-w-lg
+        `}>
           <LabelGroup header={t("language")}>
             <SegmentedGroup>
               <Button

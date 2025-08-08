@@ -55,12 +55,12 @@ const MarkdownPage: FC<PageProps> = () => {
         </p>
         <div className="m-4">
           <Link href="/">
-            <Button appearance={"tonal"}>Go to main page (router test)</Button>
+            <Button appearance="tonal">Go to main page (router test)</Button>
           </Link>
         </div>
 
-        <div className="w-max m-auto p-10">
-          <MaterialIcon icon={"progress_activity"} className="animate-spin" />
+        <div className="m-auto w-max p-10">
+          <MaterialIcon icon="progress_activity" className="animate-spin" />
         </div>
 
         <FileDetailRange
@@ -94,16 +94,22 @@ const MarkdownPage: FC<PageProps> = () => {
           ]}
         /> */}
 
-        <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
+        <div className={`
+          mx-auto my-4 flex max-w-96 flex-col gap-2
+          [&>*]:!w-full
+        `}>
           <DropDownCard
-            header={"Title"}
+            header="Title"
             footer={["2 orders pending", "Total 38 THB"]}
             isCollapsible={true}
           >
             order stuff you think about it idk
           </DropDownCard>
         </div>
-        <div className="flex flex-col gap-2 mx-auto my-4 [&>*]:!w-full max-w-96">
+        <div className={`
+          mx-auto my-4 flex max-w-96 flex-col gap-2
+          [&>*]:!w-full
+        `}>
           <SegmentedGroup className="bg-surface-container">
             <div>Range</div>
             <TextInput
@@ -120,7 +126,7 @@ const MarkdownPage: FC<PageProps> = () => {
                   : false
               }
               showErrorIcon={true}
-              className="w-full !p-0 !h-10"
+              className="!h-10 w-full !p-0"
             />
             <div className="h-10 w-10">
               <MaterialIcon icon="hexagon" />
@@ -128,7 +134,7 @@ const MarkdownPage: FC<PageProps> = () => {
           </SegmentedGroup>
 
           {/* tree */}
-          <div className="flex flex-col w-full">
+          <div className="flex w-full flex-col">
             <TreeViewContainer isLast={false} index={0}>
               <FileDetailRange
                 label="service"
@@ -229,60 +235,60 @@ const MarkdownPage: FC<PageProps> = () => {
 
           <p>Normal Buttons</p>
           <Button
-            appearance={"filled"}
-            icon={"shopping_bag_speed"}
+            appearance="filled"
+            icon="shopping_bag_speed"
             onClick={() => setShowPopup((prev) => !prev)}
           >
             Send Order
           </Button>
-          <Button appearance={"tonal"} icon={"shopping_bag_speed"}>
+          <Button appearance="tonal" icon="shopping_bag_speed">
             Send Order
           </Button>
-          <Button appearance={"filled"}>Cancel Order</Button>
-          <Button appearance={"tonal"}>Cancel Order</Button>
+          <Button appearance="filled">Cancel Order</Button>
+          <Button appearance="tonal">Cancel Order</Button>
 
           <p>Disabled Buttons</p>
           <Button
             disabled={true}
-            appearance={"filled"}
-            icon={"shopping_bag_speed"}
+            appearance="filled"
+            icon="shopping_bag_speed"
           >
             Send Order
           </Button>
           <Button
             disabled={true}
-            appearance={"tonal"}
-            icon={"shopping_bag_speed"}
+            appearance="tonal"
+            icon="shopping_bag_speed"
           >
             Send Order
           </Button>
-          <Button disabled={true} appearance={"filled"}>
+          <Button disabled={true} appearance="filled">
             Cancel Order
           </Button>
-          <Button disabled={true} appearance={"tonal"}>
+          <Button disabled={true} appearance="tonal">
             Cancel Order
           </Button>
 
           <p>Busy Buttons</p>
-          <Button busy={true} appearance={"filled"}>
+          <Button busy={true} appearance="filled">
             Next
           </Button>
-          <Button busy={true} appearance={"tonal"}>
+          <Button busy={true} appearance="tonal">
             Next
           </Button>
-          <Button busy={true} busyWithText={false} appearance={"filled"}>
+          <Button busy={true} busyWithText={false} appearance="filled">
             Next
           </Button>
-          <Button busy={true} busyWithText={false} appearance={"tonal"}>
+          <Button busy={true} busyWithText={false} appearance="tonal">
             Next
           </Button>
 
           <p>Icon Buttons</p>
           <div className="flex gap-2">
-            <Button appearance={"filled"} icon={"print"} />
-            <Button appearance={"tonal"} icon={"print"} />
-            <Button busy={true} appearance={"filled"} icon={"print"} />
-            <Button busy={true} appearance={"tonal"} icon={"print"} />
+            <Button appearance="filled" icon="print" />
+            <Button appearance="tonal" icon="print" />
+            <Button busy={true} appearance="filled" icon="print" />
+            <Button busy={true} appearance="tonal" icon="print" />
           </div>
 
           <p>Google OAuth Button</p>
@@ -292,7 +298,7 @@ const MarkdownPage: FC<PageProps> = () => {
           <SegmentedGroup>
             <Button
               selected={language === "th"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setLanguage("th");
               }}
@@ -301,7 +307,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
             <Button
               selected={language === "en"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setLanguage("en");
               }}
@@ -312,7 +318,7 @@ const MarkdownPage: FC<PageProps> = () => {
           <SegmentedGroup>
             <Button
               selected={theme === "light"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setTheme("light");
               }}
@@ -321,7 +327,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
             <Button
               selected={theme === "dark"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setTheme("dark");
               }}
@@ -330,7 +336,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
             <Button
               selected={theme === "auto"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setTheme("auto");
               }}
@@ -341,7 +347,7 @@ const MarkdownPage: FC<PageProps> = () => {
           <SegmentedGroup>
             <Button
               selected={alphabet === "a"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setAlphabet("a");
               }}
@@ -350,7 +356,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
             <Button
               selected={alphabet === "b"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setAlphabet("b");
               }}
@@ -359,7 +365,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
             <Button
               selected={alphabet === "c"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setAlphabet("c");
               }}
@@ -368,7 +374,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
             <Button
               selected={alphabet === "d"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setAlphabet("d");
               }}
@@ -377,7 +383,7 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
             <Button
               selected={alphabet === "e"}
-              appearance={"tonal"}
+              appearance="tonal"
               onClick={() => {
                 setAlphabet("e");
               }}
@@ -390,7 +396,10 @@ const MarkdownPage: FC<PageProps> = () => {
           <p className="text-body-sm">{count} copies</p>
 
           <SegmentedGroup>
-            <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
+            <div className={`
+              flex aspect-square h-10 items-center justify-center border
+              border-outline bg-surface-container p-2 text-body-md
+            `}>
               <p>M.</p>
             </div>
             <input
@@ -401,7 +410,10 @@ const MarkdownPage: FC<PageProps> = () => {
               type="text"
               className="w-full p-2"
             />
-            <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
+            <div className={`
+              flex aspect-square h-10 items-center justify-center border
+              border-outline bg-surface-container p-2 text-body-md
+            `}>
               <p>No.</p>
             </div>
             <input

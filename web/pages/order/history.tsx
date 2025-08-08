@@ -42,7 +42,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
         user={user}
         title={t("navigationBar")}
         backEnabled={true}
-        backContextURL={"/glance"}
+        backContextURL="/glance"
       />
       <PageLoadTransition>
         <LabelGroup header={t("withinLastMonth")}>

@@ -10,13 +10,15 @@ type PersonAvatarProps = {
 };
 
 /**
- * The avatar of the person. Image will be displayed if `profileUrl` is
- * given, followed by `personName`, before falling back to an avatar icon.
+ * Renders a user's avatar with a fallback system.
  *
- * @param profileUrl   Path to the profile image.
- * @param personName   The person's full name. Will be initialized.
- * @param size         The size of the avatar, in pixels.
- *                     (Will be converted to rem).
+ * It prioritizes displaying a profile image if a URL is provided. If no URL is
+ * available, it falls back to showing the user's initials derived from their
+ * name. If neither is present, it displays a generic avatar icon.
+ *
+ * @param props.profileUrl  The URL path to the user's profile image.
+ * @param props.personName  The full name of the user, used for initials.
+ * @param props.size        The size of the avatar in pixels. Defaults to 32.
  */
 const PersonAvatar: FC<PersonAvatarProps> = ({
   profileUrl,
@@ -25,7 +27,10 @@ const PersonAvatar: FC<PersonAvatarProps> = ({
 }) => (
   <div
     style={{ width: `${size / 16}rem`, height: `${size / 16}rem` }}
-    className="grid place-content-center rounded-full aspect-square overflow-hidden border border-outline"
+    className={`
+      grid aspect-square place-content-center overflow-hidden rounded-full
+      border border-outline
+    `}
   >
     {profileUrl ? (
       <Image
@@ -34,7 +39,7 @@ const PersonAvatar: FC<PersonAvatarProps> = ({
         height={size}
         alt="Avatar"
         style={{ width: `${size / 16}rem`, height: `${size / 16}rem` }}
-        className="aspect-square w-full h-full object-cover"
+        className="aspect-square h-full w-full object-cover"
       />
     ) : personName ? (
       <span className="text-body-sm">{getInitialsOfName(personName)}</span>

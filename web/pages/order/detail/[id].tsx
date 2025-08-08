@@ -87,7 +87,9 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
           </DropDownCard>
           <DropDownCard header="Time Log">
             <div
-              className={`grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center`}
+              className={`
+                grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
+              `}
             >
               {detailedOrder.statusHistory.map((item, idx) => (
                 <Fragment key={idx}>
@@ -105,12 +107,12 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
         <LabelGroup header="Note to Shop">
           <div
             className={cn(
-              `p-3 bg-surface-container border border-outline rounded-lg`,
+              `rounded-lg border border-outline bg-surface-container p-3`,
             )}
           >
             <p className="text-body-md">
               {detailedOrder.notes ?? (
-                <span className="opacity-50 italic">No notes provided.</span>
+                <span className="italic opacity-50">No notes provided.</span>
               )}
             </p>
           </div>

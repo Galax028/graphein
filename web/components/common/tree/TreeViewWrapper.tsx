@@ -15,7 +15,7 @@ type TreeViewWrapperProps = {
 const TreeViewWrapper = ({ index = 0, children }: TreeViewWrapperProps) => {
   return (
     <div
-      className="flex flex-col ml-4 pl-4 border-l border-outline"
+      className="ml-4 flex flex-col border-l border-outline pl-4"
       style={{ width: `calc(100% - ${index * 0.5}rem)` }}
     >
       {children}

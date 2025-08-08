@@ -31,14 +31,14 @@ const FileDetailRange: FC<FileDetailRangeProps> = ({
   } as const;
 
   return (
-    <div className="bg-surface-container border border-outline rounded-lg">
+    <div className="rounded-lg border border-outline bg-surface-container">
       <div className="flex">
-        <div className="border-r border-outline text-body-md px-3 py-2">
+        <div className="border-r border-outline px-3 py-2 text-body-md">
           {labelNames[label]}
         </div>
-        <div className="text-body-md px-3 py-2">{value}</div>
+        <div className="px-3 py-2 text-body-md">{value}</div>
       </div>
-      <div className="p-3 border-t border-outline">
+      <div className="border-t border-outline p-3">
         <DescriptionList list={details} expand={expand} />
       </div>
     </div>

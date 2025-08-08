@@ -19,8 +19,10 @@ type DeveloperProfileProps = {
 const DeveloperProfile: FC<DeveloperProfileProps> = ({ name, role, image }) => (
   <div
     className={cn(
-      `flex gap-3 items-center px-3 py-2.5 rounded-lg bg-surface-container 
-        border border-outline`,
+      `
+        flex items-center gap-3 rounded-lg border border-outline
+        bg-surface-container px-3 py-2.5
+      `,
     )}
   >
     <Image
@@ -28,7 +30,7 @@ const DeveloperProfile: FC<DeveloperProfileProps> = ({ name, role, image }) => (
       width={128}
       height={128}
       alt={`Image of ${name}`}
-      className="w-16 h-16 rounded-full"
+      className="h-16 w-16 rounded-full"
     />
     <div className="flex flex-col">
       <p>{name}</p>
@@ -72,8 +74,11 @@ const AboutPage: FC<PageProps> = () => {
         <LabelGroup header={t("about.title")}>
           <div
             className={cn(
-              `flex flex-col gap-2 p-3 rounded-lg bg-surface-container 
-              border border-outline [&>p]:text-body-md`,
+              `
+                flex flex-col gap-2 rounded-lg border border-outline
+                bg-surface-container p-3
+                [&>p]:text-body-md
+              `,
             )}
           >
             <p>{t("about.p1")}</p>
@@ -109,11 +114,16 @@ const AboutPage: FC<PageProps> = () => {
         <LabelGroup header={t("version")}>
           <div
             className={cn(
-              `flex flex-col gap-2 p-3 rounded-lg bg-surface-container 
-              border border-outline [&>p]:text-body-sm`,
+              `
+                flex flex-col gap-2 rounded-lg border border-outline
+                bg-surface-container p-3
+                [&>p]:text-body-sm
+              `,
             )}
           >
-            <div className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 items-center">
+            <div className={`
+              grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
+            `}>
               <p className="w-18 text-body-sm opacity-50">{t("version")}</p>
               <p className="w-full text-body-md">
                 {process.env.NEXT_PUBLIC_VERSION}

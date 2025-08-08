@@ -58,7 +58,10 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
       footer={tx("userSettings.description")}
     >
       <form
-        className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg"
+        className={`
+          flex flex-col gap-3 rounded-lg border border-outline
+          bg-surface-container p-3
+        `}
         id={isOnboarding ? "onboardingForm" : undefined}
         onSubmit={handleSubmit(onSubmit)}
       >
@@ -74,14 +77,20 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
         <LabelGroup header={tx("userSettings.name")}>
           <input
             value={user.name}
-            className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
+            className={`
+              h-10 w-full rounded-lg border border-outline bg-background p-2
+              text-body-md text-on-background-disabled
+            `}
             disabled
           />
         </LabelGroup>
         <LabelGroup header={tx("userSettings.email")}>
           <input
             value={user.email}
-            className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10 text-on-background-disabled"
+            className={`
+              h-10 w-full rounded-lg border border-outline bg-background p-2
+              text-body-md text-on-background-disabled
+            `}
             disabled
           />
         </LabelGroup>
@@ -91,7 +100,10 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           footer={errors.tel && tx("userSettings.telValidationError")}
         >
           <input
-            className="w-full p-2 bg-background border border-outline rounded-lg text-body-md h-10"
+            className={`
+              h-10 w-full rounded-lg border border-outline bg-background p-2
+              text-body-md
+            `}
             type="tel"
             {...register("tel")}
           />
@@ -108,22 +120,28 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           }
         >
           <SegmentedGroup>
-            <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
+            <div className={`
+              flex aspect-square h-10 items-center justify-center border
+              border-outline bg-surface-container p-2 text-body-md
+            `}>
               <p>{tx("userSettings.class")}</p>
             </div>
             <input
-              className="w-full p-2 bg-background text-body-md"
+              className="w-full bg-background p-2 text-body-md"
               type="number"
               {...register("class", {
                 valueAsNumber: true,
                 disabled: user.role !== "student",
               })}
             />
-            <div className="text-body-md flex items-center justify-center p-2 h-10 aspect-square bg-surface-container border border-outline">
+            <div className={`
+              flex aspect-square h-10 items-center justify-center border
+              border-outline bg-surface-container p-2 text-body-md
+            `}>
               <p>{tx("userSettings.no")}</p>
             </div>
             <input
-              className="w-full p-2 bg-background text-body-md"
+              className="w-full bg-background p-2 text-body-md"
               type="number"
               {...register("classNo", {
                 valueAsNumber: true,

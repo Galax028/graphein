@@ -31,15 +31,19 @@ const TextInput: FC<TextInputProps> = ({
   suffixIcon,
   disabled = false,
   ...props
-}) => (
+  }) => (
   <div
     className={cn(
-      `flex gap-2 items-center px-2 rounded-lg text-body-md border bg-background focus-within:border-accent`,
+      `
+        flex items-center gap-2 rounded-lg border bg-background px-2
+        text-body-md
+        focus-within:border-onPrimary
+      `,
       error
-        ? "border-error focus-within:border-error bg-error/20 z-10"
+        ? `z-10 border-error bg-error/20 focus-within:border-error`
         : "border-outline",
       className,
-      disabled && "select-none pointer-events-none bg-surface-container",
+      disabled && "pointer-events-none bg-surface-container select-none",
     )}
   >
     {prefixIcon && (
@@ -48,15 +52,15 @@ const TextInput: FC<TextInputProps> = ({
       </div>
     )}
     {label && <div>{label}</div>}
-    <div className="flex items-center w-full gap-1">
+    <div className="flex w-full items-center gap-1">
       {prefixText && <div className="opacity-50 select-none">{prefixText}</div>}
       <input
         className={cn(
-          `py-2 h-10 w-full text-body-md
-              [&::-webkit-outer-spin-button]:appearance-none 
-              [&::-webkit-inner-spin-button]:appearance-none
-              outline-none
-            `,
+          `
+            h-10 w-full py-2 text-body-md outline-none
+            [&::-webkit-inner-spin-button]:appearance-none
+            [&::-webkit-outer-spin-button]:appearance-none
+          `,
           alignment === "left"
             ? "text-left"
             : alignment === "right"
@@ -79,7 +83,7 @@ const TextInput: FC<TextInputProps> = ({
         <MaterialIcon icon={suffixIcon} />
       </div>
     )}
-    <div className="flex gap-1 items-center">
+    <div className="flex items-center gap-1">
       {error && showErrorIcon && (
         <div className="h-6">
           <MaterialIcon icon="error" className="text-error" />

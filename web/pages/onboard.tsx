@@ -68,7 +68,7 @@ const OnboardPage: FC<PageProps> = () => {
   };
 
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex h-dvh flex-col">
       <NavigationBar title={t("navigationBar")} />
       <PageLoadTransition className="mx-auto">
         <div className="flex flex-col gap-3">
@@ -81,7 +81,10 @@ const OnboardPage: FC<PageProps> = () => {
             isOnboarding={true}
             onSubmit={(formData) => onboardingMutation.mutate(formData)}
           />
-          <div className="fixed left-0 right-0 bottom-0 flex flex-col gap-3 p-3 bg-surface-container border-t border-outline z-10">
+          <div className={`
+            fixed right-0 bottom-0 left-0 z-10 flex flex-col gap-3 border-t
+            border-outline bg-surface-container p-3
+          `}>
             <div className="flex flex-col gap-2">
               <p className="text-body-sm">
                 {t.rich("disclaimer", {

@@ -13,13 +13,20 @@ type DropDownCardProps = {
 };
 
 /**
- * The dropdown content box that contains information.
+ * A collapsible card component that displays a header and can reveal more
+ * content and a footer when expanded.
  *
- * @param header        The title string displayed on the title bar.
- * @param footer        Array of string to be mapped on the footer bar.
- * @param collapsed     The default collapsed state of the box. (Default true)
- * @param isCollapsible Should the box be isCollapsible or not? (Default true)
- * @param children      The content inside the main box.
+ * The card's initial state and collapsibility can be configured.
+ *
+ * @param props.className      Additional classes to apply to the content area.
+ * @param props.header         The title string displayed on the card's header.
+ * @param props.footer         An optional array of strings to display in the
+ *                             footer.
+ * @param props.collapsed      The default collapsed state of the card. Defaults
+ *                             to true.
+ * @param props.isCollapsible  Determines if the card can be expanded or
+ *                             collapsed by the user. Defaults to true.
+ * @param props.children       The content to display inside the card when expanded.
  */
 const DropDownCard: FC<DropDownCardProps> = ({
   className,
@@ -32,10 +39,12 @@ const DropDownCard: FC<DropDownCardProps> = ({
   const [open, setOpen] = useState(!collapsed);
 
   return (
-    <div className="border border-outline rounded-lg bg-surface-container">
+    <div className="rounded-lg border border-outline bg-surface-container">
       <div
-        className={cn(`flex justify-between items-center gap-2 p-2 pl-3 
-          cursor-pointer select-none`)}
+        className={cn(`
+          flex cursor-pointer items-center justify-between gap-2 p-2 pl-3
+          select-none
+        `)}
         onClick={() => isCollapsible && setOpen((open) => !open)}
       >
         <p className="text-body-md">{header}</p>
@@ -54,13 +63,15 @@ const DropDownCard: FC<DropDownCardProps> = ({
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
             >
-              <div className={cn("p-3 border-t border-outline", className)}>
+              <div className={cn("border-t border-outline p-3", className)}>
                 {children}
               </div>
               {footer && (
-                <div className="flex justify-between gap-2 p-2 pl-3 border-t border-outline">
+                <div className={`
+                  flex justify-between gap-2 border-t border-outline p-2 pl-3
+                `}>
                   {footer.map((item) => (
-                    <span key={item} className="opacity-50 text-body-sm">
+                    <span key={item} className="text-body-sm opacity-50">
                       {item}
                     </span>
                   ))}

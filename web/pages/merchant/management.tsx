@@ -22,11 +22,16 @@ const MerchantDashboardPage: FC<PageProps> = () => {
   return (
     <MerchantLayout page="management" translationNamespace="management">
       <div className="col-span-1 grid grid-rows-2 gap-3">
-        <div className="flex flex-col gap-px border border-outline rounded-lg *:first:rounded-t-lg *:last:rounded-b-lg bg-outline">
+        <div className={`
+          flex flex-col gap-px rounded-lg border border-outline bg-outline
+          *:first:rounded-t-lg *:last:rounded-b-lg
+        `}>
           <div className="bg-surface-container p-2 pl-3">
             {t("shopOperation.title")}
           </div>
-          <div className="flex-grow flex flex-col bg-surface-container p-3 gap-2">
+          <div className={`
+            flex flex-grow flex-col gap-2 bg-surface-container p-3
+          `}>
             <LabelGroup
               header={t("shopOperation.openingHours.header")}
               footer={t("shopOperation.openingHours.footer")}
@@ -38,7 +43,9 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   value=""
                   onChange={() => {}}
                 />
-                <div className="flex justify-center items-center !p-2.5 select-none">
+                <div className={`
+                  flex items-center justify-center !p-2.5 select-none
+                `}>
                   {t("shopOperation.openingHours.to")}
                 </div>
                 <TextInput
@@ -64,11 +71,16 @@ const MerchantDashboardPage: FC<PageProps> = () => {
             </LabelGroup>
           </div>
         </div>
-        <div className="flex flex-col gap-px border border-outline rounded-lg *:first:rounded-t-lg *:last:rounded-b-lg bg-outline">
+        <div className={`
+          flex flex-col gap-px rounded-lg border border-outline bg-outline
+          *:first:rounded-t-lg *:last:rounded-b-lg
+        `}>
           <div className="bg-surface-container p-2 pl-3">
             {t("defaults.title")}
           </div>
-          <div className="flex-grow flex flex-col bg-surface-container p-3 gap-2">
+          <div className={`
+            flex flex-grow flex-col gap-2 bg-surface-container p-3
+          `}>
             <LabelGroup
               header={t("defaults.paper.header")}
               footer={t("defaults.paper.footer")}
@@ -84,45 +96,50 @@ const MerchantDashboardPage: FC<PageProps> = () => {
           </div>
         </div>
       </div>
-      <div className="col-span-3 flex flex-col gap-px rounded-lg overflow-scroll border border-outline bg-outline">
+      <div className={`
+        col-span-3 flex flex-col gap-px overflow-scroll rounded-lg border
+        border-outline bg-outline
+      `}>
         <div className="bg-surface-container p-2 pl-3">
           {t("serviceManagement.title")}
         </div>
-        <div className="flex-grow flex gap-px">
+        <div className="flex flex-grow gap-px">
           <div className="min-w-60 bg-surface-container p-3">
-            <span className="text-body-sm opacity-50 block mb-1 select-none">
+            <span className="mb-1 block text-body-sm opacity-50 select-none">
               {t("serviceManagement.sidebarLabel")}
             </span>
             <Button
               appearance="filled"
-              className="justify-start w-full !border-none"
+              className="w-full justify-start !border-none"
             >
               {t("serviceManagement.paper.title")}
             </Button>
           </div>
-          <div className="flex-grow flex flex-col gap-px">
+          <div className="flex flex-grow flex-col gap-px">
             <div className="bg-surface-container p-2 pl-3">
               {t("serviceManagement.paper.title")}
             </div>
-            <div className="flex-grow flex gap-px">
+            <div className="flex flex-grow gap-px">
               <div className="min-w-60 bg-surface-container p-3">
-                <span className="text-body-sm opacity-50 block mb-1 select-none">
+                <span className="mb-1 block text-body-sm opacity-50 select-none">
                   {t("serviceManagement.paper.sidebarLabel")}
                 </span>
                 <Button
                   appearance="filled"
-                  className="justify-start w-full !border-none"
+                  className="w-full justify-start !border-none"
                 >
                   A4
                 </Button>
                 <Button
                   appearance="tonal"
-                  className="justify-start w-full !border-none"
+                  className="w-full justify-start !border-none"
                 >
                   A3
                 </Button>
               </div>
-              <div className="flex-grow flex flex-col gap-3 bg-surface-container p-3">
+              <div className={`
+                flex flex-grow flex-col gap-3 bg-surface-container p-3
+              `}>
                 <div className="flex gap-2">
                   <LabelGroup
                     className="flex-grow"
@@ -142,7 +159,9 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                         value=""
                         onChange={() => {}}
                       />
-                      <div className="flex justify-center items-center !p-2.5 select-none">
+                      <div className={`
+                        flex items-center justify-center !p-2.5 select-none
+                      `}>
                         &times;
                       </div>
                       <TextInput
@@ -158,19 +177,25 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   <span className="block text-body-sm opacity-50 select-none">
                     {t("serviceManagement.paper.variants.title")}
                   </span>
-                  <div className="flex justify-between py-1 text-body-xs opacity-50 select-none">
+                  <div className={`
+                    flex justify-between py-1 text-body-xs opacity-50
+                    select-none
+                  `}>
                     <span>{t("serviceManagement.paper.variants.inStock")}</span>
                     <span>
                       {t("serviceManagement.paper.variants.variantName")}
                     </span>
                     <span>{t("serviceManagement.paper.variants.delete")}</span>
                   </div>
-                  <div className="flex gap-2 my-1">
-                    <div className="flex justify-center items-center border border-outline rounded-lg p-2">
+                  <div className="my-1 flex gap-2">
+                    <div className={`
+                      flex items-center justify-center rounded-lg border
+                      border-outline p-2
+                    `}>
                       <Checkbox checked={checked} setValue={toggleChecked} />
                     </div>
                     <SegmentedGroup className="flex-grow">
-                      <div className="flex justify-center items-center">
+                      <div className="flex items-center justify-center">
                         <Checkbox checked={checked} setValue={toggleChecked} />
                       </div>
                       <TextInput
@@ -186,7 +211,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                     />
                   </div>
                   <Button
-                    className="border border-outline w-full"
+                    className="w-full border border-outline"
                     appearance="tonal"
                     icon="add"
                   >

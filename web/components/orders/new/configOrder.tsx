@@ -90,18 +90,21 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
         <div
           key={draftFile.key}
           className={cn(
-            `flex flex-col bg-surface-container border border-outline p-2 rounded-lg`,
+            `
+              flex flex-col rounded-lg border border-outline
+              bg-surface-container p-2
+            `,
           )}
         >
           <div
-            className="flex gap-3 items-center pr-1 cursor-pointer"
+            className="flex cursor-pointer items-center gap-3 pr-1"
             onClick={toggleOpen}
           >
             {/* TODO: Add thumbnail */}
-            <div className="w-16 h-16 bg-outline rounded-sm animate-pulse"></div>
-            <div className="flex flex-col gap-1 grow">
+            <div className="h-16 w-16 animate-pulse rounded-sm bg-outline"></div>
+            <div className="flex grow flex-col gap-1">
               <p>{draftFile.name}</p>
-              <p className="opacity-50 text-body-sm">
+              <p className="text-body-sm opacity-50">
                 PDF • {getFormattedFilesize(draftFile.size)}
               </p>
             </div>
@@ -119,7 +122,7 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
             <AnimatePresence initial={false}>
               {open && (
                 <motion.div
-                  className="flex flex-col gap-2 mt-2"
+                  className="mt-2 flex flex-col gap-2"
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}

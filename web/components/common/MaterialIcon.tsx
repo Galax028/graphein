@@ -2,17 +2,21 @@ import cn from "@/utils/helpers/cn";
 import type { FC } from "react";
 
 type MaterialIconProps = {
+  className?: string;
   icon: string;
   filled?: boolean;
-  className?: string;
 };
 
 /**
- * Material icon set, weight 300, size 24px.
+ * Renders a Google Material Symbols icon.
  *
- * @param icon        The icon name.
- * @param filled      The icon's filled state. (Default false)
- * @param className   Style extension to the base style.
+ * This component acts as a simple wrapper around the `<i>` tag used for
+ * Material Symbols, allowing for easy use of the icon set.
+ *
+ * @param props.className  Additional classes to apply to the icon element.
+ * @param props.icon       The name of the Material Symbols icon to display.
+ * @param props.filled     Determines if the icon should use the filled style.
+ *                         Defaults to false.
  */
 const MaterialIcon: FC<MaterialIconProps> = ({
   icon,
@@ -21,8 +25,10 @@ const MaterialIcon: FC<MaterialIconProps> = ({
 }) => (
   <i
     className={cn(
+      // eslint-disable-next-line better-tailwindcss/no-unregistered-classes
       "material-symbols-outlined select-none",
-      filled ? "filled" : "",
+      // eslint-disable-next-line better-tailwindcss/no-unregistered-classes
+      filled && "filled",
       className,
     )}
   >

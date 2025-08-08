@@ -2,9 +2,9 @@
  * Conditionally joins class names together. It filters out any falsy values
  * (e.g., null, undefined, false) from the arguments.
  *
- * @param {...unknown} segments - A list of class names or conditions. Falsy
- * values are ignored.
- * @returns {string} A single string of concatenated class names.
+ * @param segments  A list of class names or conditions. Falsy values are
+ *                  ignored.
+ * @returns         A single string of concatenated class names.
  * @example
  * // returns "btn btn-primary active"
  * cn("btn", "btn-primary", true && "active", false && "disabled", null);

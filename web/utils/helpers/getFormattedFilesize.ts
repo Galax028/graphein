@@ -2,9 +2,8 @@
  * Formats a file size in bytes into a human-readable string with appropriate
  * units.
  *
- * @param {number} filesize - The file size in bytes.
- * @returns {string} A formatted string with the file size and unit
- * (e.g., "1.2 MB").
+ * @param filesize  The file size in bytes.
+ * @returns         A formatted string filesize string (e.g., "1.2 MB").
  * @example
  * // returns "500 B"
  * getFormattedFilesize(500);

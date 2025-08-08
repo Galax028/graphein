@@ -70,11 +70,11 @@ const OrderCard: FC<OrderCardProps> = ({
         "rounded-lg transition-colors",
         !showProgressBar &&
           (selected
-            ? "cursor-pointer hover:brightness-80"
-            : "cursor-pointer hover:bg-background"),
+            ? `cursor-pointer hover:brightness-80`
+            : `cursor-pointer hover:bg-background`),
         selected
           ? "bg-primary text-onPrimary"
-          : "bg-surface-container border border-outline",
+          : "border border-outline bg-surface-container",
       )}
       onClick={onClick}
     >
@@ -102,11 +102,11 @@ const OrderCard: FC<OrderCardProps> = ({
             {filesCount != 1 && filesCount != -1 && "s"}
           </p>
         </div>
-        {showNavigationIcon && <MaterialIcon icon={"chevron_forward"} />}
+        {showNavigationIcon && <MaterialIcon icon="chevron_forward" />}
       </div>
       {showProgressBar && (
         <div className="flex flex-col gap-1 border-t border-outline p-3">
-          <div className="flex h-1 bg-outline rounded-full overflow-hidden">
+          <div className="flex h-1 overflow-hidden rounded-full bg-outline">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: progressBarMap[status].width }}
@@ -125,8 +125,11 @@ const OrderCard: FC<OrderCardProps> = ({
           </div>
           <div
             className={cn(
-              `flex w-full [&>p]:w-full [&>p]:text-body-sm [&>p]:opacity-50
-            [&>p]:text-center`,
+              `
+                flex w-full
+                [&>p]:w-full [&>p]:text-center [&>p]:text-body-sm
+                [&>p]:opacity-50
+              `,
             )}
           >
             <p className="!text-left">{t("orderCard.status.reviewing")}</p>

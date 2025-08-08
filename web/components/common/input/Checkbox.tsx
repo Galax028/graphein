@@ -14,7 +14,7 @@ const Checkbox: FC<CheckboxProps> = ({
 }) => {
   return (
     <div
-      className="cursor-pointer w-6 h-6 inline-flex"
+      className="inline-flex h-6 w-6 cursor-pointer"
       tabIndex={0}
       role="checkbox"
       aria-checked={checked}

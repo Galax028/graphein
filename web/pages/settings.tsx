@@ -51,19 +51,22 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
       <PageLoadTransition>
         <UserProfileSettings user={user} />
         <LabelGroup header={t("appearanceSettings.title")}>
-          <div className="flex flex-col gap-3 p-3 bg-surface-container border border-outline rounded-lg">
+          <div className={`
+            flex flex-col gap-3 rounded-lg border border-outline
+            bg-surface-container p-3
+          `}>
             <LabelGroup header={t("appearanceSettings.language")}>
               <SegmentedGroup>
                 <Button
                   selected={locale === "th"}
-                  appearance={"tonal"}
+                  appearance="tonal"
                   onClick={() => changeLanguage("th")}
                 >
                   ไทย
                 </Button>
                 <Button
                   selected={locale === "en"}
-                  appearance={"tonal"}
+                  appearance="tonal"
                   onClick={() => changeLanguage("en")}
                 >
                   English
@@ -76,7 +79,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
           appearance="tonal"
           onClick={() => setShowSignOutDialog(true)}
           className="w-full text-error"
-          icon={"logout"}
+          icon="logout"
         >
           {tx("action.signOut")}
         </Button>

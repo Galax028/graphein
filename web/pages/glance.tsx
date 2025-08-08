@@ -55,13 +55,13 @@ const GlancePage: FC<PageProps> = () => {
   ] as const;
 
   return (
-    <div className="flex flex-col items-center h-dvh">
+    <div className="flex h-dvh flex-col items-center">
       <NavigationBar
         user={user}
         title={t(getGreetingMessage(), { name: user.name })}
       />
       <PageLoadTransition className="w-full">
-        <div className="flex flex-col w-full gap-2 mb-12">
+        <div className="mb-12 flex w-full flex-col gap-2">
           {sections.map((section) => (
             <LabelGroup header={section.label} key={section.label}>
               {section.orders.length !== 0 ? (
@@ -99,7 +99,7 @@ const GlancePage: FC<PageProps> = () => {
         </div>
       </PageLoadTransition>
 
-      <div className="fixed px-3 max-w-lg mx-auto left-0 right-0 bottom-3">
+      <div className="fixed right-0 bottom-3 left-0 mx-auto max-w-lg px-3">
         <Button
           className="w-full"
           appearance="filled"

@@ -9,11 +9,16 @@ type LabelGroupProps = {
 };
 
 /**
- * A stylized label text on top of children.
+ * A simple wrapper component that groups content with an optional header and
+ * footer label.
  *
- * @param children  The contents within the wrapper.
+ * This component is useful for associating a label with form inputs or other
+ * elements, providing context through a header or footer text.
  *
- * @returns A stylized DOM element.
+ * @param props.className  Additional classes to apply to the main wrapper.
+ * @param props.header     An optional text label to display above the children.
+ * @param props.footer     An optional text label to display below the children.
+ * @param props.children   The main content to be rendered inside the wrapper.
  */
 const LabelGroup: FC<LabelGroupProps> = ({
   className,

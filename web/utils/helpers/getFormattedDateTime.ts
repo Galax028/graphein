@@ -3,15 +3,15 @@ import type { Locale } from "next-intl";
 /**
  * Formats a Date object into a readable string with localization.
  *
- * @param {Locale} locale - The locale to use for formatting.
- * @param {Date} date - The Date object to format.
- * @param {object} [options={ returnDate: true, returnTime: true }] -
- * Configuration to control the output format.
- * @param {boolean} [options.returnDate=true] - Whether to include the date part
- * in the output.
- * @param {boolean} [options.returnTime=true] - Whether to include the time part
- * in the output.
- * @returns {string} A formatted string representing the date, time, or both.
+ * @param locale              The locale to use for formatting.
+ * @param date                The Date object to format.
+ * @param options             Configuration to control the output format.
+ * @param options.returnDate  Whether to include the date part
+ *                            in the output.
+ * @param options.returnTime  Whether to include the time part
+ *                            in the output.
+ * @returns                   A formatted string representing the date, time, or
+ *                            both.
  * @example
  * const myDate = new Date('2023-10-27T14:30:00');
  * // returns "27 October 2023, 14:30"
