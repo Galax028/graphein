@@ -11,13 +11,15 @@ type NumberInputProps = {
 };
 
 /**
- * A number input that accepts numbers, negatives,
- * and remove invalid characters automatically.
+ * A controlled number input component with increment/decrement buttons.
  *
- * @param value     The initial count.
- * @param onChange  The react state variable to send values to parent.
- * @param min       The minimum value for this field.
- * @param max       The maximum value for this field.
+ * It automatically handles invalid character removal, and clamps the value
+ * within a specified min/max range upon losing focus.
+ *
+ * @param props.value     The controlled numerical value of the input.
+ * @param props.onChange  The callback function to update the parent's state.
+ * @param props.min       The optional minimum value for the input.
+ * @param props.max       The optional maximum value for the input.
  */
 const NumberInput: FC<NumberInputProps> = ({ value, onChange, min, max }) => {
   const [tempCount, setTempCount] = useState<string>(value.toString());

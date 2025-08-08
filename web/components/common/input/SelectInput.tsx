@@ -15,8 +15,21 @@ type SelectInputProps<T extends object> = {
 };
 
 /**
- * The SelectInput element, sometimes also referred to as drop down element.
+ * A generic, custom-styled select input (dropdown) component.
  *
+ * It is designed to be highly flexible, working with an array of objects and
+ * allowing specification of which object keys to use for display and for unique
+ * identification.
+ *
+ * @param props.className   Additional classes to apply to the wrapper.
+ * @param props.value       The currently selected option object.
+ * @param props.onChange    A callback that fires when a new option is selected.
+ * @param props.displayKey  The key of the option object to display as text.
+ * @param props.matchKey    The key of the option object to use for unique
+ *                          matching.
+ * @param props.options     The array of available option objects.
+ * @param props.appearance  The visual style of the input, either "individual"
+ *                          or "inset". Defaults to "individual".
  */
 const SelectInput = <T extends { [K: string]: string | number | boolean }>({
   value,
@@ -30,7 +43,6 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, toggleOpen] = useToggle();
 
-  // Closes the options window pop-up when element is clicked outside.
   useEffect(
     () => {
       const handleClickOutside = (event: MouseEvent) => {
@@ -86,7 +98,7 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
                 "transition-transform duration-250",
                 open && "rotate-180",
               )}
-            />{" "}
+            />
           </div>
         </SegmentedGroup>
       </div>

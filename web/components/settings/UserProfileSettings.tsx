@@ -23,6 +23,19 @@ type UserProfileSettingsProps = {
   onSubmit?: SubmitHandler<UserProfileFormSchema>;
 };
 
+/**
+ * A form component for viewing and editing user profile settings.
+ *
+ * This component handles user profile data like telephone number and, for
+ * students, their class and class number.
+ *
+ * @param props.user          The user object containing the profile data to
+ *                            display.
+ * @param props.isOnboarding  A flag to adapt the component for an onboarding
+ *                            flow. Defaults to false.
+ * @param props.onSubmit      The callback function to execute upon successful
+ *                            form submission.
+ */
 const UserProfileSettings: FC<UserProfileSettingsProps> = ({
   user,
   isOnboarding = false,

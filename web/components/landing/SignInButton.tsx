@@ -13,12 +13,18 @@ type SignInButtonProps = {
 };
 
 /**
- * The sign in button using the application's design language.
+ * A specialized button for handling the Google Sign-In process.
  *
- * This button is named "SignInButton" only because this application
- * is using Google as the definitive account system.
+ * This component manages the entire OAuth 2.0 flow by opening a popup window,
+ * listening for a success message, and then fetching the user's data to
+ * complete the sign-in and redirect them.
  *
- * @returns The 'Sign in with Google' button.
+ * @param props.isSigningIn     A boolean state indicating if the sign-in
+ *                              process is currently active.
+ * @param props.setIsSigningIn  The state setter function to control the
+ *                              `isSigningIn` state.
+ * @param props.asMerchant      Determines if the sign-in flow is for a
+ *                              merchant, which modifies the auth URL.
  */
 const SignInButton: FC<SignInButtonProps> = ({
   isSigningIn,

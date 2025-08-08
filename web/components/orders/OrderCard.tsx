@@ -21,14 +21,22 @@ type OrderCardProps = {
 };
 
 /**
- * The order information card, with status via progress bar view option
+ * A card component that displays a summary of an order's information.
  *
- * @param status        The status. [OrderStatusProps]
- * @param orderNumber   Order number. (Integer)
- * @param filesCount    Files count. (Integer)
- * @param createdAt     Created at timestamp. (UTC)
- * @param options       A boolean value to show or hide views. {option: boolean}
- *                      [showStatusText | showProgressBar | showNavigationIcon]
+ * It can show various details like the order status, number, file count, and
+ * creation date. It also has optional views for a status progress bar and a
+ * navigation icon.
+ *
+ * @param props.status       The current status of the order. Defaults to
+ *                           "building".
+ * @param props.selected     If true, applies a selected style to the card.
+ *                           Defaults to false.
+ * @param props.orderNumber  The unique number identifying the order.
+ * @param props.filesCount   The total number of files in the order.
+ * @param props.createdAt    The ISO timestamp string for when the order was
+ *                           created.
+ * @param props.options      An object to configure optional UI elements.
+ * @param props.onClick      An optional click handler for the card.
  */
 const OrderCard: FC<OrderCardProps> = ({
   status = "building",

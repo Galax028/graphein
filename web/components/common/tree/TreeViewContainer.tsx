@@ -8,11 +8,16 @@ type TreeViewContainerProps = {
 };
 
 /**
- * The child element in a tree wrapper structure. (Child + Connecting Line)
+ * A container for a child element within a tree view structure, responsible for
+ * rendering the connecting lines.
  *
- * @param isLast    Hides the side extending line from the wrapper element.
- *                  (Optional, Default "false")
- * @param children  The contents within the container. (Required)
+ * This component uses CSS pseudo-elements to draw the lines that connect a node
+ * to its parent and siblings, forming the visual tree.
+ *
+ * @param props.index     The zero-based index of the node in its list.
+ * @param props.isLast    Indicates if this is the last node in the list, which
+ *                        affects how the connecting line is drawn.
+ * @param props.children  The content of the tree node to be rendered.
  */
 const TreeViewContainer = ({
   index = 0,

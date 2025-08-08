@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 
 type TreeViewWrapperProps = {
   index?: number;
@@ -6,13 +6,17 @@ type TreeViewWrapperProps = {
 };
 
 /**
- * The parent element in a tree wrapper structure. (Wrapper + Side Line)
+ * The parent wrapper for a tree view structure.
  *
- * @param index     The tree level of the wrapper, starts at 0.
- *                  (Optional, Default "0")
- * @param children  The contents within the wrapper. (Required)
+ * This component provides the initial indentation and the main vertical line
+ * from which child nodes branch off.
+ *
+ * @param props.index     The indentation level of the tree, affecting its
+ *                        horizontal offset. Defaults to 0.
+ * @param props.children  The child `TreeViewContainer` elements to be rendered
+ *                        within this tree level.
  */
-const TreeViewWrapper = ({ index = 0, children }: TreeViewWrapperProps) => {
+const TreeViewWrapper: FC<TreeViewWrapperProps> = ({ index = 0, children }) => {
   return (
     <div
       className="ml-4 flex flex-col border-l border-outline pl-4"

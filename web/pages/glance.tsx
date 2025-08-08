@@ -4,7 +4,7 @@ import LabelGroup from "@/components/common/LabelGroup";
 import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import OrderCard from "@/components/orders/OrderCard";
-import OrderEmptyCard from "@/components/orders/OrderEmptyCard";
+import EmptyOrderCard from "@/components/orders/EmptyOrderCard";
 import LoadingPage from "@/components/layout/LoadingPage";
 import useToggle from "@/hooks/useToggle";
 import {
@@ -87,7 +87,7 @@ const GlancePage: FC<PageProps> = () => {
                   </motion.div>
                 ))
               ) : (
-                <OrderEmptyCard text={section.empty} />
+                <EmptyOrderCard text={section.empty} />
               )}
             </LabelGroup>
           ))}

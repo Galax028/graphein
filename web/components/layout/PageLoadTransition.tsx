@@ -8,10 +8,12 @@ type PageLoadTransitionProps = {
 };
 
 /**
- * The enter animation for the content inside to fade in + slide up.
+ * A simple wrapper component that applies a fade-in and slide-up animation to
+ * its children on page load.
  *
- * @param className   Style extension to the base style.
- * @param children    The content inside the <div> container.
+ * @param props.className  Additional classes to apply to the wrapper.
+ * @param props.children   The content to be rendered inside the animated
+ *                         container.
  */
 const PageLoadTransition: FC<PageLoadTransitionProps> = ({
   className,

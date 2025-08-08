@@ -14,6 +14,19 @@ type MerchantLayoutProps = {
   children: ReactNode;
 };
 
+/**
+ * Provides a consistent layout structure for all merchant-facing pages.
+ *
+ * This component includes the main navigation bar with links to the dashboard
+ * and management pages, a sign-out button with a confirmation dialog.
+ *
+ * @param props.page                   Identifies the currently active page to
+ *                                     highlight the correct navigation button.
+ * @param props.translationNamespace   The namespace for `next-intl` to load the
+ *                                     correct page-specific translations.
+ * @param props.children               The main page content to be rendered
+ *                                     within the layout.
+ */
 const MerchantLayout: FC<MerchantLayoutProps> = ({
   page,
   translationNamespace,

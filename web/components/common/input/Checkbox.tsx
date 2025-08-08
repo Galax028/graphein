@@ -7,6 +7,20 @@ type CheckboxProps = {
   appearance?: "checked" | "indeterminate";
 };
 
+/**
+ * A custom checkbox component that supports checked and indeterminate states.
+ *
+ * It is fully accessible via keyboard and provides visual feedback for its
+ * state. It relies on a parent component to manage its state via the `setValue`
+ * prop.
+ *
+ * @param props.checked     The controlled checked state of the checkbox.
+ * Defaults to false.
+ * @param props.setValue    The state setter function to call when the checkbox
+ *                          value changes.
+ * @param props.appearance  The visual appearance when checked. Can be 'checked'
+ * or 'indeterminate'. Defaults to 'checked'.
+ */
 const Checkbox: FC<CheckboxProps> = ({
   checked = false,
   setValue,

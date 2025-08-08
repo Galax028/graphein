@@ -17,6 +17,16 @@ type ConfigOrderProps = {
   setReadyForNextStage: Dispatch<SetStateAction<boolean>>;
 };
 
+/**
+ * A component for configuring the details of all uploaded files.
+ *
+ * @param props.draftFiles            The array of files that have been uploaded
+ *                                    and are being configured.
+ * @param props.setDraftFiles         The state setter function to update the
+ *                                    `draftFiles` array.
+ * @param props.setReadyForNextStage  A state setter to indicate if the
+ *                                    configuration is valid for the next stage.
+ */
 const ConfigOrder: FC<ConfigOrderProps> = ({
   draftFiles,
   setDraftFiles,

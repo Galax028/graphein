@@ -2,22 +2,22 @@ import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import NumberInput from "@/components/common/input/NumberInput";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
+import NumberInput from "@/components/common/input/NumberInput";
+import SelectInput from "@/components/common/input/SelectInput";
 import TextInput from "@/components/common/input/TextInput";
 import useToggle from "@/hooks/useToggle";
 import cn from "@/utils/helpers/cn";
-import { FileRangeCreate, PaperVariant } from "@/utils/types/backend";
+import type { FileRangeCreate, PaperVariant } from "@/utils/types/backend";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
 import {
   type Dispatch,
   type FC,
-  SetStateAction,
+  type SetStateAction,
   useCallback,
   useState,
 } from "react";
-import SelectInput from "@/components/common/input/SelectInput";
 
 type FileRangeConfigProps = {
   open: boolean;
@@ -30,10 +30,26 @@ type FileRangeConfigProps = {
 };
 
 /**
- * The file range detail data collector.
+ * A configuration panel for a single print range within a file.
  *
- * @param fileIdx       The file index for this range. (Required)
- * @param collapsed     The default collapsed state of the box. (Default false)
+ * This component allows users to define specific printing options for a
+ * selected page range, such as paper type, color, orientation, and number of
+ * copies. It's a controlled component that reads from and writes to a parent
+ * state object (`draftFiles`).
+ *
+ * @param props.open           Controls the expanded/collapsed state of the
+ *                             panel.
+ * @param props.setOpen        The state setter function to toggle the `open`
+ *                             state.
+ * @param props.fileId         The UUID of the parent file this range belongs
+ *                             to.
+ * @param props.rangeKey       A unique key identifying this specific range
+ *                             config.
+ * @param props.paperVariants  An array of available paper variant options.
+ * @param props.draftFiles     The main array of all draft file data being
+ *                             configured.
+ * @param props.setDraftFiles  The state setter to update the `draftFiles`
+ *                             array.
  */
 const FileRangeConfig: FC<FileRangeConfigProps> = ({
   open,
@@ -145,10 +161,12 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
               >
-                <div className={`
-                  flex flex-col gap-2 rounded-b-lg border-t border-outline
-                  bg-surface-container p-3
-                `}>
+                <div
+                  className={`
+                    flex flex-col gap-2 rounded-b-lg border-t border-outline
+                    bg-surface-container p-3
+                  `}
+                >
                   <LabelGroup header="Paper Type">
                     <SelectInput
                       value={

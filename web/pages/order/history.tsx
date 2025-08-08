@@ -3,7 +3,7 @@ import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import OrderCard from "@/components/orders/OrderCard";
-import OrderEmptyCard from "@/components/orders/OrderEmptyCard";
+import EmptyOrderCard from "@/components/orders/EmptyOrderCard";
 import LoadingPage from "@/components/layout/LoadingPage";
 import {
   prefetchOrderHistory,
@@ -47,7 +47,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
       <PageLoadTransition>
         <LabelGroup header={t("withinLastMonth")}>
           {data.pages.length === 0 ? (
-            <OrderEmptyCard text={t("empty")} />
+            <EmptyOrderCard text={t("empty")} />
           ) : (
             data.pages
               .flatMap((page) => page.orders)

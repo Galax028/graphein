@@ -12,10 +12,19 @@ type FileDetailRangeProps = {
 };
 
 /**
- * The configuration options for each PDF, or image file.
- * @param label   Indicates the card's info type. ("page" | "image" | "service")
- * @param value   Range, or type of service. (string)
- * @param details The details within of a card. (title: str; content: str;)
+ * Displays a card with the specific configuration options for a given file or a
+ * range within a file.
+ *
+ * This component is used to show detailed settings like paper size,
+ * colourisation, and number of copies for a specific page range or service.
+ *
+ * @param props.label    Indicates the type of item the card describes.
+ * @param props.value    The specific value for the label, like a page range or
+ *                       service type.
+ * @param props.details  An array of title-content objects detailing the
+ *                       configuration.
+ * @param props.expand   Expands the details list into two columns on larger
+ *                       screens. Defaults to false.
  */
 const FileDetailRange: FC<FileDetailRangeProps> = ({
   label,

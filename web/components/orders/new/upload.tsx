@@ -3,18 +3,18 @@ import Dialog from "@/components/common/Dialog";
 import MaterialIcon from "@/components/common/MaterialIcon";
 import useToggle from "@/hooks/useToggle";
 import cn from "@/utils/helpers/cn";
-import { mimeToExt } from "@/utils/helpers/mime";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
+import { mimeToExt } from "@/utils/helpers/mime";
 import type {
   APIResponse,
   FileCreate,
   FileUploadResponse,
 } from "@/utils/types/backend";
 import {
-  DraftFile,
   MAX_FILE_LIMIT,
-  UnuploadedDraftFile,
-  Uuid,
+  type DraftFile,
+  type UnuploadedDraftFile,
+  type Uuid,
 } from "@/utils/types/common";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
@@ -28,6 +28,17 @@ type UploadFilesProps = {
   setReadyForNextStage: Dispatch<SetStateAction<boolean>>;
 };
 
+/**
+ * The primary interface for uploading files for an order.
+ *
+ * @param props.orderId               The UUID of the parent order.
+ * @param props.draftFiles            The array of file objects being uploaded
+ *                                    and managed.
+ * @param props.setDraftFiles         The state setter function to update the
+ *                                    `draftFiles` array.
+ * @param props.setReadyForNextStage  A state setter to signal to the parent if
+ *                                    the user can proceed.
+ */
 const UploadFiles: FC<UploadFilesProps> = ({
   orderId,
   draftFiles,

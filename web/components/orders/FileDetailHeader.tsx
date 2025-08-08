@@ -14,14 +14,18 @@ type FileDetailHeaderProps = {
 };
 
 /**
- * File detail header, for use with range details.
+ * A header component for displaying individual file details within an order.
  *
- * @param filename  The file name, in string.
- * @param filesize  The file size, in integer bytes.
- * @param filetype  The file type, in PDF, PNG, or JPG.
- * @param orderId   The order id, for fetching thumbnails.
- * @param fileId    The file id, for fetching thumbnails.
- * @param copies    The amount of copies for this file, range.
+ * It shows the file's name, type, and size, and asynchronously fetches and
+ * displays a thumbnail for the file. It includes a polling mechanism to handle
+ * cases where the thumbnail is still being processed on the server.
+ *
+ * @param props.filename  The name of the file, without the extension.
+ * @param props.filesize  The size of the file in bytes.
+ * @param props.filetype  The file's type extension (e.g., "pdf").
+ * @param props.orderId   The UUID of the parent order, used for fetching the
+ *                        thumbnail.
+ * @param props.fileId    The UUID of the file, used for fetching the thumbnail.
  */
 const FileDetailHeader: FC<FileDetailHeaderProps> = ({
   filename,

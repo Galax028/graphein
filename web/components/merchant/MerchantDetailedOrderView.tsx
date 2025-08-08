@@ -13,6 +13,17 @@ type MerchantDetailedOrderViewProps = {
   orderId: Uuid | null;
 };
 
+/**
+ * Displays a detailed, comprehensive view of a single order.
+ *
+ * This component is responsible for fetching and rendering all details of a
+ * specific order, including customer information, order notes, attached files,
+ * and their specific print settings. It handles states for when no order is
+ * selected, when data is loading, or when an error occurs.
+ *
+ * @param props.orderId  The UUID of the order to display. If null, a
+ *                       placeholder message is shown.
+ */
 const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
   orderId,
 }) => {

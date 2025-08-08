@@ -17,6 +17,32 @@ type TextInputProps = {
   disabled?: boolean;
 } & InputHTMLAttributes<HTMLInputElement>;
 
+/**
+ * A highly customizable text input component.
+ *
+ * It supports various features like prefixes/suffixes (both text and icons),
+ * different text alignments, and detailed error states.
+ *
+ * @param props.className      Additional classes to apply to the wrapper.
+ * @param props.type           The type of the input element. Defaults to
+ *                             "text".
+ * @param props.alignment      The text alignment within the input. Defaults to
+ *                             "left".
+ * @param props.error          Indicates an error state. Can be a boolean or a
+ *                             `FieldError` object.
+ * @param props.errorMessage   The error message to display when in an error
+ *                             state.
+ * @param props.showErrorIcon  Determines if an error icon is shown when in an
+ *                             error state. Defaults to true.
+ * @param props.label          An optional label to display inside the input's
+ *                             border.
+ * @param props.prefixText     Optional text to display before the input value.
+ * @param props.prefixIcon     Optional icon to display before the input value.
+ * @param props.suffixText     Optional text to display after the input value.
+ * @param props.suffixIcon     Optional icon to display after the input value.
+ * @param props.disabled       If true, the input will be disabled. Defaults to
+ *                             false.
+ */
 const TextInput: FC<TextInputProps> = ({
   className,
   type = "text",
@@ -73,11 +99,6 @@ const TextInput: FC<TextInputProps> = ({
       />
       {suffixText && <div className="opacity-50 select-none">{suffixText}</div>}
     </div>
-    {/* {showClearButton && (
-      <div className="h-6" onClick={() => setValue("")}>
-        <MaterialIcon icon={"backspace"} />
-      </div>
-    )} */}
     {suffixIcon && (
       <div className="h-6">
         <MaterialIcon icon={suffixIcon} />
