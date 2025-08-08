@@ -135,9 +135,9 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           <SegmentedGroup>
             <div
               className={`
-              flex aspect-square h-10 items-center justify-center border
-              border-outline bg-surface-container p-2 text-body-md
-            `}
+                flex aspect-square h-10 items-center justify-center border
+                border-outline bg-surface-container p-2 text-body-md
+              `}
             >
               <p>{tx("userSettings.class")}</p>
             </div>
@@ -151,9 +151,9 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             />
             <div
               className={`
-              flex aspect-square h-10 items-center justify-center border
-              border-outline bg-surface-container p-2 text-body-md
-            `}
+                flex aspect-square h-10 items-center justify-center border
+                border-outline bg-surface-container p-2 text-body-md
+              `}
             >
               <p>{tx("userSettings.no")}</p>
             </div>

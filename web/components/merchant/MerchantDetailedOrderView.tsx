@@ -37,10 +37,12 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
 
   if (orderId === null)
     return (
-      <div className={`
-        col-span-3 grid place-items-center rounded-lg border border-outline
-        bg-surface-container p-2
-      `}>
+      <div
+        className={`
+          col-span-3 grid place-items-center rounded-lg border border-outline
+          bg-surface-container p-2
+        `}
+      >
         <h1 className="text-body-lg opacity-50 select-none">
           Click on any order from the sidebar to display it here.
         </h1>
@@ -58,9 +60,11 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <div className={`
-        flex items-center justify-between bg-surface-container p-2 pl-3
-      `}>
+      <div
+        className={`
+          flex items-center justify-between bg-surface-container p-2 pl-3
+        `}
+      >
         <h1>{tx("orderCard.title", { orderNumber: order.orderNumber })}</h1>
         <div className="flex gap-2">
           <Button appearance="tonal">Accept Order</Button>

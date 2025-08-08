@@ -1,7 +1,8 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
+import useToggle from "@/hooks/useToggle";
 import { cn } from "@/utils";
 import { AnimatePresence, motion } from "motion/react";
-import { type FC, type ReactNode, useState } from "react";
+import type { FC, ReactNode } from "react";
 
 type DropDownCardProps = {
   className?: string;
@@ -26,7 +27,8 @@ type DropDownCardProps = {
  *                             to true.
  * @param props.isCollapsible  Determines if the card can be expanded or
  *                             collapsed by the user. Defaults to true.
- * @param props.children       The content to display inside the card when expanded.
+ * @param props.children       The content to display inside the card when
+ *                             expanded.
  */
 const DropDownCard: FC<DropDownCardProps> = ({
   className,
@@ -36,7 +38,7 @@ const DropDownCard: FC<DropDownCardProps> = ({
   isCollapsible = true,
   children,
 }) => {
-  const [open, setOpen] = useState(!collapsed);
+  const [open, toggleOpen] = useToggle(!collapsed);
 
   return (
     <div className="rounded-lg border border-outline bg-surface-container">
@@ -45,7 +47,7 @@ const DropDownCard: FC<DropDownCardProps> = ({
           flex cursor-pointer items-center justify-between gap-2 p-2 pl-3
           select-none
         `)}
-        onClick={() => isCollapsible && setOpen((open) => !open)}
+        onClick={() => isCollapsible && toggleOpen()}
       >
         <p className="text-body-md">{header}</p>
         {isCollapsible && (
@@ -69,8 +71,8 @@ const DropDownCard: FC<DropDownCardProps> = ({
               {footer && (
                 <div
                   className={`
-                  flex justify-between gap-2 border-t border-outline p-2 pl-3
-                `}
+                    flex justify-between gap-2 border-t border-outline p-2 pl-3
+                  `}
                 >
                   {footer.map((item) => (
                     <span key={item} className="text-body-sm opacity-50">

@@ -14,7 +14,8 @@ import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { type FC, useState } from "react";
+import { type FC } from "react";
+import useToggle from "@/hooks/useToggle";
 
 const SettingsPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
@@ -22,14 +23,14 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
   const t = useTranslations("settings");
   const user = useUserContext();
 
-  const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
-  const [isSigningOut, setIsSigningOut] = useState<boolean>(false);
+  const [showSignOutDialog, toggleShowSignOutDialog] = useToggle();
+  const [isSigningOut, toggleIsSigningOut] = useToggle();
 
   const changeLanguage = (lang: string) =>
     router.replace(`${router.asPath}?lang=${lang}`);
 
   const handleSignOut = async () => {
-    setIsSigningOut(true);
+    toggleIsSigningOut(true);
 
     const res = await fetch(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
@@ -51,10 +52,12 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
       <PageLoadTransition>
         <UserProfileSettings user={user} />
         <LabelGroup header={t("appearanceSettings.title")}>
-          <div className={`
-            flex flex-col gap-3 rounded-lg border border-outline
-            bg-surface-container p-3
-          `}>
+          <div
+            className={`
+              flex flex-col gap-3 rounded-lg border border-outline
+              bg-surface-container p-3
+            `}
+          >
             <LabelGroup header={t("appearanceSettings.language")}>
               <SegmentedGroup>
                 <Button
@@ -77,11 +80,11 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
         </LabelGroup>
         <Button
           appearance="tonal"
-          onClick={() => setShowSignOutDialog(true)}
+          onClick={() => toggleShowSignOutDialog(true)}
           className="w-full text-error"
           icon="logout"
         >
-          {tx("action.signOut")}
+          {t("signOut.title")}
         </Button>
       </PageLoadTransition>
       <AnimatePresence>
@@ -89,11 +92,11 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
           <Dialog
             title={t("signOut.title")}
             desc={t("signOut.description")}
-            setClickOutside={setShowSignOutDialog}
+            setClickOutside={toggleShowSignOutDialog}
           >
             <Button
               appearance="tonal"
-              onClick={() => setShowSignOutDialog(false)}
+              onClick={() => toggleShowSignOutDialog(false)}
               disabled={isSigningOut}
             >
               {tx("action.nevermind")}

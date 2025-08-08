@@ -123,8 +123,8 @@ const AboutPage: FC<PageProps> = () => {
           >
             <div
               className={`
-              grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
-            `}
+                grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
+              `}
             >
               <p className="w-18 text-body-sm opacity-50">{t("version")}</p>
               <p className="w-full text-body-md">

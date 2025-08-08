@@ -1,27 +1,30 @@
 import Button from "@/components/common/Button";
-import Checkbox from "@/components/common/input/Checkbox";
 import Dialog from "@/components/common/Dialog";
 import DropDownCard from "@/components/common/DropDownCard";
+import Checkbox from "@/components/common/input/Checkbox";
 import NumberInput from "@/components/common/input/NumberInput";
-import SegmentedGroup from "@/components/common/SegmentedGroup";
+import SelectInput from "@/components/common/input/SelectInput";
 import TextInput from "@/components/common/input/TextInput";
+import MaterialIcon from "@/components/common/MaterialIcon";
+import SegmentedGroup from "@/components/common/SegmentedGroup";
+import TreeViewContainer from "@/components/common/tree/TreeViewContainer";
+import TreeViewWrapper from "@/components/common/tree/TreeViewWrapper";
+import FileDetailRange from "@/components/orders/FileDetailRange";
+import useToggle from "@/hooks/useToggle";
 import type { PageProps } from "@/utils/types/common";
 import { AnimatePresence } from "motion/react";
 import Head from "next/head";
 import Link from "next/link";
 import { type FC, useState } from "react";
-import FileDetailRange from "@/components/orders/FileDetailRange";
-import MaterialIcon from "@/components/common/MaterialIcon";
-import TreeViewContainer from "@/components/common/tree/TreeViewContainer";
-import TreeViewWrapper from "@/components/common/tree/TreeViewWrapper";
 
 const MarkdownPage: FC<PageProps> = () => {
   const [language, setLanguage] = useState("th");
   const [theme, setTheme] = useState("auto");
   const [alphabet, setAlphabet] = useState("a");
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup, toggleShowPopup] = useToggle();
   const [isLoading, setIsLoading] = useState(false);
   const [checkbox, setCheckbox] = useState(false);
+  const [selected, setSelected] = useState({ id: 1, name: "Option 1" });
 
   const [count, setCount] = useState(0);
   const [textInput, setTextInput] = useState("");
@@ -77,27 +80,20 @@ const MarkdownPage: FC<PageProps> = () => {
           expand={true}
         />
 
-        {/* <SelectInput
-          value={"Option 1"}
-          setValue={setDropdown}
-          options={[
-            "Option 1",
-            "Option 2",
-            "Option 3",
-            "Option 4",
-            "Option 5",
-            "Option 6",
-            "Option 7",
-            "Option 8",
-            "Option 9",
-            "Option 10",
-          ]}
-        /> */}
+        <SelectInput
+          value={selected}
+          onChange={setSelected}
+          displayKey="name"
+          matchKey="id"
+          options={Array(10)
+            .fill(null)
+            .map((_, idx) => ({
+              id: idx + 1,
+              name: `Option ${idx + 1}`,
+            }))}
+        />
 
-        <div className={`
-          mx-auto my-4 flex max-w-96 flex-col gap-2
-          [&>*]:!w-full
-        `}>
+        <div className="mx-auto my-4 flex max-w-96 flex-col gap-2 [&>*]:!w-full">
           <DropDownCard
             header="Title"
             footer={["2 orders pending", "Total 38 THB"]}
@@ -106,10 +102,7 @@ const MarkdownPage: FC<PageProps> = () => {
             order stuff you think about it idk
           </DropDownCard>
         </div>
-        <div className={`
-          mx-auto my-4 flex max-w-96 flex-col gap-2
-          [&>*]:!w-full
-        `}>
+        <div className="mx-auto my-4 flex max-w-96 flex-col gap-2 [&>*]:!w-full">
           <SegmentedGroup className="bg-surface-container">
             <div>Range</div>
             <TextInput
@@ -237,7 +230,7 @@ const MarkdownPage: FC<PageProps> = () => {
           <Button
             appearance="filled"
             icon="shopping_bag_speed"
-            onClick={() => setShowPopup((prev) => !prev)}
+            onClick={() => toggleShowPopup()}
           >
             Send Order
           </Button>
@@ -248,18 +241,10 @@ const MarkdownPage: FC<PageProps> = () => {
           <Button appearance="tonal">Cancel Order</Button>
 
           <p>Disabled Buttons</p>
-          <Button
-            disabled={true}
-            appearance="filled"
-            icon="shopping_bag_speed"
-          >
+          <Button disabled={true} appearance="filled" icon="shopping_bag_speed">
             Send Order
           </Button>
-          <Button
-            disabled={true}
-            appearance="tonal"
-            icon="shopping_bag_speed"
-          >
+          <Button disabled={true} appearance="tonal" icon="shopping_bag_speed">
             Send Order
           </Button>
           <Button disabled={true} appearance="filled">
@@ -396,10 +381,12 @@ const MarkdownPage: FC<PageProps> = () => {
           <p className="text-body-sm">{count} copies</p>
 
           <SegmentedGroup>
-            <div className={`
-              flex aspect-square h-10 items-center justify-center border
-              border-outline bg-surface-container p-2 text-body-md
-            `}>
+            <div
+              className={`
+                flex aspect-square h-10 items-center justify-center border
+                border-outline bg-surface-container p-2 text-body-md
+              `}
+            >
               <p>M.</p>
             </div>
             <input
@@ -410,10 +397,12 @@ const MarkdownPage: FC<PageProps> = () => {
               type="text"
               className="w-full p-2"
             />
-            <div className={`
-              flex aspect-square h-10 items-center justify-center border
-              border-outline bg-surface-container p-2 text-body-md
-            `}>
+            <div
+              className={`
+                flex aspect-square h-10 items-center justify-center border
+                border-outline bg-surface-container p-2 text-body-md
+              `}
+            >
               <p>No.</p>
             </div>
             <input
@@ -435,9 +424,9 @@ const MarkdownPage: FC<PageProps> = () => {
             <Dialog
               title="Fail Task"
               desc="If proceed, the task will fail successfully."
-              setClickOutside={setShowPopup}
+              setClickOutside={toggleShowPopup}
             >
-              <Button appearance="tonal" onClick={() => setShowPopup(false)}>
+              <Button appearance="tonal" onClick={() => toggleShowPopup(false)}>
                 No
               </Button>
               <Button
@@ -447,7 +436,7 @@ const MarkdownPage: FC<PageProps> = () => {
                 onClick={() => {
                   setIsLoading(true);
                   setTimeout(() => {
-                    setShowPopup(false);
+                    toggleShowPopup(false);
                     setIsLoading(false);
                   }, 1500);
                 }}

@@ -66,7 +66,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
             />
           </div>
         </div>
-        <div className="flex w-full flex-col gap-3 md:m-auto md:my-4 md:max-w-lg">
+        <div className="mx-auto flex w-full flex-col gap-3 md:my-4 md:max-w-lg">
           <LabelGroup header={t("language")}>
             <SegmentedGroup>
               <Button

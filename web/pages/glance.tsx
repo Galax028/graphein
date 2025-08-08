@@ -23,7 +23,7 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState, type FC } from "react";
+import { useEffect, type FC } from "react";
 
 const GlancePage: FC<PageProps> = () => {
   const router = useRouter();
@@ -33,10 +33,13 @@ const GlancePage: FC<PageProps> = () => {
 
   const { data: ordersGlance, status } = useOrdersGlanceQuery();
 
-  const [isBuildingOrder, setIsBuildingOrder] = useState(false);
+  const [isBuildingOrder, toggleIsBuildingOrder] = useToggle();
   const [showNewOrderWarning, toggleShowNewOrderWarning] = useToggle();
 
-  useEffect(() => setIsBuildingOrder(checkIsBuildingOrder()), []);
+  useEffect(
+    () => toggleIsBuildingOrder(checkIsBuildingOrder()),
+    [toggleIsBuildingOrder],
+  );
 
   if (status === "pending" || status === "error" || isBuildingOrder === null)
     return <LoadingPage />;
@@ -121,7 +124,7 @@ const GlancePage: FC<PageProps> = () => {
           <Dialog
             title={t("expiryWarning.title")}
             desc={t("expiryWarning.description")}
-            setClickOutside={() => toggleShowNewOrderWarning()}
+            setClickOutside={toggleShowNewOrderWarning}
           >
             <Button
               appearance="tonal"

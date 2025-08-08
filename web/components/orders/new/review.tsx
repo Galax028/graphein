@@ -7,9 +7,11 @@ type ReviewProps = {
 
 const Review: FC<ReviewProps> = ({ draftFiles }) => {
   return (
-    <div className={`
-      overflow-x-scroll rounded-lg border border-outline bg-surface-container
-    `}>
+    <div
+      className={`
+        overflow-x-scroll rounded-lg border border-outline bg-surface-container
+      `}
+    >
       <pre className="!font-mono">
         {JSON.stringify(draftFiles, undefined, 2)}
       </pre>

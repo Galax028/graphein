@@ -6,7 +6,8 @@ import SegmentedGroup from "@/components/common/SegmentedGroup";
 import { AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { type ReactNode, useState, type FC } from "react";
+import { type ReactNode, type FC } from "react";
+import useToggle from "@/hooks/useToggle";
 
 type MerchantLayoutProps = {
   page: "dashboard" | "management";
@@ -36,11 +37,11 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
   const tx = useTranslations("common");
   const t = useTranslations(translationNamespace);
 
-  const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
-  const [isSigningOut, setIsSigningOut] = useState<boolean>(false);
+  const [showSignOutDialog, toggleShowSignOutDialog] = useToggle(false);
+  const [isSigningOut, toggleIsSigningOut] = useToggle();
 
   const handleSignOut = async () => {
-    setIsSigningOut(true);
+    toggleIsSigningOut(true);
 
     const res = await fetch(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
@@ -76,13 +77,10 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
           icon="logout"
           busy={isSigningOut}
           disabled={isSigningOut}
-          onClick={() => setShowSignOutDialog(true)}
+          onClick={() => toggleShowSignOutDialog(true)}
         />
       </NavigationBar>
-      <PageLoadTransition className={`
-        !grid h-full !max-w-full grid-cols-4 gap-2
-        md:!w-full
-      `}>
+      <PageLoadTransition className="!grid h-full !max-w-full grid-cols-4 gap-2">
         {children}
       </PageLoadTransition>
 
@@ -91,11 +89,11 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
           <Dialog
             title={t("signOut.title")}
             desc={t("signOut.description")}
-            setClickOutside={setShowSignOutDialog}
+            setClickOutside={toggleShowSignOutDialog}
           >
             <Button
               appearance="tonal"
-              onClick={() => setShowSignOutDialog(false)}
+              onClick={() => toggleShowSignOutDialog(false)}
               disabled={isSigningOut}
             >
               {tx("action.nevermind")}

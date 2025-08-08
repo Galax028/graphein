@@ -4,8 +4,7 @@
     "start": "Start",
     "cancel": "Cancel",
     "nevermind": "Nevermind",
-    "next": "Next",
-    "signOut": "Sign Out"
+    "next": "Next"
   },
   "orderCard": {
     "status": {

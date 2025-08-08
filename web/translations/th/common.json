@@ -4,8 +4,7 @@
     "start": "เริ่ม",
     "cancel": "ยกเลิก",
     "nevermind": "ไม่เป็นไร",
-    "next": "ต่อไป",
-    "signOut": "ออกจากระบบ"
+    "next": "ต่อไป"
   },
   "orderCard": {
     "status": {

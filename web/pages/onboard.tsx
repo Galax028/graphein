@@ -83,9 +83,9 @@ const OnboardPage: FC<PageProps> = () => {
           />
           <div
             className={`
-            fixed right-0 bottom-0 left-0 z-10 flex flex-col gap-3 border-t
-            border-outline bg-surface-container p-3
-          `}
+              fixed right-0 bottom-0 left-0 z-10 flex flex-col gap-3 border-t
+              border-outline bg-surface-container p-3
+            `}
           >
             <div className="flex flex-col gap-2">
               <p className="text-body-sm">
@@ -121,7 +121,7 @@ const OnboardPage: FC<PageProps> = () => {
                 busyWithText={false}
                 disabled={onboardingMutation.isPending}
               >
-                {tx("action.signOut")}
+                {t("signOut")}
               </Button>
             </div>
           </div>

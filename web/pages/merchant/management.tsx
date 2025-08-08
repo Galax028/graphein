@@ -25,13 +25,11 @@ const MerchantDashboardPage: FC<PageProps> = () => {
         <div
           className={`
             flex flex-col gap-px rounded-lg border border-outline bg-outline
-            *:first:rounded-t-lg *:last:rounded-b-lg
+            *:bg-surface-container *:first:rounded-t-lg *:last:rounded-b-lg
           `}
         >
-          <div className="bg-surface-container p-2 pl-3">
-            {t("shopOperation.title")}
-          </div>
-          <div className="flex flex-grow flex-col gap-2 bg-surface-container p-3">
+          <div className="p-2 pl-3">{t("shopOperation.title")}</div>
+          <div className="flex flex-grow flex-col gap-2 p-3">
             <LabelGroup
               header={t("shopOperation.openingHours.header")}
               footer={t("shopOperation.openingHours.footer")}
@@ -76,13 +74,11 @@ const MerchantDashboardPage: FC<PageProps> = () => {
         <div
           className={`
             flex flex-col gap-px rounded-lg border border-outline bg-outline
-            *:first:rounded-t-lg *:last:rounded-b-lg
+            *:bg-surface-container *:first:rounded-t-lg *:last:rounded-b-lg
           `}
         >
-          <div className="bg-surface-container p-2 pl-3">
-            {t("defaults.title")}
-          </div>
-          <div className="flex flex-grow flex-col gap-2 bg-surface-container p-3">
+          <div className="p-2 pl-3">{t("defaults.title")}</div>
+          <div className="flex flex-grow flex-col gap-2 p-3">
             <LabelGroup
               header={t("defaults.paper.header")}
               footer={t("defaults.paper.footer")}

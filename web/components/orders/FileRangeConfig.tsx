@@ -260,7 +260,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
           <Dialog
             title="Delete Range"
             desc="Are you sure you want to delete this range? This action can't be undone!"
-            setClickOutside={() => toggleShowDeleteRangeConfirmation()}
+            setClickOutside={toggleShowDeleteRangeConfirmation}
             className="z-100"
           >
             <Button

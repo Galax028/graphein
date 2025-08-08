@@ -307,7 +307,7 @@ const BuildOrderPage: FC<PageProps> = () => {
           <Dialog
             title="Discard Order"
             desc="When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!"
-            setClickOutside={() => toggleDiscardConfirmationDialog(false)}
+            setClickOutside={toggleDiscardConfirmationDialog}
           >
             <Button
               appearance="tonal"

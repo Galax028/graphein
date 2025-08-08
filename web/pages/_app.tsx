@@ -10,7 +10,7 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { NextIntlClientProvider } from "next-intl";
 import type { AppProps } from "next/app";
-import { type FC, type ReactNode, useEffect, useState } from "react";
+import { type FC, type ReactNode, useEffect, useMemo } from "react";
 import { scan } from "react-scan";
 
 import "@/styles/globals.css";
@@ -25,12 +25,14 @@ const UserContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const App: FC<AppProps<PageProps>> = ({ Component, pageProps }) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: { queries: { staleTime: 60 * 1000 } },
-      }),
-  );
+  const queryClient = useMemo(() => {
+    if (typeof window !== "undefined")
+      console.log("created a new `QueryClient`");
+
+    return new QueryClient({
+      defaultOptions: { queries: { staleTime: 60 * 1000 } },
+    });
+  }, []);
 
   useEffect(() => {
     scan({ enabled: process.env.NODE_ENV === "development" });

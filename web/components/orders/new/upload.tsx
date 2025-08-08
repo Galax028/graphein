@@ -2,9 +2,8 @@ import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import MaterialIcon from "@/components/common/MaterialIcon";
 import useToggle, { type ToggleDispatch } from "@/hooks/useToggle";
-import { cn } from "@/utils";
+import { cn, mimeToExt } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
-import { mimeToExt } from "@/utils/helpers/mime";
 import type {
   APIResponse,
   FileCreate,
@@ -253,7 +252,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
                   <p>{draftFile.name}</p>
                   <p className="text-body-sm opacity-50">
                     {/* TODO: Implement other file types. */}
-                    {draftFile.type.toUpperCase()} •{" "}
+                    {mimeToExt(draftFile.type).toUpperCase()} •{" "}
                     {getFormattedFilesize(draftFile.size)}
                   </p>
                 </div>

@@ -1,12 +1,13 @@
+import type { ToggleDispatch } from "@/hooks/useToggle";
 import { cn } from "@/utils";
 import { motion } from "motion/react";
-import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
+import type { FC, ReactNode } from "react";
 
 type DialogProps = {
   className?: string;
   title: string;
   desc?: string;
-  setClickOutside?: Dispatch<SetStateAction<boolean>>;
+  setClickOutside?: ToggleDispatch;
   children?: ReactNode;
 };
 
