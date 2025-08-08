@@ -1,5 +1,5 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import type { ButtonHTMLAttributes, FC, ReactNode } from "react";
 
 type BaseButtonProps = {
@@ -62,8 +62,7 @@ const Button: FC<ButtonProps> = ({
         `,
         icon && children && !busy && "pr-3.5",
         (busy || disabled) &&
-          "!pointer-events-none bg-background opacity-25 !select-none",
-        // "brightness-75 dark:brightness-50 !select-none !pointer-events-none",
+          "!cursor-not-allowed bg-background opacity-25 hover:!brightness-100",
         appearance === "tonal"
           ? `border border-outline bg-surface-container hover:bg-background`
           : `bg-primary text-onPrimary hover:brightness-80`,

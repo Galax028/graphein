@@ -1,10 +1,10 @@
 import Button from "@/components/common/Button";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import FileRangeConfig from "@/components/orders/FileRangeConfig";
 import LoadingPage from "@/components/layout/LoadingPage";
-import useToggle from "@/hooks/useToggle";
+import FileRangeConfig from "@/components/orders/FileRangeConfig";
+import useToggle, { type ToggleDispatch } from "@/hooks/useToggle";
 import { usePapersQuery } from "@/query/fetchPapers";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
@@ -14,7 +14,7 @@ import { useEffect, type Dispatch, type FC, type SetStateAction } from "react";
 type ConfigOrderProps = {
   draftFiles: UploadedDraftFile[];
   setDraftFiles: Dispatch<SetStateAction<UploadedDraftFile[]>>;
-  setReadyForNextStage: Dispatch<SetStateAction<boolean>>;
+  setReadyForNextStage: ToggleDispatch;
 };
 
 /**
@@ -108,7 +108,7 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
         >
           <div
             className="flex cursor-pointer items-center gap-3 pr-1"
-            onClick={toggleOpen}
+            onClick={() => toggleOpen()}
           >
             {/* TODO: Add thumbnail */}
             <div className="h-16 w-16 animate-pulse rounded-sm bg-outline"></div>

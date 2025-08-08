@@ -5,7 +5,7 @@ import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
 import useToggle from "@/hooks/useToggle";
 import { prefetchUser } from "@/query/fetchUser";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
@@ -13,23 +13,23 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState, type FC } from "react";
+import { useEffect, type FC } from "react";
 
 const LandingPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const t = useTranslations();
 
   const [isSigningIn, toggleIsSigningIn] = useToggle();
-  const [asMerchant, setAsMerchant] = useState<boolean | null>(null);
+  const [asMerchant, toggleAsMerchant] = useToggle();
 
   useEffect(
     () => {
       if (!router.isReady) return;
 
-      setAsMerchant(router.query.asMerchant === "true" ? true : false);
+      toggleAsMerchant(router.query.asMerchant === "true");
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.query.asMerchant],
+    [router.query.asMerchant, toggleAsMerchant],
   );
 
   const changeLanguage = (lang: string) => {
@@ -61,15 +61,12 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
             </div>
             <SignInButton
               isSigningIn={isSigningIn}
-              setIsSigningIn={toggleIsSigningIn}
+              setIsSigningIn={() => toggleIsSigningIn()}
               asMerchant={asMerchant}
             />
           </div>
         </div>
-        <div className={`
-          flex w-full flex-col gap-3
-          md:m-auto md:my-4 md:max-w-lg
-        `}>
+        <div className="flex w-full flex-col gap-3 md:m-auto md:my-4 md:max-w-lg">
           <LabelGroup header={t("language")}>
             <SegmentedGroup>
               <Button

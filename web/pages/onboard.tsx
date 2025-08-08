@@ -1,14 +1,15 @@
 import Button from "@/components/common/Button";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import UserProfileSettings, {
-  UserProfileFormSchema,
+  type UserProfileFormSchema,
 } from "@/components/settings/UserProfileSettings";
+import useToggle from "@/hooks/useToggle";
+import useUserContext from "@/hooks/useUserContext";
 import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { APIResponse, User } from "@/utils/types/backend";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/hooks/useUserContext";
 import {
   dehydrate,
   QueryClient,
@@ -20,7 +21,6 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import type { FC } from "react";
-import useToggle from "@/hooks/useToggle";
 
 const OnboardPage: FC<PageProps> = () => {
   const router = useRouter();
@@ -81,10 +81,12 @@ const OnboardPage: FC<PageProps> = () => {
             isOnboarding={true}
             onSubmit={(formData) => onboardingMutation.mutate(formData)}
           />
-          <div className={`
+          <div
+            className={`
             fixed right-0 bottom-0 left-0 z-10 flex flex-col gap-3 border-t
             border-outline bg-surface-container p-3
-          `}>
+          `}
+          >
             <div className="flex flex-col gap-2">
               <p className="text-body-sm">
                 {t.rich("disclaimer", {

@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import { useEffect, useRef } from "react";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import useToggle from "@/hooks/useToggle";
@@ -43,25 +43,21 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, toggleOpen] = useToggle();
 
-  useEffect(
-    () => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (
-          wrapperRef.current &&
-          !wrapperRef.current.contains(event.target as Node)
-        ) {
-          toggleOpen(false);
-        }
-      };
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        toggleOpen(false);
+      }
+    };
 
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [toggleOpen]);
 
   const onOptionChange = (value: T) => {
     toggleOpen();
@@ -72,7 +68,7 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
     <div className={cn("relative !p-0", className)} ref={wrapperRef}>
       <div
         tabIndex={0}
-        onClick={toggleOpen}
+        onClick={() => toggleOpen()}
         onKeyDown={(event) =>
           (event.key === "Enter" || event.key === " ") && toggleOpen()
         }

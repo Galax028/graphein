@@ -1,29 +1,29 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import OrderCard from "@/components/orders/OrderCard";
-import EmptyOrderCard from "@/components/orders/EmptyOrderCard";
 import LoadingPage from "@/components/layout/LoadingPage";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
+import EmptyOrderCard from "@/components/orders/EmptyOrderCard";
+import OrderCard from "@/components/orders/OrderCard";
 import useToggle from "@/hooks/useToggle";
+import useUserContext from "@/hooks/useUserContext";
 import {
   prefetchOrdersGlance,
   useOrdersGlanceQuery,
 } from "@/query/fetchOrdersGlance";
 import { prefetchUser } from "@/query/fetchUser";
-import getGreetingMessage from "@/utils/helpers/getGreetingMessage";
 import checkIsBuildingOrder from "@/utils/helpers/checkIsBuildingOrder";
+import getGreetingMessage from "@/utils/helpers/getGreetingMessage";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type FC, useEffect, useState } from "react";
+import { useEffect, useState, type FC } from "react";
 
 const GlancePage: FC<PageProps> = () => {
   const router = useRouter();
@@ -33,7 +33,7 @@ const GlancePage: FC<PageProps> = () => {
 
   const { data: ordersGlance, status } = useOrdersGlanceQuery();
 
-  const [isBuildingOrder, setIsBuildingOrder] = useState<boolean | null>(null);
+  const [isBuildingOrder, setIsBuildingOrder] = useState(false);
   const [showNewOrderWarning, toggleShowNewOrderWarning] = useToggle();
 
   useEffect(() => setIsBuildingOrder(checkIsBuildingOrder()), []);
@@ -121,7 +121,7 @@ const GlancePage: FC<PageProps> = () => {
           <Dialog
             title={t("expiryWarning.title")}
             desc={t("expiryWarning.description")}
-            setClickOutside={toggleShowNewOrderWarning}
+            setClickOutside={() => toggleShowNewOrderWarning()}
           >
             <Button
               appearance="tonal"

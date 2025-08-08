@@ -1,8 +1,9 @@
 import DropDownCard from "@/components/common/DropDownCard";
-import MerchantLayout from "@/components/layout/MerchantLayout";
-import OrderCard from "@/components/orders/OrderCard";
 import LoadingPage from "@/components/layout/LoadingPage";
+import MerchantLayout from "@/components/layout/MerchantLayout";
 import MerchantDetailedOrderView from "@/components/merchant/MerchantDetailedOrderView";
+import OrderCard from "@/components/orders/OrderCard";
+import useNullableState from "@/hooks/useNullableState";
 import {
   prefetchMerchantOrdersGlance,
   useMerchantOrdersGlanceQuery,
@@ -13,14 +14,14 @@ import type { PageProps, Uuid } from "@/utils/types/common";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
-import { useState, type FC } from "react";
+import type { FC } from "react";
 
 const MerchantDashboardPage: FC<PageProps> = () => {
   const t = useTranslations("merchantGlance");
 
   const { data: merchantOrdersGlance, status } = useMerchantOrdersGlanceQuery();
 
-  const [currentOrderId, setCurrentOrderId] = useState<Uuid | null>(null);
+  const [currentOrderId, setCurrentOrderId] = useNullableState<Uuid>();
 
   if (status === "pending" || status === "error") return <LoadingPage />;
 

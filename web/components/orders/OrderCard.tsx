@@ -1,5 +1,5 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import getFormattedDateTime from "@/utils/helpers/getFormattedDateTime";
 import type { OrderStatus } from "@/utils/types/common";
 import { motion } from "motion/react";

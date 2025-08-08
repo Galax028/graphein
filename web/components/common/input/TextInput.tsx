@@ -1,7 +1,7 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import type { FC, InputHTMLAttributes } from "react";
-import { FieldError } from "react-hook-form";
+import type { FieldError } from "react-hook-form";
 
 type TextInputProps = {
   alignment?: "left" | "center" | "right";
@@ -57,7 +57,7 @@ const TextInput: FC<TextInputProps> = ({
   suffixIcon,
   disabled = false,
   ...props
-  }) => (
+}) => (
   <div
     className={cn(
       `

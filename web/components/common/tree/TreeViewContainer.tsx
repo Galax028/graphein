@@ -1,5 +1,5 @@
-import cn from "@/utils/helpers/cn";
-import { ReactNode } from "react";
+import { cn } from "@/utils";
+import type { ReactNode } from "react";
 
 type TreeViewContainerProps = {
   index?: number;

@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import type { FC } from "react";
 
 type MaterialIconProps = {

@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import type { User } from "@/utils/types/backend";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";

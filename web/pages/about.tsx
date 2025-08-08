@@ -1,6 +1,6 @@
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
 import useUserContext from "@/hooks/useUserContext";
@@ -121,9 +121,11 @@ const AboutPage: FC<PageProps> = () => {
               `,
             )}
           >
-            <div className={`
+            <div
+              className={`
               grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
-            `}>
+            `}
+            >
               <p className="w-18 text-body-sm opacity-50">{t("version")}</p>
               <p className="w-full text-body-md">
                 {process.env.NEXT_PUBLIC_VERSION}

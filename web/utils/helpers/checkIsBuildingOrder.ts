@@ -25,10 +25,18 @@ const checkIsBuildingOrder = (): boolean => {
     return true;
   } else {
     localStorage.removeItem("orderStage");
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: "orderStage", newValue: null }),
+    );
     localStorage.removeItem("draftOrderId");
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: "draftOrderId", newValue: null }),
+    );
     localStorage.removeItem("draftOrderExpiry");
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: "draftOrderExpiry", newValue: null }),
+    );
     localStorage.removeItem("draftOrderData");
-    console.log("cleared items due to check");
     return false;
   }
 };

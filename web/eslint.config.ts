@@ -25,6 +25,7 @@ export default tseslint.config(
     plugins: { react, "better-tailwindcss": tailwindcss },
     rules: {
       "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/consistent-type-imports": "warn",
       "react/jsx-curly-brace-presence": ["warn", "never"],
       ...tailwindcss.configs["recommended-error"].rules,
       ...tailwindcss.configs["recommended-warn"].rules,

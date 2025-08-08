@@ -1,8 +1,8 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import useToggle from "@/hooks/useToggle";
-import cn from "@/utils/helpers/cn";
+import useToggle, { type ToggleDispatch } from "@/hooks/useToggle";
+import { cn } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import { mimeToExt } from "@/utils/helpers/mime";
 import type {
@@ -25,7 +25,7 @@ type UploadFilesProps = {
   orderId: Uuid;
   draftFiles: DraftFile[];
   setDraftFiles: Dispatch<SetStateAction<DraftFile[] | undefined>>;
-  setReadyForNextStage: Dispatch<SetStateAction<boolean>>;
+  setReadyForNextStage: ToggleDispatch;
 };
 
 /**
@@ -46,7 +46,6 @@ const UploadFiles: FC<UploadFilesProps> = ({
   setReadyForNextStage,
 }) => {
   const [fileLimitExceeded, toggleFileLimitExceeded] = useToggle();
-  const [stageContinuable, toggleStageContinuable] = useToggle(true);
 
   // Enable back button when:
   //   1. There're files in the draft order.
@@ -55,7 +54,6 @@ const UploadFiles: FC<UploadFilesProps> = ({
   // TODO: The uploaded check (2.) is still flawed. When refreshed, the file
   // isn't uploaded to cloud yet, but still appears in draftFiles list.
   // Which creates a "ghost file".
-  setReadyForNextStage(draftFiles.length != 0 && stageContinuable);
 
   const fileUploadMutation = useMutation({
     mutationFn: async (draftFile: UnuploadedDraftFile) => {
@@ -89,17 +87,17 @@ const UploadFiles: FC<UploadFilesProps> = ({
           const updatedProgress = Math.floor(
             (event.loaded / event.total) * 100,
           );
-          setDraftFiles((draftFiles) =>
-            draftFiles!.map((file) =>
-              file.key === draftFile.key
+          setDraftFiles((prevDraftFiles) =>
+            prevDraftFiles!.map((prevDraftFile) =>
+              prevDraftFile.key === draftFile.key
                 ? {
-                    ...file,
+                    ...prevDraftFile,
                     uploaded: false,
                     progress: updatedProgress,
                     blob: draftFile.blob,
                     draft: undefined,
                   }
-                : file,
+                : prevDraftFile,
             ),
           );
         });
@@ -118,26 +116,26 @@ const UploadFiles: FC<UploadFilesProps> = ({
         fileUploadXHR.setRequestHeader("Content-Type", draftFile.type);
         fileUploadXHR.send(draftFile.blob);
       });
-      setDraftFiles((draftFiles) =>
-        draftFiles!.map((file) =>
-          file.key === draftFile.key
+      setDraftFiles((prevDraftFiles) =>
+        prevDraftFiles!.map((prevDraftFile) =>
+          prevDraftFile.key === draftFile.key
             ? {
-                ...file,
+                ...prevDraftFile,
                 uploaded: true,
                 progress: undefined,
                 blob: undefined,
                 draft: uploadRes,
               }
-            : file,
+            : prevDraftFile,
         ),
       );
     },
-    onSuccess: () => toggleStageContinuable(true),
+    onSuccess: () => setReadyForNextStage(true),
   });
 
   const fileDeleteMutation = useMutation({
     mutationFn: async (fileId: Uuid) => {
-      toggleStageContinuable(false);
+      setReadyForNextStage(false);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${fileId}`,
         {
@@ -147,13 +145,13 @@ const UploadFiles: FC<UploadFilesProps> = ({
       );
 
       if (res.status === 204) {
-        setDraftFiles((draftFiles) => {
-          const newDraftFiles = draftFiles!.filter(
-            (file) => file.draft?.id !== fileId,
+        setDraftFiles((prevDraftFiles) => {
+          const nextDraftFiles = prevDraftFiles!.filter(
+            (prevDraftFile) => prevDraftFile.draft?.id !== fileId,
           );
-          toggleStageContinuable(newDraftFiles.length !== 0);
+          setReadyForNextStage(nextDraftFiles.length !== 0);
 
-          return newDraftFiles;
+          return nextDraftFiles;
         });
       }
     },
@@ -168,24 +166,44 @@ const UploadFiles: FC<UploadFilesProps> = ({
         return toggleFileLimitExceeded(true);
 
       setReadyForNextStage(false);
-      setDraftFiles((draftFiles) => [
-        ...draftFiles!,
-        ...droppedRawFiles.map((droppedFile) => {
-          const newDraftFile = {
-            key: window.crypto.randomUUID(),
-            uploaded: false,
-            progress: 0,
-            name: droppedFile.name,
-            size: droppedFile.size,
-            type: droppedFile.type,
-            blob: droppedFile,
-            draft: undefined,
-          } as UnuploadedDraftFile;
-          fileUploadMutation.mutate(newDraftFile);
+      // setDraftFiles((draftFiles) => [
+      //   ...draftFiles!,
+      //   ...droppedRawFiles.map((droppedFile) => {
+      //     const newDraftFile = {
+      //       key: window.crypto.randomUUID(),
+      //       uploaded: false,
+      //       progress: 0,
+      //       name: droppedFile.name,
+      //       size: droppedFile.size,
+      //       type: droppedFile.type,
+      //       blob: droppedFile,
+      //       draft: undefined,
+      //     } as UnuploadedDraftFile;
+      //     fileUploadMutation.mutate(newDraftFile);
 
-          return newDraftFile;
-        }),
-      ]);
+      //     return newDraftFile;
+      //   }),
+      // ]);
+      const nextDraftFiles = droppedRawFiles.map((droppedRawFile) => {
+        const nextDraftFile = {
+          key: window.crypto.randomUUID(),
+          uploaded: false,
+          progress: 0,
+          name: droppedRawFile.name,
+          size: droppedRawFile.size,
+          type: droppedRawFile.type,
+          blob: droppedRawFile,
+          draft: undefined,
+        } satisfies UnuploadedDraftFile;
+        fileUploadMutation.mutate(nextDraftFile);
+
+        return nextDraftFile;
+      });
+      setDraftFiles((prevDraftFiles) =>
+        typeof prevDraftFiles === "undefined"
+          ? nextDraftFiles
+          : [...prevDraftFiles, ...nextDraftFiles],
+      );
     },
     onDropRejected: (rejections) => {
       if (

@@ -3,7 +3,7 @@ import type {
   CompactOrder,
   PaginatedAPIResponse,
 } from "@/utils/types/backend";
-import { QueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { type QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 
 export const prefetchOrderHistory = async (
   queryClient: QueryClient,

@@ -1,11 +1,14 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import LoadingPage from "@/components/layout/LoadingPage";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import ConfigOrder from "@/components/orders/new/configOrder";
 import Review from "@/components/orders/new/review";
 import UploadFiles from "@/components/orders/new/upload";
+import useLocalStorage, { deserializeAsString } from "@/hooks/useLocalStorage";
+import useToggle from "@/hooks/useToggle";
+import useUserContext from "@/hooks/useUserContext";
 import { prefetchPapers } from "@/query/fetchPapers";
 import { prefetchUser } from "@/query/fetchUser";
 import checkIsBuildingOrder from "@/utils/helpers/checkIsBuildingOrder";
@@ -17,23 +20,34 @@ import type {
   PageProps,
   Uuid,
 } from "@/utils/types/common";
-import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient, useMutation } from "@tanstack/react-query";
 import dayjs, { type Dayjs } from "dayjs";
 import { AnimatePresence } from "motion/react";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type FC, type ReactElement, useEffect, useState } from "react";
-import useToggle from "@/hooks/useToggle";
+import {
+  type FC,
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
   const user = useUserContext();
 
-  const [orderStage, setOrderStage] = useState<OrderStage | null>(null);
-  const [draftOrderId, setDraftOrderId] = useState<Uuid | null>(null);
-  const [draftOrderExpiry, setDraftOrderExpiry] = useState<Dayjs | null>(null);
+  const [orderStage, setOrderStage, unsetOrderStage] =
+    useLocalStorage<OrderStage>("orderStage", deserializeAsString);
+  const [draftOrderId, setDraftOrderId, unsetDraftOrderId] =
+    useLocalStorage<Uuid>("draftOrderId", deserializeAsString);
+  const [draftOrderExpiry, setDraftOrderExpiry, unsetDraftOrderExpiry] =
+    useLocalStorage<Dayjs>(
+      "draftOrderExpiry",
+      useCallback((value: string) => dayjs(value), []),
+      useCallback((value: Dayjs) => value.toISOString(), []),
+    );
   const [draftOrderNotes, setDraftOrderNotes] = useState<
     string | null | undefined
   >(undefined);
@@ -78,10 +92,10 @@ const BuildOrderPage: FC<PageProps> = () => {
       );
 
       if (res.status === 204) {
+        unsetOrderStage();
+        unsetDraftOrderId();
+        unsetDraftOrderExpiry();
         localStorage.removeItem("draftOrderData");
-        localStorage.removeItem("draftOrderExpiry");
-        localStorage.removeItem("draftOrderId");
-        localStorage.removeItem("orderStage");
 
         router.push("/glance");
       }
@@ -129,9 +143,6 @@ const BuildOrderPage: FC<PageProps> = () => {
 
       if (checkIsBuildingOrder()) {
         setOrderStage(stage);
-        setDraftOrderId(localStorage.getItem("draftOrderId"));
-        setDraftOrderExpiry(dayjs(localStorage.getItem("draftOrderExpiry")));
-
         const draftOrderData = JSON.parse(
           localStorage.getItem("draftOrderData")!,
         ) as { notes: string | null; files: DraftFile[]; services: Service[] };
@@ -144,7 +155,7 @@ const BuildOrderPage: FC<PageProps> = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.query.stage],
+    [router.query.stage, setOrderStage],
   );
 
   // To show that the 15 min order window has expired, and to start a new one then.
@@ -165,20 +176,6 @@ const BuildOrderPage: FC<PageProps> = () => {
   // console.error(expirationCalc / 1000 / 60, "mins");
 
   useEffect(() => {
-    if (orderStage !== null) localStorage.setItem("orderStage", orderStage);
-  }, [orderStage]);
-
-  useEffect(() => {
-    if (draftOrderId !== null)
-      localStorage.setItem("draftOrderId", draftOrderId);
-  }, [draftOrderId]);
-
-  useEffect(() => {
-    if (draftOrderExpiry !== null)
-      localStorage.setItem("draftOrderExpiry", draftOrderExpiry.toISOString());
-  }, [draftOrderExpiry]);
-
-  useEffect(() => {
     if (
       draftOrderNotes === undefined ||
       draftFiles === undefined ||
@@ -186,23 +183,29 @@ const BuildOrderPage: FC<PageProps> = () => {
     )
       return;
 
+    // Do not save `draftFile`s that have not been successfully uploaded, since
+    // it would be impossible to recover them after a page refresh.
+    const nextDraftFiles = draftFiles.filter((draftFile) => draftFile.uploaded);
+    if (nextDraftFiles.length !== 0) toggleReadyForNextStage(true);
+
     localStorage.setItem(
       "draftOrderData",
       JSON.stringify({
         notes: draftOrderNotes,
-        // Do not save `draftFile`s that have not been successfully uploaded,
-        // since it they would be impossible to recover after a page refresh.
-        files: draftFiles.filter((draftFile) => draftFile.uploaded),
+
+        files: nextDraftFiles,
         services: draftServices,
       }),
     );
-  }, [draftOrderNotes, draftFiles, draftServices]);
+  }, [draftOrderNotes, draftFiles, draftServices, toggleReadyForNextStage]);
 
   if (
     orderStage === null ||
     draftOrderId === null ||
     draftOrderExpiry === null ||
-    draftFiles === undefined
+    draftOrderNotes === undefined ||
+    draftFiles === undefined ||
+    draftServices === undefined
   )
     return <LoadingPage />;
 
@@ -262,16 +265,12 @@ const BuildOrderPage: FC<PageProps> = () => {
         backEnabled={true}
         backContextURL={stages[orderStage].backContext}
       />
-      <PageLoadTransition className={`
-        flex h-full w-full flex-col gap-3 font-mono
-      `}>
+      <PageLoadTransition className="flex h-full w-full flex-col gap-3">
         <div className="w-full pb-27" key={orderStage}>
           {stages[orderStage].component}
         </div>
-        <div className={`
-          fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg px-3
-        `}>
-          <div className="flex flex-col gap-2">
+        <div className="fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg">
+          <div className="flex flex-col gap-2 px-3">
             {orderStage === "review" ? (
               <Button
                 appearance="filled"
@@ -282,14 +281,13 @@ const BuildOrderPage: FC<PageProps> = () => {
                 Send Order
               </Button>
             ) : readyForNextStage ? (
-              // ) : (readyForNextStage || (draftFiles.length != 0 && orderStage === "uploadFiles")) ? (
               <Link href={stages[orderStage].href}>
                 <Button appearance="filled" className="w-full">
                   Next
                 </Button>
               </Link>
             ) : (
-              <Button appearance="filled" className="w-full" disabled={true}>
+              <Button appearance="filled" disabled={true}>
                 Next
               </Button>
             )}

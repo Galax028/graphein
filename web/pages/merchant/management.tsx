@@ -22,16 +22,16 @@ const MerchantDashboardPage: FC<PageProps> = () => {
   return (
     <MerchantLayout page="management" translationNamespace="management">
       <div className="col-span-1 grid grid-rows-2 gap-3">
-        <div className={`
-          flex flex-col gap-px rounded-lg border border-outline bg-outline
-          *:first:rounded-t-lg *:last:rounded-b-lg
-        `}>
+        <div
+          className={`
+            flex flex-col gap-px rounded-lg border border-outline bg-outline
+            *:first:rounded-t-lg *:last:rounded-b-lg
+          `}
+        >
           <div className="bg-surface-container p-2 pl-3">
             {t("shopOperation.title")}
           </div>
-          <div className={`
-            flex flex-grow flex-col gap-2 bg-surface-container p-3
-          `}>
+          <div className="flex flex-grow flex-col gap-2 bg-surface-container p-3">
             <LabelGroup
               header={t("shopOperation.openingHours.header")}
               footer={t("shopOperation.openingHours.footer")}
@@ -43,9 +43,11 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   value=""
                   onChange={() => {}}
                 />
-                <div className={`
-                  flex items-center justify-center !p-2.5 select-none
-                `}>
+                <div
+                  className={`
+                    flex items-center justify-center !p-2.5 select-none
+                  `}
+                >
                   {t("shopOperation.openingHours.to")}
                 </div>
                 <TextInput
@@ -71,16 +73,16 @@ const MerchantDashboardPage: FC<PageProps> = () => {
             </LabelGroup>
           </div>
         </div>
-        <div className={`
-          flex flex-col gap-px rounded-lg border border-outline bg-outline
-          *:first:rounded-t-lg *:last:rounded-b-lg
-        `}>
+        <div
+          className={`
+            flex flex-col gap-px rounded-lg border border-outline bg-outline
+            *:first:rounded-t-lg *:last:rounded-b-lg
+          `}
+        >
           <div className="bg-surface-container p-2 pl-3">
             {t("defaults.title")}
           </div>
-          <div className={`
-            flex flex-grow flex-col gap-2 bg-surface-container p-3
-          `}>
+          <div className="flex flex-grow flex-col gap-2 bg-surface-container p-3">
             <LabelGroup
               header={t("defaults.paper.header")}
               footer={t("defaults.paper.footer")}
@@ -96,10 +98,12 @@ const MerchantDashboardPage: FC<PageProps> = () => {
           </div>
         </div>
       </div>
-      <div className={`
-        col-span-3 flex flex-col gap-px overflow-scroll rounded-lg border
-        border-outline bg-outline
-      `}>
+      <div
+        className={`
+          col-span-3 flex flex-col gap-px overflow-scroll rounded-lg border
+          border-outline bg-outline
+        `}
+      >
         <div className="bg-surface-container p-2 pl-3">
           {t("serviceManagement.title")}
         </div>
@@ -137,9 +141,11 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   A3
                 </Button>
               </div>
-              <div className={`
-                flex flex-grow flex-col gap-3 bg-surface-container p-3
-              `}>
+              <div
+                className={`
+                  flex flex-grow flex-col gap-3 bg-surface-container p-3
+                `}
+              >
                 <div className="flex gap-2">
                   <LabelGroup
                     className="flex-grow"
@@ -159,9 +165,11 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                         value=""
                         onChange={() => {}}
                       />
-                      <div className={`
-                        flex items-center justify-center !p-2.5 select-none
-                      `}>
+                      <div
+                        className={`
+                          flex items-center justify-center !p-2.5 select-none
+                        `}
+                      >
                         &times;
                       </div>
                       <TextInput
@@ -177,10 +185,12 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   <span className="block text-body-sm opacity-50 select-none">
                     {t("serviceManagement.paper.variants.title")}
                   </span>
-                  <div className={`
-                    flex justify-between py-1 text-body-xs opacity-50
-                    select-none
-                  `}>
+                  <div
+                    className={`
+                      flex justify-between py-1 text-body-xs opacity-50
+                      select-none
+                    `}
+                  >
                     <span>{t("serviceManagement.paper.variants.inStock")}</span>
                     <span>
                       {t("serviceManagement.paper.variants.variantName")}
@@ -188,15 +198,23 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                     <span>{t("serviceManagement.paper.variants.delete")}</span>
                   </div>
                   <div className="my-1 flex gap-2">
-                    <div className={`
-                      flex items-center justify-center rounded-lg border
-                      border-outline p-2
-                    `}>
-                      <Checkbox checked={checked} setValue={toggleChecked} />
+                    <div
+                      className={`
+                        flex items-center justify-center rounded-lg border
+                        border-outline p-2
+                      `}
+                    >
+                      <Checkbox
+                        checked={checked}
+                        setValue={() => toggleChecked()}
+                      />
                     </div>
                     <SegmentedGroup className="flex-grow">
                       <div className="flex items-center justify-center">
-                        <Checkbox checked={checked} setValue={toggleChecked} />
+                        <Checkbox
+                          checked={checked}
+                          setValue={() => toggleChecked()}
+                        />
                       </div>
                       <TextInput
                         className="w-full"

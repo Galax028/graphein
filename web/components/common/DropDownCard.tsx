@@ -1,7 +1,7 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import { AnimatePresence, motion } from "motion/react";
-import { type FC, ReactNode, useState } from "react";
+import { type FC, type ReactNode, useState } from "react";
 
 type DropDownCardProps = {
   className?: string;
@@ -67,9 +67,11 @@ const DropDownCard: FC<DropDownCardProps> = ({
                 {children}
               </div>
               {footer && (
-                <div className={`
+                <div
+                  className={`
                   flex justify-between gap-2 border-t border-outline p-2 pl-3
-                `}>
+                `}
+                >
                   {footer.map((item) => (
                     <span key={item} className="text-body-sm opacity-50">
                       {item}

@@ -1,4 +1,4 @@
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import { motion } from "motion/react";
 import type { FC, ReactNode } from "react";
 

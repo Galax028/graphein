@@ -9,7 +9,7 @@
  * // returns "btn btn-primary active"
  * cn("btn", "btn-primary", true && "active", false && "disabled", null);
  */
-const cn = (...segments: unknown[]): string => {
+export const cn = (...segments: unknown[]): string => {
   return sift(segments)
     .map((segment) => (segment as string).replace(/\s+/g, " "))
     .join(" ");
@@ -21,4 +21,4 @@ const sift = <T>(
   return (list?.filter((x) => !!x) as T[]) ?? [];
 };
 
-export default cn;
+export const noop = (): void => {};

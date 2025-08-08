@@ -1,6 +1,6 @@
 import Button from "@/components/common/Button";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import { type FC, useState } from "react";
 
 type NumberInputProps = {

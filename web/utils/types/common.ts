@@ -1,4 +1,4 @@
-import { FileCreate } from "@/utils/types/backend";
+import type { FileCreate } from "@/utils/types/backend";
 import type { DehydratedState } from "@tanstack/react-query";
 import type { Locale } from "next-intl";
 

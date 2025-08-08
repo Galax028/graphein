@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { type SetStateAction, useCallback, useState } from "react";
 
 /**
  * Defines the shape for a dispatch function that can either toggle a state or
@@ -7,7 +7,7 @@ import { useCallback, useState } from "react";
  * @param value  The optional value to set the state to. If not provided, the
  *               state is typically toggled.
  */
-export type ToggleDispatch = (value?: unknown) => void;
+export type ToggleDispatch = (value?: boolean) => void;
 
 /**
  * Manages a boolean state, providing a function to toggle or set its value.
@@ -18,16 +18,16 @@ export type ToggleDispatch = (value?: unknown) => void;
  *                 an argument, or sets it to the provided boolean value.
  */
 const useToggle = (initial: boolean = false): [boolean, ToggleDispatch] => {
-  const [value, setValue] = useState(initial);
-  const toggleValue = useCallback(
-    (value?: unknown) =>
-      typeof value === "boolean"
-        ? setValue(value)
-        : setValue((value) => !value),
+  const [state, setInnerState] = useState(initial);
+  const toggleState = useCallback(
+    (value: SetStateAction<boolean> | undefined = undefined) =>
+      setInnerState(
+        typeof value === "boolean" ? value : (prevState) => !prevState,
+      ),
     [],
   );
 
-  return [value, toggleValue];
+  return [state, toggleState];
 };
 
 export default useToggle;

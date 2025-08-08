@@ -1,9 +1,10 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/cn";
+import useNullableState from "@/hooks/useNullableState";
+import { cn } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type { FileType } from "@/utils/types/common";
 import { motion } from "motion/react";
-import { type FC, useEffect, useState } from "react";
+import { type FC, useEffect } from "react";
 
 type FileDetailHeaderProps = {
   filename: string;
@@ -34,7 +35,8 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
   orderId,
   fileId,
 }) => {
-  const [thumbnailSrc, setThumbnailSrc] = useState<string | null>(null);
+  const [thumbnailSrc, setThumbnailSrc, unsetThumbnailSrc] =
+    useNullableState<string>();
 
   useEffect(() => {
     let cancelled = false;
@@ -62,7 +64,7 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
         return setThumbnailSrc(body.data as string);
       }
 
-      setThumbnailSrc(null);
+      unsetThumbnailSrc();
     };
 
     fetchFileThumbnail();
@@ -74,7 +76,7 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
         timeoutId = null;
       }
     };
-  }, [orderId, fileId]);
+  }, [orderId, fileId, setThumbnailSrc, unsetThumbnailSrc]);
 
   return (
     <div

@@ -7,7 +7,7 @@ import NumberInput from "@/components/common/input/NumberInput";
 import SelectInput from "@/components/common/input/SelectInput";
 import TextInput from "@/components/common/input/TextInput";
 import useToggle from "@/hooks/useToggle";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import type { FileRangeCreate, PaperVariant } from "@/utils/types/backend";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
@@ -260,7 +260,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
           <Dialog
             title="Delete Range"
             desc="Are you sure you want to delete this range? This action can't be undone!"
-            setClickOutside={toggleShowDeleteRangeConfirmation}
+            setClickOutside={() => toggleShowDeleteRangeConfirmation()}
             className="z-100"
           >
             <Button

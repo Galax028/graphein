@@ -2,7 +2,7 @@ import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import cn from "@/utils/helpers/cn";
+import { cn } from "@/utils";
 import type { User } from "@/utils/types/backend";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { useTranslations } from "next-intl";
@@ -133,10 +133,12 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           }
         >
           <SegmentedGroup>
-            <div className={`
+            <div
+              className={`
               flex aspect-square h-10 items-center justify-center border
               border-outline bg-surface-container p-2 text-body-md
-            `}>
+            `}
+            >
               <p>{tx("userSettings.class")}</p>
             </div>
             <input
@@ -147,10 +149,12 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
                 disabled: user.role !== "student",
               })}
             />
-            <div className={`
+            <div
+              className={`
               flex aspect-square h-10 items-center justify-center border
               border-outline bg-surface-container p-2 text-body-md
-            `}>
+            `}
+            >
               <p>{tx("userSettings.no")}</p>
             </div>
             <input
