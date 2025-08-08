@@ -1,10 +1,11 @@
 /**
- * Gets the initials of the first and last name from a fullname.
+ * Generates a string of initials from a full name.
  *
- * (ex. `"Jane Doe"` => `"JD"`)
- *
- * @param name The string to initialize.
- * @returns The initialized string.
+ * @param {string} name The full name to get initials from.
+ * @returns {string} The initials of the provided name.
+ * @example
+ * // returns "JD"
+ * getInitialsOfName("John Doe");
  */
 const getInitialsOfName = (name: string): string => {
   return name

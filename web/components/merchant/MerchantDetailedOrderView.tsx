@@ -1,7 +1,8 @@
 import Button from "@/components/common/Button";
-import FileDetailHeader from "@/components/common/FileDetailHeader";
-import FileDetailRange from "@/components/common/FileDetailRange";
+import FileDetailHeader from "@/components/orders/FileDetailHeader";
+import FileDetailRange from "@/components/orders/FileDetailRange";
 import PersonAvatar from "@/components/common/PersonAvatar";
+import LoadingPage from "@/components/layout/LoadingPage";
 import { useDetailedOrderQuery } from "@/query/fetchDetailedOrder";
 import type { Uuid } from "@/utils/types/common";
 import { motion } from "motion/react";
@@ -32,7 +33,7 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
       </div>
     );
 
-  if (status === "pending" || status === "error") return <></>;
+  if (status === "pending" || status === "error") return <LoadingPage />;
 
   return (
     <motion.div

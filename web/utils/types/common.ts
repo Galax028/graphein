@@ -22,7 +22,7 @@ export type FileType = (typeof fileTypes)[number];
 export const orderStages = [
   "uploadFiles",
   "configOrder",
-  "configServices",
+  // "configServices",
   "review",
 ] as const;
 export type OrderStage = (typeof orderStages)[number];

@@ -1,5 +1,5 @@
 import Button from "@/components/common/Button";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import UserProfileSettings, {
   UserProfileFormSchema,
@@ -8,7 +8,7 @@ import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { APIResponse, User } from "@/utils/types/backend";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/utils/useUserContext";
+import useUserContext from "@/hooks/useUserContext";
 import {
   dehydrate,
   QueryClient,
@@ -19,7 +19,8 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { type FC, useState } from "react";
+import type { FC } from "react";
+import useToggle from "@/hooks/useToggle";
 
 const OnboardPage: FC<PageProps> = () => {
   const router = useRouter();
@@ -28,7 +29,7 @@ const OnboardPage: FC<PageProps> = () => {
   const t = useTranslations("onboard");
   const queryClient = useQueryClient();
 
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isSigningOut, toggleIsSigningOut] = useToggle();
 
   const onboardingMutation = useMutation({
     mutationFn: async (formData: UserProfileFormSchema) => {
@@ -54,7 +55,7 @@ const OnboardPage: FC<PageProps> = () => {
   });
 
   const handleSignOut = async () => {
-    setIsSigningOut(true);
+    toggleIsSigningOut(true);
 
     const res = await fetch(
       process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",

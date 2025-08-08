@@ -1,9 +1,10 @@
 import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
-import OrderCard from "@/components/glance/OrderCard";
-import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
+import OrderCard from "@/components/orders/OrderCard";
+import OrderEmptyCard from "@/components/orders/OrderEmptyCard";
+import LoadingPage from "@/components/layout/LoadingPage";
 import {
   prefetchOrderHistory,
   useOrderHistoryInfiniteQuery,
@@ -11,7 +12,7 @@ import {
 import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/utils/useUserContext";
+import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import type { GetServerSideProps } from "next";
@@ -33,7 +34,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
   } = useOrderHistoryInfiniteQuery();
 
   // TODO: This one should be self-descriptive
-  if (status === "pending" || status === "error") return <></>;
+  if (status === "pending" || status === "error") return <LoadingPage />;
 
   return (
     <>

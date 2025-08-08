@@ -1,6 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import cn from "@/utils/helpers/cn";
-import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
+import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type { FileType } from "@/utils/types/common";
 import { motion } from "motion/react";
 import { type FC, useEffect, useState } from "react";

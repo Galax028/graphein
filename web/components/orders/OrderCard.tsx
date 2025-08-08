@@ -54,7 +54,7 @@ const OrderCard: FC<OrderCardProps> = ({
     reviewing: {
       // A check for language is necessary to align the progress indicator
       // with the middle of the localized text.
-      width: locale == "en" ? "28.96px" : "27.47px",
+      width: locale === "en" ? "28.96px" : "27.47px",
       color: "bg-warning",
     },
     processing: { width: "37.5%", color: "bg-warning" },

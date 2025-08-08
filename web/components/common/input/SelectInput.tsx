@@ -1,8 +1,8 @@
 import cn from "@/utils/helpers/cn";
-import { useEffect, useRef, useState } from "react";
-import Button from "@/components/common/Button";
+import { useEffect, useRef } from "react";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import MaterialIcon from "./MaterialIcon";
+import useToggle from "@/hooks/useToggle";
+import MaterialIcon from "@/components/common/MaterialIcon";
 
 type SelectInputProps<T extends object> = {
   value: T;
@@ -28,27 +28,31 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
   className,
 }: SelectInputProps<T>) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
+  const [open, toggleOpen] = useToggle();
 
   // Closes the options window pop-up when element is clicked outside.
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
+  useEffect(
+    () => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          wrapperRef.current &&
+          !wrapperRef.current.contains(event.target as Node)
+        ) {
+          toggleOpen(false);
+        }
+      };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const onOptionChange = (value: T) => {
-    setOpen(false);
+    toggleOpen();
     if (onChange) onChange(value);
   };
 
@@ -56,18 +60,16 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
     <div className={cn("relative !p-0", className)} ref={wrapperRef}>
       <div
         tabIndex={0}
-        onClick={() => {
-          setOpen(!open);
-        }}
+        onClick={toggleOpen}
         onKeyDown={(event) =>
-          (event.key === "Enter" || event.key === " ") && setOpen(!open)
+          (event.key === "Enter" || event.key === " ") && toggleOpen()
         }
       >
         <SegmentedGroup
           className={cn(
             "cursor-pointer overflow-hidden",
             open && "rounded-b-none",
-            appearance == "inset" && "rounded-none border-none",
+            appearance === "inset" && "rounded-none border-none",
           )}
         >
           <div
@@ -95,7 +97,7 @@ const SelectInput = <T extends { [K: string]: string | number | boolean }>({
             `absolute flex flex-col p-1 max-h-51
               bg-surface-container border border-outline rounded-b-lg shadow-xl 
               overflow-auto z-50`,
-            appearance == "inset"
+            appearance === "inset"
               ? "top-10 -left-0.25 w-[calc(100%+0.125rem)]"
               : "w-full top-[calc(2.5rem+1px)]",
           )}

@@ -4,9 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState, type FC } from "react";
+import type { Dispatch, FC, SetStateAction } from "react";
 
 type SignInButtonProps = {
+  isSigningIn: boolean;
+  setIsSigningIn: Dispatch<SetStateAction<boolean>>;
   asMerchant: boolean | null;
 };
 
@@ -18,12 +20,14 @@ type SignInButtonProps = {
  *
  * @returns The 'Sign in with Google' button.
  */
-const SignInButton: FC<SignInButtonProps> = ({ asMerchant }) => {
+const SignInButton: FC<SignInButtonProps> = ({
+  isSigningIn,
+  setIsSigningIn,
+  asMerchant,
+}) => {
   const router = useRouter();
   const t = useTranslations();
   const queryClient = useQueryClient();
-
-  const [isSigningIn, setIsSigningIn] = useState(false);
 
   const onSignInButtonClick = () => {
     setIsSigningIn(true);
@@ -42,7 +46,7 @@ const SignInButton: FC<SignInButtonProps> = ({ asMerchant }) => {
     }, 500);
 
     const handleOAuthMessage = (event: MessageEvent<string>) => {
-      if (event.data == "oauthSuccess") {
+      if (event.data === "oauthSuccess") {
         signInWindow?.close();
         queryClient
           .refetchQueries({ queryKey: ["user"], exact: true })

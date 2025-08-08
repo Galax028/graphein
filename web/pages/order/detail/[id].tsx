@@ -1,10 +1,11 @@
 import DescriptionList from "@/components/common/DescriptionList";
 import DropDownCard from "@/components/common/DropDownCard";
-import FileDetailHeader from "@/components/common/FileDetailHeader";
+import FileDetailHeader from "@/components/orders/FileDetailHeader";
 import LabelGroup from "@/components/common/LabelGroup";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import OrderCard from "@/components/glance/OrderCard";
+import OrderCard from "@/components/orders/OrderCard";
+import LoadingPage from "@/components/layout/LoadingPage";
 import {
   prefetchDetailedOrder,
   useDetailedOrderQuery,
@@ -14,7 +15,7 @@ import cn from "@/utils/helpers/cn";
 import getFormattedDateTime from "@/utils/helpers/getFormattedDateTime";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { OrderStatus, PageProps, Uuid } from "@/utils/types/common";
-import useUserContext from "@/utils/useUserContext";
+import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
 import { useLocale, useTranslations } from "next-intl";
@@ -27,8 +28,7 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
 
   const { data: detailedOrder, status } = useDetailedOrderQuery(orderId);
 
-  // TODO: This one should be self-descriptive
-  if (status === "pending" || status === "error") return <></>;
+  if (status === "pending" || status === "error") return <LoadingPage />;
 
   // Rename pls!!!!
   const createdTimestamp = new Date(detailedOrder.createdAt);

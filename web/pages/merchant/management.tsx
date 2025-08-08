@@ -1,22 +1,23 @@
 import Button from "@/components/common/Button";
-import Checkbox from "@/components/common/Checkbox";
+import Checkbox from "@/components/common/input/Checkbox";
 import LabelGroup from "@/components/common/LabelGroup";
-import MerchantLayout from "@/components/common/layout/MerchantLayout";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import SelectInput from "@/components/common/SelectInput";
-import TextInput from "@/components/common/TextInput";
+import TextInput from "@/components/common/input/TextInput";
+import MerchantLayout from "@/components/layout/MerchantLayout";
+import useToggle from "@/hooks/useToggle";
 import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
-import { useState, type FC } from "react";
+import type { FC } from "react";
+import SelectInput from "@/components/common/input/SelectInput";
 
 const MerchantDashboardPage: FC<PageProps> = () => {
   const t = useTranslations("management");
 
-  const [checked, setChecked] = useState(false);
+  const [checked, toggleChecked] = useToggle();
 
   return (
     <MerchantLayout page="management" translationNamespace="management">
@@ -35,7 +36,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   className="w-full"
                   type="time"
                   value=""
-                  setValue={() => {}}
+                  onChange={() => {}}
                 />
                 <div className="flex justify-center items-center !p-2.5 select-none">
                   {t("shopOperation.openingHours.to")}
@@ -44,7 +45,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   className="w-full"
                   type="time"
                   value=""
-                  setValue={() => {}}
+                  onChange={() => {}}
                 />
               </SegmentedGroup>
             </LabelGroup>
@@ -73,9 +74,11 @@ const MerchantDashboardPage: FC<PageProps> = () => {
               footer={t("defaults.paper.footer")}
             >
               <SelectInput
-                value={0}
-                setValue={() => {}}
-                options={["A4", "A3"]}
+                value={{ name: "A4" }}
+                onChange={() => {}}
+                displayKey="name"
+                matchKey="name"
+                options={[{ name: "A4" }, { name: "A3" }]}
               />
             </LabelGroup>
           </div>
@@ -126,7 +129,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                     header={t("serviceManagement.paper.name.header")}
                     footer={t("serviceManagement.paper.name.footer")}
                   >
-                    <TextInput value="" setValue={() => {}} />
+                    <TextInput value="" onChange={() => {}} />
                   </LabelGroup>
                   <LabelGroup
                     header={t("serviceManagement.paper.size.header")}
@@ -137,7 +140,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                         prefixText={t("serviceManagement.paper.size.length")}
                         suffixText={t("serviceManagement.paper.size.unit")}
                         value=""
-                        setValue={() => {}}
+                        onChange={() => {}}
                       />
                       <div className="flex justify-center items-center !p-2.5 select-none">
                         &times;
@@ -146,7 +149,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                         prefixText={t("serviceManagement.paper.size.width")}
                         suffixText={t("serviceManagement.paper.size.unit")}
                         value=""
-                        setValue={() => {}}
+                        onChange={() => {}}
                       />
                     </SegmentedGroup>
                   </LabelGroup>
@@ -164,16 +167,16 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   </div>
                   <div className="flex gap-2 my-1">
                     <div className="flex justify-center items-center border border-outline rounded-lg p-2">
-                      <Checkbox checked={checked} setValue={setChecked} />
+                      <Checkbox checked={checked} setValue={toggleChecked} />
                     </div>
                     <SegmentedGroup className="flex-grow">
                       <div className="flex justify-center items-center">
-                        <Checkbox checked={checked} setValue={setChecked} />
+                        <Checkbox checked={checked} setValue={toggleChecked} />
                       </div>
                       <TextInput
                         className="w-full"
                         value=""
-                        setValue={() => {}}
+                        onChange={() => {}}
                       />
                     </SegmentedGroup>
                     <Button

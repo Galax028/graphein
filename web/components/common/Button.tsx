@@ -54,13 +54,13 @@ const Button: FC<ButtonProps> = ({
         icon && children && !busy && "pr-3.5",
         (busy || disabled) &&
           "opacity-25 bg-background !select-none !pointer-events-none",
-          // "brightness-75 dark:brightness-50 !select-none !pointer-events-none",
-        appearance == "tonal"
+        // "brightness-75 dark:brightness-50 !select-none !pointer-events-none",
+        appearance === "tonal"
           ? "border border-outline bg-surface-container hover:bg-background"
           : "bg-primary text-onPrimary hover:brightness-80",
         selected &&
           "!pr-4 !gap-1 hover:!brightness-100 " +
-            (appearance == "tonal" ? "!bg-surface-container" : "!bg-primary"),
+            (appearance === "tonal" ? "!bg-surface-container" : "!bg-primary"),
         className,
       )}
       disabled={disabled}

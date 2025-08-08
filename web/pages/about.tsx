@@ -3,7 +3,7 @@ import NavigationBar from "@/components/common/NavigationBar";
 import cn from "@/utils/helpers/cn";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/utils/useUserContext";
+import useUserContext from "@/hooks/useUserContext";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Image from "next/image";

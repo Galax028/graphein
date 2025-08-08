@@ -1,9 +1,10 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import MaterialIcon from "@/components/common/MaterialIcon";
+import useToggle from "@/hooks/useToggle";
 import cn from "@/utils/helpers/cn";
 import { mimeToExt } from "@/utils/helpers/mime";
-import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
+import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type {
   APIResponse,
   FileCreate,
@@ -17,7 +18,7 @@ import {
 } from "@/utils/types/common";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
-import { useState, type Dispatch, type FC, type SetStateAction } from "react";
+import type { Dispatch, FC, SetStateAction } from "react";
 import { useDropzone } from "react-dropzone";
 
 type UploadFilesProps = {
@@ -33,8 +34,8 @@ const UploadFiles: FC<UploadFilesProps> = ({
   setDraftFiles,
   setReadyForNextStage,
 }) => {
-  const [fileLimitExceeded, setFileLimitExceeded] = useState(false);
-  const [stageContinuable, setStageContinuable] = useState(true);
+  const [fileLimitExceeded, toggleFileLimitExceeded] = useToggle();
+  const [stageContinuable, toggleStageContinuable] = useToggle(true);
 
   // Enable back button when:
   //   1. There're files in the draft order.
@@ -44,7 +45,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
   // isn't uploaded to cloud yet, but still appears in draftFiles list.
   // Which creates a "ghost file".
   setReadyForNextStage(draftFiles.length != 0 && stageContinuable);
-  
+
   const fileUploadMutation = useMutation({
     mutationFn: async (draftFile: UnuploadedDraftFile) => {
       const res = await fetch(
@@ -120,12 +121,12 @@ const UploadFiles: FC<UploadFilesProps> = ({
         ),
       );
     },
-    onSuccess: () => setStageContinuable(true),
+    onSuccess: () => toggleStageContinuable(true),
   });
 
   const fileDeleteMutation = useMutation({
     mutationFn: async (fileId: Uuid) => {
-      setStageContinuable(false);
+      toggleStageContinuable(false);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${fileId}`,
         {
@@ -134,12 +135,12 @@ const UploadFiles: FC<UploadFilesProps> = ({
         },
       );
 
-      if (res.status == 204) {
+      if (res.status === 204) {
         setDraftFiles((draftFiles) => {
           const newDraftFiles = draftFiles!.filter(
             (file) => file.draft?.id !== fileId,
           );
-          setStageContinuable(newDraftFiles.length !== 0);
+          toggleStageContinuable(newDraftFiles.length !== 0);
 
           return newDraftFiles;
         });
@@ -153,7 +154,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
     maxSize: 50 * 1_000_000,
     onDropAccepted: (droppedRawFiles: File[]) => {
       if (draftFiles.length + droppedRawFiles.length > MAX_FILE_LIMIT)
-        return setFileLimitExceeded(true);
+        return toggleFileLimitExceeded(true);
 
       setReadyForNextStage(false);
       setDraftFiles((draftFiles) => [
@@ -181,7 +182,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
           rejection.errors.some((error) => error.code === "too-many-files"),
         )
       )
-        setFileLimitExceeded(true);
+        toggleFileLimitExceeded(true);
     },
   });
 
@@ -276,7 +277,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
           >
             <Button
               appearance="filled"
-              onClick={() => setFileLimitExceeded(false)}
+              onClick={() => toggleFileLimitExceeded(false)}
             >
               OK
             </Button>

@@ -133,11 +133,7 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           </SegmentedGroup>
         </LabelGroup>
         {!isOnboarding && (
-          <Button
-            type="submit"
-            appearance="filled"
-            className="w-full"
-          >
+          <Button type="submit" appearance="filled" className="w-full">
             {tx("userSettings.save")}
           </Button>
         )}

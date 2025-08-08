@@ -1,20 +1,22 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
-import OrderCard from "@/components/glance/OrderCard";
-import OrderEmptyCard from "@/components/glance/OrderEmptyCard";
+import OrderCard from "@/components/orders/OrderCard";
+import OrderEmptyCard from "@/components/orders/OrderEmptyCard";
+import LoadingPage from "@/components/layout/LoadingPage";
+import useToggle from "@/hooks/useToggle";
 import {
   prefetchOrdersGlance,
   useOrdersGlanceQuery,
 } from "@/query/fetchOrdersGlance";
 import { prefetchUser } from "@/query/fetchUser";
-import getGreetingMessage from "@/utils/helpers/glance/getGreetingMessage";
-import checkIsBuildingOrder from "@/utils/helpers/order/new/checkIsBuildingOrder";
+import getGreetingMessage from "@/utils/helpers/getGreetingMessage";
+import checkIsBuildingOrder from "@/utils/helpers/checkIsBuildingOrder";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/utils/useUserContext";
+import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import type { GetServerSideProps } from "next";
@@ -32,13 +34,12 @@ const GlancePage: FC<PageProps> = () => {
   const { data: ordersGlance, status } = useOrdersGlanceQuery();
 
   const [isBuildingOrder, setIsBuildingOrder] = useState<boolean | null>(null);
-  const [showNewOrderWarning, setShowNewOrderWarning] = useState(false);
+  const [showNewOrderWarning, toggleShowNewOrderWarning] = useToggle();
 
   useEffect(() => setIsBuildingOrder(checkIsBuildingOrder()), []);
 
-  // TODO: This one should be self-descriptive
   if (status === "pending" || status === "error" || isBuildingOrder === null)
-    return <></>;
+    return <LoadingPage />;
 
   const sections = [
     {
@@ -107,7 +108,7 @@ const GlancePage: FC<PageProps> = () => {
             if (isBuildingOrder) {
               router.push("/order/new/upload");
             } else {
-              setShowNewOrderWarning(true);
+              toggleShowNewOrderWarning(true);
             }
           }}
         >
@@ -120,11 +121,11 @@ const GlancePage: FC<PageProps> = () => {
           <Dialog
             title={t("expiryWarning.title")}
             desc={t("expiryWarning.description")}
-            setClickOutside={setShowNewOrderWarning}
+            setClickOutside={toggleShowNewOrderWarning}
           >
             <Button
               appearance="tonal"
-              onClick={() => setShowNewOrderWarning(false)}
+              onClick={() => toggleShowNewOrderWarning(false)}
             >
               {tx("action.nevermind")}
             </Button>

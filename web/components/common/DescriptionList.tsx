@@ -1,4 +1,3 @@
-import cn from "@/utils/helpers/cn";
 import { Fragment, type FC } from "react";
 
 type DescriptionListProps = {

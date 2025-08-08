@@ -1,6 +1,6 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import { AnimatePresence } from "motion/react";

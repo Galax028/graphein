@@ -1,4 +1,3 @@
-import cn from "@/utils/helpers/cn";
 import { ReactNode } from "react";
 
 type TreeViewWrapperProps = {
@@ -13,7 +12,6 @@ type TreeViewWrapperProps = {
  *                  (Optional, Default "0")
  * @param children  The contents within the wrapper. (Required)
  */
-
 const TreeViewWrapper = ({ index = 0, children }: TreeViewWrapperProps) => {
   return (
     <div

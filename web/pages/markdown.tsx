@@ -1,19 +1,17 @@
 import Button from "@/components/common/Button";
-import Checkbox from "@/components/common/Checkbox";
+import Checkbox from "@/components/common/input/Checkbox";
 import Dialog from "@/components/common/Dialog";
 import DropDownCard from "@/components/common/DropDownCard";
-import NumberInput from "@/components/common/NumberInput";
+import NumberInput from "@/components/common/input/NumberInput";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import TextInput from "@/components/common/TextInput";
+import TextInput from "@/components/common/input/TextInput";
 import type { PageProps } from "@/utils/types/common";
 import { AnimatePresence } from "motion/react";
 import Head from "next/head";
 import Link from "next/link";
 import { type FC, useState } from "react";
-import FileDetailRange from "@/components/common/FileDetailRange";
-import SelectInput from "@/components/common/SelectInput";
+import FileDetailRange from "@/components/orders/FileDetailRange";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import cn from "@/utils/helpers/cn";
 import TreeViewContainer from "@/components/common/tree/TreeViewContainer";
 import TreeViewWrapper from "@/components/common/tree/TreeViewWrapper";
 
@@ -24,7 +22,6 @@ const MarkdownPage: FC<PageProps> = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [checkbox, setCheckbox] = useState(false);
-  const [dropdown, setDropdown] = useState(0);
 
   const [count, setCount] = useState(0);
   const [textInput, setTextInput] = useState("");
@@ -63,10 +60,7 @@ const MarkdownPage: FC<PageProps> = () => {
         </div>
 
         <div className="w-max m-auto p-10">
-          <MaterialIcon
-            icon={"progress_activity"}
-            className="animate-spin"
-          />
+          <MaterialIcon icon={"progress_activity"} className="animate-spin" />
         </div>
 
         <FileDetailRange
@@ -297,7 +291,7 @@ const MarkdownPage: FC<PageProps> = () => {
           <p>Segmented Buttons</p>
           <SegmentedGroup>
             <Button
-              selected={language == "th"}
+              selected={language === "th"}
               appearance={"tonal"}
               onClick={() => {
                 setLanguage("th");
@@ -306,7 +300,7 @@ const MarkdownPage: FC<PageProps> = () => {
               ไทย
             </Button>
             <Button
-              selected={language == "en"}
+              selected={language === "en"}
               appearance={"tonal"}
               onClick={() => {
                 setLanguage("en");
@@ -317,7 +311,7 @@ const MarkdownPage: FC<PageProps> = () => {
           </SegmentedGroup>
           <SegmentedGroup>
             <Button
-              selected={theme == "light"}
+              selected={theme === "light"}
               appearance={"tonal"}
               onClick={() => {
                 setTheme("light");
@@ -326,7 +320,7 @@ const MarkdownPage: FC<PageProps> = () => {
               Light
             </Button>
             <Button
-              selected={theme == "dark"}
+              selected={theme === "dark"}
               appearance={"tonal"}
               onClick={() => {
                 setTheme("dark");
@@ -335,7 +329,7 @@ const MarkdownPage: FC<PageProps> = () => {
               Dark
             </Button>
             <Button
-              selected={theme == "auto"}
+              selected={theme === "auto"}
               appearance={"tonal"}
               onClick={() => {
                 setTheme("auto");
@@ -346,7 +340,7 @@ const MarkdownPage: FC<PageProps> = () => {
           </SegmentedGroup>
           <SegmentedGroup>
             <Button
-              selected={alphabet == "a"}
+              selected={alphabet === "a"}
               appearance={"tonal"}
               onClick={() => {
                 setAlphabet("a");
@@ -355,7 +349,7 @@ const MarkdownPage: FC<PageProps> = () => {
               A
             </Button>
             <Button
-              selected={alphabet == "b"}
+              selected={alphabet === "b"}
               appearance={"tonal"}
               onClick={() => {
                 setAlphabet("b");
@@ -364,7 +358,7 @@ const MarkdownPage: FC<PageProps> = () => {
               B
             </Button>
             <Button
-              selected={alphabet == "c"}
+              selected={alphabet === "c"}
               appearance={"tonal"}
               onClick={() => {
                 setAlphabet("c");
@@ -373,7 +367,7 @@ const MarkdownPage: FC<PageProps> = () => {
               C
             </Button>
             <Button
-              selected={alphabet == "d"}
+              selected={alphabet === "d"}
               appearance={"tonal"}
               onClick={() => {
                 setAlphabet("d");
@@ -382,7 +376,7 @@ const MarkdownPage: FC<PageProps> = () => {
               D
             </Button>
             <Button
-              selected={alphabet == "e"}
+              selected={alphabet === "e"}
               appearance={"tonal"}
               onClick={() => {
                 setAlphabet("e");

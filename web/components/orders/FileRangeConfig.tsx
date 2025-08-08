@@ -1,10 +1,11 @@
 import Button from "@/components/common/Button";
+import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import NumberInput from "@/components/common/NumberInput";
+import NumberInput from "@/components/common/input/NumberInput";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
-import SelectInput from "@/components/common/SelectInput";
-import TextInput from "@/components/common/TextInput";
+import TextInput from "@/components/common/input/TextInput";
+import useToggle from "@/hooks/useToggle";
 import cn from "@/utils/helpers/cn";
 import { FileRangeCreate, PaperVariant } from "@/utils/types/backend";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
@@ -16,7 +17,7 @@ import {
   useCallback,
   useState,
 } from "react";
-import Dialog from "../Dialog";
+import SelectInput from "@/components/common/input/SelectInput";
 
 type FileRangeConfigProps = {
   open: boolean;
@@ -44,8 +45,8 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
   setDraftFiles,
 }) => {
   const [pageRangeType, setPageRangeType] = useState("All Pages");
-  const [showDeleteRangeConfirmation, setShowDeleteRangeConfirmation] =
-    useState(false);
+  const [showDeleteRangeConfirmation, toggleShowDeleteRangeConfirmation] =
+    useToggle();
 
   const setRangeField = useCallback(
     (fields: Partial<FileRangeCreate>) =>
@@ -84,7 +85,6 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
             !open && "rounded-b-lg",
           )}
         >
-          {/* <div className="text-body-md grid place-items-center">Range</div> */}
           <SelectInput
             value={{ type: pageRangeType }}
             onChange={(value) => {
@@ -123,7 +123,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
           />
           <div
             className="cursor-pointer"
-            onClick={() => setShowDeleteRangeConfirmation(true)}
+            onClick={() => toggleShowDeleteRangeConfirmation(true)}
           >
             <MaterialIcon icon="delete" className="text-error" />
           </div>
@@ -154,7 +154,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                             variant.id === currentRange.paperVariantId,
                         )!
                       }
-                      onChange={(value: PaperVariant) =>
+                      onChange={(value) =>
                         setRangeField({ paperVariantId: value.id })
                       }
                       displayKey="name"
@@ -237,16 +237,14 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
       <AnimatePresence>
         {showDeleteRangeConfirmation && (
           <Dialog
-            title={"Delete Range  "}
-            desc={
-              "Are you sure you want to delete this range? This action can't be undone!"
-            }
-            setClickOutside={setShowDeleteRangeConfirmation}
+            title="Delete Range"
+            desc="Are you sure you want to delete this range? This action can't be undone!"
+            setClickOutside={toggleShowDeleteRangeConfirmation}
             className="z-100"
           >
             <Button
               appearance="tonal"
-              onClick={() => setShowDeleteRangeConfirmation(false)}
+              onClick={() => toggleShowDeleteRangeConfirmation(false)}
             >
               Nevermind
             </Button>

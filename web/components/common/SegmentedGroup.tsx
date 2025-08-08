@@ -30,7 +30,7 @@ const SegmentedGroup: FC<SegmentedGroupProps> = ({
           [&>div.border-error]:outline [&>div.border-error]:outline-error 
           [&>div.border-error]:border-none [&>div.border-error]:py-0
         `,
-        direction == "horizontal"
+        direction === "horizontal"
           ? `flex-row [&>button,&>div,&>input]:first:rounded-l-lg 
             [&>button,&>div,&>input]:last:rounded-r-lg 
             [&>button,&>div,&>input]:not-first:border-l`

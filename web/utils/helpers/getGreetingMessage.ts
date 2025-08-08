@@ -1,3 +1,12 @@
+/**
+ * Returns a greeting message key based on the current time of day. The returned
+ * key is intended for use with a translation library.
+ *
+ * @returns {string} The translation key for the appropriate greeting.
+ * @example
+ * // If it's 10:00, returns "greeting.morning"
+ * // If it's 15:00, returns "greeting.afternoon"
+ */
 const getGreetingMessage = (): string => {
   const hour = new Date().getHours();
 

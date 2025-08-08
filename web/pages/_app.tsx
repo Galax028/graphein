@@ -1,8 +1,8 @@
-import MaterialIcon from "@/components/common/MaterialIcon";
+import LoadingPage from "@/components/layout/LoadingPage";
 import { useUserQuery } from "@/query/fetchUser";
 import "@/styles/globals.css";
 import type { PageProps } from "@/utils/types/common";
-import { UserContext } from "@/utils/useUserContext";
+import { UserContext } from "@/hooks/useUserContext";
 import "@material-symbols/font-300/outlined.css";
 import {
   QueryClient,
@@ -15,19 +15,9 @@ import type { AppProps } from "next/app";
 import { type FC, type ReactNode, useState } from "react";
 
 const UserContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const { data: user, error, status } = useUserQuery();
+  const { data: user, status } = useUserQuery();
 
-  // TODO: loading page?
-  if (status === "pending")
-    return (
-      <div className="w-max m-auto p-10">
-        <MaterialIcon icon={"progress_activity"} className="animate-spin" />
-      </div>
-    );
-
-  // TODO: proper error handling
-  if (status === "error")
-    return <h1>Error while fetching user: {error.message}</h1>;
+  if (status === "pending" || status === "error") return <LoadingPage />;
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 };

@@ -14,7 +14,6 @@ type TreeViewContainerProps = {
  *                  (Optional, Default "false")
  * @param children  The contents within the container. (Required)
  */
-
 const TreeViewContainer = ({
   index = 0,
   isLast = false,

@@ -25,7 +25,7 @@ const Checkbox: FC<CheckboxProps> = ({
     >
       <input type="checkbox" checked={checked} readOnly className="hidden" />
       {checked ? (
-        appearance == "checked" ? (
+        appearance === "checked" ? (
           <MaterialIcon icon="check_box" filled={true} />
         ) : (
           <MaterialIcon icon="indeterminate_check_box" filled={true} />

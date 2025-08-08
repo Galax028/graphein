@@ -1,6 +1,7 @@
 import DropDownCard from "@/components/common/DropDownCard";
-import MerchantLayout from "@/components/common/layout/MerchantLayout";
-import OrderCard from "@/components/glance/OrderCard";
+import MerchantLayout from "@/components/layout/MerchantLayout";
+import OrderCard from "@/components/orders/OrderCard";
+import LoadingPage from "@/components/layout/LoadingPage";
 import MerchantDetailedOrderView from "@/components/merchant/MerchantDetailedOrderView";
 import {
   prefetchMerchantOrdersGlance,
@@ -21,8 +22,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
 
   const [currentOrderId, setCurrentOrderId] = useState<Uuid | null>(null);
 
-  // TODO: This one should be self-descriptive
-  if (status === "pending" || status === "error") return <></>;
+  if (status === "pending" || status === "error") return <LoadingPage />;
 
   const sections = [
     {

@@ -3,6 +3,7 @@ import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
+import useToggle from "@/hooks/useToggle";
 import { prefetchUser } from "@/query/fetchUser";
 import cn from "@/utils/helpers/cn";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
@@ -18,6 +19,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const t = useTranslations();
 
+  const [isSigningIn, toggleIsSigningIn] = useToggle();
   const [asMerchant, setAsMerchant] = useState<boolean | null>(null);
 
   useEffect(
@@ -54,22 +56,28 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
               <h1 className="text-title-md">{t("container.title")}</h1>
               <p className="opacity-50">{t("container.description")}</p>
             </div>
-            <SignInButton asMerchant={asMerchant} />
+            <SignInButton
+              isSigningIn={isSigningIn}
+              setIsSigningIn={toggleIsSigningIn}
+              asMerchant={asMerchant}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full md:max-w-lg md:my-4 md:m-auto">
           <LabelGroup header={t("language")}>
             <SegmentedGroup>
               <Button
-                selected={locale == "th"}
-                appearance={"tonal"}
+                selected={locale === "th"}
+                appearance="tonal"
+                disabled={isSigningIn}
                 onClick={() => changeLanguage("th")}
               >
                 ไทย
               </Button>
               <Button
-                selected={locale == "en"}
-                appearance={"tonal"}
+                selected={locale === "en"}
+                appearance="tonal"
+                disabled={isSigningIn}
                 onClick={() => changeLanguage("en")}
               >
                 English
@@ -77,9 +85,9 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
             </SegmentedGroup>
           </LabelGroup>
           <p className="text-xs opacity-50">
-            <Link className="underline" href={"/about"} />
-            <Link className="underline" href={"/legal/privacy-policy"} />
-            <Link className="underline" href={"/legal/terms-of-service"} />
+            <Link className="underline" href="/about" />
+            <Link className="underline" href="/legal/privacy-policy" />
+            <Link className="underline" href="/legal/terms-of-service" />
           </p>
         </div>
       </div>

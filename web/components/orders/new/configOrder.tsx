@@ -1,19 +1,15 @@
 import Button from "@/components/common/Button";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import FileRangeConfig from "@/components/common/order/FileRangeConfig";
+import FileRangeConfig from "@/components/orders/FileRangeConfig";
+import LoadingPage from "@/components/layout/LoadingPage";
+import useToggle from "@/hooks/useToggle";
 import { usePapersQuery } from "@/query/fetchPapers";
 import cn from "@/utils/helpers/cn";
-import getFormattedFilesize from "@/utils/helpers/order/details/getFormattedFilesize";
+import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/router";
-import {
-  useEffect,
-  useState,
-  type Dispatch,
-  type FC,
-  type SetStateAction,
-} from "react";
+import { useEffect, type Dispatch, type FC, type SetStateAction } from "react";
 
 type ConfigOrderProps = {
   draftFiles: UploadedDraftFile[];
@@ -30,7 +26,7 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
 
   const { data: papers, status } = usePapersQuery();
 
-  const [open, setOpen] = useState(true);
+  const [open, toggleOpen] = useToggle(true);
 
   useEffect(
     () => {
@@ -46,8 +42,7 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
     [draftFiles],
   );
 
-  // TODO: load
-  if (status === "pending" || status === "error") return <></>;
+  if (status === "pending" || status === "error") return <LoadingPage />;
 
   const paperVariants = papers.flatMap((paper) =>
     paper.variants.map((variant) => ({
@@ -100,7 +95,7 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
         >
           <div
             className="flex gap-3 items-center pr-1 cursor-pointer"
-            onClick={() => setOpen((open) => !open)}
+            onClick={toggleOpen}
           >
             {/* TODO: Add thumbnail */}
             <div className="w-16 h-16 bg-outline rounded-sm animate-pulse"></div>

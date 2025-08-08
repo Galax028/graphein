@@ -1,14 +1,14 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
-import PageLoadTransition from "@/components/common/layout/PageLoadTransition";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import UserProfileSettings from "@/components/settings/UserProfileSettings";
 import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/utils/useUserContext";
+import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
@@ -62,7 +62,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
                   ไทย
                 </Button>
                 <Button
-                  selected={locale == "en"}
+                  selected={locale === "en"}
                   appearance={"tonal"}
                   onClick={() => changeLanguage("en")}
                 >
