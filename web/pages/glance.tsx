@@ -6,6 +6,7 @@ import LoadingPage from "@/components/layout/LoadingPage";
 import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import EmptyOrderCard from "@/components/orders/EmptyOrderCard";
 import OrderCard from "@/components/orders/OrderCard";
+import useNavbarContext from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import useUserContext from "@/hooks/useUserContext";
 import {
@@ -29,12 +30,18 @@ const GlancePage: FC<PageProps> = () => {
   const router = useRouter();
   const tx = useTranslations("common");
   const t = useTranslations("glance");
+  const { setNavbarTitle } = useNavbarContext();
   const user = useUserContext();
 
   const { data: ordersGlance, status } = useOrdersGlanceQuery();
 
   const [isBuildingOrder, toggleIsBuildingOrder] = useToggle();
   const [showNewOrderWarning, toggleShowNewOrderWarning] = useToggle();
+
+  useEffect(
+    () => setNavbarTitle(t(getGreetingMessage(), { name: user.name })),
+    [t, setNavbarTitle, user.name],
+  );
 
   useEffect(
     () => toggleIsBuildingOrder(checkIsBuildingOrder()),
@@ -61,7 +68,7 @@ const GlancePage: FC<PageProps> = () => {
     <div className="flex h-dvh flex-col items-center">
       <NavigationBar
         user={user}
-        title={t(getGreetingMessage(), { name: user.name })}
+        // title={t(getGreetingMessage(), { name: user.name })}
       />
       <PageLoadTransition className="w-full">
         <div className="mb-12 flex w-full flex-col gap-2">

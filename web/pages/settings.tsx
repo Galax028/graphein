@@ -14,17 +14,21 @@ import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { type FC } from "react";
+import { useEffect, type FC } from "react";
 import useToggle from "@/hooks/useToggle";
+import useNavbarContext from "@/hooks/useNavbarContext";
 
 const SettingsPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const tx = useTranslations("common");
   const t = useTranslations("settings");
+  const { setNavbarTitle } = useNavbarContext();
   const user = useUserContext();
 
   const [showSignOutDialog, toggleShowSignOutDialog] = useToggle();
   const [isSigningOut, toggleIsSigningOut] = useToggle();
+
+  useEffect(() => setNavbarTitle(t("navigationBar")), [t, setNavbarTitle]);
 
   const changeLanguage = (lang: string) =>
     router.replace(`${router.asPath}?lang=${lang}`);
@@ -46,7 +50,7 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
     <div className="flex flex-col items-center">
       <NavigationBar
         user={user}
-        title={t("navigationBar")}
+        // title={t("navigationBar")}
         backEnabled={true}
       />
       <PageLoadTransition>

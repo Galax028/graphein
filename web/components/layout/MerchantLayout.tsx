@@ -6,8 +6,9 @@ import SegmentedGroup from "@/components/common/SegmentedGroup";
 import { AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { type ReactNode, type FC } from "react";
+import { type ReactNode, type FC, useEffect } from "react";
 import useToggle from "@/hooks/useToggle";
+import useNavbarContext from "@/hooks/useNavbarContext";
 
 type MerchantLayoutProps = {
   page: "dashboard" | "management";
@@ -36,9 +37,12 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
   const router = useRouter();
   const tx = useTranslations("common");
   const t = useTranslations(translationNamespace);
+  const { setNavbarTitle } = useNavbarContext();
 
   const [showSignOutDialog, toggleShowSignOutDialog] = useToggle(false);
   const [isSigningOut, toggleIsSigningOut] = useToggle();
+
+  useEffect(() => setNavbarTitle(t("navigationBar")), [t, setNavbarTitle]);
 
   const handleSignOut = async () => {
     toggleIsSigningOut(true);
@@ -55,7 +59,8 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
 
   return (
     <div className="flex h-dvh flex-col items-center overflow-hidden">
-      <NavigationBar title={t("navigationBar")}>
+      {/* title={t("navigationBar")} */}
+      <NavigationBar>
         <SegmentedGroup>
           <Button
             appearance="tonal"

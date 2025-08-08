@@ -8,7 +8,8 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
+import useNavbarContext from "@/hooks/useNavbarContext";
 
 type DeveloperProfileProps = {
   name: string;
@@ -59,15 +60,26 @@ const developers = [
 
 const AboutPage: FC<PageProps> = () => {
   const t = useTranslations();
+  const { setNavbarTitle } = useNavbarContext();
   const user = useUserContext();
+
+  useEffect(
+    () =>
+      setNavbarTitle(
+        t("navigationBar", {
+          appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
+        }),
+      ),
+    [t, setNavbarTitle],
+  );
 
   return (
     <>
       <NavigationBar
         user={user}
-        title={t("navigationBar", {
-          appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
-        })}
+        // title={t("navigationBar", {
+        //   appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
+        // })}
         backEnabled={true}
       />
       <main className="flex flex-col gap-3 p-3">

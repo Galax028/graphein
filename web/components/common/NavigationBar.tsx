@@ -1,5 +1,6 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
+import useNavbarContext from "@/hooks/useNavbarContext";
 import { cn } from "@/utils";
 import type { User } from "@/utils/types/backend";
 import { AnimatePresence, motion } from "motion/react";
@@ -10,7 +11,7 @@ import type { FC, ReactNode } from "react";
 export type NavigationBarProps = {
   className?: string;
   user?: User;
-  title: ReactNode;
+  // title?: ReactNode;
   desc?: ReactNode;
   backEnabled?: boolean;
   backContextURL?: string;
@@ -43,7 +44,7 @@ export type NavigationBarProps = {
  */
 const NavigationBar: FC<NavigationBarProps> = ({
   user,
-  title,
+  // title = undefined,
   desc,
   backEnabled = false,
   backContextURL,
@@ -51,6 +52,7 @@ const NavigationBar: FC<NavigationBarProps> = ({
   children,
 }) => {
   const router = useRouter();
+  const { navbarTitle } = useNavbarContext();
 
   const onBackButtonClick = () => {
     if (backContextURL) {
@@ -72,24 +74,27 @@ const NavigationBar: FC<NavigationBarProps> = ({
       )}
     >
       {backEnabled && (
-        <div className="p-1">
-          <div className="h-6 w-6 cursor-pointer" onClick={onBackButtonClick}>
-            <MaterialIcon icon="arrow_back" />
-          </div>
+        <div className="cursor-pointer p-1" onClick={onBackButtonClick}>
+          <MaterialIcon icon="arrow_back" />
         </div>
       )}
-      <div className={cn(`flex w-full p-1`, backEnabled && "justify-center")}>
+      <div className="p-1">
         <AnimatePresence>
           <motion.div
-            initial={{ x: !backEnabled ? -24 : 0, opacity: 0 }}
+            initial={{ x: backEnabled ? 0 : -24, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: !backEnabled ? -24 : 0, opacity: 0 }}
+            exit={{ x: backEnabled ? 0 : -24, opacity: 0 }}
             transition={{
               x: { type: "spring", bounce: 0 },
             }}
-            className="flex flex-col gap-0"
           >
-            <div className={cn(backEnabled && "text-center")}>{title}</div>
+            <div className="w-full">
+              {navbarTitle !== null ? (
+                navbarTitle
+              ) : (
+                <div className="h-4 w-32 animate-pulse rounded-sm bg-outline" />
+              )}
+            </div>
             <div
               className={cn(
                 `text-body-sm opacity-50`,

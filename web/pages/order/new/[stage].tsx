@@ -7,6 +7,7 @@ import ConfigOrder from "@/components/orders/new/configOrder";
 import Review from "@/components/orders/new/review";
 import UploadFiles from "@/components/orders/new/upload";
 import useLocalStorage, { deserializeAsString } from "@/hooks/useLocalStorage";
+import useNavbarContext from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import useUserContext from "@/hooks/useUserContext";
 import { prefetchPapers } from "@/query/fetchPapers";
@@ -36,6 +37,7 @@ import {
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
+  const { setNavbarTitle } = useNavbarContext();
   const user = useUserContext();
 
   const [orderStage, setOrderStage, unsetOrderStage] =
@@ -102,6 +104,54 @@ const BuildOrderPage: FC<PageProps> = () => {
     },
   });
 
+  const stages: {
+    [K in OrderStage]: {
+      title: string;
+      backContext: string;
+      href: string;
+      component: ReactElement;
+    };
+  } = {
+    uploadFiles: {
+      title: "Upload files",
+      backContext: "/glance",
+      href: "/order/new/configure-order",
+      component: (
+        <UploadFiles // @ts-expect-error ---
+          orderId={draftOrderId} // @ts-expect-error ---
+          draftFiles={draftFiles}
+          setDraftFiles={setDraftFiles}
+          setReadyForNextStage={toggleReadyForNextStage}
+        />
+      ),
+    },
+    configOrder: {
+      title: "Configure order",
+      backContext: "/order/new/upload",
+      href: "/order/new/review",
+      component: (
+        <ConfigOrder // @ts-expect-error ---
+          draftFiles={draftFiles} // @ts-expect-error ---
+          setDraftFiles={setDraftFiles}
+          setReadyForNextStage={toggleReadyForNextStage}
+        />
+      ),
+    },
+    // configServices: {
+    //   title: "Add services",
+    //   backContext: "/order/new/configure-order",
+    //   href: "/order/new/review",
+    //   component: <ConfigServices />,
+    // },
+    review: {
+      title: "Review order",
+      backContext: "/order/new/configure-order",
+      href: "/order/new/review",
+      // @ts-expect-error ---
+      component: <Review draftFiles={draftFiles} />,
+    },
+  } as const;
+
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
@@ -141,6 +191,7 @@ const BuildOrderPage: FC<PageProps> = () => {
           return;
       }
 
+      setNavbarTitle(stages[stage].title);
       if (checkIsBuildingOrder()) {
         setOrderStage(stage);
         const draftOrderData = JSON.parse(
@@ -155,7 +206,7 @@ const BuildOrderPage: FC<PageProps> = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.query.stage, setOrderStage],
+    [router.query.stage, setNavbarTitle, setOrderStage],
   );
 
   // To show that the 15 min order window has expired, and to start a new one then.
@@ -209,59 +260,11 @@ const BuildOrderPage: FC<PageProps> = () => {
   )
     return <LoadingPage />;
 
-  const stages: {
-    [K in OrderStage]: {
-      title: string;
-      backContext: string;
-      href: string;
-      component: ReactElement;
-    };
-  } = {
-    uploadFiles: {
-      title: "Upload files",
-      backContext: "/glance",
-      href: "/order/new/configure-order",
-      component: (
-        <UploadFiles
-          orderId={draftOrderId}
-          draftFiles={draftFiles}
-          setDraftFiles={setDraftFiles}
-          setReadyForNextStage={toggleReadyForNextStage}
-        />
-      ),
-    },
-    configOrder: {
-      title: "Configure order",
-      backContext: "/order/new/upload",
-      href: "/order/new/review",
-      component: (
-        <ConfigOrder // @ts-expect-error ---
-          draftFiles={draftFiles} // @ts-expect-error ---
-          setDraftFiles={setDraftFiles}
-          setReadyForNextStage={toggleReadyForNextStage}
-        />
-      ),
-    },
-    // configServices: {
-    //   title: "Add services",
-    //   backContext: "/order/new/configure-order",
-    //   href: "/order/new/review",
-    //   component: <ConfigServices />,
-    // },
-    review: {
-      title: "Review order",
-      backContext: "/order/new/configure-order",
-      href: "/order/new/review",
-      // @ts-expect-error ---
-      component: <Review draftFiles={draftFiles} />,
-    },
-  } as const;
-
   return (
     <div className="flex h-dvh flex-col">
       <NavigationBar
         user={user}
-        title={stages[orderStage].title}
+        // title={stages[orderStage].title}
         backEnabled={true}
         backContextURL={stages[orderStage].backContext}
       />

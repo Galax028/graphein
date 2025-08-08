@@ -4,6 +4,7 @@ import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import UserProfileSettings, {
   type UserProfileFormSchema,
 } from "@/components/settings/UserProfileSettings";
+import useNavbarContext from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import useUserContext from "@/hooks/useUserContext";
 import { prefetchUser } from "@/query/fetchUser";
@@ -20,16 +21,19 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
 
 const OnboardPage: FC<PageProps> = () => {
   const router = useRouter();
   const user = useUserContext();
   const tx = useTranslations("common");
   const t = useTranslations("onboard");
+  const { setNavbarTitle } = useNavbarContext();
   const queryClient = useQueryClient();
 
   const [isSigningOut, toggleIsSigningOut] = useToggle();
+
+  useEffect(() => setNavbarTitle(t("navigationBar")), [t, setNavbarTitle]);
 
   const onboardingMutation = useMutation({
     mutationFn: async (formData: UserProfileFormSchema) => {
@@ -69,7 +73,8 @@ const OnboardPage: FC<PageProps> = () => {
 
   return (
     <div className="flex h-dvh flex-col">
-      <NavigationBar title={t("navigationBar")} />
+      {/* title={t("navigationBar")} */}
+      <NavigationBar />
       <PageLoadTransition className="mx-auto">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">

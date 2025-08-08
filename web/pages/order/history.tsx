@@ -1,10 +1,12 @@
 import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import NavigationBar from "@/components/common/NavigationBar";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
-import OrderCard from "@/components/orders/OrderCard";
-import EmptyOrderCard from "@/components/orders/EmptyOrderCard";
 import LoadingPage from "@/components/layout/LoadingPage";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
+import EmptyOrderCard from "@/components/orders/EmptyOrderCard";
+import OrderCard from "@/components/orders/OrderCard";
+import useNavbarContext from "@/hooks/useNavbarContext";
+import useUserContext from "@/hooks/useUserContext";
 import {
   prefetchOrderHistory,
   useOrderHistoryInfiniteQuery,
@@ -12,16 +14,16 @@ import {
 import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
 
 const OrderHistoryPage: FC<PageProps> = () => {
   const t = useTranslations("history");
+  const { setNavbarTitle } = useNavbarContext();
   const user = useUserContext();
 
   const {
@@ -33,6 +35,8 @@ const OrderHistoryPage: FC<PageProps> = () => {
     isFetchingNextPage,
   } = useOrderHistoryInfiniteQuery();
 
+  useEffect(() => setNavbarTitle(t("navigationBar")), [t, setNavbarTitle]);
+
   // TODO: This one should be self-descriptive
   if (status === "pending" || status === "error") return <LoadingPage />;
 
@@ -40,7 +44,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
     <>
       <NavigationBar
         user={user}
-        title={t("navigationBar")}
+        // title={t("navigationBar")}
         backEnabled={true}
         backContextURL="/glance"
       />
