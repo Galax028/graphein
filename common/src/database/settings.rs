@@ -15,7 +15,8 @@ impl SettingsTable {
             "\
             SELECT \
                 latest_orders_flushed_at, is_accepting, is_lamination_serviceable, open_time,\
-                close_time\
+                close_time \
+            FROM settings\
             ",
         )
         .fetch_one(conn)
@@ -60,7 +61,7 @@ impl SettingsTable {
     #[tracing::instrument(skip_all, err)]
     pub(crate) async fn set_latest_orders_flushed_at(conn: &mut PgConnection) -> SqlxResult<()> {
         let now = Utc::now();
-        sqlx::query("UPDATE settings SET updated_at = $1 AND latest_orders_flushed_at = $1")
+        sqlx::query("UPDATE settings SET updated_at = $1, latest_orders_flushed_at = $1")
             .bind(now)
             .execute(conn)
             .await?;

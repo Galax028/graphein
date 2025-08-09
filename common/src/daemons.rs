@@ -211,6 +211,7 @@ async fn flush_unfinished_orders(
 
             tokio::time::sleep((until - now).to_std()?).await;
 
+            tracing::info!("flushing unfinished orders");
             let mut tx = pool.begin().await?;
             let unfinished_orders = OrdersTable::query_compact()
                 .bind_statuses(&[OrderStatus::Reviewing])
