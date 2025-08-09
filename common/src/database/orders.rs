@@ -155,8 +155,19 @@ impl OrdersTable {
         sqlx::query("UPDATE orders SET status = $1 WHERE id = ANY($2)")
             .bind(status)
             .bind(order_ids)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?;
+
+        sqlx::query(
+            "\
+            INSERT INTO order_status_updates (order_id, status)\
+            SELECT *, $2 FROM UNNEST($1::uuid[])\
+            ",
+        )
+        .bind(order_ids)
+        .bind(OrderStatus::Rejected)
+        .execute(conn)
+        .await?;
 
         Ok(())
     }
@@ -254,8 +265,7 @@ impl<'args> CompactOrdersQuery<'args> {
         if let Some(older_than_date) = self.older_than_date {
             Self::push_sep(first_bind, qb)
                 .push("o.created_at < ")
-                .push_bind(older_than_date)
-                .push(')');
+                .push_bind(older_than_date);
         }
 
         if let (Some(PaginationRequest { page, reverse, .. }), true) = (self.pagination, is_main_qb)
