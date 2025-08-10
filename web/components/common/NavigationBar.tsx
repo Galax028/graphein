@@ -1,21 +1,16 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
 import PersonAvatar from "@/components/common/PersonAvatar";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import { useNavbarContext } from "@/hooks/useNavbarContext";
+import { useUserContextDangerously } from "@/hooks/useUserContext";
 import { cn } from "@/utils";
-import type { User } from "@/utils/types/backend";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import type { FC, ReactNode } from "react";
+import { useCallback, type FC, type ReactNode } from "react";
 
 export type NavigationBarProps = {
   className?: string;
-  user?: User;
-  // title?: ReactNode;
-  desc?: ReactNode;
-  backEnabled?: boolean;
-  backContextURL?: string;
-  style?: string;
+  description?: ReactNode;
   children?: ReactNode;
 };
 
@@ -29,38 +24,33 @@ export type NavigationBarProps = {
  *
  * @param props.className       Additional classes to apply to the main nav
  *                              element.
- * @param props.user            An object containing the current user's data.
- *                              Displays an avatar if provided.
- * @param props.title           The main title to be displayed in the navigation
- *                              bar.
- * @param props.desc            A short description or subtitle that appears
+ * @param props.description     A short description or subtitle that appears
  *                              below the main title.
- * @param props.backEnabled     If true, displays a back arrow icon for
- *                              navigation.
  * @param props.backContextURL  A specific URL for the back button to navigate
  *                              to. Overrides default back behavior.
  * @param props.children        Elements to be rendered on the right side of the
  *                              navigation bar.
  */
 const NavigationBar: FC<NavigationBarProps> = ({
-  user,
-  // title = undefined,
-  desc,
-  backEnabled = false,
-  backContextURL,
   className,
+  description,
   children,
 }) => {
   const router = useRouter();
-  const { navbarTitle } = useNavbarContext();
+  const { title, backEnabled, backContextURL, showUser } = useNavbarContext();
+  const user = useUserContextDangerously();
 
-  const onBackButtonClick = () => {
-    if (backContextURL) {
-      router.push(backContextURL);
-    } else {
-      router.back();
-    }
-  };
+  const onBackButtonClick = useCallback(
+    () => {
+      if (backContextURL) {
+        router.push(backContextURL);
+      } else {
+        router.back();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [backContextURL],
+  );
 
   return (
     <nav
@@ -89,8 +79,8 @@ const NavigationBar: FC<NavigationBarProps> = ({
             }}
           >
             <div className="w-full">
-              {navbarTitle !== null ? (
-                navbarTitle
+              {title !== undefined ? (
+                title
               ) : (
                 <div className="h-4 w-32 animate-pulse rounded-sm bg-outline" />
               )}
@@ -98,17 +88,17 @@ const NavigationBar: FC<NavigationBarProps> = ({
             <div
               className={cn(
                 `text-body-sm opacity-50`,
-                backEnabled && `text-center`,
+                backEnabled && "text-center",
               )}
             >
-              {desc}
+              {description}
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
       <div>
         {children}
-        {user && user.role !== "merchant" && (
+        {showUser && user && user.role !== "merchant" && (
           <Link href="/settings">
             <PersonAvatar profileUrl={user.profileUrl} personName={user.name} />
           </Link>

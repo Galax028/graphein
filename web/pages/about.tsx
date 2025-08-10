@@ -1,15 +1,13 @@
 import LabelGroup from "@/components/common/LabelGroup";
-import NavigationBar from "@/components/common/NavigationBar";
+import { useNavbar } from "@/hooks/useNavbarContext";
 import { cn } from "@/utils";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/hooks/useUserContext";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, type FC } from "react";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import { useCallback, type FC } from "react";
 
 type DeveloperProfileProps = {
   name: string;
@@ -59,104 +57,95 @@ const developers = [
 ] as readonly DeveloperProfileProps[];
 
 const AboutPage: FC<PageProps> = () => {
-  const t = useTranslations();
-  const { setNavbarTitle } = useNavbarContext();
-  const user = useUserContext();
+  const t = useTranslations("about");
 
-  useEffect(
-    () =>
-      setNavbarTitle(
-        t("navigationBar", {
+  useNavbar(
+    useCallback(
+      () => ({
+        title: t("navigationBar", {
           appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
         }),
-      ),
-    [t, setNavbarTitle],
+        backEnabled: true,
+      }),
+      [t],
+    ),
   );
 
   return (
-    <>
-      <NavigationBar
-        user={user}
-        // title={t("navigationBar", {
-        //   appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
-        // })}
-        backEnabled={true}
-      />
-      <main className="flex flex-col gap-3 p-3">
-        <LabelGroup header={t("about.title")}>
+    <main className="flex flex-col gap-3 p-3">
+      <LabelGroup header={t("title")}>
+        <div
+          className={cn(
+            `
+              flex flex-col gap-2 rounded-lg border border-outline
+              bg-surface-container p-3
+              [&>p]:text-body-md
+            `,
+          )}
+        >
+          <p>{t("p1")}</p>
+          <p>
+            {t.rich("p2", {
+              a: (children) => (
+                <Link
+                  href={String(process.env.NEXT_PUBLIC_SOURCE_PATH)}
+                  target="_blank"
+                >
+                  <span className="underline">{children}</span>
+                </Link>
+              ),
+            })}
+          </p>
+          <p>
+            {t.rich("p3", {
+              a1: (children) => (
+                <Link href="/legal/privacy">
+                  <span className="underline">{children}</span>
+                </Link>
+              ),
+              a2: (children) => (
+                <Link href="/legal/terms">
+                  <span className="underline">{children}</span>
+                </Link>
+              ),
+            })}
+          </p>
+          <p className="!text-body-sm opacity-50">{t("p4")}</p>
+        </div>
+      </LabelGroup>
+      <LabelGroup header={t("version")}>
+        <div
+          className={cn(
+            `
+              flex flex-col gap-2 rounded-lg border border-outline
+              bg-surface-container p-3
+              [&>p]:text-body-sm
+            `,
+          )}
+        >
           <div
-            className={cn(
-              `
-                flex flex-col gap-2 rounded-lg border border-outline
-                bg-surface-container p-3
-                [&>p]:text-body-md
-              `,
-            )}
+            className={`
+              grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
+            `}
           >
-            <p>{t("about.p1")}</p>
-            <p>
-              {t.rich("about.p2", {
-                a: (children) => (
-                  <Link
-                    href={String(process.env.NEXT_PUBLIC_SOURCE_PATH)}
-                    target="_blank"
-                  >
-                    <span className="underline">{children}</span>
-                  </Link>
-                ),
-              })}
+            <p className="w-18 text-body-sm opacity-50">{t("version")}</p>
+            <p className="w-full text-body-md">
+              {process.env.NEXT_PUBLIC_VERSION}
             </p>
-            <p>
-              {t.rich("about.p3", {
-                a1: (children) => (
-                  <Link href="/legal/privacy">
-                    <span className="underline">{children}</span>
-                  </Link>
-                ),
-                a2: (children) => (
-                  <Link href="/legal/terms">
-                    <span className="underline">{children}</span>
-                  </Link>
-                ),
-              })}
-            </p>
-            <p className="!text-body-sm opacity-50">{t("about.p4")}</p>
           </div>
-        </LabelGroup>
-        <LabelGroup header={t("version")}>
-          <div
-            className={cn(
-              `
-                flex flex-col gap-2 rounded-lg border border-outline
-                bg-surface-container p-3
-                [&>p]:text-body-sm
-              `,
-            )}
-          >
-            <div
-              className={`
-                grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
-              `}
-            >
-              <p className="w-18 text-body-sm opacity-50">{t("version")}</p>
-              <p className="w-full text-body-md">
-                {process.env.NEXT_PUBLIC_VERSION}
-              </p>
-            </div>
-          </div>
-        </LabelGroup>
-        <LabelGroup header={t("developers")}>
-          {developers.map((developer, idx) => (
-            <DeveloperProfile
-              key={idx}
-              name={developer.name}
-              role={developer.role}
-              image={developer.image}
-            />
-          ))}
-        </LabelGroup>
-      </main>
-    </>
+        </div>
+      </LabelGroup>
+      <LabelGroup header={t("developers")}>
+        {developers.map((developer, idx) => (
+          <DeveloperProfile
+            key={idx}
+            name={developer.name}
+            role={developer.role}
+            image={developer.image}
+          />
+        ))}
+      </LabelGroup>
+    </main>
   );
 };
 
@@ -164,6 +153,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
   const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
     "about",
   ]);
 

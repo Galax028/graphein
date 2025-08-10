@@ -1,12 +1,11 @@
 import Button from "@/components/common/Button";
-import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
 import MaterialIcon from "@/components/common/MaterialIcon";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import NumberInput from "@/components/common/input/NumberInput";
 import SelectInput from "@/components/common/input/SelectInput";
 import TextInput from "@/components/common/input/TextInput";
-import useToggle from "@/hooks/useToggle";
+import useDialog from "@/hooks/useDialogContext";
 import { cn } from "@/utils";
 import type { FileRangeCreate, PaperVariant } from "@/utils/types/backend";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
@@ -60,9 +59,28 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
   draftFiles,
   setDraftFiles,
 }) => {
+  const dialog = useDialog();
+
   const [pageRangeType, setPageRangeType] = useState("All Pages");
-  const [showDeleteRangeConfirmation, toggleShowDeleteRangeConfirmation] =
-    useToggle();
+
+  const toggleDeleteDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: "Delete Range",
+        description:
+          "Are you sure you want to delete this range? This action can't be undone!",
+        content: (
+          <>
+            <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
+              Nevermind
+            </Button>
+            <Button appearance="filled">Delete</Button>
+          </>
+        ),
+        allowClickOutside: false,
+      }),
+    [dialog],
+  );
 
   const setRangeField = useCallback(
     (fields: Partial<FileRangeCreate>) =>
@@ -89,191 +107,164 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
     .draft.ranges.find((range) => range.key === rangeKey)!;
 
   return (
-    <>
-      <div
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden rounded-lg border border-outline",
+      )}
+    >
+      <SegmentedGroup
         className={cn(
-          "flex flex-col overflow-hidden rounded-lg border border-outline",
+          "rounded-none rounded-t-lg border-none bg-surface-container",
+          !open && "rounded-b-lg",
         )}
       >
-        <SegmentedGroup
+        <SelectInput
+          value={{ type: pageRangeType }}
+          onChange={(value) => {
+            setPageRangeType(value.type);
+            if (value.type === "Range") {
+              setRangeField({ range: null });
+            }
+          }}
+          displayKey="type"
+          matchKey="type"
+          options={[{ type: "All Pages" }, { type: "Range" }]}
+          className="w-72 !border-r !border-outline"
+          appearance="inset"
+        />
+        <TextInput
+          value={currentRange.range ?? ""}
+          onChange={(event) =>
+            setRangeField({
+              range: event.target.value === "" ? null : event.target.value,
+            })
+          }
+          placeholder="e.g. 1-5, 8, 11-13"
+          error={
+            currentRange.range !== null
+              ? !/^(\s*\d+\s*(-\s*\d+\s*)?)(,\s*\d+\s*(-\s*\d+\s*)?)*$/.test(
+                  currentRange.range,
+                )
+              : false
+          }
+          showErrorIcon={true}
+          errorMessage="Invalid"
           className={cn(
-            "rounded-none rounded-t-lg border-none bg-surface-container",
-            !open && "rounded-b-lg",
+            "w-full border-none bg-background transition-opacity",
+            pageRangeType !== "Range" && "opacity-0",
           )}
-        >
-          <SelectInput
-            value={{ type: pageRangeType }}
-            onChange={(value) => {
-              setPageRangeType(value.type);
-              if (value.type === "Range") {
-                setRangeField({ range: null });
-              }
-            }}
-            displayKey="type"
-            matchKey="type"
-            options={[{ type: "All Pages" }, { type: "Range" }]}
-            className="w-72 !border-r !border-outline"
-            appearance="inset"
-          />
-          <TextInput
-            value={currentRange.range ?? ""}
-            onChange={(event) =>
-              setRangeField({
-                range: event.target.value === "" ? null : event.target.value,
-              })
-            }
-            placeholder="e.g. 1-5, 8, 11-13"
-            error={
-              currentRange.range !== null
-                ? !/^(\s*\d+\s*(-\s*\d+\s*)?)(,\s*\d+\s*(-\s*\d+\s*)?)*$/.test(
-                    currentRange.range,
-                  )
-                : false
-            }
-            showErrorIcon={true}
-            errorMessage="Invalid"
-            className={cn(
-              "w-full border-none bg-background transition-opacity",
-              pageRangeType !== "Range" && "opacity-0",
-            )}
-          />
-          <div
-            className="cursor-pointer"
-            onClick={() => toggleShowDeleteRangeConfirmation(true)}
-          >
-            <MaterialIcon icon="delete" className="text-error" />
-          </div>
-          <div className="cursor-pointer" onClick={() => setOpen(!open)}>
-            <MaterialIcon
-              icon="arrow_drop_up"
-              className={cn(
-                "transition-all duration-250",
-                open && "rotate-180",
-              )}
-            />
-          </div>
-        </SegmentedGroup>
-        <div className="overflow-hidden">
-          <AnimatePresence initial={false}>
-            {open && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-              >
-                <div
-                  className={`
-                    flex flex-col gap-2 rounded-b-lg border-t border-outline
-                    bg-surface-container p-3
-                  `}
-                >
-                  <LabelGroup header="Paper Type">
-                    <SelectInput
-                      value={
-                        paperVariants.find(
-                          (variant) =>
-                            variant.id === currentRange.paperVariantId,
-                        )!
-                      }
-                      onChange={(value) =>
-                        setRangeField({ paperVariantId: value.id })
-                      }
-                      displayKey="name"
-                      matchKey="id"
-                      options={paperVariants}
-                    />
-                  </LabelGroup>
-                  <LabelGroup header="Color">
-                    <SegmentedGroup>
-                      <Button
-                        appearance="tonal"
-                        selected={!currentRange.isColour}
-                        onClick={() => setRangeField({ isColour: false })}
-                      >
-                        Monochrome
-                      </Button>
-                      <Button
-                        appearance="tonal"
-                        selected={currentRange.isColour}
-                        onClick={() => setRangeField({ isColour: true })}
-                      >
-                        Colour
-                      </Button>
-                    </SegmentedGroup>
-                  </LabelGroup>
-                  <LabelGroup header="Orientation">
-                    <SegmentedGroup>
-                      <Button
-                        appearance="tonal"
-                        selected={currentRange.paperOrientation === "portrait"}
-                        onClick={() =>
-                          setRangeField({ paperOrientation: "portrait" })
-                        }
-                      >
-                        Portrait
-                      </Button>
-                      <Button
-                        appearance="tonal"
-                        selected={currentRange.paperOrientation === "landscape"}
-                        onClick={() =>
-                          setRangeField({ paperOrientation: "landscape" })
-                        }
-                      >
-                        Landscape
-                      </Button>
-                    </SegmentedGroup>
-                  </LabelGroup>
-                  <LabelGroup header="Copies">
-                    <NumberInput
-                      value={currentRange.copies}
-                      onChange={(value) => setRangeField({ copies: value })}
-                      min={0}
-                      max={99}
-                    />
-                  </LabelGroup>
-                  <LabelGroup header="Sides">
-                    <SegmentedGroup>
-                      <Button
-                        appearance="tonal"
-                        selected={!currentRange.isDoubleSided}
-                        onClick={() => setRangeField({ isDoubleSided: false })}
-                      >
-                        Single-sided
-                      </Button>
-                      <Button
-                        appearance="tonal"
-                        selected={currentRange.isDoubleSided}
-                        onClick={() => setRangeField({ isDoubleSided: true })}
-                      >
-                        Double-sided
-                      </Button>
-                    </SegmentedGroup>
-                  </LabelGroup>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        />
+        <div className="cursor-pointer" onClick={toggleDeleteDialog}>
+          <MaterialIcon icon="delete" className="text-error" />
         </div>
-      </div>
-      <AnimatePresence>
-        {showDeleteRangeConfirmation && (
-          <Dialog
-            title="Delete Range"
-            desc="Are you sure you want to delete this range? This action can't be undone!"
-            setClickOutside={toggleShowDeleteRangeConfirmation}
-            className="z-100"
-          >
-            <Button
-              appearance="tonal"
-              onClick={() => toggleShowDeleteRangeConfirmation(false)}
+        <div className="cursor-pointer" onClick={() => setOpen(!open)}>
+          <MaterialIcon
+            icon="arrow_drop_up"
+            className={cn("transition-all duration-250", open && "rotate-180")}
+          />
+        </div>
+      </SegmentedGroup>
+      <div className="overflow-hidden">
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
             >
-              Nevermind
-            </Button>
-            <Button appearance="filled">Delete</Button>
-          </Dialog>
-        )}
-      </AnimatePresence>
-    </>
+              <div
+                className={`
+                  flex flex-col gap-2 rounded-b-lg border-t border-outline
+                  bg-surface-container p-3
+                `}
+              >
+                <LabelGroup header="Paper Type">
+                  <SelectInput
+                    value={
+                      paperVariants.find(
+                        (variant) => variant.id === currentRange.paperVariantId,
+                      )!
+                    }
+                    onChange={(value) =>
+                      setRangeField({ paperVariantId: value.id })
+                    }
+                    displayKey="name"
+                    matchKey="id"
+                    options={paperVariants}
+                  />
+                </LabelGroup>
+                <LabelGroup header="Color">
+                  <SegmentedGroup>
+                    <Button
+                      appearance="tonal"
+                      selected={!currentRange.isColour}
+                      onClick={() => setRangeField({ isColour: false })}
+                    >
+                      Monochrome
+                    </Button>
+                    <Button
+                      appearance="tonal"
+                      selected={currentRange.isColour}
+                      onClick={() => setRangeField({ isColour: true })}
+                    >
+                      Colour
+                    </Button>
+                  </SegmentedGroup>
+                </LabelGroup>
+                <LabelGroup header="Orientation">
+                  <SegmentedGroup>
+                    <Button
+                      appearance="tonal"
+                      selected={currentRange.paperOrientation === "portrait"}
+                      onClick={() =>
+                        setRangeField({ paperOrientation: "portrait" })
+                      }
+                    >
+                      Portrait
+                    </Button>
+                    <Button
+                      appearance="tonal"
+                      selected={currentRange.paperOrientation === "landscape"}
+                      onClick={() =>
+                        setRangeField({ paperOrientation: "landscape" })
+                      }
+                    >
+                      Landscape
+                    </Button>
+                  </SegmentedGroup>
+                </LabelGroup>
+                <LabelGroup header="Copies">
+                  <NumberInput
+                    value={currentRange.copies}
+                    onChange={(value) => setRangeField({ copies: value })}
+                    min={0}
+                    max={99}
+                  />
+                </LabelGroup>
+                <LabelGroup header="Sides">
+                  <SegmentedGroup>
+                    <Button
+                      appearance="tonal"
+                      selected={!currentRange.isDoubleSided}
+                      onClick={() => setRangeField({ isDoubleSided: false })}
+                    >
+                      Single-sided
+                    </Button>
+                    <Button
+                      appearance="tonal"
+                      selected={currentRange.isDoubleSided}
+                      onClick={() => setRangeField({ isDoubleSided: true })}
+                    >
+                      Double-sided
+                    </Button>
+                  </SegmentedGroup>
+                </LabelGroup>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 };
 

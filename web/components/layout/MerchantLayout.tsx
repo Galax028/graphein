@@ -1,104 +1,59 @@
 import Button from "@/components/common/Button";
 import Dialog from "@/components/common/Dialog";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
+import PageLoadTransition from "@/components/layout/PageLoadTransition";
+import useDialog, { useDialogContext } from "@/hooks/useDialogContext";
+import { useNavbar } from "@/hooks/useNavbarContext";
+import useToggle from "@/hooks/useToggle";
 import { AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { type ReactNode, type FC, useEffect } from "react";
-import useToggle from "@/hooks/useToggle";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import { type FC, type ReactNode, useCallback } from "react";
 
-type MerchantLayoutProps = {
-  page: "dashboard" | "management";
-  translationNamespace: string;
-  children: ReactNode;
-};
-
-/**
- * Provides a consistent layout structure for all merchant-facing pages.
- *
- * This component includes the main navigation bar with links to the dashboard
- * and management pages, a sign-out button with a confirmation dialog.
- *
- * @param props.page                   Identifies the currently active page to
- *                                     highlight the correct navigation button.
- * @param props.translationNamespace   The namespace for `next-intl` to load the
- *                                     correct page-specific translations.
- * @param props.children               The main page content to be rendered
- *                                     within the layout.
- */
-const MerchantLayout: FC<MerchantLayoutProps> = ({
-  page,
-  translationNamespace,
-  children,
-}) => {
+const MerchantNavbar: FC = () => {
   const router = useRouter();
+  const page = router.pathname.includes("dashboard")
+    ? "dashboard"
+    : "management";
   const tx = useTranslations("common");
-  const t = useTranslations(translationNamespace);
-  const { setNavbarTitle } = useNavbarContext();
+  const t = useTranslations(
+    page === "dashboard" ? "dashboard" : "merchantGlance",
+  );
+  const dialog = useDialog();
 
-  const [showSignOutDialog, toggleShowSignOutDialog] = useToggle(false);
-  const [isSigningOut, toggleIsSigningOut] = useToggle();
+  const [isSigningOut, toggleSigningOut] = useToggle();
 
-  useEffect(() => setNavbarTitle(t("navigationBar")), [t, setNavbarTitle]);
+  useNavbar(useCallback(() => ({ title: t("navigationBar") }), [t]));
 
-  const handleSignOut = async () => {
-    toggleIsSigningOut(true);
+  const handleSignOut = useCallback(
+    async () => {
+      toggleSigningOut(true);
 
-    const res = await fetch(
-      process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
-      { method: "POST", credentials: "include" },
-    );
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
+        { method: "POST", credentials: "include" },
+      );
 
-    if (res.ok) {
-      return router.push("/?asMerchant=true");
-    }
-  };
+      if (res.ok) {
+        dialog.toggle(false);
+        return router.push("/?asMerchant=true");
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [toggleSigningOut],
+  );
 
-  return (
-    <div className="flex h-dvh flex-col items-center overflow-hidden">
-      {/* title={t("navigationBar")} */}
-      <NavigationBar>
-        <SegmentedGroup>
-          <Button
-            appearance="tonal"
-            className={page === "dashboard" ? "font-bold" : undefined}
-            onClick={() => router.push("/merchant/dashboard")}
-          >
-            Dashboard
-          </Button>
-          <Button
-            appearance="tonal"
-            className={page === "management" ? "font-bold" : undefined}
-            onClick={() => router.push("/merchant/management")}
-          >
-            Management
-          </Button>
-        </SegmentedGroup>
-        <Button
-          appearance="tonal"
-          icon="logout"
-          busy={isSigningOut}
-          disabled={isSigningOut}
-          onClick={() => toggleShowSignOutDialog(true)}
-        />
-      </NavigationBar>
-      <PageLoadTransition className="!grid h-full !max-w-full grid-cols-4 gap-2">
-        {children}
-      </PageLoadTransition>
-
-      <AnimatePresence>
-        {showSignOutDialog && (
-          <Dialog
-            title={t("signOut.title")}
-            desc={t("signOut.description")}
-            setClickOutside={toggleShowSignOutDialog}
-          >
+  const toggleSignOutDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: t("signOut.title"),
+        description: t("signOut.description"),
+        content: (
+          <>
             <Button
               appearance="tonal"
-              onClick={() => toggleShowSignOutDialog(false)}
+              onClick={() => dialog.toggle(false)}
               disabled={isSigningOut}
             >
               {tx("action.nevermind")}
@@ -111,6 +66,59 @@ const MerchantLayout: FC<MerchantLayoutProps> = ({
             >
               {t("signOut.title")}
             </Button>
+          </>
+        ),
+        allowClickOutside: true,
+      }),
+    [tx, t, dialog, isSigningOut, handleSignOut],
+  );
+
+  return (
+    <NavigationBar>
+      <SegmentedGroup>
+        <Button
+          appearance="tonal"
+          className={page === "dashboard" ? "font-bold" : undefined}
+          onClick={() => router.push("/merchant/dashboard")}
+        >
+          Dashboard
+        </Button>
+        <Button
+          appearance="tonal"
+          className={page === "management" ? "font-bold" : undefined}
+          onClick={() => router.push("/merchant/management")}
+        >
+          Management
+        </Button>
+      </SegmentedGroup>
+      <Button
+        appearance="tonal"
+        icon="logout"
+        busy={isSigningOut}
+        disabled={isSigningOut}
+        onClick={toggleSignOutDialog}
+      />
+    </NavigationBar>
+  );
+};
+
+const MerchantLayout: FC<{ children: ReactNode }> = ({ children }) => {
+  const dialog = useDialogContext();
+
+  return (
+    <div className="flex h-dvh flex-col overflow-y-hidden">
+      <MerchantNavbar />
+      <PageLoadTransition className="!grid !max-w-full grid-cols-4 gap-2">
+        {children}
+      </PageLoadTransition>
+      <AnimatePresence>
+        {dialog.show && (
+          <Dialog
+            title={dialog.title}
+            description={dialog.description}
+            toggle={dialog.toggle}
+          >
+            {dialog.content}
           </Dialog>
         )}
       </AnimatePresence>

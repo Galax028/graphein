@@ -1,15 +1,12 @@
 import Button from "@/components/common/Button";
-import Dialog from "@/components/common/Dialog";
-import NavigationBar from "@/components/common/NavigationBar";
 import LoadingPage from "@/components/layout/LoadingPage";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import ConfigOrder from "@/components/orders/new/configOrder";
 import Review from "@/components/orders/new/review";
 import UploadFiles from "@/components/orders/new/upload";
+import useDialog from "@/hooks/useDialogContext";
 import useLocalStorage, { deserializeAsString } from "@/hooks/useLocalStorage";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import { useNavbarContext } from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
-import useUserContext from "@/hooks/useUserContext";
 import { prefetchPapers } from "@/query/fetchPapers";
 import { prefetchUser } from "@/query/fetchUser";
 import checkIsBuildingOrder from "@/utils/helpers/checkIsBuildingOrder";
@@ -23,7 +20,6 @@ import type {
 } from "@/utils/types/common";
 import { dehydrate, QueryClient, useMutation } from "@tanstack/react-query";
 import dayjs, { type Dayjs } from "dayjs";
-import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -32,20 +28,21 @@ import {
   type ReactElement,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
-  const { setNavbarTitle } = useNavbarContext();
-  const user = useUserContext();
+  const { setNavbar } = useNavbarContext();
+  const dialog = useDialog();
 
   const [orderStage, setOrderStage, unsetOrderStage] =
     useLocalStorage<OrderStage>("orderStage", deserializeAsString);
   const [draftOrderId, setDraftOrderId, unsetDraftOrderId] =
     useLocalStorage<Uuid>("draftOrderId", deserializeAsString);
   const [draftOrderExpiry, setDraftOrderExpiry, unsetDraftOrderExpiry] =
-    useLocalStorage<Dayjs>(
+    useLocalStorage(
       "draftOrderExpiry",
       useCallback((value: string) => dayjs(value), []),
       useCallback((value: Dayjs) => value.toISOString(), []),
@@ -60,8 +57,6 @@ const BuildOrderPage: FC<PageProps> = () => {
     undefined,
   );
   const [readyForNextStage, toggleReadyForNextStage] = useToggle();
-  const [showDiscardConfirmationDialog, toggleDiscardConfirmationDialog] =
-    useToggle();
 
   const createOrderMutation = useMutation({
     mutationFn: async () => {
@@ -104,6 +99,30 @@ const BuildOrderPage: FC<PageProps> = () => {
     },
   });
 
+  const toggleDiscardDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: "Discard Order",
+        description:
+          "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!",
+        content: (
+          <>
+            <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
+              Nevermind
+            </Button>
+            <Button
+              appearance="filled"
+              onClick={() => discardOrderMutation.mutate()}
+            >
+              Discard
+            </Button>
+          </>
+        ),
+        allowClickOutside: false,
+      }),
+    [dialog, discardOrderMutation],
+  );
+
   const stages: {
     [K in OrderStage]: {
       title: string;
@@ -111,46 +130,49 @@ const BuildOrderPage: FC<PageProps> = () => {
       href: string;
       component: ReactElement;
     };
-  } = {
-    uploadFiles: {
-      title: "Upload files",
-      backContext: "/glance",
-      href: "/order/new/configure-order",
-      component: (
-        <UploadFiles // @ts-expect-error ---
-          orderId={draftOrderId} // @ts-expect-error ---
-          draftFiles={draftFiles}
-          setDraftFiles={setDraftFiles}
-          setReadyForNextStage={toggleReadyForNextStage}
-        />
-      ),
-    },
-    configOrder: {
-      title: "Configure order",
-      backContext: "/order/new/upload",
-      href: "/order/new/review",
-      component: (
-        <ConfigOrder // @ts-expect-error ---
-          draftFiles={draftFiles} // @ts-expect-error ---
-          setDraftFiles={setDraftFiles}
-          setReadyForNextStage={toggleReadyForNextStage}
-        />
-      ),
-    },
-    // configServices: {
-    //   title: "Add services",
-    //   backContext: "/order/new/configure-order",
-    //   href: "/order/new/review",
-    //   component: <ConfigServices />,
-    // },
-    review: {
-      title: "Review order",
-      backContext: "/order/new/configure-order",
-      href: "/order/new/review",
-      // @ts-expect-error ---
-      component: <Review draftFiles={draftFiles} />,
-    },
-  } as const;
+  } = useMemo(
+    () => ({
+      uploadFiles: {
+        title: "Upload files",
+        backContext: "/glance",
+        href: "/order/new/configure-order",
+        component: (
+          <UploadFiles // @ts-expect-error ---
+            orderId={draftOrderId} // @ts-expect-error ---
+            draftFiles={draftFiles}
+            setDraftFiles={setDraftFiles}
+            setReadyForNextStage={toggleReadyForNextStage}
+          />
+        ),
+      },
+      configOrder: {
+        title: "Configure order",
+        backContext: "/order/new/upload",
+        href: "/order/new/review",
+        component: (
+          <ConfigOrder // @ts-expect-error ---
+            draftFiles={draftFiles} // @ts-expect-error ---
+            setDraftFiles={setDraftFiles}
+            setReadyForNextStage={toggleReadyForNextStage}
+          />
+        ),
+      },
+      // configServices: {
+      //   title: "Add services",
+      //   backContext: "/order/new/configure-order",
+      //   href: "/order/new/review",
+      //   component: <ConfigServices />,
+      // },
+      review: {
+        title: "Review order",
+        backContext: "/order/new/configure-order",
+        href: "/order/new/review",
+        // @ts-expect-error ---
+        component: <Review draftFiles={draftFiles} />,
+      },
+    }),
+    [draftOrderId, draftFiles, toggleReadyForNextStage],
+  );
 
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
@@ -191,7 +213,11 @@ const BuildOrderPage: FC<PageProps> = () => {
           return;
       }
 
-      setNavbarTitle(stages[stage].title);
+      setNavbar({
+        title: stages[stage].title,
+        backEnabled: true,
+        backContextURL: stages[stage].backContext,
+      });
       if (checkIsBuildingOrder()) {
         setOrderStage(stage);
         const draftOrderData = JSON.parse(
@@ -206,7 +232,7 @@ const BuildOrderPage: FC<PageProps> = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.query.stage, setNavbarTitle, setOrderStage],
+    [router.query.stage, setNavbar, setOrderStage],
   );
 
   // To show that the 15 min order window has expired, and to start a new one then.
@@ -261,73 +287,42 @@ const BuildOrderPage: FC<PageProps> = () => {
     return <LoadingPage />;
 
   return (
-    <div className="flex h-dvh flex-col">
-      <NavigationBar
-        user={user}
-        // title={stages[orderStage].title}
-        backEnabled={true}
-        backContextURL={stages[orderStage].backContext}
-      />
-      <PageLoadTransition className="flex h-full w-full flex-col gap-3">
-        <div className="w-full pb-27" key={orderStage}>
-          {stages[orderStage].component}
-        </div>
-        <div className="fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg">
-          <div className="flex flex-col gap-2 px-3">
-            {orderStage === "review" ? (
-              <Button
-                appearance="filled"
-                icon="send"
-                disabled={!readyForNextStage}
-                onClick={() => alert("send order")}
-              >
-                Send Order
-              </Button>
-            ) : readyForNextStage ? (
-              <Link href={stages[orderStage].href}>
-                <Button appearance="filled" className="w-full">
-                  Next
-                </Button>
-              </Link>
-            ) : (
-              <Button appearance="filled" disabled={true}>
-                Next
-              </Button>
-            )}
-            <Button
-              appearance="tonal"
-              icon="contract_delete"
-              onClick={() => toggleDiscardConfirmationDialog(true)}
-            >
-              Discard Order
-            </Button>
-          </div>
-        </div>
-      </PageLoadTransition>
-
-      <AnimatePresence>
-        {showDiscardConfirmationDialog && (
-          <Dialog
-            title="Discard Order"
-            desc="When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!"
-            setClickOutside={toggleDiscardConfirmationDialog}
-          >
-            <Button
-              appearance="tonal"
-              onClick={() => toggleDiscardConfirmationDialog(false)}
-            >
-              Nevermind
-            </Button>
+    <>
+      <div className="w-full pb-27" key={orderStage}>
+        {stages[orderStage].component}
+      </div>
+      <div className="fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg">
+        <div className="flex flex-col gap-2 px-3">
+          {orderStage === "review" ? (
             <Button
               appearance="filled"
-              onClick={() => discardOrderMutation.mutate()}
+              icon="send"
+              disabled={!readyForNextStage}
+              onClick={() => alert("send order")}
             >
-              Discard
+              Send Order
             </Button>
-          </Dialog>
-        )}
-      </AnimatePresence>
-    </div>
+          ) : readyForNextStage ? (
+            <Link href={stages[orderStage].href}>
+              <Button appearance="filled" className="w-full">
+                Next
+              </Button>
+            </Link>
+          ) : (
+            <Button appearance="filled" disabled={true}>
+              Next
+            </Button>
+          )}
+          <Button
+            appearance="tonal"
+            icon="contract_delete"
+            onClick={toggleDiscardDialog}
+          >
+            Discard Order
+          </Button>
+        </div>
+      </div>
+    </>
   );
 };
 

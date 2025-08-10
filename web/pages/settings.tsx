@@ -1,106 +1,67 @@
 import Button from "@/components/common/Button";
-import Dialog from "@/components/common/Dialog";
 import LabelGroup from "@/components/common/LabelGroup";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
-import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import UserProfileSettings from "@/components/settings/UserProfileSettings";
+import useDialog from "@/hooks/useDialogContext";
+import { useNavbar } from "@/hooks/useNavbarContext";
+import useToggle from "@/hooks/useToggle";
+import useUserContext from "@/hooks/useUserContext";
 import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
-import useUserContext from "@/hooks/useUserContext";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
-import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { useEffect, type FC } from "react";
-import useToggle from "@/hooks/useToggle";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import { useCallback, type FC } from "react";
 
 const SettingsPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
   const tx = useTranslations("common");
   const t = useTranslations("settings");
-  const { setNavbarTitle } = useNavbarContext();
+  const dialog = useDialog();
   const user = useUserContext();
 
-  const [showSignOutDialog, toggleShowSignOutDialog] = useToggle();
-  const [isSigningOut, toggleIsSigningOut] = useToggle();
+  const [isSigningOut, toggleSigningOut] = useToggle();
 
-  useEffect(() => setNavbarTitle(t("navigationBar")), [t, setNavbarTitle]);
+  useNavbar(
+    useCallback(() => ({ title: t("navigationBar"), backEnabled: true }), [t]),
+  );
 
-  const changeLanguage = (lang: string) =>
-    router.replace(`${router.asPath}?lang=${lang}`);
+  const changeLanguage = useCallback(
+    (lang: string) => router.replace(`${router.asPath}?lang=${lang}`),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
-  const handleSignOut = async () => {
-    toggleIsSigningOut(true);
+  const handleSignOut = useCallback(
+    async () => {
+      toggleSigningOut(true);
 
-    const res = await fetch(
-      process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
-      { method: "POST", credentials: "include" },
-    );
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_API_PATH + "/auth/signout",
+        { method: "POST", credentials: "include" },
+      );
 
-    if (res.ok) {
-      return router.push("/");
-    }
-  };
+      if (res.ok) {
+        dialog.toggle(false);
+        return router.push("/");
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [toggleSigningOut],
+  );
 
-  return (
-    <div className="flex flex-col items-center">
-      <NavigationBar
-        user={user}
-        // title={t("navigationBar")}
-        backEnabled={true}
-      />
-      <PageLoadTransition>
-        <UserProfileSettings user={user} />
-        <LabelGroup header={t("appearanceSettings.title")}>
-          <div
-            className={`
-              flex flex-col gap-3 rounded-lg border border-outline
-              bg-surface-container p-3
-            `}
-          >
-            <LabelGroup header={t("appearanceSettings.language")}>
-              <SegmentedGroup>
-                <Button
-                  selected={locale === "th"}
-                  appearance="tonal"
-                  onClick={() => changeLanguage("th")}
-                >
-                  ไทย
-                </Button>
-                <Button
-                  selected={locale === "en"}
-                  appearance="tonal"
-                  onClick={() => changeLanguage("en")}
-                >
-                  English
-                </Button>
-              </SegmentedGroup>
-            </LabelGroup>
-          </div>
-        </LabelGroup>
-        <Button
-          appearance="tonal"
-          onClick={() => toggleShowSignOutDialog(true)}
-          className="w-full text-error"
-          icon="logout"
-        >
-          {t("signOut.title")}
-        </Button>
-      </PageLoadTransition>
-      <AnimatePresence>
-        {showSignOutDialog && (
-          <Dialog
-            title={t("signOut.title")}
-            desc={t("signOut.description")}
-            setClickOutside={toggleShowSignOutDialog}
-          >
+  const toggleSignOutDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: t("signOut.title"),
+        description: t("signOut.description"),
+        content: (
+          <>
             <Button
               appearance="tonal"
-              onClick={() => toggleShowSignOutDialog(false)}
+              onClick={() => dialog.toggle(false)}
               disabled={isSigningOut}
             >
               {tx("action.nevermind")}
@@ -113,10 +74,52 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
             >
               {t("signOut.title")}
             </Button>
-          </Dialog>
-        )}
-      </AnimatePresence>
-    </div>
+          </>
+        ),
+        allowClickOutside: true,
+      }),
+    [tx, t, dialog, isSigningOut, handleSignOut],
+  );
+
+  return (
+    <>
+      <UserProfileSettings user={user} />
+      <LabelGroup header={t("appearanceSettings.title")}>
+        <div
+          className={`
+            flex flex-col gap-3 rounded-lg border border-outline
+            bg-surface-container p-3
+          `}
+        >
+          <LabelGroup header={t("appearanceSettings.language")}>
+            <SegmentedGroup>
+              <Button
+                selected={locale === "th"}
+                appearance="tonal"
+                onClick={() => changeLanguage("th")}
+              >
+                ไทย
+              </Button>
+              <Button
+                selected={locale === "en"}
+                appearance="tonal"
+                onClick={() => changeLanguage("en")}
+              >
+                English
+              </Button>
+            </SegmentedGroup>
+          </LabelGroup>
+        </div>
+      </LabelGroup>
+      <Button
+        appearance="tonal"
+        onClick={() => toggleSignOutDialog()}
+        className="w-full text-error"
+        icon="logout"
+      >
+        {t("signOut.title")}
+      </Button>
+    </>
   );
 };
 

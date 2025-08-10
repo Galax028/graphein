@@ -1,12 +1,10 @@
 import DescriptionList from "@/components/common/DescriptionList";
 import DropDownCard from "@/components/common/DropDownCard";
 import LabelGroup from "@/components/common/LabelGroup";
-import NavigationBar from "@/components/common/NavigationBar";
 import LoadingPage from "@/components/layout/LoadingPage";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import FileDetailHeader from "@/components/orders/FileDetailHeader";
 import OrderCard from "@/components/orders/OrderCard";
-import useUserContext from "@/hooks/useUserContext";
+import { useNavbar } from "@/hooks/useNavbarContext";
 import {
   prefetchDetailedOrder,
   useDetailedOrderQuery,
@@ -19,14 +17,25 @@ import type { OrderStatus, PageProps, Uuid } from "@/utils/types/common";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import type { GetServerSideProps } from "next";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, type FC } from "react";
+import { Fragment, useCallback, type FC } from "react";
 
 const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
   const locale = useLocale();
   const tx = useTranslations("common");
-  const user = useUserContext();
 
   const { data: detailedOrder, status } = useDetailedOrderQuery(orderId);
+
+  useNavbar(
+    useCallback(
+      () => ({
+        title: tx("orderCard.title", {
+          orderNumber: detailedOrder?.orderNumber ?? "",
+        }),
+        backEnabled: true,
+      }),
+      [tx, detailedOrder],
+    ),
+  );
 
   if (status === "pending" || status === "error") return <LoadingPage />;
 
@@ -60,77 +69,66 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
     cancelled: "Cancelled",
   };
 
-  // The CSS here is completely cooked, will need to cleanup this later.
-  // - @pixelpxed, 06-06-2025
   return (
     <>
-      <NavigationBar
-        user={user}
-        title={tx("orderCard.title", {
-          orderNumber: detailedOrder.orderNumber,
-        })}
-        backEnabled={true}
-      />
-      <PageLoadTransition>
-        <LabelGroup header="Your Order">
-          <OrderCard
-            status={detailedOrder.status}
-            orderNumber={detailedOrder.orderNumber}
-            createdAt={detailedOrder.createdAt}
-            filesCount={detailedOrder.files.length}
-            options={{
-              showProgressBar: true,
-            }}
-          />
-          <DropDownCard header="About Order">
-            <DescriptionList list={aboutOrderProps} />
-          </DropDownCard>
-          <DropDownCard header="Time Log">
-            <div
-              className={`
-                grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
-              `}
-            >
-              {detailedOrder.statusHistory.map((item, idx) => (
-                <Fragment key={idx}>
-                  <p className="text-body-sm opacity-50">
-                    {statusTranslation[item.status]}
-                  </p>
-                  <p className="text-body-md">
-                    {getFormattedDateTime(locale, new Date(item.timestamp))}
-                  </p>
-                </Fragment>
-              ))}
-            </div>
-          </DropDownCard>
-        </LabelGroup>
-        <LabelGroup header="Note to Shop">
+      <LabelGroup header="Your Order">
+        <OrderCard
+          status={detailedOrder.status}
+          orderNumber={detailedOrder.orderNumber}
+          createdAt={detailedOrder.createdAt}
+          filesCount={detailedOrder.files.length}
+          options={{
+            showProgressBar: true,
+          }}
+        />
+        <DropDownCard header="About Order">
+          <DescriptionList list={aboutOrderProps} />
+        </DropDownCard>
+        <DropDownCard header="Time Log">
           <div
-            className={cn(
-              `rounded-lg border border-outline bg-surface-container p-3`,
-            )}
+            className={`
+              grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
+            `}
           >
-            <p className="text-body-md">
-              {detailedOrder.notes ?? (
-                <span className="italic opacity-50">No notes provided.</span>
-              )}
-            </p>
-          </div>
-        </LabelGroup>
-        <LabelGroup header="Files">
-          {detailedOrder &&
-            detailedOrder.files.map((file, idx) => (
-              <FileDetailHeader
-                filename={file.filename}
-                filesize={file.filesize}
-                filetype={file.filetype}
-                orderId={detailedOrder.id}
-                fileId={file.id}
-                key={idx}
-              />
+            {detailedOrder.statusHistory.map((item, idx) => (
+              <Fragment key={idx}>
+                <p className="text-body-sm opacity-50">
+                  {statusTranslation[item.status]}
+                </p>
+                <p className="text-body-md">
+                  {getFormattedDateTime(locale, new Date(item.timestamp))}
+                </p>
+              </Fragment>
             ))}
-        </LabelGroup>
-      </PageLoadTransition>
+          </div>
+        </DropDownCard>
+      </LabelGroup>
+      <LabelGroup header="Note to Shop">
+        <div
+          className={cn(
+            `rounded-lg border border-outline bg-surface-container p-3`,
+          )}
+        >
+          <p className="text-body-md">
+            {detailedOrder.notes ?? (
+              <span className="italic opacity-50">No notes provided.</span>
+            )}
+          </p>
+        </div>
+      </LabelGroup>
+      <LabelGroup header="Files">
+        {detailedOrder &&
+          detailedOrder.files.map((file, idx) => (
+            <FileDetailHeader
+              filename={file.filename}
+              filesize={file.filesize}
+              filetype={file.filetype}
+              orderId={detailedOrder.id}
+              fileId={file.id}
+              key={idx}
+            />
+          ))}
+      </LabelGroup>
     </>
   );
 };

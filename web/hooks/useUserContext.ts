@@ -1,9 +1,6 @@
 import type { User } from "@/utils/types/backend";
 import { createContext, useContext, type Context } from "react";
 
-/**
- * React Context for storing and providing user data throughout the application.
- */
 export const UserContext: Context<User | null> = createContext<User | null>(
   null,
 );
