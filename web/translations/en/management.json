@@ -32,9 +32,7 @@
         "footer": "In some cases, this will appear as a prefix—for example: “A4 - [Variant]”."
       },
       "size": {
-        "header": "Paper Size",
-        "length": "Length",
-        "width": "Width",
+        "header": "Paper Size (Length × Width)",
         "unit": "mm",
         "footer": "The dimensions of the paper in millimetres. The longer side must come first."
       },
@@ -46,5 +44,9 @@
         "addVariant": "Add Variant"
       }
     }
+  },
+  "signOut": {
+    "title": "Sign Out",
+    "description": "TODO"
   }
 }

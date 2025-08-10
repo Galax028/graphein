@@ -36,7 +36,7 @@ const ClientLayout: FC<{ children: ReactNode }> = ({ children }) => {
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
 
-  if (!router.isFallback && router.pathname.includes("merchant"))
+  if (router.pathname.includes("merchant"))
     return <MerchantLayout>{children}</MerchantLayout>;
 
   return <ClientLayout>{children}</ClientLayout>;

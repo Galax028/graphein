@@ -155,7 +155,6 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   >
                     <SegmentedGroup>
                       <TextInput
-                        prefixText={t("serviceManagement.paper.size.length")}
                         suffixText={t("serviceManagement.paper.size.unit")}
                         value=""
                         onChange={() => {}}
@@ -168,7 +167,6 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                         &times;
                       </div>
                       <TextInput
-                        prefixText={t("serviceManagement.paper.size.width")}
                         suffixText={t("serviceManagement.paper.size.unit")}
                         value=""
                         onChange={() => {}}

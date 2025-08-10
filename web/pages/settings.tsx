@@ -3,6 +3,7 @@ import LabelGroup from "@/components/common/LabelGroup";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import UserProfileSettings from "@/components/settings/UserProfileSettings";
 import useDialog from "@/hooks/useDialogContext";
+import useLocaleSwitcher from "@/hooks/useLocaleSwitcher";
 import { useNavbar } from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import useUserContext from "@/hooks/useUserContext";
@@ -17,6 +18,7 @@ import { useCallback, type FC } from "react";
 
 const SettingsPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
+  const switchLocale = useLocaleSwitcher();
   const tx = useTranslations("common");
   const t = useTranslations("settings");
   const dialog = useDialog();
@@ -26,12 +28,6 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
 
   useNavbar(
     useCallback(() => ({ title: t("navigationBar"), backEnabled: true }), [t]),
-  );
-
-  const changeLanguage = useCallback(
-    (lang: string) => router.replace(`${router.asPath}?lang=${lang}`),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
   );
 
   const handleSignOut = useCallback(
@@ -96,14 +92,14 @@ const SettingsPage: FC<PageProps> = ({ locale }) => {
               <Button
                 selected={locale === "th"}
                 appearance="tonal"
-                onClick={() => changeLanguage("th")}
+                onClick={() => switchLocale("th")}
               >
                 ไทย
               </Button>
               <Button
                 selected={locale === "en"}
                 appearance="tonal"
-                onClick={() => changeLanguage("en")}
+                onClick={() => switchLocale("en")}
               >
                 English
               </Button>

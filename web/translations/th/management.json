@@ -32,11 +32,9 @@
         "footer": "In some cases, this will appear as a prefix—for example: “A4 - [Variant]”."
       },
       "size": {
-        "header": "Paper Size",
-        "length": "Length",
-        "width": "Width",
+        "header": "ขนาดกระดาษ (ยาว × กว้าง)",
         "unit": "มม",
-        "footer": "The dimensions of the paper in millimetres. The longer side must come first."
+        "footer": "ขนาดของกระดาษเป็นมิลลิเมตร ด้านที่ยาวกว่าต้องมาก่อน"
       },
       "variants": {
         "title": "Variants",
@@ -46,5 +44,9 @@
         "addVariant": "Add Variant"
       }
     }
+  },
+  "signOut": {
+    "title": "ออกจากระบบ",
+    "description": "TODO"
   }
 }

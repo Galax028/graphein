@@ -2,6 +2,7 @@ import type { ToggleDispatch } from "@/hooks/useToggle";
 import {
   type ActionDispatch,
   createContext,
+  type Dispatch,
   type ReactNode,
   useCallback,
   useContext,
@@ -66,6 +67,16 @@ export const DialogContext = createContext<DialogContext>({
 
 export const useDialogContext = (): DialogContext => useContext(DialogContext);
 
+type UseDialogResult = {
+  isToggled: boolean;
+  toggle: ToggleDispatch;
+  setAndToggle: Dispatch<DialogMeta>;
+  setTitle: Dispatch<string>;
+  setDescription: Dispatch<string | undefined>;
+  setContent: Dispatch<ReactNode>;
+  setAllowClickOutside: Dispatch<boolean>;
+};
+
 /**
  * A hook that provides a simplified API for controlling the dialog.
  *
@@ -73,9 +84,10 @@ export const useDialogContext = (): DialogContext => useContext(DialogContext);
  * memoized, easy-to-use setter functions for controlling the dialog's state and
  * visibility.
  *
- * @returns  An object containing functions to control the dialog.
+ * @returns An object containing the dialog's visibility state (`isToggled`)
+ *          and a set of functions to control its content and visibility.
  */
-const useDialog = () => {
+const useDialog = (): UseDialogResult => {
   const { show: isToggled, toggle, dispatch } = useDialogContext();
   const setAndToggle = useCallback(
     ({ title, description, content, allowClickOutside }: DialogMeta) => {

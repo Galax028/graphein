@@ -9,16 +9,17 @@ import useToggle from "@/hooks/useToggle";
 import { AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { type FC, type ReactNode, useCallback } from "react";
+import { type FC, type ReactNode, useCallback, useMemo } from "react";
 
 const MerchantNavbar: FC = () => {
   const router = useRouter();
-  const page = router.pathname.includes("dashboard")
-    ? "dashboard"
-    : "management";
+  const page = useMemo(
+    () => (router.pathname.includes("dashboard") ? "dashboard" : "management"),
+    [router.pathname],
+  );
   const tx = useTranslations("common");
   const t = useTranslations(
-    page === "dashboard" ? "dashboard" : "merchantGlance",
+    page === "dashboard" ? "merchantGlance" : "management",
   );
   const dialog = useDialog();
 

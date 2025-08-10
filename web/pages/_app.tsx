@@ -10,7 +10,6 @@ import {
   NavbarContext,
   type NavbarMeta,
 } from "@/hooks/useNavbarContext";
-import { scan } from "react-scan";
 import useToggle from "@/hooks/useToggle";
 import { UserContext } from "@/hooks/useUserContext";
 import { useUserQuery } from "@/query/fetchUser";
@@ -21,20 +20,20 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { NextIntlClientProvider } from "next-intl";
 import type { AppProps } from "next/app";
 import {
   type FC,
   type ReactNode,
   useCallback,
-  useEffect,
   useMemo,
   useReducer,
   useState,
 } from "react";
+// import { scan } from "react-scan";
 
 import "@/styles/globals.css";
 import "@material-symbols/font-300/outlined.css";
-import { NextIntlClientProvider } from "next-intl";
 
 const UserContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { data: user, status } = useUserQuery();
@@ -45,12 +44,14 @@ const UserContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const NavbarContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [meta, setMeta] = useState(DEFAULT_NAVBAR_META);
-  const setNavbar = useCallback((args: NavbarMeta) => setMeta(args), []);
-
-  return (
-    <NavbarContext value={{ ...meta, setNavbar }}>{children}</NavbarContext>
+  const [navbarMeta, setNavbarMeta] = useState(DEFAULT_NAVBAR_META);
+  const setNavbar = useCallback((args: NavbarMeta) => setNavbarMeta(args), []);
+  const value = useMemo(
+    () => ({ ...navbarMeta, setNavbar }),
+    [navbarMeta, setNavbar],
   );
+
+  return <NavbarContext value={value}>{children}</NavbarContext>;
 };
 
 const DialogContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -59,19 +60,17 @@ const DialogContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     dialogReducer,
     DEFAULT_DIALOG_META,
   );
-
-  return (
-    <DialogContext
-      value={{
-        ...dialogContext,
-        show: showDialog,
-        toggle: toggleDialog,
-        dispatch: dialogDispatch,
-      }}
-    >
-      {children}
-    </DialogContext>
+  const value = useMemo(
+    () => ({
+      ...dialogContext,
+      show: showDialog,
+      toggle: toggleDialog,
+      dispatch: dialogDispatch,
+    }),
+    [dialogContext, showDialog, toggleDialog],
   );
+
+  return <DialogContext value={value}>{children}</DialogContext>;
 };
 
 const App: FC<AppProps<PageProps>> = ({ Component, pageProps }) => {
@@ -83,9 +82,9 @@ const App: FC<AppProps<PageProps>> = ({ Component, pageProps }) => {
     [],
   );
 
-  useEffect(() => {
-    scan({ enabled: process.env.NODE_ENV === "development" });
-  }, []);
+  // useEffect(() => {
+  //   scan({ enabled: process.env.NODE_ENV === "development" });
+  // }, []);
 
   return (
     <NextIntlClientProvider

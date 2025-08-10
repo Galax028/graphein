@@ -2,6 +2,7 @@ import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
+import useLocaleSwitcher from "@/hooks/useLocaleSwitcher";
 import useNavbar from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import { prefetchUser } from "@/query/fetchUser";
@@ -17,6 +18,7 @@ import { useCallback, useEffect, type FC } from "react";
 
 const LandingPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
+  const switchLocale = useLocaleSwitcher();
   const t = useTranslations("index");
 
   const [isSigningIn, toggleSigningIn] = useToggle();
@@ -41,15 +43,6 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [router.query.asMerchant, toggleMerchant],
-  );
-
-  const changeLanguage = useCallback(
-    (lang: string) => {
-      router.query.lang = lang;
-      router.replace(router);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
   );
 
   return (
@@ -81,7 +74,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
                 selected={locale === "th"}
                 appearance="tonal"
                 disabled={isSigningIn}
-                onClick={() => changeLanguage("th")}
+                onClick={() => switchLocale("th")}
               >
                 ไทย
               </Button>
@@ -89,7 +82,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
                 selected={locale === "en"}
                 appearance="tonal"
                 disabled={isSigningIn}
-                onClick={() => changeLanguage("en")}
+                onClick={() => switchLocale("en")}
               >
                 English
               </Button>
