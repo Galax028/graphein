@@ -136,7 +136,7 @@ const BuildOrderPage: FC<PageProps> = () => {
   } = useMemo(
     () => ({
       uploadFiles: {
-        title: "Upload files",
+        title: tx("mainPage.stage.uploadFiles"),
         backContext: "/glance",
         href: "/order/new/configure-order",
         component: (
@@ -149,7 +149,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         ),
       },
       configOrder: {
-        title: "Configure order",
+        title: tx("mainPage.stage.configOrder"),
         backContext: "/order/new/upload",
         href: "/order/new/review",
         component: (
@@ -161,13 +161,13 @@ const BuildOrderPage: FC<PageProps> = () => {
         ),
       },
       // configServices: {
-      //   title: "Add services",
+      //   title: tx("mainPage.stage.configService"),
       //   backContext: "/order/new/configure-order",
       //   href: "/order/new/review",
       //   component: <ConfigServices />,
       // },
       review: {
-        title: "Review order",
+        title: tx("mainPage.stage.review"),
         backContext: "/order/new/configure-order",
         href: "/order/new/review",
         // @ts-expect-error ---

@@ -4,6 +4,12 @@
       "sendOrder": "Send Order",
       "discardOrder": "Discard Order"
     },
+    "stage": {
+      "uploadFiles": "Upload files",
+      "configOrder": "Configure order",
+      "configService": "Add services",
+      "review": "Review order"
+    },
     "discardOrderDialog": {
       "title": "Discard Order",
       "description": "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!",
