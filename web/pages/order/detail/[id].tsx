@@ -1,29 +1,46 @@
 import DescriptionList from "@/components/common/DescriptionList";
 import DropDownCard from "@/components/common/DropDownCard";
 import LabelGroup from "@/components/common/LabelGroup";
+import TreeViewContainer from "@/components/common/tree/TreeViewContainer";
+import TreeViewWrapper from "@/components/common/tree/TreeViewWrapper";
 import LoadingPage from "@/components/layout/LoadingPage";
 import FileDetailHeader from "@/components/orders/FileDetailHeader";
+import FileDetailRange from "@/components/orders/FileDetailRange";
 import OrderCard from "@/components/orders/OrderCard";
 import { useNavbar } from "@/hooks/useNavbarContext";
 import {
   prefetchDetailedOrder,
   useDetailedOrderQuery,
 } from "@/query/fetchDetailedOrder";
+import { usePapersQuery } from "@/query/fetchPapers";
 import { prefetchUser } from "@/query/fetchUser";
 import { cn } from "@/utils";
 import getFormattedDateTime from "@/utils/helpers/getFormattedDateTime";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { OrderStatus, PageProps, Uuid } from "@/utils/types/common";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import type { GetServerSideProps } from "next";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useCallback, type FC } from "react";
+import { useCallback, useMemo, type FC } from "react";
 
 const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
   const locale = useLocale();
   const tx = useTranslations("common");
+  const t = useTranslations("order");
 
   const { data: detailedOrder, status } = useDetailedOrderQuery(orderId);
+  const { data: papers } = usePapersQuery();
+  const paperVariants = useMemo(() => {
+    if (papers === undefined) return;
+    return papers.flatMap((paper) =>
+      paper.variants.map((variant) => ({
+        ...variant,
+        paperId: paper.id,
+        paperName: paper.name,
+      })),
+    );
+  }, [papers]);
 
   useNavbar(
     useCallback(
@@ -32,46 +49,57 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
           orderNumber: detailedOrder?.orderNumber ?? "",
         }),
         backEnabled: true,
+        backContextURL: "/glance",
       }),
       [tx, detailedOrder],
     ),
   );
 
-  if (status === "pending" || status === "error") return <LoadingPage />;
+  const aboutOrder = useMemo(() => {
+    if (detailedOrder === undefined) return;
 
-  // Rename pls!!!!
-  const createdTimestamp = new Date(detailedOrder.createdAt);
-  const aboutOrderProps = [
-    {
-      title: "Created",
-      content: getFormattedDateTime(locale, createdTimestamp),
-    },
-    {
-      title: "Price",
-      content: detailedOrder.price?.toString() ?? "--",
-    },
-    {
-      title: "Order ID",
-      content:
-        createdTimestamp.getDate().toString().padStart(2, "0") +
-        createdTimestamp.getMonth().toString().padStart(2, "0") +
-        `${createdTimestamp.getFullYear()}-` +
-        detailedOrder.orderNumber.replace(/-/g, ""),
-    },
-  ];
+    const createdAt = dayjs(detailedOrder.createdAt);
+    return [
+      {
+        title: tx("orderCard.created"),
+        content: getFormattedDateTime(locale, createdAt.toDate()),
+      },
+      {
+        title: tx("orderCard.price"),
+        content: detailedOrder.price?.toString() ?? "--",
+      },
+      {
+        title: tx("orderCard.orderId"),
+        content:
+          createdAt.format(`YYYYMMDD-`) +
+          detailedOrder.orderNumber.replace(/-/g, ""),
+      },
+    ];
+  }, [locale, tx, detailedOrder]);
 
-  const statusTranslation: Record<OrderStatus, string> = {
-    reviewing: "Reviewing",
-    processing: "Printing",
-    ready: "Pickup",
-    completed: "Completed",
-    rejected: "Rejected",
-    cancelled: "Cancelled",
-  };
+  const statusTranslation: Record<OrderStatus, string> = useMemo(
+    () => ({
+      reviewing: tx("orderCard.status.reviewing"),
+      processing: tx("orderCard.status.processing"),
+      ready: tx("orderCard.status.ready"),
+      completed: tx("orderCard.status.completed"),
+      rejected: tx("orderCard.status.rejected"),
+      cancelled: tx("orderCard.status.cancelled"),
+    }),
+    [tx],
+  );
+
+  if (
+    status === "pending" ||
+    status === "error" ||
+    paperVariants === undefined ||
+    aboutOrder === undefined
+  )
+    return <LoadingPage />;
 
   return (
     <>
-      <LabelGroup header="Your Order">
+      <LabelGroup header={t("details.yourOrder")}>
         <OrderCard
           status={detailedOrder.status}
           orderNumber={detailedOrder.orderNumber}
@@ -81,29 +109,19 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
             showProgressBar: true,
           }}
         />
-        <DropDownCard header="About Order">
-          <DescriptionList list={aboutOrderProps} />
+        <DropDownCard header={t("details.about")}>
+          <DescriptionList list={aboutOrder} />
         </DropDownCard>
-        <DropDownCard header="Time Log">
-          <div
-            className={`
-              grid grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-2
-            `}
-          >
-            {detailedOrder.statusHistory.map((item, idx) => (
-              <Fragment key={idx}>
-                <p className="text-body-sm opacity-50">
-                  {statusTranslation[item.status]}
-                </p>
-                <p className="text-body-md">
-                  {getFormattedDateTime(locale, new Date(item.timestamp))}
-                </p>
-              </Fragment>
-            ))}
-          </div>
+        <DropDownCard header={t("details.history")}>
+          <DescriptionList
+            list={detailedOrder.statusHistory.map((item) => ({
+              title: statusTranslation[item.status],
+              content: getFormattedDateTime(locale, new Date(item.timestamp)),
+            }))}
+          />
         </DropDownCard>
       </LabelGroup>
-      <LabelGroup header="Note to Shop">
+      <LabelGroup header={t("note.header")}>
         <div
           className={cn(
             `rounded-lg border border-outline bg-surface-container p-3`,
@@ -116,17 +134,73 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
           </p>
         </div>
       </LabelGroup>
-      <LabelGroup header="Files">
+      <LabelGroup header={t("details.files")}>
         {detailedOrder &&
-          detailedOrder.files.map((file, idx) => (
-            <FileDetailHeader
-              filename={file.filename}
-              filesize={file.filesize}
-              filetype={file.filetype}
-              orderId={detailedOrder.id}
-              fileId={file.id}
-              key={idx}
-            />
+          detailedOrder.files.map((file) => (
+            <section key={file.id}>
+              <TreeViewContainer>
+                <FileDetailHeader
+                  filename={file.filename}
+                  filesize={file.filesize}
+                  filetype={file.filetype}
+                  orderId={detailedOrder.id}
+                  fileId={file.id}
+                />
+              </TreeViewContainer>
+              <TreeViewWrapper index={1}>
+                {file.ranges.map((range, idx) => {
+                  const paperVariant = paperVariants.find(
+                    (variant) => variant.id === range.paperVariantId,
+                  )!;
+
+                  return (
+                    <TreeViewContainer
+                      index={1}
+                      isLast={idx === file.ranges.length - 1}
+                      key={range.id}
+                    >
+                      <FileDetailRange
+                        label="page"
+                        value={range.range ?? t("range.allPages")}
+                        details={[
+                          {
+                            title: t("paperType"),
+                            content: paperVariant.paperName,
+                          },
+                          {
+                            title: t("paperVariant"),
+                            content: paperVariant.name,
+                          },
+                          {
+                            title: t("colour.header"),
+                            content: range.isColour
+                              ? t("colour.colour")
+                              : t("colour.monochrome"),
+                          },
+                          {
+                            title: t("orientation.header"),
+                            content:
+                              range.paperOrientation === "portrait"
+                                ? t("orientation.portrait")
+                                : t("orientation.landscape"),
+                          },
+                          {
+                            title: t("sides.header"),
+                            content: range.isDoubleSided
+                              ? t("sides.double")
+                              : t("sides.single"),
+                          },
+                          {
+                            title: t("copies"),
+                            content: range.copies.toString(),
+                          },
+                        ]}
+                      />
+                    </TreeViewContainer>
+                  );
+                })}
+              </TreeViewWrapper>
+            </section>
           ))}
       </LabelGroup>
     </>
@@ -136,10 +210,9 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
-  // TODO: translations
   const [locale, translations] = await getServerSideTranslations(context.req, [
     "common",
-    "index", // TODO
+    "order",
   ]);
 
   const queryClient = new QueryClient();

@@ -118,6 +118,7 @@ const MerchantLayout: FC<{ children: ReactNode }> = ({ children }) => {
             title={dialog.title}
             description={dialog.description}
             toggle={dialog.toggle}
+            allowClickOutside={dialog.allowClickOutside}
           >
             {dialog.content}
           </Dialog>

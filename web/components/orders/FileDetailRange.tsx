@@ -1,5 +1,6 @@
 import DescriptionList from "@/components/common/DescriptionList";
-import type { FC } from "react";
+import { useTranslations } from "next-intl";
+import { useMemo, type FC } from "react";
 
 type FileDetailRangeProps = {
   label: "page" | "image" | "service";
@@ -32,17 +33,25 @@ const FileDetailRange: FC<FileDetailRangeProps> = ({
   details,
   expand = false,
 }) => {
-  // TODO: Add localization to these types
-  const labelNames = {
-    page: "Page",
-    image: "Image",
-    service: "Service",
-  } as const;
+  const t = useTranslations("order");
+
+  const labelNames = useMemo(
+    () => ({
+      page: t("common.page"),
+      image: t("common.image"),
+      service: t("common.service"),
+    }),
+    [t],
+  );
 
   return (
     <div className="rounded-lg border border-outline bg-surface-container">
       <div className="flex">
-        <div className="border-r border-outline px-3 py-2 text-body-md">
+        <div
+          className={`
+            border-r border-outline px-3 py-2 text-body-md select-none
+          `}
+        >
           {labelNames[label]}
         </div>
         <div className="px-3 py-2 text-body-md">{value}</div>

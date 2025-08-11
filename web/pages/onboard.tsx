@@ -83,47 +83,45 @@ const OnboardPage: FC<PageProps> = () => {
       />
       <div
         className={`
-          fixed right-0 bottom-0 left-0 z-10 flex flex-col gap-3 border-t
-          border-outline bg-surface-container p-3
+          fixed right-0 bottom-0 left-0 z-10 mx-auto flex max-w-lg flex-col
+          gap-2 border-t border-outline bg-surface-container p-3
         `}
       >
-        <div className="flex flex-col gap-2">
-          <p className="text-body-sm">
-            {t.rich("disclaimer", {
-              appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
-              a1: (children) => (
-                <Link href="/about/terms-of-service" target="_blank">
-                  <span className="underline">{children}</span>
-                </Link>
-              ),
-              a2: (children) => (
-                <Link href="/about/privacy-policy" target="_blank">
-                  <span className="underline">{children}</span>
-                </Link>
-              ),
-            })}
-          </p>
-          <Button
-            form="onboardingForm"
-            type="submit"
-            appearance="filled"
-            busy={onboardingMutation.isPending}
-            busyWithText={false}
-            disabled={isSigningOut}
-          >
-            {tx("action.next")}
-          </Button>
-          <Button
-            className="text-error"
-            appearance="tonal"
-            onClick={handleSignOut}
-            busy={isSigningOut}
-            busyWithText={false}
-            disabled={onboardingMutation.isPending}
-          >
-            {t("signOut")}
-          </Button>
-        </div>
+        <p className="text-body-sm select-none">
+          {t.rich("disclaimer", {
+            appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
+            a1: (children) => (
+              <Link href="/about/terms-of-service" target="_blank">
+                <span className="underline">{children}</span>
+              </Link>
+            ),
+            a2: (children) => (
+              <Link href="/about/privacy-policy" target="_blank">
+                <span className="underline">{children}</span>
+              </Link>
+            ),
+          })}
+        </p>
+        <Button
+          form="onboardingForm"
+          type="submit"
+          appearance="filled"
+          busy={onboardingMutation.isPending}
+          busyWithText={false}
+          disabled={isSigningOut}
+        >
+          {tx("action.next")}
+        </Button>
+        <Button
+          className="text-error"
+          appearance="tonal"
+          onClick={handleSignOut}
+          busy={isSigningOut}
+          busyWithText={false}
+          disabled={onboardingMutation.isPending}
+        >
+          {t("signOut")}
+        </Button>
       </div>
     </>
   );

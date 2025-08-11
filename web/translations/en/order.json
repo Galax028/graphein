@@ -1,8 +1,15 @@
 {
   "common": {
+    "page": "Page",
+    "image": "Image",
+    "service": "Service",
     "action": {
       "sendOrder": "Send Order",
-      "discardOrder": "Discard Order"
+      "discardOrder": "Discard Order",
+      "addRange": "Add range",
+      "deleteRange": "Delete",
+      "backToGlance": "Back to Homepage",
+      "startOver": "Start Over"
     },
     "stage": {
       "uploadFiles": "Upload files",
@@ -10,14 +17,31 @@
       "configService": "Add services",
       "review": "Review order"
     },
+    "sendOrder": {
+      "title": "TODO",
+      "description": "TODO"
+    },
     "discardOrder": {
       "title": "Discard Order",
-      "description": "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!",
-      "discard": "Discard Order"
+      "description": "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!"
+    },
+    "timeout": {
+      "title": "",
+      "description": ""
+    },
+    "deleteRange": {
+      "title": "Delete Range",
+      "description": "Are you sure you want to delete this range? This action can’t be undone!"
     }
   },
+  "details": {
+    "yourOrder": "Your Order",
+    "about": "About Order",
+    "history": "Time Log",
+    "files": "Files"
+  },
   "upload": {
-    "fileUploadProgress": {
+    "progress": {
       "completed": "Uploaded",
       "inProgress": "Uploading ({progress}%)"
     },
@@ -32,38 +56,32 @@
       "description": "To minimise wait time for others, you can only upload a maximum of {maxFileLimit} files per order. To upload more, visit the shopfront, or start another order after this one."
     }
   },
-  "config": {
-    "action": {
-      "addRange": "Add range"
-    },
-    "fileRangeConfig": {
-      "deleteRange": {
-        "title": "Delete Range",
-        "description": "Are you sure you want to delete this range? This action can’t be undone!",
-        "delete": "Delete"
-      },
-      "range": {
-        "allPages": "All Pages",
-        "range": "Range",
-        "placeholder": "e.g. 1-5, 8, 11-13"
-      },
-      "paperType": "Paper Type",
-      "colour": {
-        "header": "Colour Mode",
-        "monochrome": "Monochrome",
-        "colour": "Colour"
-      },
-      "orientation": {
-        "header": "Paper Orientation",
-        "portrait": "Portrait",
-        "landscape": "Landscape"
-      },
-      "copies": "Number of Copies",
-      "sides": {
-        "header": "Sides",
-        "single": "Single-sided",
-        "double": "Double-sided"
-      }
-    }
+  "range": {
+    "allPages": "All Pages",
+    "range": "Range",
+    "placeholder": "e.g. 1-5, 8, 11-13"
+  },
+  "paperType": "Paper Type",
+  "paperVariant": "Paper Variant",
+  "colour": {
+    "header": "Colour Mode",
+    "monochrome": "Monochrome",
+    "colour": "Colour"
+  },
+  "orientation": {
+    "header": "Orientation",
+    "portrait": "Portrait",
+    "landscape": "Landscape"
+  },
+  "copies": "Number of Copies",
+  "sides": {
+    "header": "Sides",
+    "single": "Single-sided",
+    "double": "Double-sided"
+  },
+  "note": {
+    "header": "Note to Shop",
+    "placeholder": "Optional",
+    "empty": "No notes were provided."
   }
 }

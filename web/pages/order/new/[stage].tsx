@@ -1,4 +1,6 @@
 import Button from "@/components/common/Button";
+import TextInput from "@/components/common/input/TextInput";
+import LabelGroup from "@/components/common/LabelGroup";
 import LoadingPage from "@/components/layout/LoadingPage";
 import ConfigOrder from "@/components/orders/new/ConfigOrder";
 import Review from "@/components/orders/new/Review";
@@ -9,9 +11,14 @@ import { useNavbarContext } from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import { prefetchPapers } from "@/query/fetchPapers";
 import { prefetchUser } from "@/query/fetchUser";
+import { cn } from "@/utils";
 import checkIsBuildingOrder from "@/utils/helpers/checkIsBuildingOrder";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
-import type { APIResponse, Service } from "@/utils/types/backend";
+import type {
+  APIResponse,
+  DetailedOrder,
+  Service,
+} from "@/utils/types/backend";
 import type {
   DraftFile,
   OrderStage,
@@ -19,7 +26,12 @@ import type {
   UploadedDraftFile,
   Uuid,
 } from "@/utils/types/common";
-import { dehydrate, QueryClient, useMutation } from "@tanstack/react-query";
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import dayjs, { type Dayjs } from "dayjs";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
@@ -42,6 +54,7 @@ const BuildOrderPage: FC<PageProps> = () => {
   const t = useTranslations("order");
   const { setNavbar } = useNavbarContext();
   const dialog = useDialog();
+  const queryClient = useQueryClient();
 
   const [orderStage, setOrderStage, unsetOrderStage] =
     useLocalStorage<OrderStage>("orderStage", deserializeAsString);
@@ -84,6 +97,77 @@ const BuildOrderPage: FC<PageProps> = () => {
     },
   });
 
+  const sendOrderMutation = useMutation({
+    mutationFn: async () => {
+      if (
+        draftOrderNotes === undefined ||
+        draftFiles === undefined ||
+        draftServices === undefined
+      )
+        throw new Error("Reached unreachable statement");
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${draftOrderId}/build`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            notes: draftOrderNotes,
+            files: draftFiles.map((draftFile) => draftFile.draft),
+            services: draftServices,
+          }),
+        },
+      );
+
+      const body = (await res.json()) as APIResponse<DetailedOrder>;
+      if (body.success) return body.data;
+      else
+        throw new Error(`Uncaught API Error (${body.error}): ${body.message}`);
+    },
+    onSuccess: (detailedOrder: DetailedOrder) => {
+      dialog.toggle(false);
+      unsetOrderStage();
+      unsetDraftOrderId();
+      unsetDraftOrderExpiry();
+      localStorage.removeItem("draftOrderData");
+      queryClient.setQueryData(
+        ["detailedOrder", detailedOrder.id],
+        detailedOrder,
+      );
+
+      router.push(`/order/detail/${detailedOrder.id}`);
+    },
+  });
+
+  const toggleSendOrderDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: t("common.sendOrder.title"),
+        description: t("common.sendOrder.description"),
+        content: (
+          <>
+            <Button
+              appearance="tonal"
+              disabled={sendOrderMutation.isPending}
+              onClick={() => dialog.toggle(false)}
+            >
+              {tx("action.nevermind")}
+            </Button>
+            <Button
+              appearance="filled"
+              busy={sendOrderMutation.isPending}
+              onClick={() => sendOrderMutation.mutate()}
+            >
+              {t("common.action.sendOrder")}
+            </Button>
+          </>
+        ),
+        allowClickOutside: false,
+      }),
+    [tx, t, dialog, sendOrderMutation],
+  );
+
   const discardOrderMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch(
@@ -113,20 +197,63 @@ const BuildOrderPage: FC<PageProps> = () => {
         description: t("common.discardOrder.description"),
         content: (
           <>
-            <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
+            <Button
+              appearance="tonal"
+              disabled={discardOrderMutation.isPending}
+              onClick={() => dialog.toggle(false)}
+            >
               {tx("action.nevermind")}
             </Button>
             <Button
               appearance="filled"
+              busy={discardOrderMutation.isPending}
               onClick={() => discardOrderMutation.mutate()}
             >
-              {t("common.discardOrder.discard")}
+              {t("common.action.discardOrder")}
             </Button>
           </>
         ),
         allowClickOutside: false,
       }),
     [tx, t, dialog, discardOrderMutation],
+  );
+
+  const toggleTimeoutDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: t("common.timeout.title"),
+        description: t("common.timeout.description"),
+        content: (
+          <>
+            <Button
+              appearance="tonal"
+              onClick={() => {
+                dialog.toggle(false);
+                router.push("/glance");
+              }}
+            >
+              {t("common.action.backToGlance")}
+            </Button>
+            <Button
+              appearance="filled"
+              onClick={() => {
+                dialog.toggle(false);
+                unsetOrderStage();
+                unsetDraftOrderId();
+                unsetDraftOrderExpiry();
+                localStorage.removeItem("draftOrderData");
+
+                router.push("/order/new/upload");
+              }}
+            >
+              {t("common.action.startOver")}
+            </Button>
+          </>
+        ),
+        allowClickOutside: false,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, dialog, unsetOrderStage, unsetDraftOrderId, unsetDraftOrderExpiry],
   );
 
   const stages: {
@@ -144,7 +271,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         href: "/order/new/configure-order",
         component: (
           <UploadFiles
-            orderId={draftOrderId as Uuid}
+            draftOrderId={draftOrderId as Uuid}
             draftFiles={draftFiles as DraftFile[]}
             setDraftFiles={setDraftFiles}
             toggleReadyForNextStage={toggleReadyForNextStage}
@@ -157,6 +284,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         href: "/order/new/review",
         component: (
           <ConfigOrder
+            draftOrderId={draftOrderId as Uuid}
             draftFiles={draftFiles as UploadedDraftFile[]}
             setDraftFiles={
               setDraftFiles as Dispatch<SetStateAction<UploadedDraftFile[]>>
@@ -175,7 +303,12 @@ const BuildOrderPage: FC<PageProps> = () => {
         title: t("common.stage.review"),
         backContext: "/order/new/configure-order",
         href: "/order/new/review",
-        component: <Review draftFiles={draftFiles as UploadedDraftFile[]} />,
+        component: (
+          <Review
+            draftOrderId={draftOrderId as string}
+            draftFiles={draftFiles as UploadedDraftFile[]}
+          />
+        ),
       },
     }),
     [t, draftOrderId, draftFiles, toggleReadyForNextStage],
@@ -192,6 +325,21 @@ const BuildOrderPage: FC<PageProps> = () => {
       window.removeEventListener("beforeunload", beforeUnload);
     };
   }, []);
+
+  useEffect(() => {
+    let timeoutId: number | undefined = undefined;
+    if (timeoutId === undefined && draftOrderExpiry === null) return;
+    if (timeoutId === undefined && draftOrderExpiry !== null)
+      timeoutId = window.setTimeout(
+        toggleTimeoutDialog,
+        draftOrderExpiry.subtract(10, "seconds").millisecond() -
+          dayjs().millisecond(),
+      );
+
+    return () => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [draftOrderExpiry, toggleTimeoutDialog]);
 
   useEffect(
     () => {
@@ -243,23 +391,6 @@ const BuildOrderPage: FC<PageProps> = () => {
     [router.query.stage, setNavbar, setOrderStage],
   );
 
-  // To show that the 15 min order window has expired, and to start a new one then.
-  // const expiryString = localStorage.getItem("draftOrderExpiry");
-  // const expiryDateFromStorage = expiryString
-  //   ? new Date(expiryString)
-  //   : new Date();
-  // const expirationCalc = (expiryDateFromStorage.getTime() - new Date().getTime() - 1000)
-  // setTimeout(
-  //   () => {
-  //     window.confirm(
-  //       "15 mins order limit expired lol, create a new one then...",
-  //     );
-  //   },
-  //   expirationCalc,
-  // );
-
-  // console.error(expirationCalc / 1000 / 60, "mins");
-
   useEffect(
     () => {
       if (
@@ -269,19 +400,30 @@ const BuildOrderPage: FC<PageProps> = () => {
       )
         return;
 
-      // Do not save `draftFile`s that have not been successfully uploaded, since
-      // it would be impossible to recover them after a page refresh.
+      // Do not save `draftFile`s that have not been successfully uploaded,
+      // since it would be impossible to recover them after a page refresh.
       const nextDraftFiles = draftFiles.filter(
         (draftFile) => draftFile.uploaded,
       );
-      if (orderStage === "uploadFiles" && nextDraftFiles.length !== 0)
+      if (
+        orderStage === "uploadFiles" &&
+        nextDraftFiles.length !== 0 &&
+        draftFiles.length === nextDraftFiles.length
+      )
         toggleReadyForNextStage(true);
+      else if (orderStage === "configOrder")
+        toggleReadyForNextStage(
+          nextDraftFiles.every(
+            (draftFile) =>
+              draftFile.draft.ranges.length !== 0 &&
+              draftFile.draft.ranges.every((range) => range.rangeIsValid),
+          ),
+        );
 
       localStorage.setItem(
         "draftOrderData",
         JSON.stringify({
           notes: draftOrderNotes,
-
           files: nextDraftFiles,
           services: draftServices,
         }),
@@ -303,39 +445,64 @@ const BuildOrderPage: FC<PageProps> = () => {
 
   return (
     <>
-      <div className="w-full overflow-y-scroll pb-27" key={orderStage}>
+      <div
+        className={orderStage === "review" ? "pb-45" : "pb-24"}
+        key={orderStage}
+      >
         {stages[orderStage].component}
       </div>
-      <div className="fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg">
-        <div className="flex flex-col gap-2 px-3">
-          {orderStage === "review" ? (
+      <div
+        className={cn(
+          `
+            fixed right-0 bottom-0 left-0 z-50 mx-auto flex max-w-lg flex-col
+            gap-2 p-3
+          `,
+          orderStage === "review" &&
+            "border-t border-outline bg-surface-container",
+        )}
+      >
+        {orderStage === "review" ? (
+          <>
+            <LabelGroup header={t("note.header")}>
+              <TextInput
+                placeholder={t("note.placeholder")}
+                value={draftOrderNotes ?? ""}
+                onChange={(event) =>
+                  setDraftOrderNotes(
+                    event.target.value !== "" ? event.target.value : null,
+                  )
+                }
+              />
+            </LabelGroup>
             <Button
               appearance="filled"
               icon="send"
               disabled={!readyForNextStage}
-              onClick={() => alert("send order")}
+              busy={sendOrderMutation.isPending}
+              onClick={toggleSendOrderDialog}
             >
               {t("common.action.sendOrder")}
             </Button>
-          ) : readyForNextStage ? (
-            <Link href={stages[orderStage].href}>
-              <Button appearance="filled" className="w-full">
-                {tx("action.next")}
-              </Button>
-            </Link>
-          ) : (
-            <Button appearance="filled" disabled={true}>
+          </>
+        ) : readyForNextStage ? (
+          <Link href={stages[orderStage].href}>
+            <Button appearance="filled" className="w-full">
               {tx("action.next")}
             </Button>
-          )}
-          <Button
-            appearance="tonal"
-            icon="contract_delete"
-            onClick={toggleDiscardDialog}
-          >
-            {t("common.action.discardOrder")}
+          </Link>
+        ) : (
+          <Button appearance="filled" disabled={true}>
+            {tx("action.next")}
           </Button>
-        </div>
+        )}
+        <Button
+          appearance="tonal"
+          icon="contract_delete"
+          disabled={sendOrderMutation.isPending}
+          onClick={toggleDiscardDialog}
+        >
+          {t("common.action.discardOrder")}
+        </Button>
       </div>
     </>
   );

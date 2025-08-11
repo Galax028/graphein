@@ -1,11 +1,11 @@
 import Button from "@/components/common/Button";
 import MaterialIcon from "@/components/common/MaterialIcon";
 import LoadingPage from "@/components/layout/LoadingPage";
+import FileDetailHeader from "@/components/orders/FileDetailHeader";
 import FileRangeConfig from "@/components/orders/FileRangeConfig";
 import type { ToggleDispatch } from "@/hooks/useToggle";
 import { usePapersQuery } from "@/query/fetchPapers";
-import { cn } from "@/utils";
-import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
+import { cn, mimeToExt } from "@/utils";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
@@ -20,6 +20,7 @@ import {
 } from "react";
 
 type ConfigOrderProps = {
+  draftOrderId: Uuid;
   draftFiles: UploadedDraftFile[];
   setDraftFiles: Dispatch<SetStateAction<UploadedDraftFile[]>>;
   toggleReadyForNextStage: ToggleDispatch;
@@ -28,6 +29,7 @@ type ConfigOrderProps = {
 /**
  * A component for configuring the details of all uploaded files.
  *
+ * @param props.draftOrderId             The UUID of the parent order.
  * @param props.draftFiles               The array of files that have been
  *                                       uploaded and are being configured.
  * @param props.setDraftFiles            The state setter function to update the
@@ -37,14 +39,26 @@ type ConfigOrderProps = {
  *                                       stage.
  */
 const ConfigOrder: FC<ConfigOrderProps> = ({
+  draftOrderId,
   draftFiles,
   setDraftFiles,
   toggleReadyForNextStage,
 }) => {
   const router = useRouter();
-  const t = useTranslations("order.config");
+  const t = useTranslations("order");
 
   const { data: papers, status } = usePapersQuery();
+  const paperVariants = useMemo(() => {
+    if (papers === undefined) return;
+    return papers.flatMap((paper) =>
+      paper.variants.map((variant) => ({
+        ...variant,
+        paperId: paper.id,
+        isDefaultSize: paper.isDefault,
+        displayName: `${paper.name} - ${variant.name}`,
+      })),
+    );
+  }, [papers]);
 
   useEffect(
     () => {
@@ -62,18 +76,6 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [draftFiles],
   );
-
-  const paperVariants = useMemo(() => {
-    if (papers === undefined) return;
-    return papers.flatMap((paper) =>
-      paper.variants.map((variant) => ({
-        ...variant,
-        paperId: paper.id,
-        isDefaultSize: paper.isDefault,
-        displayName: `${paper.name} - ${variant.name}`,
-      })),
-    );
-  }, [papers]);
 
   const toggleDraftFileOpen = useCallback(
     (draftFileId: Uuid) =>
@@ -105,6 +107,7 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
                       key: window.crypto.randomUUID(),
                       open: true,
                       range: draftFile.draft.ranges.length === 0 ? null : "",
+                      rangeIsValid: draftFile.draft.ranges.length === 0,
                       copies: 1,
                       paperVariantId: paperVariants.find((variant) =>
                         draftFile.draft.ranges.length === 0
@@ -144,29 +147,27 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
             `,
           )}
         >
-          {/* File Detail Header */}
-          <div
-            className="flex cursor-pointer items-center gap-3 pr-1"
+          <FileDetailHeader
+            slim={true}
+            appendExt={false}
+            filename={draftFile.name}
+            filesize={draftFile.size}
+            filetype={mimeToExt(draftFile.type)}
+            button={
+              <button className="grid place-items-center">
+                <MaterialIcon
+                  className={cn(
+                    "transition-all duration-250",
+                    draftFile.open && "rotate-180",
+                  )}
+                  icon="arrow_drop_down"
+                />
+              </button>
+            }
+            orderId={draftOrderId}
+            fileId={draftFile.draft?.id}
             onClick={() => toggleDraftFileOpen(draftFile.draft.id)}
-          >
-            {/* TODO: Add thumbnail */}
-            <div className="h-16 w-16 animate-pulse rounded-sm bg-outline"></div>
-            <div className="flex grow flex-col gap-1">
-              <p>{draftFile.name}</p>
-              <p className="text-body-sm opacity-50">
-                PDF • {getFormattedFilesize(draftFile.size)}
-              </p>
-            </div>
-            <button className="grid place-items-center">
-              <MaterialIcon
-                icon="arrow_drop_down"
-                className={cn(
-                  "transition-all duration-250",
-                  draftFile.open && "rotate-180",
-                )}
-              />
-            </button>
-          </div>
+          />
           {/* File Detail Body */}
           <div className="overflow-hidden">
             <AnimatePresence initial={false}>
@@ -185,7 +186,6 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
                       paperVariants={paperVariants}
                       draftFiles={draftFiles as UploadedDraftFile[]}
                       setDraftFiles={setDraftFiles}
-                      toggleReadyForNextStage={toggleReadyForNextStage}
                       key={range.key}
                     />
                   ))}
@@ -197,7 +197,7 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
                     )}
                     onClick={() => addRange(draftFile.draft.id)}
                   >
-                    {t("action.addRange")}{" "}
+                    {t("common.action.addRange")}
                   </Button>
                 </motion.div>
               )}

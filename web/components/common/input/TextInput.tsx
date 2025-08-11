@@ -113,7 +113,9 @@ const TextInput: FC<TextInputProps> = ({
         </div>
       )}
       {error && errorMessage && (
-        <div className="text-error">{errorMessage}</div>
+        <div className="whitespace-nowrap text-error select-none">
+          {errorMessage}
+        </div>
       )}
     </div>
   </div>

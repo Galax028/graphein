@@ -1,9 +1,9 @@
 import Button from "@/components/common/Button";
 import MaterialIcon from "@/components/common/MaterialIcon";
+import FileDetailHeader from "@/components/orders/FileDetailHeader";
 import useDialog from "@/hooks/useDialogContext";
 import type { ToggleDispatch } from "@/hooks/useToggle";
 import { cn, mimeToExt } from "@/utils";
-import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type {
   APIResponse,
   FileCreate,
@@ -27,7 +27,7 @@ import {
 import { useDropzone } from "react-dropzone";
 
 type UploadFilesProps = {
-  orderId: Uuid;
+  draftOrderId: Uuid;
   draftFiles: DraftFile[];
   setDraftFiles: Dispatch<SetStateAction<DraftFile[] | undefined>>;
   toggleReadyForNextStage: ToggleDispatch;
@@ -36,7 +36,7 @@ type UploadFilesProps = {
 /**
  * The primary interface for uploading files for an order.
  *
- * @param props.orderId                  The UUID of the parent order.
+ * @param props.draftOrderId             The UUID of the parent order.
  * @param props.draftFiles               The array of file objects being
  *                                       uploaded and managed.
  * @param props.setDraftFiles            The state setter function to update the
@@ -45,7 +45,7 @@ type UploadFilesProps = {
  *                                       if the user can proceed.
  */
 const UploadFiles: FC<UploadFilesProps> = ({
-  orderId,
+  draftOrderId,
   draftFiles,
   setDraftFiles,
   toggleReadyForNextStage,
@@ -70,7 +70,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
   const fileUploadMutation = useMutation({
     mutationFn: async (draftFile: UnuploadedDraftFile) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files`,
+        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${draftOrderId}/files`,
         {
           method: "POST",
           credentials: "include",
@@ -143,14 +143,13 @@ const UploadFiles: FC<UploadFilesProps> = ({
         ),
       );
     },
-    onSuccess: () => toggleReadyForNextStage(true),
   });
 
   const fileDeleteMutation = useMutation({
     mutationFn: async (fileId: Uuid) => {
       toggleReadyForNextStage(false);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${fileId}`,
+        `${process.env.NEXT_PUBLIC_API_PATH}/orders/${draftOrderId}/files/${fileId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -162,7 +161,6 @@ const UploadFiles: FC<UploadFilesProps> = ({
           const nextDraftFiles = prevDraftFiles!.filter(
             (prevDraftFile) => prevDraftFile.draft?.id !== fileId,
           );
-          toggleReadyForNextStage(nextDraftFiles.length !== 0);
 
           return nextDraftFiles;
         });
@@ -213,7 +211,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-1">
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {draftFiles.map((draftFile) => {
             const isUploaded = draftFile.uploaded;
 
@@ -224,49 +222,48 @@ const UploadFiles: FC<UploadFilesProps> = ({
                 exit={{ opacity: 0, x: -64, z: -10 }}
                 transition={{ type: "spring", bounce: 0, duration: 0.3 }}
                 className={`
-                  grid grid-cols-[4rem_1fr_1.5rem] items-center gap-3 rounded-lg
-                  border border-outline bg-surface-container p-2
+                  rounded-lg border border-outline bg-surface-container p-2
                 `}
                 key={draftFile.key}
               >
-                {/* TODO: Add thumbnail */}
-                <div
-                  className={`
-                    aspect-square h-16 w-16 animate-pulse rounded-sm bg-outline
-                  `}
-                ></div>
-                <div className="flex flex-col gap-1 wrap-anywhere">
-                  <p
-                    className={cn(
-                      "text-body-sm",
-                      isUploaded ? "text-success" : "text-warning",
-                    )}
-                  >
-                    {isUploaded
-                      ? t("upload.fileUploadProgress.completed")
-                      : t("upload.fileUploadProgress.inProgress", {
-                          progress: draftFile.progress,
-                        })}
-                  </p>
-                  <p>{draftFile.name}</p>
-                  <p className="text-body-sm opacity-50">
-                    {/* TODO: Implement other file types. */}
-                    {mimeToExt(draftFile.type).toUpperCase()} •{" "}
-                    {getFormattedFilesize(draftFile.size)}
-                  </p>
-                </div>
-                <button
-                  className={cn(
-                    "grid place-items-center",
-                    isUploaded ? "cursor-pointer" : "cursor-not-allowed",
-                  )}
-                  disabled={!isUploaded}
-                  onClick={() =>
-                    isUploaded && fileDeleteMutation.mutate(draftFile.draft.id)
+                <FileDetailHeader
+                  slim={true}
+                  appendExt={false}
+                  filename={draftFile.name}
+                  filesize={draftFile.size}
+                  filetype={mimeToExt(draftFile.type)}
+                  header={
+                    <p
+                      className={cn(
+                        "text-body-sm",
+                        isUploaded ? "text-success" : "text-warning",
+                      )}
+                    >
+                      {isUploaded
+                        ? t("upload.progress.completed")
+                        : t("upload.progress.inProgress", {
+                            progress: draftFile.progress,
+                          })}
+                    </p>
                   }
-                >
-                  <MaterialIcon className="block" icon="close_small" />
-                </button>
+                  button={
+                    <button
+                      className={cn(
+                        "grid place-items-center",
+                        isUploaded ? "cursor-pointer" : "cursor-not-allowed",
+                      )}
+                      disabled={!isUploaded}
+                      onClick={() =>
+                        isUploaded &&
+                        fileDeleteMutation.mutate(draftFile.draft.id)
+                      }
+                    >
+                      <MaterialIcon className="block" icon="close_small" />
+                    </button>
+                  }
+                  orderId={draftOrderId}
+                  fileId={draftFile.draft?.id}
+                />
               </motion.div>
             );
           })}

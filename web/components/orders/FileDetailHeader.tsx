@@ -1,17 +1,27 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
-import useNullableState from "@/hooks/useNullableState";
 import { cn } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
+import type { APIResponse } from "@/utils/types/backend";
 import type { FileType } from "@/utils/types/common";
-import { motion } from "motion/react";
-import { type FC, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  type FC,
+  type MouseEventHandler,
+  type ReactNode,
+  useMemo,
+} from "react";
 
 type FileDetailHeaderProps = {
+  slim?: boolean;
+  appendExt?: boolean;
   filename: string;
   filesize: number;
   filetype: FileType;
+  header?: ReactNode,
+  button?: ReactNode;
   orderId: string;
-  fileId: string;
+  fileId?: string;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 };
 
 /**
@@ -24,27 +34,31 @@ type FileDetailHeaderProps = {
  * @param props.filename  The name of the file, without the extension.
  * @param props.filesize  The size of the file in bytes.
  * @param props.filetype  The file's type extension (e.g., "pdf").
+ * @param props.button    A custom button, if any, located on the right side.
  * @param props.orderId   The UUID of the parent order, used for fetching the
  *                        thumbnail.
  * @param props.fileId    The UUID of the file, used for fetching the thumbnail.
  */
 const FileDetailHeader: FC<FileDetailHeaderProps> = ({
+  slim = false,
+  appendExt = true,
   filename,
   filesize,
   filetype,
+  header,
+  button,
   orderId,
   fileId,
+  onClick,
 }) => {
-  const [thumbnailSrc, setThumbnailSrc, unsetThumbnailSrc] =
-    useNullableState<string>();
+  const filenameWithExt = useMemo(
+    () => (appendExt ? `${filename}.${filetype}` : filename),
+    [appendExt, filename, filetype],
+  );
 
-  useEffect(() => {
-    let cancelled = false;
-    let timeoutId: number | null = null;
-
-    const fetchFileThumbnail = async () => {
-      if (cancelled) return;
-
+  const { data: thumbnailSrc } = useQuery({
+    queryKey: ["thumbnail", orderId, fileId],
+    queryFn: async () => {
       const res = await fetch(
         process.env.NEXT_PUBLIC_API_PATH +
           `/orders/${orderId}/files/${fileId}/thumbnail`,
@@ -57,68 +71,70 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
       // If the image is still processing (202), set a wait for
       // half a second before trying again until returns ok (200).
       if (res.status === 202) {
-        timeoutId = window.setTimeout(fetchFileThumbnail, 500);
-        return;
-      } else if (res.ok) {
-        const body = await res.json();
-        return setThumbnailSrc(body.data as string);
+        throw new Error("Thumbnail is still processing");
       }
 
-      unsetThumbnailSrc();
-    };
-
-    fetchFileThumbnail();
-
-    return () => {
-      cancelled = true;
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
-        timeoutId = null;
+      const body = (await res.json()) as APIResponse<string>;
+      if (body.success) {
+        return body.data;
+      } else {
+        const errorCode = body.message.match(/\[(\d+)\]/)?.at(1);
+        switch (errorCode) {
+          case "4042":
+            return null;
+          default:
+            throw new Error(
+              `Uncaught API Error (${body.error}): ${body.message}`,
+            );
+        }
       }
-    };
-  }, [orderId, fileId, setThumbnailSrc, unsetThumbnailSrc]);
+    },
+    enabled: fileId !== undefined,
+    staleTime: 60 * 60 * 1000, // 1 Hour
+  });
 
   return (
     <div
       className={cn(
-        `
-          flex max-w-lg items-center justify-between gap-2 rounded-lg border
-          border-outline bg-surface-container pr-3
-        `,
-        thumbnailSrc !== null ? "p-2" : "p-4",
+        "grid items-center gap-3",
+        !slim && "rounded-lg border border-outline bg-surface-container p-2",
+        button !== undefined
+          ? "grid-cols-[4rem_1fr_1.5rem]"
+          : "grid-cols-[4rem_1fr]",
+        onClick && "cursor-pointer *:cursor-pointer",
       )}
+      onClick={onClick}
     >
-      <div className="flex min-w-0 items-center gap-3">
-        {thumbnailSrc && (
-          <motion.div
-            initial={{ x: -8, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -8, opacity: 0 }}
-            transition={{
-              x: { type: "spring", bounce: 0 },
-            }}
-            className="aspect-square !h-16 !w-16 rounded-sm bg-outline p-1"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={thumbnailSrc}
-              width={56}
-              height={56}
-              alt={filename}
-              className="h-14 w-14 object-contain"
-            />
-          </motion.div>
+      <div
+        className={cn(
+          "grid h-16 w-16 place-items-center rounded-sm bg-outline",
+          thumbnailSrc !== undefined ? "aspect-square p-1" : "animate-pulse",
         )}
-        <div className="flex min-w-0 grow flex-col gap-1">
-          <p className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-            {filename}.{filetype}
-          </p>
-          <p className="text-body-sm opacity-50">
-            {filetype.toUpperCase()} • {getFormattedFilesize(filesize)}
-          </p>
-        </div>
+      >
+        {thumbnailSrc !== undefined &&
+          (thumbnailSrc !== null ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              className="h-14 w-14 object-contain"
+              src={thumbnailSrc}
+              alt={filenameWithExt}
+            />
+          ) : (
+            <MaterialIcon
+              className="h-14 w-14 !text-[3.5rem]"
+              icon="unknown_document"
+              filled
+            />
+          ))}
       </div>
-      <MaterialIcon icon="arrow_drop_down" />
+      <div className="flex flex-col gap-1 wrap-anywhere">
+        {header}
+        <p>{filenameWithExt}</p>
+        <p className="text-body-sm opacity-50 select-none">
+          {filetype.toUpperCase()} • {getFormattedFilesize(filesize)}
+        </p>
+      </div>
+      {button}
     </div>
   );
 };

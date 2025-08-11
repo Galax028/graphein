@@ -41,7 +41,6 @@ const OrderHistoryPage: FC<PageProps> = () => {
     ),
   );
 
-  // TODO: This one should be self-descriptive
   if (status === "pending" || status === "error") return <LoadingPage />;
 
   return (

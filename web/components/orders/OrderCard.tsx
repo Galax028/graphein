@@ -91,7 +91,7 @@ const OrderCard: FC<OrderCardProps> = ({
           {showStatusText && (
             <p
               className={cn(
-                "text-body-sm opacity-50",
+                "text-body-sm opacity-50 select-none",
                 (status === "reviewing" || status === "processing") &&
                   "text-warning opacity-100",
                 (status === "ready" || status === "completed") &&
@@ -104,10 +104,9 @@ const OrderCard: FC<OrderCardProps> = ({
             </p>
           )}
           <p>{t("orderCard.title", { orderNumber: orderNumber ?? "" })}</p>
-          <p className="text-body-sm opacity-50">
-            {getFormattedDateTime(locale, new Date(createdAt))} • {filesCount}{" "}
-            File
-            {filesCount != 1 && filesCount != -1 && "s"}
+          <p className="text-body-sm opacity-50 select-none">
+            {getFormattedDateTime(locale, new Date(createdAt))} •{" "}
+            {t("orderCard.filesCount", { count: filesCount })}
           </p>
         </div>
         {showNavigationIcon && <MaterialIcon icon="chevron_forward" />}
@@ -134,7 +133,7 @@ const OrderCard: FC<OrderCardProps> = ({
           <div
             className={cn(
               `
-                flex w-full
+                flex w-full select-none
                 [&>p]:w-full [&>p]:text-center [&>p]:text-body-sm
                 [&>p]:opacity-50
               `,

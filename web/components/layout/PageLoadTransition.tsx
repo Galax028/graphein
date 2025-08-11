@@ -1,3 +1,4 @@
+import useToggle from "@/hooks/useToggle";
 import { cn } from "@/utils";
 import { motion } from "motion/react";
 import type { FC, ReactNode } from "react";
@@ -18,20 +19,26 @@ type PageLoadTransitionProps = {
 const PageLoadTransition: FC<PageLoadTransitionProps> = ({
   className,
   children,
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 48 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{
-      y: { type: "spring", bounce: 0 },
-    }}
-    className={cn(
-      "mx-auto flex h-full w-full max-w-lg flex-col gap-3 p-3",
-      className,
-    )}
-  >
-    {children}
-  </motion.div>
-);
+}) => {
+  const [animationComplete, toggleAnimationComplete] = useToggle();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 48 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        y: { type: "spring", bounce: 0 },
+      }}
+      className={cn(
+        "mx-auto flex h-full w-full max-w-lg flex-col gap-3 p-3",
+        animationComplete && "overflow-y-scroll",
+        className,
+      )}
+      onAnimationComplete={() => toggleAnimationComplete(true)}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 export default PageLoadTransition;

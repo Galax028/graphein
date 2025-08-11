@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import type { ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 
 type TreeViewContainerProps = {
   index?: number;
@@ -19,15 +19,15 @@ type TreeViewContainerProps = {
  *                        affects how the connecting line is drawn.
  * @param props.children  The content of the tree node to be rendered.
  */
-const TreeViewContainer = ({
+const TreeViewContainer: FC<TreeViewContainerProps> = ({
   index = 0,
   isLast = false,
   children,
-}: TreeViewContainerProps) => {
+}) => {
   return (
     <div
       className={cn(
-        `relative`,
+        "relative",
         index > 0 &&
           `
             mt-1 w-[calc(100%-0.5rem)]

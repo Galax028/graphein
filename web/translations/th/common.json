@@ -7,6 +7,11 @@
     "next": "ต่อไป"
   },
   "orderCard": {
+    "title": "ออเดอร์ #{orderNumber}",
+    "filesCount": "{count} ไฟล์",
+    "created": "สั่งเมื่อ",
+    "price": "ราคา",
+    "orderId": "ตัวระบุออเดอร์",
     "status": {
       "reviewing": "กำลังตรวจ",
       "processing": "กำลังพิมพ์",
@@ -14,8 +19,7 @@
       "completed": "สำเร็จแล้ว",
       "rejected": "ถูกปฏิเสธ",
       "cancelled": "ยกเลิก"
-    },
-    "title": "ออเดอร์ #{orderNumber}"
+    }
   },
   "userSettings": {
     "title": "เกี่ยวกับคุณ",
@@ -24,11 +28,10 @@
     "name": "ชื่อ",
     "email": "อีเมล",
     "tel": "เบอร์โทรศัพท์",
-    "telValidationError": "เบอร์โทรศัพท์ของคุณไม่ถูกต้อง",
     "classAndNo": "ห้อง / เลขที่",
     "class": "ม.",
-    "classOrClassNoValidationError": "ห้องหรือเลขที่ของคุณไม่ถูกต้อง",
     "no": "เลข",
+    "error": "ไม่ถูกต้อง",
     "save": "บันทึก"
   }
 }

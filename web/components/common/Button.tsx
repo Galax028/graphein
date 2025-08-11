@@ -61,13 +61,15 @@ const Button: FC<ButtonProps> = ({
           p-2 text-body-md transition select-none
         `,
         icon && children && !busy && "pr-3.5",
-        (busy || disabled) &&
-          "!cursor-not-allowed bg-background opacity-25 hover:!brightness-100",
+        (busy || disabled) && "!cursor-not-allowed brightness-50",
         appearance === "tonal"
-          ? `border border-outline bg-surface-container hover:bg-background`
-          : `bg-primary text-onPrimary hover:brightness-80`,
+          ? `
+            border border-outline bg-surface-container
+            hover:enabled:bg-background
+          `
+          : `bg-primary text-onPrimary hover:enabled:brightness-80`,
         selected &&
-          "!gap-1 !pr-4 hover:!brightness-100" +
+          "!gap-1 !pr-4 hover:enabled:brightness-100" +
             (appearance === "tonal" ? "!bg-surface-container" : "!bg-primary"),
         className,
       )}

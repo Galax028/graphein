@@ -50,7 +50,11 @@ const DescriptionList: FC<DescriptionListProps> = ({
     );
   } else {
     return (
-      <div className="grid grid-cols-[4rem_1fr] items-center gap-2 gap-x-3">
+      <div
+        className={`
+          grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2
+        `}
+      >
         {list.map((item, idx) => (
           <Fragment key={idx}>
             <p className="text-body-sm opacity-50 select-none">{item.title}</p>

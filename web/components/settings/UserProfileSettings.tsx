@@ -103,9 +103,13 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
         <LabelGroup
           className="[&>p]:last:text-error [&>p]:last:opacity-100!"
           header={tx("userSettings.tel")}
-          footer={errors.tel && tx("userSettings.telValidationError")}
         >
-          <TextInput type="tel" {...register("tel")} />
+          <TextInput
+            type="tel"
+            error={errors.tel}
+            errorMessage={tx("userSettings.error")}
+            {...register("tel")}
+          />
         </LabelGroup>
         <LabelGroup
           className={cn(
@@ -113,10 +117,6 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             user.role !== "student" && "hidden",
           )}
           header={tx("userSettings.classAndNo")}
-          footer={
-            (errors.class || errors.classNo) &&
-            tx("userSettings.classOrClassNoValidationError")
-          }
         >
           <SegmentedGroup>
             <div
@@ -129,6 +129,8 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             </div>
             <TextInput
               type="number"
+              error={errors.class}
+              showErrorIcon={true}
               {...register("class", {
                 valueAsNumber: true,
                 disabled: user.role !== "student",
@@ -144,6 +146,8 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             </div>
             <TextInput
               type="number"
+              error={errors.classNo}
+              showErrorIcon={true}
               {...register("classNo", {
                 valueAsNumber: true,
                 disabled: user.role !== "student",

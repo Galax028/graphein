@@ -75,6 +75,7 @@ export type File = {
 };
 
 export type FileRange = {
+  id: Uuid;
   range: string | null;
   copies: number;
   paperVariantId: number;
@@ -93,6 +94,7 @@ export type FileRangeCreate = {
   key: Uuid;
   open: boolean;
   range: string | null;
+  rangeIsValid: boolean;
   copies: number;
   paperVariantId: number;
   paperOrientation: "portrait" | "landscape";

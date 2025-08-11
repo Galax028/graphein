@@ -54,7 +54,7 @@ const MerchantDetailedOrderView: FC<MerchantDetailedOrderViewProps> = ({
   return (
     <motion.div
       className={`
-        col-span-3 flex flex-col gap-px overflow-scroll rounded-lg border
+        col-span-3 flex flex-col gap-px overflow-y-scroll rounded-lg border
         border-outline bg-outline
       `}
       initial={{ opacity: 0, y: 12 }}

@@ -1,8 +1,15 @@
 {
   "common": {
+    "page": "หน้า",
+    "image": "รูปภาพ",
+    "service": "บริการ",
     "action": {
       "sendOrder": "ส่งออเดอร์",
-      "discardOrder": "ยกเลิกออเดอร์"
+      "discardOrder": "ยกเลิกออเดอร์",
+      "addRange": "เพิ่มช่วง",
+      "deleteRange": "ลบ",
+      "backToGlance": "กลับไปหน้าหลัก",
+      "startOver": "เริ่มสร้างออเดอร์ใหม่"
     },
     "stage": {
       "uploadFiles": "อัพโหลดไฟล์",
@@ -10,14 +17,32 @@
       "configService": "เพิ่มบริการ",
       "review": "ทบทวนออเดอร์"
     },
+    "sendOrder": {
+      "title": "TODO",
+      "description": "TODO"
+    },
     "discardOrder": {
       "title": "ยกเลิกออเดอร์",
       "description": "เมื่อยกเลิกแล้ว ความคืบหน้าทั้งหมดจะหายไป คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อนี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
       "discard": "ยกเลิกออเดอร์"
+    },
+    "timeout": {
+      "title": "",
+      "description": ""
+    },
+    "deleteRange": {
+      "title": "ลบช่วง",
+      "description": "คุณแน่ใจหรือไม่ว่าต้องการลบช่วงนี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้"
     }
   },
+  "details": {
+    "yourOrder": "ออเดอร์ของคุณ",
+    "about": "เกี่ยวกับออเดอร์",
+    "history": "การบันทึกเวลา",
+    "files": "ไฟล์ทั้งหมด"
+  },
   "upload": {
-    "fileUploadProgress": {
+    "progress": {
       "completed": "อัพโหลดแล้ว",
       "inProgress": "กำลังอัพโหลด ({progress}%)"
     },
@@ -32,38 +57,32 @@
       "description": "เพื่อลดเวลารอของลูกค้าท่านอื่น, คุณสามารถอัพโหลดไฟล์ได้มากสุด {maxFileLimit} ไฟล์ต่อออเดอร์ หากคุณต้องการส่งไฟล์เพิ่ม กรุณาไปที่หน้าร้าน หรือสร้างออเดอร์ใหม่หลังจากนี้"
     }
   },
-  "config": {
-    "action": {
-      "addRange": "เพิ่มช่วง"
-    },
-    "fileRangeConfig": {
-      "deleteRange": {
-        "title": "ลบช่วง",
-        "description": "คุณแน่ใจหรือไม่ว่าต้องการลบช่วงนี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
-        "delete": "ลบ"
-      },
-      "range": {
-        "allPages": "ทุกหน้า",
-        "range": "ช่วง",
-        "placeholder": "เช่น 1-5, 8, 11-13"
-      },
-      "paperType": "ประเภทกระดาษ",
-      "colour": {
-        "header": "โหมดสี",
-        "monochrome": "ขาว-ดำ",
-        "colour": "สี"
-      },
-      "orientation": {
-        "header": "แนวกระดาษ",
-        "portrait": "แนวตั้ง",
-        "landscape": "แนวนอน"
-      },
-      "copies": "จำนวนแผ่น",
-      "sides": {
-        "header": "ด้าน",
-        "single": "ด้านเดียว",
-        "double": "สองด้าน"
-      }
-    }
+  "range": {
+    "allPages": "ทุกหน้า",
+    "range": "ช่วง",
+    "placeholder": "เช่น 1-5, 8, 11-13"
+  },
+  "paperType": "กระดาษ",
+  "paperVariant": "ประเภทกระดาษ",
+  "colour": {
+    "header": "โหมดสี",
+    "monochrome": "ขาว-ดำ",
+    "colour": "สี"
+  },
+  "orientation": {
+    "header": "แนวกระดาษ",
+    "portrait": "แนวตั้ง",
+    "landscape": "แนวนอน"
+  },
+  "copies": "จำนวนแผ่น",
+  "sides": {
+    "header": "ด้าน",
+    "single": "ด้านเดียว",
+    "double": "สองด้าน"
+  },
+  "note": {
+    "header": "หมายเหตุให้ร้านค้า",
+    "placeholder": "ไม่จำเป็น",
+    "empty": "ไม่มีการระบุหมายเหตุ"
   }
 }

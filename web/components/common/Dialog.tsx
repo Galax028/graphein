@@ -10,6 +10,7 @@ type DialogProps = {
   title: string;
   description?: string;
   toggle: ToggleDispatch;
+  allowClickOutside?: boolean,
   children?: ReactNode;
 };
 
@@ -34,6 +35,7 @@ const Dialog: FC<DialogProps> = ({
   title,
   description,
   toggle,
+  allowClickOutside = true,
   children = undefined,
 }) => {
   const tx = useTranslations("common");
@@ -52,7 +54,7 @@ const Dialog: FC<DialogProps> = ({
         `,
         className,
       )}
-      onClick={() => toggle(false)}
+      onClick={() => allowClickOutside && toggle(false)}
     >
       <motion.div
         initial={{ scale: 1.05 }}

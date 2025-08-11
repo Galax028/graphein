@@ -6,7 +6,6 @@ import NumberInput from "@/components/common/input/NumberInput";
 import SelectInput from "@/components/common/input/SelectInput";
 import TextInput from "@/components/common/input/TextInput";
 import useDialog from "@/hooks/useDialogContext";
-import type { ToggleDispatch } from "@/hooks/useToggle";
 import { cn } from "@/utils";
 import isValidRange from "@/utils/helpers/isValidRange";
 import type { FileRangeCreate } from "@/utils/types/backend";
@@ -31,7 +30,6 @@ type FileRangeConfigProps = {
   paperVariants: PaperVariantWithPaperId[];
   draftFiles: UploadedDraftFile[];
   setDraftFiles: Dispatch<SetStateAction<UploadedDraftFile[]>>;
-  toggleReadyForNextStage: ToggleDispatch;
 };
 
 /**
@@ -42,19 +40,15 @@ type FileRangeConfigProps = {
  * copies. It's a controlled component that reads from and writes to a parent
  * state object (`draftFiles`).
  *
- * @param props.fileId                   The UUID of the parent file this range
- *                                       belongs to.
- * @param props.rangeKey                 A unique key identifying this specific
- *                                       range config.
- * @param props.paperVariants            An array of available paper variant
- *                                       options.
- * @param props.draftFiles               The main array of all draft file data
- *                                       being configured.
- * @param props.setDraftFiles            The state setter to update the
- *                                       `draftFiles` array.
- * @param props.toggleReadyForNextStage  A state setter to indicate if the
- *                                       configuration is valid for the next
- *                                       stage.
+ * @param props.fileId         The UUID of the parent file this range belongs
+ *                             to.
+ * @param props.rangeKey       A unique key identifying this specific range
+ *                             config.
+ * @param props.paperVariants  An array of available paper variant options.
+ * @param props.draftFiles     The main array of all draft file data being
+ *                             configured.
+ * @param props.setDraftFiles  The state setter to update the `draftFiles`
+ *                             array.
  */
 const FileRangeConfig: FC<FileRangeConfigProps> = ({
   fileId,
@@ -62,10 +56,9 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
   paperVariants,
   draftFiles,
   setDraftFiles,
-  toggleReadyForNextStage,
 }) => {
   const tx = useTranslations("common");
-  const t = useTranslations("order.config.fileRangeConfig");
+  const t = useTranslations("order");
   const dialog = useDialog();
 
   const setRangeField = useCallback(
@@ -110,15 +103,15 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
   const toggleDeleteDialog = useCallback(
     () =>
       dialog.setAndToggle({
-        title: t("deleteRange.title"),
-        description: t("deleteRange.description"),
+        title: t("common.deleteRange.title"),
+        description: t("common.deleteRange.description"),
         content: (
           <>
             <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
               {tx("action.nevermind")}
             </Button>
             <Button appearance="filled" onClick={deleteRange}>
-              {t("deleteRange.delete")}
+              {t("common.action.deleteRange")}
             </Button>
           </>
         ),
@@ -155,16 +148,6 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
     );
   }, [paperVariants, currentFile.ranges, allPages]);
 
-  const isRangeValid = useMemo(() => {
-    if (allPages || isValidRange(currentRange.range as string)) {
-      toggleReadyForNextStage(true);
-      return false;
-    }
-
-    toggleReadyForNextStage(false);
-    return true;
-  }, [toggleReadyForNextStage, currentRange.range, allPages]);
-
   return (
     <div
       className={cn(
@@ -187,7 +170,10 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
             text: allPages ? t("range.allPages") : t("range.range"),
           }}
           onChange={(value) =>
-            setRangeField({ range: value.allPages ? null : "" })
+            setRangeField({
+              range: value.allPages ? null : "",
+              rangeIsValid: value.allPages,
+            })
           }
           displayKey="text"
           matchKey="allPages"
@@ -207,8 +193,13 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
           )}
           placeholder={t("range.placeholder")}
           value={currentRange.range ?? ""}
-          onChange={(event) => setRangeField({ range: event.target.value })}
-          error={isRangeValid}
+          onChange={(event) =>
+            setRangeField({
+              range: event.target.value,
+              rangeIsValid: isValidRange(event.target.value),
+            })
+          }
+          error={!currentRange.rangeIsValid}
           showErrorIcon={true}
           disabled={allPages}
         />

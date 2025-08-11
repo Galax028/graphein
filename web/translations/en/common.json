@@ -7,6 +7,11 @@
     "next": "Next"
   },
   "orderCard": {
+    "title": "Order #{orderNumber}",
+    "filesCount": "{count, plural, =1 {# File} other {# Files}}",
+    "created": "Created at",
+    "price": "Price",
+    "orderId": "Order ID",
     "status": {
       "reviewing": "Reviewing",
       "processing": "Printing",
@@ -14,8 +19,7 @@
       "completed": "Completed",
       "rejected": "Rejected",
       "cancelled": "Cancelled"
-    },
-    "title": "Order #{orderNumber}"
+    }
   },
   "userSettings": {
     "title": "About You",
@@ -24,11 +28,10 @@
     "name": "Name",
     "email": "Email",
     "tel": "Phone Number",
-    "telValidationError": "Your phone number is invalid.",
     "classAndNo": "Class / No.",
     "class": "M.",
-    "classOrClassNoValidationError": "Your classroom or class number is invalid.",
     "no": "No.",
+    "error": "Invalid",
     "save": "Save"
   }
 }
