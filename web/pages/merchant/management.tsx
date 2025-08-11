@@ -3,7 +3,6 @@ import Checkbox from "@/components/common/input/Checkbox";
 import LabelGroup from "@/components/common/LabelGroup";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import TextInput from "@/components/common/input/TextInput";
-import MerchantLayout from "@/components/layout/MerchantLayout";
 import useToggle from "@/hooks/useToggle";
 import { prefetchUser } from "@/query/fetchUser";
 import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
@@ -20,7 +19,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
   const [checked, toggleChecked] = useToggle();
 
   return (
-    <MerchantLayout page="management" translationNamespace="management">
+    <>
       <div className="col-span-1 grid grid-rows-2 gap-3">
         <div
           className={`
@@ -237,7 +236,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
           </div>
         </div>
       </div>
-    </MerchantLayout>
+    </>
   );
 };
 

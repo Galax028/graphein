@@ -11,8 +11,10 @@ import TreeViewContainer from "@/components/common/tree/TreeViewContainer";
 import TreeViewWrapper from "@/components/common/tree/TreeViewWrapper";
 import FileDetailRange from "@/components/orders/FileDetailRange";
 import useToggle from "@/hooks/useToggle";
+import getServerSideTranslations from "@/utils/helpers/serverSideTranslations";
 import type { PageProps } from "@/utils/types/common";
 import { AnimatePresence } from "motion/react";
+import type { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { type FC, useState } from "react";
@@ -423,8 +425,8 @@ const MarkdownPage: FC<PageProps> = () => {
           {showPopup && (
             <Dialog
               title="Fail Task"
-              desc="If proceed, the task will fail successfully."
-              setClickOutside={toggleShowPopup}
+              description="If proceed, the task will fail successfully."
+              toggle={toggleShowPopup}
             >
               <Button appearance="tonal" onClick={() => toggleShowPopup(false)}>
                 No
@@ -449,6 +451,18 @@ const MarkdownPage: FC<PageProps> = () => {
       </main>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
+  const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
+  ]);
+
+  return {
+    props: { locale, translations },
+  };
 };
 
 export default MarkdownPage;

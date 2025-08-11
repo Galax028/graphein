@@ -1,9 +1,8 @@
 import Button from "@/components/common/Button";
 import LabelGroup from "@/components/common/LabelGroup";
-import NavigationBar from "@/components/common/NavigationBar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
 import SignInButton from "@/components/landing/SignInButton";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import useNavbar from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import { prefetchUser } from "@/query/fetchUser";
 import { cn } from "@/utils";
@@ -14,48 +13,47 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, type FC } from "react";
+import { useCallback, useEffect, type FC } from "react";
 
 const LandingPage: FC<PageProps> = ({ locale }) => {
   const router = useRouter();
-  const t = useTranslations();
-  const { setNavbarTitle } = useNavbarContext();
+  const t = useTranslations("index");
 
-  const [isSigningIn, toggleIsSigningIn] = useToggle();
-  const [asMerchant, toggleAsMerchant] = useToggle();
+  const [isSigningIn, toggleSigningIn] = useToggle();
+  const [asMerchant, toggleMerchant] = useToggle();
 
-  useEffect(
-    () =>
-      setNavbarTitle(
-        t("navigationBar", {
+  useNavbar(
+    useCallback(
+      () => ({
+        title: t("navigationBar", {
           appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
         }),
-      ),
-    [t, setNavbarTitle],
+      }),
+      [t],
+    ),
   );
 
   useEffect(
     () => {
       if (!router.isReady) return;
 
-      toggleAsMerchant(router.query.asMerchant === "true");
+      toggleMerchant(router.query.asMerchant === "true");
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.query.asMerchant, toggleAsMerchant],
+    [router.query.asMerchant, toggleMerchant],
   );
 
-  const changeLanguage = (lang: string) => {
-    router.query.lang = lang;
-    router.replace(router);
-  };
+  const changeLanguage = useCallback(
+    (lang: string) => {
+      router.query.lang = lang;
+      router.replace(router);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   return (
-    <div className="flex h-dvh flex-col">
-      <NavigationBar
-      // title={t("navigationBar", {
-      //   appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
-      // })}
-      />
+    <>
       <div className="flex h-full flex-col justify-between p-3 md:p-0">
         <div className="md:m-auto md:grid md:flex-grow md:place-items-center">
           <div
@@ -71,7 +69,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
             </div>
             <SignInButton
               isSigningIn={isSigningIn}
-              setIsSigningIn={() => toggleIsSigningIn()}
+              setIsSigningIn={() => toggleSigningIn()}
               asMerchant={asMerchant}
             />
           </div>
@@ -104,7 +102,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -112,6 +110,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
   const [locale, translations] = await getServerSideTranslations(context.req, [
+    "common",
     "index",
   ]);
 

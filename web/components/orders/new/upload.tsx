@@ -1,7 +1,7 @@
 import Button from "@/components/common/Button";
-import Dialog from "@/components/common/Dialog";
 import MaterialIcon from "@/components/common/MaterialIcon";
-import useToggle, { type ToggleDispatch } from "@/hooks/useToggle";
+import useDialog from "@/hooks/useDialogContext";
+import type { ToggleDispatch } from "@/hooks/useToggle";
 import { cn, mimeToExt } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type {
@@ -18,7 +18,12 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
-import type { Dispatch, FC, SetStateAction } from "react";
+import {
+  useCallback,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+} from "react";
 import { useDropzone } from "react-dropzone";
 
 type UploadFilesProps = {
@@ -45,7 +50,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
   setDraftFiles,
   setReadyForNextStage,
 }) => {
-  const [fileLimitExceeded, toggleFileLimitExceeded] = useToggle();
+  const dialog = useDialog();
 
   // Enable back button when:
   //   1. There're files in the draft order.
@@ -57,6 +62,19 @@ const UploadFiles: FC<UploadFilesProps> = ({
 
   const t = useTranslations("common");
   const tx = useTranslations("order");
+  const toggleFileLimitDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: tx("upload.fileLimitExceededDialog.title", {
+              maxFileLimit: MAX_FILE_LIMIT,
+            }),
+        description: tx("upload.fileLimitExceededDialog.description", {
+              maxFileLimit: MAX_FILE_LIMIT,
+            }),
+        allowClickOutside: true,
+      }),
+    [dialog],
+  );
 
   const fileUploadMutation = useMutation({
     mutationFn: async (draftFile: UnuploadedDraftFile) => {
@@ -166,27 +184,9 @@ const UploadFiles: FC<UploadFilesProps> = ({
     maxSize: 50 * 1_000_000,
     onDropAccepted: (droppedRawFiles: File[]) => {
       if (draftFiles.length + droppedRawFiles.length > MAX_FILE_LIMIT)
-        return toggleFileLimitExceeded(true);
+        return toggleFileLimitDialog();
 
       setReadyForNextStage(false);
-      // setDraftFiles((draftFiles) => [
-      //   ...draftFiles!,
-      //   ...droppedRawFiles.map((droppedFile) => {
-      //     const newDraftFile = {
-      //       key: window.crypto.randomUUID(),
-      //       uploaded: false,
-      //       progress: 0,
-      //       name: droppedFile.name,
-      //       size: droppedFile.size,
-      //       type: droppedFile.type,
-      //       blob: droppedFile,
-      //       draft: undefined,
-      //     } as UnuploadedDraftFile;
-      //     fileUploadMutation.mutate(newDraftFile);
-
-      //     return newDraftFile;
-      //   }),
-      // ]);
       const nextDraftFiles = droppedRawFiles.map((droppedRawFile) => {
         const nextDraftFile = {
           key: window.crypto.randomUUID(),
@@ -214,7 +214,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
           rejection.errors.some((error) => error.code === "too-many-files"),
         )
       )
-        toggleFileLimitExceeded(true);
+        toggleFileLimitDialog();
     },
   });
 
@@ -222,27 +222,28 @@ const UploadFiles: FC<UploadFilesProps> = ({
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-1">
         <AnimatePresence>
-          {draftFiles.map((draftFile, idx) => {
+          {draftFiles.map((draftFile) => {
             const isUploaded = draftFile.uploaded;
 
             return (
               <motion.div
-                initial={{ opacity: 0, y: 64 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 64 }}
-                transition={{
-                  delay: idx * 0.1,
-                  y: { type: "spring", bounce: 0 },
-                }}
+                initial={{ opacity: 0, x: -64 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -64, z: -10 }}
+                transition={{ type: "spring", bounce: 0, duration: 0.3 }}
                 className={`
-                  flex items-center gap-3 rounded-lg border border-outline
-                  bg-surface-container p-2
+                  grid grid-cols-[4rem_1fr_1.5rem] items-center gap-3 rounded-lg
+                  border border-outline bg-surface-container p-2
                 `}
                 key={draftFile.key}
               >
                 {/* TODO: Add thumbnail */}
-                <div className="aspect-square h-16 w-16 rounded-sm bg-outline"></div>
-                <div className="flex w-full flex-col gap-1">
+                <div
+                  className={`
+                    aspect-square h-16 w-16 animate-pulse rounded-sm bg-outline
+                  `}
+                ></div>
+                <div className="flex flex-col gap-1 wrap-anywhere">
                   <p
                     className={cn(
                       "text-body-sm",
@@ -310,26 +311,6 @@ const UploadFiles: FC<UploadFilesProps> = ({
           </div>
         )}
       </div>
-
-      <AnimatePresence>
-        {fileLimitExceeded && (
-          <Dialog
-            title={tx("upload.fileLimitExceededDialog.title", {
-              maxFileLimit: MAX_FILE_LIMIT,
-            })}
-            desc={tx("upload.fileLimitExceededDialog.description", {
-              maxFileLimit: MAX_FILE_LIMIT,
-            })}
-          >
-            <Button
-              appearance="filled"
-              onClick={() => toggleFileLimitExceeded(false)}
-            >
-              {t("action.ok")}
-            </Button>
-          </Dialog>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

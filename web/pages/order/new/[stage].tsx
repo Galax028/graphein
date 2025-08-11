@@ -1,15 +1,12 @@
 import Button from "@/components/common/Button";
-import Dialog from "@/components/common/Dialog";
-import NavigationBar from "@/components/common/NavigationBar";
 import LoadingPage from "@/components/layout/LoadingPage";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import ConfigOrder from "@/components/orders/new/configOrder";
 import Review from "@/components/orders/new/review";
 import UploadFiles from "@/components/orders/new/upload";
+import useDialog from "@/hooks/useDialogContext";
 import useLocalStorage, { deserializeAsString } from "@/hooks/useLocalStorage";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import { useNavbarContext } from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
-import useUserContext from "@/hooks/useUserContext";
 import { prefetchPapers } from "@/query/fetchPapers";
 import { prefetchUser } from "@/query/fetchUser";
 import checkIsBuildingOrder from "@/utils/helpers/checkIsBuildingOrder";
@@ -23,7 +20,6 @@ import type {
 } from "@/utils/types/common";
 import { dehydrate, QueryClient, useMutation } from "@tanstack/react-query";
 import dayjs, { type Dayjs } from "dayjs";
-import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -33,13 +29,14 @@ import {
   type ReactElement,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
-  const { setNavbarTitle } = useNavbarContext();
-  const user = useUserContext();
+  const { setNavbar } = useNavbarContext();
+  const dialog = useDialog();
 
   const t = useTranslations("common");
   const tx = useTranslations("order");
@@ -49,7 +46,7 @@ const BuildOrderPage: FC<PageProps> = () => {
   const [draftOrderId, setDraftOrderId, unsetDraftOrderId] =
     useLocalStorage<Uuid>("draftOrderId", deserializeAsString);
   const [draftOrderExpiry, setDraftOrderExpiry, unsetDraftOrderExpiry] =
-    useLocalStorage<Dayjs>(
+    useLocalStorage(
       "draftOrderExpiry",
       useCallback((value: string) => dayjs(value), []),
       useCallback((value: Dayjs) => value.toISOString(), []),
@@ -64,8 +61,6 @@ const BuildOrderPage: FC<PageProps> = () => {
     undefined,
   );
   const [readyForNextStage, toggleReadyForNextStage] = useToggle();
-  const [showDiscardConfirmationDialog, toggleDiscardConfirmationDialog] =
-    useToggle();
 
   const createOrderMutation = useMutation({
     mutationFn: async () => {
@@ -108,6 +103,29 @@ const BuildOrderPage: FC<PageProps> = () => {
     },
   });
 
+  const toggleDiscardDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: tx("mainPage.discardOrderDialog.title"),
+        description: tx("mainPage.discardOrderDialog.description"),
+        content: (
+          <>
+            <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
+              {t("action.nevermind")}
+            </Button>
+            <Button
+              appearance="filled"
+              onClick={() => discardOrderMutation.mutate()}
+            >
+              {tx("mainPage.discardOrderDialog.discard")}
+            </Button>
+          </>
+        ),
+        allowClickOutside: false,
+      }),
+    [dialog, discardOrderMutation],
+  );
+
   const stages: {
     [K in OrderStage]: {
       title: string;
@@ -115,46 +133,49 @@ const BuildOrderPage: FC<PageProps> = () => {
       href: string;
       component: ReactElement;
     };
-  } = {
-    uploadFiles: {
-      title: "Upload files",
-      backContext: "/glance",
-      href: "/order/new/configure-order",
-      component: (
-        <UploadFiles // @ts-expect-error ---
-          orderId={draftOrderId} // @ts-expect-error ---
-          draftFiles={draftFiles}
-          setDraftFiles={setDraftFiles}
-          setReadyForNextStage={toggleReadyForNextStage}
-        />
-      ),
-    },
-    configOrder: {
-      title: "Configure order",
-      backContext: "/order/new/upload",
-      href: "/order/new/review",
-      component: (
-        <ConfigOrder // @ts-expect-error ---
-          draftFiles={draftFiles} // @ts-expect-error ---
-          setDraftFiles={setDraftFiles}
-          setReadyForNextStage={toggleReadyForNextStage}
-        />
-      ),
-    },
-    // configServices: {
-    //   title: "Add services",
-    //   backContext: "/order/new/configure-order",
-    //   href: "/order/new/review",
-    //   component: <ConfigServices />,
-    // },
-    review: {
-      title: "Review order",
-      backContext: "/order/new/configure-order",
-      href: "/order/new/review",
-      // @ts-expect-error ---
-      component: <Review draftFiles={draftFiles} />,
-    },
-  } as const;
+  } = useMemo(
+    () => ({
+      uploadFiles: {
+        title: "Upload files",
+        backContext: "/glance",
+        href: "/order/new/configure-order",
+        component: (
+          <UploadFiles // @ts-expect-error ---
+            orderId={draftOrderId} // @ts-expect-error ---
+            draftFiles={draftFiles}
+            setDraftFiles={setDraftFiles}
+            setReadyForNextStage={toggleReadyForNextStage}
+          />
+        ),
+      },
+      configOrder: {
+        title: "Configure order",
+        backContext: "/order/new/upload",
+        href: "/order/new/review",
+        component: (
+          <ConfigOrder // @ts-expect-error ---
+            draftFiles={draftFiles} // @ts-expect-error ---
+            setDraftFiles={setDraftFiles}
+            setReadyForNextStage={toggleReadyForNextStage}
+          />
+        ),
+      },
+      // configServices: {
+      //   title: "Add services",
+      //   backContext: "/order/new/configure-order",
+      //   href: "/order/new/review",
+      //   component: <ConfigServices />,
+      // },
+      review: {
+        title: "Review order",
+        backContext: "/order/new/configure-order",
+        href: "/order/new/review",
+        // @ts-expect-error ---
+        component: <Review draftFiles={draftFiles} />,
+      },
+    }),
+    [draftOrderId, draftFiles, toggleReadyForNextStage],
+  );
 
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
@@ -195,7 +216,12 @@ const BuildOrderPage: FC<PageProps> = () => {
           return;
       }
 
-      setNavbarTitle(stages[stage].title);
+      setNavbar({
+        title: stages[stage].title,
+        backEnabled: true,
+        backContextURL: stages[stage].backContext,
+        showUser: true,
+      });
       if (checkIsBuildingOrder()) {
         setOrderStage(stage);
         const draftOrderData = JSON.parse(
@@ -210,7 +236,7 @@ const BuildOrderPage: FC<PageProps> = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.query.stage, setNavbarTitle, setOrderStage],
+    [router.query.stage, setNavbar, setOrderStage],
   );
 
   // To show that the 15 min order window has expired, and to start a new one then.
@@ -265,73 +291,42 @@ const BuildOrderPage: FC<PageProps> = () => {
     return <LoadingPage />;
 
   return (
-    <div className="flex h-dvh flex-col">
-      <NavigationBar
-        user={user}
-        // title={stages[orderStage].title}
-        backEnabled={true}
-        backContextURL={stages[orderStage].backContext}
-      />
-      <PageLoadTransition className="flex h-full w-full flex-col gap-3">
-        <div className="w-full pb-27" key={orderStage}>
-          {stages[orderStage].component}
-        </div>
-        <div className="fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg">
-          <div className="flex flex-col gap-2 px-3">
-            {orderStage === "review" ? (
-              <Button
-                appearance="filled"
-                icon="send"
-                disabled={!readyForNextStage}
-                onClick={() => alert("send order")}
-              >
-                {tx("mainPage.action.sendOrder")}
-              </Button>
-            ) : readyForNextStage ? (
-              <Link href={stages[orderStage].href}>
-                <Button appearance="filled" className="w-full">
-                  {t("action.next")}
-                </Button>
-              </Link>
-            ) : (
-              <Button appearance="filled" disabled={true}>
-                {t("action.next")}
-              </Button>
-            )}
-            <Button
-              appearance="tonal"
-              icon="contract_delete"
-              onClick={() => toggleDiscardConfirmationDialog(true)}
-            >
-              {tx("mainPage.action.discardOrder")}
-            </Button>
-          </div>
-        </div>
-      </PageLoadTransition>
-
-      <AnimatePresence>
-        {showDiscardConfirmationDialog && (
-          <Dialog
-            title={tx("mainPage.discardOrderDialog.title")}
-            desc={tx("mainPage.discardOrderDialog.description")}
-            setClickOutside={toggleDiscardConfirmationDialog}
-          >
-            <Button
-              appearance="tonal"
-              onClick={() => toggleDiscardConfirmationDialog(false)}
-            >
-              {t("action.nevermind")}
-            </Button>
+    <>
+      <div className="w-full pb-27" key={orderStage}>
+        {stages[orderStage].component}
+      </div>
+      <div className="fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg">
+        <div className="flex flex-col gap-2 px-3">
+          {orderStage === "review" ? (
             <Button
               appearance="filled"
-              onClick={() => discardOrderMutation.mutate()}
+              icon="send"
+              disabled={!readyForNextStage}
+              onClick={() => alert("send order")}
             >
-              {tx("mainPage.discardOrderDialog.discard")}
+              {tx("mainPage.action.sendOrder")}
             </Button>
-          </Dialog>
-        )}
-      </AnimatePresence>
-    </div>
+          ) : readyForNextStage ? (
+            <Link href={stages[orderStage].href}>
+              <Button appearance="filled" className="w-full">
+                {t("action.next")}
+              </Button>
+            </Link>
+          ) : (
+            <Button appearance="filled" disabled={true}>
+              {t("action.next")}
+            </Button>
+          )}
+          <Button
+            appearance="tonal"
+            icon="contract_delete"
+            onClick={toggleDiscardDialog}
+          >
+            {tx("mainPage.action.discardOrder")}
+          </Button>
+        </div>
+      </div>
+    </>
   );
 };
 

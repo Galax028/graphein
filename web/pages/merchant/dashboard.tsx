@@ -1,6 +1,5 @@
 import DropDownCard from "@/components/common/DropDownCard";
 import LoadingPage from "@/components/layout/LoadingPage";
-import MerchantLayout from "@/components/layout/MerchantLayout";
 import MerchantDetailedOrderView from "@/components/merchant/MerchantDetailedOrderView";
 import OrderCard from "@/components/orders/OrderCard";
 import useNullableState from "@/hooks/useNullableState";
@@ -61,7 +60,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
   ] as const;
 
   return (
-    <MerchantLayout page="dashboard" translationNamespace="merchantGlance">
+    <>
       <div className="col-span-1 flex flex-col gap-2">
         {sections.map((section, idx) => (
           <DropDownCard
@@ -94,7 +93,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
         orderId={currentOrderId}
         key={currentOrderId}
       />
-    </MerchantLayout>
+    </>
   );
 };
 

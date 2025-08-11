@@ -1,10 +1,8 @@
 import Button from "@/components/common/Button";
-import NavigationBar from "@/components/common/NavigationBar";
-import PageLoadTransition from "@/components/layout/PageLoadTransition";
 import UserProfileSettings, {
   type UserProfileFormSchema,
 } from "@/components/settings/UserProfileSettings";
-import useNavbarContext from "@/hooks/useNavbarContext";
+import { useNavbar } from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import useUserContext from "@/hooks/useUserContext";
 import { prefetchUser } from "@/query/fetchUser";
@@ -21,19 +19,20 @@ import type { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, type FC } from "react";
+import { useCallback, type FC } from "react";
 
 const OnboardPage: FC<PageProps> = () => {
   const router = useRouter();
   const user = useUserContext();
   const tx = useTranslations("common");
   const t = useTranslations("onboard");
-  const { setNavbarTitle } = useNavbarContext();
   const queryClient = useQueryClient();
 
   const [isSigningOut, toggleIsSigningOut] = useToggle();
 
-  useEffect(() => setNavbarTitle(t("navigationBar")), [t, setNavbarTitle]);
+  useNavbar(
+    useCallback(() => ({ title: t("navigationBar"), showUser: false }), [t]),
+  );
 
   const onboardingMutation = useMutation({
     mutationFn: async (formData: UserProfileFormSchema) => {
@@ -72,67 +71,61 @@ const OnboardPage: FC<PageProps> = () => {
   };
 
   return (
-    <div className="flex h-dvh flex-col">
-      {/* title={t("navigationBar")} */}
-      <NavigationBar />
-      <PageLoadTransition className="mx-auto">
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-title-md">{t("title")}</h1>
-            <p className="opacity-50">{t("description")}</p>
-          </div>
-          <UserProfileSettings
-            user={user}
-            isOnboarding={true}
-            onSubmit={(formData) => onboardingMutation.mutate(formData)}
-          />
-          <div
-            className={`
-              fixed right-0 bottom-0 left-0 z-10 flex flex-col gap-3 border-t
-              border-outline bg-surface-container p-3
-            `}
+    <>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-title-md">{t("title")}</h1>
+        <p className="opacity-50">{t("description")}</p>
+      </div>
+      <UserProfileSettings
+        user={user}
+        isOnboarding={true}
+        onSubmit={(formData) => onboardingMutation.mutate(formData)}
+      />
+      <div
+        className={`
+          fixed right-0 bottom-0 left-0 z-10 flex flex-col gap-3 border-t
+          border-outline bg-surface-container p-3
+        `}
+      >
+        <div className="flex flex-col gap-2">
+          <p className="text-body-sm">
+            {t.rich("disclaimer", {
+              appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
+              a1: (children) => (
+                <Link href="/about/terms-of-service" target="_blank">
+                  <span className="underline">{children}</span>
+                </Link>
+              ),
+              a2: (children) => (
+                <Link href="/about/privacy-policy" target="_blank">
+                  <span className="underline">{children}</span>
+                </Link>
+              ),
+            })}
+          </p>
+          <Button
+            form="onboardingForm"
+            type="submit"
+            appearance="filled"
+            busy={onboardingMutation.isPending}
+            busyWithText={false}
+            disabled={isSigningOut}
           >
-            <div className="flex flex-col gap-2">
-              <p className="text-body-sm">
-                {t.rich("disclaimer", {
-                  appName: process.env.NEXT_PUBLIC_APP_NAME ?? "",
-                  a1: (children) => (
-                    <Link href="/about/terms-of-service" target="_blank">
-                      <span className="underline">{children}</span>
-                    </Link>
-                  ),
-                  a2: (children) => (
-                    <Link href="/about/privacy-policy" target="_blank">
-                      <span className="underline">{children}</span>
-                    </Link>
-                  ),
-                })}
-              </p>
-              <Button
-                form="onboardingForm"
-                type="submit"
-                appearance="filled"
-                busy={onboardingMutation.isPending}
-                busyWithText={false}
-                disabled={isSigningOut}
-              >
-                {tx("action.next")}
-              </Button>
-              <Button
-                className="text-error"
-                appearance="tonal"
-                onClick={handleSignOut}
-                busy={isSigningOut}
-                busyWithText={false}
-                disabled={onboardingMutation.isPending}
-              >
-                {t("signOut")}
-              </Button>
-            </div>
-          </div>
+            {tx("action.next")}
+          </Button>
+          <Button
+            className="text-error"
+            appearance="tonal"
+            onClick={handleSignOut}
+            busy={isSigningOut}
+            busyWithText={false}
+            disabled={onboardingMutation.isPending}
+          >
+            {t("signOut")}
+          </Button>
         </div>
-      </PageLoadTransition>
-    </div>
+      </div>
+    </>
   );
 };
 

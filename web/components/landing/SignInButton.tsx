@@ -32,7 +32,7 @@ const SignInButton: FC<SignInButtonProps> = ({
   asMerchant,
 }) => {
   const router = useRouter();
-  const t = useTranslations();
+  const t = useTranslations("index");
   const queryClient = useQueryClient();
 
   const onSignInButtonClick = () => {

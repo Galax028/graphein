@@ -1,15 +1,49 @@
-import { createContext, type Dispatch, useContext } from "react";
+import { createContext, type Dispatch, useContext, useEffect } from "react";
 
-type NavbarContext = {
-  navbarTitle: string | null;
-  setNavbarTitle: Dispatch<string>;
+export type NavbarMeta = {
+  title?: string;
+  backEnabled: boolean;
+  backContextURL?: string;
+  showUser: boolean;
+};
+
+export const DEFAULT_NAVBAR_META: NavbarMeta = {
+  title: undefined,
+  backEnabled: false,
+  backContextURL: undefined,
+  showUser: true,
+};
+
+type NavbarContext = NavbarMeta & {
+  setNavbar: Dispatch<NavbarMeta>;
 };
 
 export const NavbarContext = createContext<NavbarContext>({
-  navbarTitle: null,
-  setNavbarTitle: () => {},
+  ...DEFAULT_NAVBAR_META,
+  setNavbar: () => {},
 });
 
-const useNavbarContext = (): NavbarContext => useContext(NavbarContext);
+export const useNavbarContext = (): NavbarContext => useContext(NavbarContext);
 
-export default useNavbarContext;
+export const useNavbar = (
+  cb: () => {
+    title: string;
+    backEnabled?: boolean;
+    backContextURL?: string;
+    showUser?: boolean;
+  },
+): void => {
+  const { setNavbar } = useNavbarContext();
+
+  useEffect(() => {
+    const result = cb();
+    setNavbar({
+      title: result.title,
+      backEnabled: result.backEnabled ?? false,
+      backContextURL: result.backContextURL,
+      showUser: result.showUser ?? true,
+    });
+  }, [cb, setNavbar]);
+};
+
+export default useNavbar;

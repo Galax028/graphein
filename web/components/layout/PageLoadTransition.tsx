@@ -25,7 +25,10 @@ const PageLoadTransition: FC<PageLoadTransitionProps> = ({
     transition={{
       y: { type: "spring", bounce: 0 },
     }}
-    className={cn(`mx-auto flex w-full max-w-lg flex-col gap-3 p-3`, className)}
+    className={cn(
+      "mx-auto flex h-full w-full max-w-lg flex-col gap-3 p-3",
+      className,
+    )}
   >
     {children}
   </motion.div>
