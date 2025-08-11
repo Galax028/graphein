@@ -66,11 +66,11 @@ const UploadFiles: FC<UploadFilesProps> = ({
     () =>
       dialog.setAndToggle({
         title: tx("upload.fileLimitExceededDialog.title", {
-              maxFileLimit: MAX_FILE_LIMIT,
-            }),
+          maxFileLimit: MAX_FILE_LIMIT,
+        }),
         description: tx("upload.fileLimitExceededDialog.description", {
-              maxFileLimit: MAX_FILE_LIMIT,
-            }),
+          maxFileLimit: MAX_FILE_LIMIT,
+        }),
         allowClickOutside: true,
       }),
     [dialog],
@@ -296,7 +296,9 @@ const UploadFiles: FC<UploadFilesProps> = ({
           icon="upload"
           className={cn(draftFiles.length !== 0 && "w-full")}
         >
-          {draftFiles.length === 0 ? "Upload" : "Upload more"}
+          {draftFiles.length === 0
+            ? tx("upload.fileUploadField.upload")
+            : tx("upload.fileUploadField.uploadMore")}
         </Button>
         {draftFiles.length === 0 && (
           <div>

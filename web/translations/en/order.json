@@ -13,7 +13,7 @@
     "discardOrderDialog": {
       "title": "Discard Order",
       "description": "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!",
-      "discard": "Discard"
+      "discard": "Discard Order"
     }
   },
   "upload": {
@@ -23,7 +23,9 @@
     },
     "fileUploadField": {
       "title": "Drop a file here, or click to browse files.",
-      "requirements": "PDF • {maxFileLimit} files max • 50 MB limit"
+      "requirements": "PDF • {maxFileLimit} files max • 50 MB limit",
+      "upload": "Upload",
+      "uploadMore": "Upload more"
     },
     "fileLimitExceededDialog": {
       "title": "You can only upload ${maxFileLimit} files per order.",

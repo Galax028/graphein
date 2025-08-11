@@ -13,7 +13,7 @@
     "discardOrderDialog": {
       "title": "ยกเลิกออเดอร์",
       "description": "เมื่อยกเลิกแล้ว ความคืบหน้าทั้งหมดจะหายไป คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อนี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
-      "discard": "ยกเลิก"
+      "discard": "ยกเลิกออเดอร์"
     }
   },
   "upload": {
@@ -23,7 +23,9 @@
     },
     "fileUploadField": {
       "title": "วางไฟล์ที่นี่หรือคลิกเพื่อเลือกไฟล์",
-      "requirements": "PDF • มากสุด {maxFileLimit} ไฟล์ • จำกัด 50 MB"
+      "requirements": "PDF • มากสุด {maxFileLimit} ไฟล์ • จำกัด 50 MB",
+      "upload": "อัพโหลด",
+      "uploadMore": "อัพโหลดเพิ่ม"
     },
     "fileLimitExceededDialog": {
       "title": "คุณสามารถอัพโหลดไฟล์ได้มากสุด {maxFileLimit} ไฟล์ต่อออเดอร์",
