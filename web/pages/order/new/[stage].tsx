@@ -25,6 +25,7 @@ import { dehydrate, QueryClient, useMutation } from "@tanstack/react-query";
 import dayjs, { type Dayjs } from "dayjs";
 import { AnimatePresence } from "motion/react";
 import type { GetServerSideProps } from "next";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
@@ -39,6 +40,9 @@ const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
   const { setNavbarTitle } = useNavbarContext();
   const user = useUserContext();
+
+  const t = useTranslations("common");
+  const tx = useTranslations("order");
 
   const [orderStage, setOrderStage, unsetOrderStage] =
     useLocalStorage<OrderStage>("orderStage", deserializeAsString);
@@ -281,17 +285,17 @@ const BuildOrderPage: FC<PageProps> = () => {
                 disabled={!readyForNextStage}
                 onClick={() => alert("send order")}
               >
-                Send Order
+                {tx("mainPage.action.sendOrder")}
               </Button>
             ) : readyForNextStage ? (
               <Link href={stages[orderStage].href}>
                 <Button appearance="filled" className="w-full">
-                  Next
+                  {t("action.next")}
                 </Button>
               </Link>
             ) : (
               <Button appearance="filled" disabled={true}>
-                Next
+                {t("action.next")}
               </Button>
             )}
             <Button
@@ -299,7 +303,7 @@ const BuildOrderPage: FC<PageProps> = () => {
               icon="contract_delete"
               onClick={() => toggleDiscardConfirmationDialog(true)}
             >
-              Discard Order
+              {tx("mainPage.action.discardOrder")}
             </Button>
           </div>
         </div>
@@ -308,21 +312,21 @@ const BuildOrderPage: FC<PageProps> = () => {
       <AnimatePresence>
         {showDiscardConfirmationDialog && (
           <Dialog
-            title="Discard Order"
-            desc="When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!"
+            title={tx("mainPage.discardOrderDialog.title")}
+            desc={tx("mainPage.discardOrderDialog.description")}
             setClickOutside={toggleDiscardConfirmationDialog}
           >
             <Button
               appearance="tonal"
               onClick={() => toggleDiscardConfirmationDialog(false)}
             >
-              Nevermind
+              {t("action.nevermind")}
             </Button>
             <Button
               appearance="filled"
               onClick={() => discardOrderMutation.mutate()}
             >
-              Discard
+              {tx("mainPage.discardOrderDialog.discard")}
             </Button>
           </Dialog>
         )}
@@ -336,6 +340,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
 ) => {
   const [locale, translations] = await getServerSideTranslations(context.req, [
     "common",
+    "order",
   ]);
 
   const queryClient = new QueryClient();

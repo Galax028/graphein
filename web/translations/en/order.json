@@ -1,0 +1,28 @@
+{
+  "mainPage": {
+    "action": {
+      "sendOrder": "Send Order",
+      "discardOrder": "Discard Order"
+    },
+    "discardOrderDialog": {
+      "title": "Discard Order",
+      "description": "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!",
+      "discard": "Discard"
+    }
+  },
+  "upload": {
+    "fileUploadProgress": {
+      "completed": "Uploaded",
+      "inProgress": "Uploading ({progress}%)"
+    },
+    "fileUploadField": {
+      "title": "Drop a file here, or click to browse files.",
+      "requirements": "PDF • {maxFileLimit} files max • 50 MB limit"
+    },
+    "fileLimitExceededDialog": {
+      "title": "You can only upload ${maxFileLimit} files per order.",
+      "description": "To minimize wait time for others, you can only upload a maximum of ${MAX_FILE_LIMIT} files per order. To upload more, visit the storefront, or start another order after this one."
+    }
+  },
+  "config": {}
+}

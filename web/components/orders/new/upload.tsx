@@ -17,6 +17,7 @@ import {
 } from "@/utils/types/common";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { Dispatch, FC, SetStateAction } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -53,6 +54,9 @@ const UploadFiles: FC<UploadFilesProps> = ({
   // TODO: The uploaded check (2.) is still flawed. When refreshed, the file
   // isn't uploaded to cloud yet, but still appears in draftFiles list.
   // Which creates a "ghost file".
+
+  const t = useTranslations("common");
+  const tx = useTranslations("order");
 
   const fileUploadMutation = useMutation({
     mutationFn: async (draftFile: UnuploadedDraftFile) => {
@@ -246,8 +250,10 @@ const UploadFiles: FC<UploadFilesProps> = ({
                     )}
                   >
                     {isUploaded
-                      ? "Uploaded"
-                      : `Uploading (${draftFile.progress}%)`}
+                      ? tx("upload.fileUploadProgress.completed")
+                      : tx("upload.fileUploadProgress.inProgress", {
+                          progress: draftFile.progress,
+                        })}
                   </p>
                   <p>{draftFile.name}</p>
                   <p className="text-body-sm opacity-50">
@@ -294,10 +300,12 @@ const UploadFiles: FC<UploadFilesProps> = ({
         {draftFiles.length === 0 && (
           <div>
             <p className="text-center text-body-md">
-              Drop a file here, or click to browse files.
+              {tx("upload.fileUploadField.title")}
             </p>
             <p className="text-center text-body-sm opacity-50">
-              PDF • {MAX_FILE_LIMIT} files max • 50 MB limit
+              {tx("upload.fileUploadField.requirements", {
+                maxFileLimit: MAX_FILE_LIMIT,
+              })}
             </p>
           </div>
         )}
@@ -306,14 +314,18 @@ const UploadFiles: FC<UploadFilesProps> = ({
       <AnimatePresence>
         {fileLimitExceeded && (
           <Dialog
-            title={`You can only upload ${MAX_FILE_LIMIT} draftFiles per order.`}
-            desc={`To minimize wait time for others, you can only upload a maximum of ${MAX_FILE_LIMIT} draftFiles per order. To upload more, visit the storefront, or start another order after this one.`}
+            title={tx("upload.fileLimitExceededDialog.title", {
+              maxFileLimit: MAX_FILE_LIMIT,
+            })}
+            desc={tx("upload.fileLimitExceededDialog.description", {
+              maxFileLimit: MAX_FILE_LIMIT,
+            })}
           >
             <Button
               appearance="filled"
               onClick={() => toggleFileLimitExceeded(false)}
             >
-              OK
+              {t("action.ok")}
             </Button>
           </Dialog>
         )}
