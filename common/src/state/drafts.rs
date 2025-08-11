@@ -234,10 +234,10 @@ impl DraftOrderStore {
             )));
         }
 
+        draft_order.files.reverse();
         let files = files
             .into_iter()
             .map(|file| {
-                draft_order.files.reverse();
                 let DraftFile {
                     filetype,
                     filesize,
