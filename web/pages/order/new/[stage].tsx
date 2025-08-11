@@ -38,8 +38,8 @@ import {
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
-  const t = useTranslations("common");
-  const tx = useTranslations("order");
+  const tx = useTranslations("common");
+  const t = useTranslations("order");
   const { setNavbar } = useNavbarContext();
   const dialog = useDialog();
 
@@ -109,24 +109,24 @@ const BuildOrderPage: FC<PageProps> = () => {
   const toggleDiscardDialog = useCallback(
     () =>
       dialog.setAndToggle({
-        title: tx("mainPage.discardOrderDialog.title"),
-        description: tx("mainPage.discardOrderDialog.description"),
+        title: t("common.discardOrder.title"),
+        description: t("common.discardOrder.description"),
         content: (
           <>
             <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
-              {t("action.nevermind")}
+              {tx("action.nevermind")}
             </Button>
             <Button
               appearance="filled"
               onClick={() => discardOrderMutation.mutate()}
             >
-              {tx("mainPage.discardOrderDialog.discard")}
+              {t("common.discardOrder.discard")}
             </Button>
           </>
         ),
         allowClickOutside: false,
       }),
-    [t, tx, dialog, discardOrderMutation],
+    [tx, t, dialog, discardOrderMutation],
   );
 
   const stages: {
@@ -139,7 +139,7 @@ const BuildOrderPage: FC<PageProps> = () => {
   } = useMemo(
     () => ({
       uploadFiles: {
-        title: tx("mainPage.stage.uploadFiles"),
+        title: t("common.stage.uploadFiles"),
         backContext: "/glance",
         href: "/order/new/configure-order",
         component: (
@@ -152,7 +152,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         ),
       },
       configOrder: {
-        title: tx("mainPage.stage.configOrder"),
+        title: t("common.stage.configOrder"),
         backContext: "/order/new/upload",
         href: "/order/new/review",
         component: (
@@ -166,20 +166,20 @@ const BuildOrderPage: FC<PageProps> = () => {
         ),
       },
       // configServices: {
-      //   title: tx("mainPage.stage.configService"),
+      //   title: t("common.stage.configService"),
       //   backContext: "/order/new/configure-order",
       //   href: "/order/new/review",
       //   component: <ConfigServices />,
       // },
       review: {
-        title: tx("mainPage.stage.review"),
+        title: t("common.stage.review"),
         backContext: "/order/new/configure-order",
         href: "/order/new/review",
         // @ts-expect-error ---
         component: <Review draftFiles={draftFiles} />,
       },
     }),
-    [tx, draftOrderId, draftFiles, toggleReadyForNextStage],
+    [t, draftOrderId, draftFiles, toggleReadyForNextStage],
   );
 
   useEffect(() => {
@@ -316,17 +316,17 @@ const BuildOrderPage: FC<PageProps> = () => {
               disabled={!readyForNextStage}
               onClick={() => alert("send order")}
             >
-              {tx("mainPage.action.sendOrder")}
+              {t("common.action.sendOrder")}
             </Button>
           ) : readyForNextStage ? (
             <Link href={stages[orderStage].href}>
               <Button appearance="filled" className="w-full">
-                {t("action.next")}
+                {tx("action.next")}
               </Button>
             </Link>
           ) : (
             <Button appearance="filled" disabled={true}>
-              {t("action.next")}
+              {tx("action.next")}
             </Button>
           )}
           <Button
@@ -334,7 +334,7 @@ const BuildOrderPage: FC<PageProps> = () => {
             icon="contract_delete"
             onClick={toggleDiscardDialog}
           >
-            {tx("mainPage.action.discardOrder")}
+            {t("common.action.discardOrder")}
           </Button>
         </div>
       </div>

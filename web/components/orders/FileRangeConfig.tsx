@@ -6,9 +6,15 @@ import NumberInput from "@/components/common/input/NumberInput";
 import SelectInput from "@/components/common/input/SelectInput";
 import TextInput from "@/components/common/input/TextInput";
 import useDialog from "@/hooks/useDialogContext";
+import type { ToggleDispatch } from "@/hooks/useToggle";
 import { cn } from "@/utils";
-import type { FileRangeCreate, PaperVariant } from "@/utils/types/backend";
-import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
+import isValidRange from "@/utils/helpers/isValidRange";
+import type { FileRangeCreate } from "@/utils/types/backend";
+import type {
+  PaperVariantWithPaperId,
+  UploadedDraftFile,
+  Uuid,
+} from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import {
@@ -16,79 +22,56 @@ import {
   type FC,
   type SetStateAction,
   useCallback,
-  useState,
+  useMemo,
 } from "react";
 
 type FileRangeConfigProps = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
   fileId: Uuid;
   rangeKey: Uuid;
-  paperVariants: PaperVariant[];
+  paperVariants: PaperVariantWithPaperId[];
   draftFiles: UploadedDraftFile[];
   setDraftFiles: Dispatch<SetStateAction<UploadedDraftFile[]>>;
+  toggleReadyForNextStage: ToggleDispatch;
 };
 
 /**
  * A configuration panel for a single print range within a file.
  *
  * This component allows users to define specific printing options for a
- * selected page range, such as paper type, color, orientation, and number of
+ * selected page range, such as paper type, colour, orientation, and number of
  * copies. It's a controlled component that reads from and writes to a parent
  * state object (`draftFiles`).
  *
- * @param props.open           Controls the expanded/collapsed state of the
- *                             panel.
- * @param props.setOpen        The state setter function to toggle the `open`
- *                             state.
- * @param props.fileId         The UUID of the parent file this range belongs
- *                             to.
- * @param props.rangeKey       A unique key identifying this specific range
- *                             config.
- * @param props.paperVariants  An array of available paper variant options.
- * @param props.draftFiles     The main array of all draft file data being
- *                             configured.
- * @param props.setDraftFiles  The state setter to update the `draftFiles`
- *                             array.
+ * @param props.fileId                   The UUID of the parent file this range
+ *                                       belongs to.
+ * @param props.rangeKey                 A unique key identifying this specific
+ *                                       range config.
+ * @param props.paperVariants            An array of available paper variant
+ *                                       options.
+ * @param props.draftFiles               The main array of all draft file data
+ *                                       being configured.
+ * @param props.setDraftFiles            The state setter to update the
+ *                                       `draftFiles` array.
+ * @param props.toggleReadyForNextStage  A state setter to indicate if the
+ *                                       configuration is valid for the next
+ *                                       stage.
  */
 const FileRangeConfig: FC<FileRangeConfigProps> = ({
-  open,
-  setOpen,
   fileId,
   rangeKey,
   paperVariants,
   draftFiles,
   setDraftFiles,
+  toggleReadyForNextStage,
 }) => {
+  const tx = useTranslations("common");
+  const t = useTranslations("order.config.fileRangeConfig");
   const dialog = useDialog();
-
-  const tx = useTranslations("order.config");
-
-  const [pageRangeType, setPageRangeType] = useState("All Pages");
-
-  const toggleDeleteDialog = useCallback(
-    () =>
-      dialog.setAndToggle({
-        title: "Delete Range",
-        description:
-          "Are you sure you want to delete this range? This action can't be undone!",
-        content: (
-          <>
-            <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
-              Nevermind
-            </Button>
-            <Button appearance="filled">Delete</Button>
-          </>
-        ),
-        allowClickOutside: false,
-      }),
-    [dialog],
-  );
 
   const setRangeField = useCallback(
     (fields: Partial<FileRangeCreate>) =>
       setDraftFiles((draftFiles) =>
-        (draftFiles as UploadedDraftFile[]).map((draftFile) =>
+        draftFiles.map((draftFile) =>
           draftFile.draft.id === fileId
             ? {
                 ...draftFile,
@@ -105,9 +88,82 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
     [fileId, rangeKey, setDraftFiles],
   );
 
-  const currentRange = draftFiles
-    .find((draftFile) => draftFile.draft.id === fileId)!
-    .draft.ranges.find((range) => range.key === rangeKey)!;
+  const deleteRange = useCallback(() => {
+    setDraftFiles((draftFiles) =>
+      draftFiles.map((draftFile) =>
+        draftFile.draft.id === fileId
+          ? {
+              ...draftFile,
+              draft: {
+                ...draftFile.draft,
+                ranges: draftFile.draft.ranges.filter(
+                  (range) => range.key !== rangeKey,
+                ),
+              },
+            }
+          : draftFile,
+      ),
+    );
+    dialog.toggle(false);
+  }, [dialog, fileId, rangeKey, setDraftFiles]);
+
+  const toggleDeleteDialog = useCallback(
+    () =>
+      dialog.setAndToggle({
+        title: t("deleteRange.title"),
+        description: t("deleteRange.description"),
+        content: (
+          <>
+            <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
+              {tx("action.nevermind")}
+            </Button>
+            <Button appearance="filled" onClick={deleteRange}>
+              {t("deleteRange.delete")}
+            </Button>
+          </>
+        ),
+        allowClickOutside: false,
+      }),
+    [tx, t, dialog, deleteRange],
+  );
+
+  const currentFile = useMemo(
+    () => draftFiles.find((draftFile) => draftFile.draft.id === fileId)!.draft,
+    [draftFiles, fileId],
+  );
+
+  const currentRange = useMemo(
+    () => currentFile.ranges.find((range) => range.key === rangeKey)!,
+    [currentFile.ranges, rangeKey],
+  );
+
+  const allPages = useMemo(
+    () => currentRange.range === null,
+    [currentRange.range],
+  );
+
+  const allowedPaperVariants = useMemo(() => {
+    if (allPages || currentFile.ranges.length === 1) return paperVariants;
+
+    return paperVariants.filter(
+      (variant) =>
+        variant.paperId ===
+        paperVariants.find(
+          (firstRangeVariant) =>
+            firstRangeVariant.id === currentFile.ranges[0].paperVariantId,
+        )!.paperId,
+    );
+  }, [paperVariants, currentFile.ranges, allPages]);
+
+  const isRangeValid = useMemo(() => {
+    if (allPages || isValidRange(currentRange.range as string)) {
+      toggleReadyForNextStage(true);
+      return false;
+    }
+
+    toggleReadyForNextStage(false);
+    return true;
+  }, [toggleReadyForNextStage, currentRange.range, allPages]);
 
   return (
     <div
@@ -115,61 +171,66 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
         "flex flex-col overflow-hidden rounded-lg border border-outline",
       )}
     >
+      {/* Range Input Group */}
       <SegmentedGroup
         className={cn(
           "rounded-none rounded-t-lg border-none bg-surface-container",
           !open && "rounded-b-lg",
         )}
       >
+        {/* Range Type Selector */}
         <SelectInput
-          value={{ type: pageRangeType }}
-          onChange={(value) => {
-            setPageRangeType(value.type);
-            if (value.type === "Range") {
-              setRangeField({ range: null });
-            }
-          }}
-          displayKey="type"
-          matchKey="type"
-          options={[{ type: "All Pages" }, { type: "Range" }]}
-          className="w-72 !border-r !border-outline"
+          className="min-w-32 !border-r !border-outline"
           appearance="inset"
+          value={{
+            allPages,
+            text: allPages ? t("range.allPages") : t("range.range"),
+          }}
+          onChange={(value) =>
+            setRangeField({ range: value.allPages ? null : "" })
+          }
+          displayKey="text"
+          matchKey="allPages"
+          options={[
+            ...(allPages ||
+            (currentFile.ranges.length === 1 && currentRange.range === "")
+              ? [{ allPages: true, text: t("range.allPages") }]
+              : []),
+            { allPages: false, text: t("range.range") },
+          ]}
         />
+        {/* Range Input */}
         <TextInput
-          value={currentRange.range ?? ""}
-          onChange={(event) =>
-            setRangeField({
-              range: event.target.value === "" ? null : event.target.value,
-            })
-          }
-          placeholder="e.g. 1-5, 8, 11-13"
-          error={
-            currentRange.range !== null
-              ? !/^(\s*\d+\s*(-\s*\d+\s*)?)(,\s*\d+\s*(-\s*\d+\s*)?)*$/.test(
-                  currentRange.range,
-                )
-              : false
-          }
-          showErrorIcon={true}
-          errorMessage="Invalid"
           className={cn(
             "w-full border-none bg-background transition-opacity",
-            pageRangeType !== "Range" && "opacity-0",
+            allPages && "opacity-0",
           )}
+          placeholder={t("range.placeholder")}
+          value={currentRange.range ?? ""}
+          onChange={(event) => setRangeField({ range: event.target.value })}
+          error={isRangeValid}
+          showErrorIcon={true}
+          disabled={allPages}
         />
         <div className="cursor-pointer" onClick={toggleDeleteDialog}>
-          <MaterialIcon icon="delete" className="text-error" />
+          <MaterialIcon className="text-error" icon="delete" />
         </div>
-        <div className="cursor-pointer" onClick={() => setOpen(!open)}>
+        <div
+          className="cursor-pointer"
+          onClick={() => setRangeField({ open: !currentRange.open })}
+        >
           <MaterialIcon
+            className={cn(
+              "transition-all duration-250",
+              currentRange.open && "rotate-180",
+            )}
             icon="arrow_drop_up"
-            className={cn("transition-all duration-250", open && "rotate-180")}
           />
         </div>
       </SegmentedGroup>
       <div className="overflow-hidden">
         <AnimatePresence initial={false}>
-          {open && (
+          {currentRange.open && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
@@ -181,46 +242,43 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                   bg-surface-container p-3
                 `}
               >
-                <LabelGroup
-                  header={tx("fileRangeConfig.configOptions.paperType.title")}
-                >
+                {/* Paper Type */}
+                <LabelGroup header={t("paperType")}>
                   <SelectInput
                     value={
-                      paperVariants.find(
+                      allowedPaperVariants.find(
                         (variant) => variant.id === currentRange.paperVariantId,
                       )!
                     }
                     onChange={(value) =>
                       setRangeField({ paperVariantId: value.id })
                     }
-                    displayKey="name"
+                    displayKey="displayName"
                     matchKey="id"
-                    options={paperVariants}
+                    options={allowedPaperVariants}
                   />
                 </LabelGroup>
-                <LabelGroup
-                  header={tx("fileRangeConfig.configOptions.color.title")}
-                >
+                {/* Colour Mode */}
+                <LabelGroup header={t("colour.header")}>
                   <SegmentedGroup>
                     <Button
                       appearance="tonal"
                       selected={!currentRange.isColour}
                       onClick={() => setRangeField({ isColour: false })}
                     >
-                      {tx("fileRangeConfig.configOptions.color.mono")}
+                      {t("colour.monochrome")}
                     </Button>
                     <Button
                       appearance="tonal"
                       selected={currentRange.isColour}
                       onClick={() => setRangeField({ isColour: true })}
                     >
-                      {tx("fileRangeConfig.configOptions.color.color")}
+                      {t("colour.colour")}
                     </Button>
                   </SegmentedGroup>
                 </LabelGroup>
-                <LabelGroup
-                  header={tx("fileRangeConfig.configOptions.orientation.title")}
-                >
+                {/* Paper Orientation */}
+                <LabelGroup header={t("orientation.header")}>
                   <SegmentedGroup>
                     <Button
                       appearance="tonal"
@@ -229,7 +287,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                         setRangeField({ paperOrientation: "portrait" })
                       }
                     >
-                      {tx("fileRangeConfig.configOptions.orientation.portrait")}
+                      {t("orientation.portrait")}
                     </Button>
                     <Button
                       appearance="tonal"
@@ -238,39 +296,37 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                         setRangeField({ paperOrientation: "landscape" })
                       }
                     >
-                      {tx(
-                        "fileRangeConfig.configOptions.orientation.landscape",
-                      )}
+                      {t("orientation.landscape")}
                     </Button>
                   </SegmentedGroup>
                 </LabelGroup>
-                <LabelGroup
-                  header={tx("fileRangeConfig.configOptions.copies.title")}
-                >
+                {/* Number of Copies */}
+                <LabelGroup header={t("copies")}>
                   <NumberInput
-                    value={currentRange.copies}
-                    onChange={(value) => setRangeField({ copies: value })}
-                    min={0}
+                    value={currentRange.copies.toString()}
+                    onChange={(value) =>
+                      setRangeField({ copies: parseInt(value) })
+                    }
+                    min={1}
                     max={99}
                   />
                 </LabelGroup>
-                <LabelGroup
-                  header={tx("fileRangeConfig.configOptions.sides.title")}
-                >
+                {/* Sides */}
+                <LabelGroup header={t("sides.header")}>
                   <SegmentedGroup>
                     <Button
                       appearance="tonal"
                       selected={!currentRange.isDoubleSided}
                       onClick={() => setRangeField({ isDoubleSided: false })}
                     >
-                      {tx("fileRangeConfig.configOptions.sides.single")}
+                      {t("sides.single")}
                     </Button>
                     <Button
                       appearance="tonal"
                       selected={currentRange.isDoubleSided}
                       onClick={() => setRangeField({ isDoubleSided: true })}
                     >
-                      {tx("fileRangeConfig.configOptions.sides.double")}
+                      {t("sides.double")}
                     </Button>
                   </SegmentedGroup>
                 </LabelGroup>

@@ -2,7 +2,7 @@ import Button from "@/components/common/Button";
 import MaterialIcon from "@/components/common/MaterialIcon";
 import LoadingPage from "@/components/layout/LoadingPage";
 import FileRangeConfig from "@/components/orders/FileRangeConfig";
-import useToggle, { type ToggleDispatch } from "@/hooks/useToggle";
+import type { ToggleDispatch } from "@/hooks/useToggle";
 import { usePapersQuery } from "@/query/fetchPapers";
 import { cn } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
@@ -10,36 +10,41 @@ import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
-import { useEffect, type Dispatch, type FC, type SetStateAction } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+} from "react";
 
 type ConfigOrderProps = {
   draftFiles: UploadedDraftFile[];
   setDraftFiles: Dispatch<SetStateAction<UploadedDraftFile[]>>;
-  setReadyForNextStage: ToggleDispatch;
+  toggleReadyForNextStage: ToggleDispatch;
 };
 
 /**
  * A component for configuring the details of all uploaded files.
  *
- * @param props.draftFiles            The array of files that have been uploaded
- *                                    and are being configured.
- * @param props.setDraftFiles         The state setter function to update the
- *                                    `draftFiles` array.
- * @param props.setReadyForNextStage  A state setter to indicate if the
- *                                    configuration is valid for the next stage.
+ * @param props.draftFiles               The array of files that have been
+ *                                       uploaded and are being configured.
+ * @param props.setDraftFiles            The state setter function to update the
+ *                                       `draftFiles` array.
+ * @param props.toggleReadyForNextStage  A state setter to indicate if the
+ *                                       configuration is valid for the next
+ *                                       stage.
  */
 const ConfigOrder: FC<ConfigOrderProps> = ({
   draftFiles,
   setDraftFiles,
-  setReadyForNextStage,
+  toggleReadyForNextStage,
 }) => {
   const router = useRouter();
+  const t = useTranslations("order.config");
 
   const { data: papers, status } = usePapersQuery();
-
-  const tx = useTranslations("order.config");
-
-  const [open, toggleOpen] = useToggle(true);
 
   useEffect(
     () => {
@@ -50,52 +55,82 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
         draftFiles.some((draftFile) => !draftFile.uploaded)
       )
         router.push("/order/new/upload");
+
+      if (draftFiles.some((draftFile) => draftFile.draft.ranges.length === 0))
+        toggleReadyForNextStage(false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [draftFiles],
   );
 
-  if (status === "pending" || status === "error") return <LoadingPage />;
+  const paperVariants = useMemo(() => {
+    if (papers === undefined) return;
+    return papers.flatMap((paper) =>
+      paper.variants.map((variant) => ({
+        ...variant,
+        paperId: paper.id,
+        isDefaultSize: paper.isDefault,
+        displayName: `${paper.name} - ${variant.name}`,
+      })),
+    );
+  }, [papers]);
 
-  const paperVariants = papers.flatMap((paper) =>
-    paper.variants.map((variant) => ({
-      ...variant,
-      name: `${paper.name} - ${variant.name}`,
-    })),
+  const toggleDraftFileOpen = useCallback(
+    (draftFileId: Uuid) =>
+      setDraftFiles((draftFiles) =>
+        draftFiles.map((draftFile) =>
+          draftFile.draft.id === draftFileId
+            ? { ...draftFile, open: !draftFile.open }
+            : draftFile,
+        ),
+      ),
+    [setDraftFiles],
   );
 
-  const addRange = (fileId: Uuid) => {
-    setReadyForNextStage(false);
-    setDraftFiles((draftFiles) => {
-      const newDraftFiles = draftFiles.map((draftFile) =>
-        draftFile.draft.id === fileId
-          ? {
-              ...draftFile,
-              draft: {
-                ...draftFile.draft,
-                ranges: [
-                  ...draftFile.draft.ranges,
-                  {
-                    key: window.crypto.randomUUID(),
-                    range: null,
-                    copies: 1,
-                    paperVariantId: papers
-                      .find((paper) => paper.isDefault)!
-                      .variants.find((variant) => variant.isDefault)!.id,
-                    paperOrientation: "portrait",
-                    isColour: false,
-                    isDoubleSided: false,
-                  },
-                ],
-              },
-            }
-          : draftFile,
-      ) as UploadedDraftFile[];
-      setReadyForNextStage(true);
+  const addRange = useCallback(
+    (fileId: Uuid) => {
+      if (papers === undefined || paperVariants === undefined) return;
 
-      return newDraftFiles;
-    });
-  };
+      toggleReadyForNextStage(false);
+      setDraftFiles((draftFiles) => {
+        const newDraftFiles = draftFiles.map((draftFile) =>
+          draftFile.draft.id === fileId
+            ? {
+                ...draftFile,
+                draft: {
+                  ...draftFile.draft,
+                  ranges: [
+                    ...draftFile.draft.ranges,
+                    {
+                      key: window.crypto.randomUUID(),
+                      open: true,
+                      range: draftFile.draft.ranges.length === 0 ? null : "",
+                      copies: 1,
+                      paperVariantId: paperVariants.find((variant) =>
+                        draftFile.draft.ranges.length === 0
+                          ? variant.isDefaultSize
+                          : variant.id ===
+                            draftFile.draft.ranges[0].paperVariantId,
+                      )!.id,
+                      paperOrientation: "portrait",
+                      isColour: false,
+                      isDoubleSided: false,
+                    },
+                  ],
+                },
+              }
+            : draftFile,
+        ) satisfies UploadedDraftFile[];
+        toggleReadyForNextStage(true);
+
+        return newDraftFiles;
+      });
+    },
+    [setDraftFiles, toggleReadyForNextStage, papers, paperVariants],
+  );
+
+  if (status === "pending" || status === "error" || paperVariants === undefined)
+    return <LoadingPage />;
 
   return (
     <div className="flex flex-col gap-2">
@@ -109,9 +144,10 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
             `,
           )}
         >
+          {/* File Detail Header */}
           <div
             className="flex cursor-pointer items-center gap-3 pr-1"
-            onClick={() => toggleOpen()}
+            onClick={() => toggleDraftFileOpen(draftFile.draft.id)}
           >
             {/* TODO: Add thumbnail */}
             <div className="h-16 w-16 animate-pulse rounded-sm bg-outline"></div>
@@ -126,40 +162,42 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
                 icon="arrow_drop_down"
                 className={cn(
                   "transition-all duration-250",
-                  open && "rotate-180",
+                  draftFile.open && "rotate-180",
                 )}
               />
             </button>
           </div>
+          {/* File Detail Body */}
           <div className="overflow-hidden">
             <AnimatePresence initial={false}>
-              {open && (
+              {draftFile.open && (
                 <motion.div
                   className="mt-2 flex flex-col gap-2"
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                 >
+                  {/* File Detail Ranges */}
                   {draftFile.draft.ranges.map((range) => (
                     <FileRangeConfig
-                      open={true}
-                      setOpen={() => {}}
                       fileId={draftFile.draft.id}
                       rangeKey={range.key}
                       paperVariants={paperVariants}
                       draftFiles={draftFiles as UploadedDraftFile[]}
                       setDraftFiles={setDraftFiles}
+                      toggleReadyForNextStage={toggleReadyForNextStage}
                       key={range.key}
                     />
                   ))}
                   <Button
                     appearance="tonal"
                     icon="add"
+                    disabled={draftFile.draft.ranges.some(
+                      (range) => range.range === null,
+                    )}
                     onClick={() => addRange(draftFile.draft.id)}
                   >
-                    {tx(
-                      "action.addRange",
-                    )}{" "}
+                    {t("action.addRange")}{" "}
                   </Button>
                 </motion.div>
               )}

@@ -56,20 +56,20 @@ const OrderCard: FC<OrderCardProps> = ({
 
   const progressBarMap: Record<
     "building" | OrderStatus,
-    { width: string; color: string }
+    { width: string; colour: string }
   > = {
-    building: { width: "", color: "" },
+    building: { width: "", colour: "" },
     reviewing: {
       // A check for language is necessary to align the progress indicator
       // with the middle of the localized text.
       width: locale === "en" ? "28.96px" : "27.47px",
-      color: "bg-warning",
+      colour: "bg-warning",
     },
-    processing: { width: "37.5%", color: "bg-warning" },
-    ready: { width: "62.5%", color: "bg-success" },
-    completed: { width: "100%", color: "bg-success" },
-    rejected: { width: "28.96px", color: "bg-error" },
-    cancelled: { width: "28.96px", color: "bg-error" },
+    processing: { width: "37.5%", colour: "bg-warning" },
+    ready: { width: "62.5%", colour: "bg-success" },
+    completed: { width: "100%", colour: "bg-success" },
+    rejected: { width: "28.96px", colour: "bg-error" },
+    cancelled: { width: "28.96px", colour: "bg-error" },
   } as const;
 
   return (
@@ -121,13 +121,13 @@ const OrderCard: FC<OrderCardProps> = ({
               style={{ width: progressBarMap[status].width }}
               className={cn(
                 "h-full rounded-l-full",
-                progressBarMap[status].color,
+                progressBarMap[status].colour,
               )}
             />
             <div
               className={cn(
                 "h-full w-0.5 rounded-r-full",
-                progressBarMap[status].color,
+                progressBarMap[status].colour,
               )}
             />
           </div>

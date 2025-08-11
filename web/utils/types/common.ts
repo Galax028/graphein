@@ -1,4 +1,4 @@
-import type { FileCreate } from "@/utils/types/backend";
+import type { FileCreate, PaperVariant } from "@/utils/types/backend";
 import type { DehydratedState } from "@tanstack/react-query";
 import type { Locale } from "next-intl";
 
@@ -65,3 +65,9 @@ export type UploadedDraftFile = {
 } & BaseDraftFile;
 
 export type DraftFile = UnuploadedDraftFile | UploadedDraftFile;
+
+export type PaperVariantWithPaperId = {
+  paperId: number;
+  isDefaultSize: boolean;
+  displayName: string;
+} & PaperVariant;

@@ -74,7 +74,7 @@ const MarkdownPage: FC<PageProps> = () => {
           details={[
             { title: "Paper Size", content: "A4" },
             { title: "Type", content: "Thick Paper (230 gsm.)" },
-            { title: "Colorized", content: "Color" },
+            { title: "Colourised", content: "Colour" },
             { title: "Orientation", content: "Portrait" },
             { title: "Sides", content: "One-sided" },
             { title: "Copies", content: "1" },

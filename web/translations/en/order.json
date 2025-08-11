@@ -1,5 +1,5 @@
 {
-  "mainPage": {
+  "common": {
     "action": {
       "sendOrder": "Send Order",
       "discardOrder": "Discard Order"
@@ -10,7 +10,7 @@
       "configService": "Add services",
       "review": "Review order"
     },
-    "discardOrderDialog": {
+    "discardOrder": {
       "title": "Discard Order",
       "description": "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!",
       "discard": "Discard Order"
@@ -21,15 +21,15 @@
       "completed": "Uploaded",
       "inProgress": "Uploading ({progress}%)"
     },
-    "fileUploadField": {
+    "input": {
       "title": "Drop a file here, or click to browse files.",
       "requirements": "PDF • {maxFileLimit} files max • 50 MB limit",
       "upload": "Upload",
       "uploadMore": "Upload more"
     },
-    "fileLimitExceededDialog": {
-      "title": "You can only upload ${maxFileLimit} files per order.",
-      "description": "To minimize wait time for others, you can only upload a maximum of ${MAX_FILE_LIMIT} files per order. To upload more, visit the storefront, or start another order after this one."
+    "fileLimitExceeded": {
+      "title": "You can only upload {maxFileLimit} files per order.",
+      "description": "To minimise wait time for others, you can only upload a maximum of {maxFileLimit} files per order. To upload more, visit the shopfront, or start another order after this one."
     }
   },
   "config": {
@@ -37,32 +37,32 @@
       "addRange": "Add range"
     },
     "fileRangeConfig": {
-      "rangeOptions": {
-        "allPages": "All Pages",
-        "range": "Range"
+      "deleteRange": {
+        "title": "Delete Range",
+        "description": "Are you sure you want to delete this range? This action can’t be undone!",
+        "delete": "Delete"
       },
-      "configOptions": {
-        "paperType": {
-          "title": "Paper Type"
-        },
-        "color": {
-          "title": "Color",
-          "mono": "Monochrome",
-          "color": "Color"
-        },
-        "orientation": {
-          "title": "Orientation",
-          "portrait": "Portrait",
-          "landscape": "Landscape"
-        },
-        "copies": {
-          "title": "Copies"
-        },
-        "sides": {
-          "title": "Sides",
-          "single": "Single-sided",
-          "double": "Double-sided"
-        }
+      "range": {
+        "allPages": "All Pages",
+        "range": "Range",
+        "placeholder": "e.g. 1-5, 8, 11-13"
+      },
+      "paperType": "Paper Type",
+      "colour": {
+        "header": "Colour Mode",
+        "monochrome": "Monochrome",
+        "colour": "Colour"
+      },
+      "orientation": {
+        "header": "Paper Orientation",
+        "portrait": "Portrait",
+        "landscape": "Landscape"
+      },
+      "copies": "Number of Copies",
+      "sides": {
+        "header": "Sides",
+        "single": "Single-sided",
+        "double": "Double-sided"
       }
     }
   }

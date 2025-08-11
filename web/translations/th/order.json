@@ -1,5 +1,5 @@
 {
-  "mainPage": {
+  "common": {
     "action": {
       "sendOrder": "ส่งออเดอร์",
       "discardOrder": "ยกเลิกออเดอร์"
@@ -10,7 +10,7 @@
       "configService": "เพิ่มบริการ",
       "review": "ทบทวนออเดอร์"
     },
-    "discardOrderDialog": {
+    "discardOrder": {
       "title": "ยกเลิกออเดอร์",
       "description": "เมื่อยกเลิกแล้ว ความคืบหน้าทั้งหมดจะหายไป คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อนี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
       "discard": "ยกเลิกออเดอร์"
@@ -21,13 +21,13 @@
       "completed": "อัพโหลดแล้ว",
       "inProgress": "กำลังอัพโหลด ({progress}%)"
     },
-    "fileUploadField": {
+    "input": {
       "title": "วางไฟล์ที่นี่หรือคลิกเพื่อเลือกไฟล์",
       "requirements": "PDF • มากสุด {maxFileLimit} ไฟล์ • จำกัด 50 MB",
       "upload": "อัพโหลด",
       "uploadMore": "อัพโหลดเพิ่ม"
     },
-    "fileLimitExceededDialog": {
+    "fileLimitExceeded": {
       "title": "คุณสามารถอัพโหลดไฟล์ได้มากสุด {maxFileLimit} ไฟล์ต่อออเดอร์",
       "description": "เพื่อลดเวลารอของลูกค้าท่านอื่น, คุณสามารถอัพโหลดไฟล์ได้มากสุด {maxFileLimit} ไฟล์ต่อออเดอร์ หากคุณต้องการส่งไฟล์เพิ่ม กรุณาไปที่หน้าร้าน หรือสร้างออเดอร์ใหม่หลังจากนี้"
     }
@@ -37,32 +37,32 @@
       "addRange": "เพิ่มช่วง"
     },
     "fileRangeConfig": {
-      "rangeOptions": {
-        "allPages": "ทุกหน้า",
-        "range": "ช่วง"
+      "deleteRange": {
+        "title": "ลบช่วง",
+        "description": "คุณแน่ใจหรือไม่ว่าต้องการลบช่วงนี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+        "delete": "ลบ"
       },
-      "configOptions": {
-        "paperType": {
-          "title": "ประเภทกระดาษ"
-        },
-        "color": {
-          "title": "สี",
-          "mono": "ขาว-ดำ",
-          "color": "สี"
-        },
-        "orientation": {
-          "title": "ทิศทาง",
-          "portrait": "แนวตั้ง",
-          "landscape": "แนวนอน"
-        },
-        "copies": {
-          "title": "จำนวนแผ่น"
-        },
-        "sides": {
-          "title": "ด้าน",
-          "single": "หนึ่งด้าน",
-          "double": "สองด้าน"
-        }
+      "range": {
+        "allPages": "ทุกหน้า",
+        "range": "ช่วง",
+        "placeholder": "เช่น 1-5, 8, 11-13"
+      },
+      "paperType": "ประเภทกระดาษ",
+      "colour": {
+        "header": "โหมดสี",
+        "monochrome": "ขาว-ดำ",
+        "colour": "สี"
+      },
+      "orientation": {
+        "header": "แนวกระดาษ",
+        "portrait": "แนวตั้ง",
+        "landscape": "แนวนอน"
+      },
+      "copies": "จำนวนแผ่น",
+      "sides": {
+        "header": "ด้าน",
+        "single": "ด้านเดียว",
+        "double": "สองด้าน"
       }
     }
   }

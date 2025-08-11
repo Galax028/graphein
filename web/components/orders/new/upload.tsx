@@ -50,21 +50,21 @@ const UploadFiles: FC<UploadFilesProps> = ({
   setDraftFiles,
   toggleReadyForNextStage,
 }) => {
-  const tx = useTranslations("order");
+  const t = useTranslations("order");
   const dialog = useDialog();
 
   const toggleFileLimitDialog = useCallback(
     () =>
       dialog.setAndToggle({
-        title: tx("upload.fileLimitExceededDialog.title", {
+        title: t("upload.fileLimitExceeded.title", {
           maxFileLimit: MAX_FILE_LIMIT,
         }),
-        description: tx("upload.fileLimitExceededDialog.description", {
+        description: t("upload.fileLimitExceeded.description", {
           maxFileLimit: MAX_FILE_LIMIT,
         }),
         allowClickOutside: true,
       }),
-    [tx, dialog],
+    [t, dialog],
   );
 
   const fileUploadMutation = useMutation({
@@ -243,8 +243,8 @@ const UploadFiles: FC<UploadFilesProps> = ({
                     )}
                   >
                     {isUploaded
-                      ? tx("upload.fileUploadProgress.completed")
-                      : tx("upload.fileUploadProgress.inProgress", {
+                      ? t("upload.fileUploadProgress.completed")
+                      : t("upload.fileUploadProgress.inProgress", {
                           progress: draftFile.progress,
                         })}
                   </p>
@@ -289,16 +289,16 @@ const UploadFiles: FC<UploadFilesProps> = ({
           className={cn(draftFiles.length !== 0 && "w-full")}
         >
           {draftFiles.length === 0
-            ? tx("upload.fileUploadField.upload")
-            : tx("upload.fileUploadField.uploadMore")}
+            ? t("upload.input.upload")
+            : t("upload.input.uploadMore")}
         </Button>
         {draftFiles.length === 0 && (
           <div>
             <p className="text-center text-body-md">
-              {tx("upload.fileUploadField.title")}
+              {t("upload.input.title")}
             </p>
             <p className="text-center text-body-sm opacity-50">
-              {tx("upload.fileUploadField.requirements", {
+              {t("upload.input.requirements", {
                 maxFileLimit: MAX_FILE_LIMIT,
               })}
             </p>
