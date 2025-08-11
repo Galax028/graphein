@@ -172,6 +172,21 @@ impl OrdersTable {
         Ok(())
     }
 
+    #[tracing::instrument(skip_all, err)]
+    pub async fn update_price(
+        conn: &mut PgConnection,
+        order_id: OrderId,
+        price: i64,
+    ) -> SqlxResult<()> {
+        sqlx::query("UPDATE orders SET price = $1 WHERE id = $2")
+            .bind(price)
+            .bind(order_id)
+            .execute(&mut *conn)
+            .await?;
+
+        Ok(())
+    }
+
     #[must_use]
     pub fn permissions_checker(order_id: OrderId, session: Session) -> OrderPermissionsChecker {
         OrderPermissionsChecker {

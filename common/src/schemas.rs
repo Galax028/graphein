@@ -18,7 +18,7 @@ pub use ids::{
 };
 pub use orders::{
     ClientOrdersGlance, CompactOrder, DetailedOrder, MerchantOrdersGlance, OrderCreate,
-    OrderStatusUpdate,
+    OrderPriceUpdate, OrderStatusUpdate,
 };
 pub use papers::{
     Paper, PaperCreate, PaperUpdate, PaperVariant, PaperVariantCreate, PaperWithoutVariants,

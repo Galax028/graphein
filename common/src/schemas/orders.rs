@@ -54,6 +54,11 @@ pub struct OrderStatusUpdate {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct OrderPriceUpdate {
+    pub price: i64,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct OrderCreate {
     pub notes: Option<String>,
     pub files: Vec<FileCreate>,
