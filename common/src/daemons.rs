@@ -215,7 +215,12 @@ async fn flush_unfinished_orders(
             let mut tx = pool.begin().await?;
             let unfinished_orders = OrdersTable::query_compact()
                 .bind_statuses(&[OrderStatus::Reviewing])
-                .bind_older_than_date(now.with_time(open_time).unwrap())
+                .bind_older_than_date(
+                    Utc::now()
+                        .with_timezone(&offset)
+                        .with_time(open_time)
+                        .unwrap(),
+                )
                 .fetch_all(&mut tx)
                 .await?
                 .iter()
