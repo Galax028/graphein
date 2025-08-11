@@ -1,4 +1,4 @@
-import Button from "@/components/common/Button";
+import TextInput from "@/components/common/input/TextInput";
 import LabelGroup from "@/components/common/LabelGroup";
 import PersonAvatar from "@/components/common/PersonAvatar";
 import SegmentedGroup from "@/components/common/SegmentedGroup";
@@ -76,7 +76,14 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           bg-surface-container p-3
         `}
         id={isOnboarding ? "onboardingForm" : undefined}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={(event) =>
+          isOnboarding ? handleSubmit(onSubmit)(event) : event.preventDefault()
+        }
+        onChange={(event) =>
+          !isOnboarding
+            ? handleSubmit(() => console.log("formed"))(event)
+            : event.preventDefault()
+        }
       >
         <LabelGroup header={tx("userSettings.profile")}>
           <div className="m-auto">
@@ -88,38 +95,17 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
           </div>
         </LabelGroup>
         <LabelGroup header={tx("userSettings.name")}>
-          <input
-            value={user.name}
-            className={`
-              h-10 w-full rounded-lg border border-outline bg-background p-2
-              text-body-md text-on-background-disabled
-            `}
-            disabled
-          />
+          <TextInput value={user.name} disabled />
         </LabelGroup>
         <LabelGroup header={tx("userSettings.email")}>
-          <input
-            value={user.email}
-            className={`
-              h-10 w-full rounded-lg border border-outline bg-background p-2
-              text-body-md text-on-background-disabled
-            `}
-            disabled
-          />
+          <TextInput value={user.email} disabled />
         </LabelGroup>
         <LabelGroup
           className="[&>p]:last:text-error [&>p]:last:opacity-100!"
           header={tx("userSettings.tel")}
           footer={errors.tel && tx("userSettings.telValidationError")}
         >
-          <input
-            className={`
-              h-10 w-full rounded-lg border border-outline bg-background p-2
-              text-body-md
-            `}
-            type="tel"
-            {...register("tel")}
-          />
+          <TextInput type="tel" {...register("tel")} />
         </LabelGroup>
         <LabelGroup
           className={cn(
@@ -141,8 +127,7 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             >
               <p>{tx("userSettings.class")}</p>
             </div>
-            <input
-              className="w-full bg-background p-2 text-body-md"
+            <TextInput
               type="number"
               {...register("class", {
                 valueAsNumber: true,
@@ -157,8 +142,7 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             >
               <p>{tx("userSettings.no")}</p>
             </div>
-            <input
-              className="w-full bg-background p-2 text-body-md"
+            <TextInput
               type="number"
               {...register("classNo", {
                 valueAsNumber: true,
@@ -167,11 +151,6 @@ const UserProfileSettings: FC<UserProfileSettingsProps> = ({
             />
           </SegmentedGroup>
         </LabelGroup>
-        {!isOnboarding && (
-          <Button type="submit" appearance="filled" className="w-full">
-            {tx("userSettings.save")}
-          </Button>
-        )}
       </form>
     </LabelGroup>
   );

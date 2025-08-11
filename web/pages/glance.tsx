@@ -57,7 +57,11 @@ const GlancePage: FC<PageProps> = () => {
             <Button appearance="tonal" onClick={() => dialog.toggle(false)}>
               {tx("action.nevermind")}
             </Button>
-            <Link href="/order/new/upload" className="w-full">
+            <Link
+              href="/order/new/upload"
+              className="w-full"
+              onClick={() => dialog.toggle(false)}
+            >
               <Button appearance="filled" className="w-full">
                 {tx("action.start")}
               </Button>

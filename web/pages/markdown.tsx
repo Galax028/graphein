@@ -38,7 +38,7 @@ const MarkdownPage: FC<PageProps> = () => {
       <Head>
         <title>Printing Facility</title>
       </Head>
-      <main className="m-3">
+      <main className="m-3 overflow-y-scroll">
         <Checkbox checked={checkbox} setValue={setCheckbox} />
         <Checkbox
           checked={checkbox}
@@ -379,7 +379,12 @@ const MarkdownPage: FC<PageProps> = () => {
             </Button>
           </SegmentedGroup>
 
-          <NumberInput value={count} onChange={setCount} min={-99} max={99} />
+          <NumberInput
+            value={count.toString()}
+            onChange={(value) => setCount(parseInt(value))}
+            min={-99}
+            max={99}
+          />
           <p className="text-body-sm">{count} copies</p>
 
           <SegmentedGroup>
@@ -391,12 +396,12 @@ const MarkdownPage: FC<PageProps> = () => {
             >
               <p>M.</p>
             </div>
-            <input
+            <TextInput
               value={classroom}
               onChange={(e) => {
                 setClassroom(e.target.value);
               }}
-              type="text"
+              type="number"
               className="w-full p-2"
             />
             <div
@@ -407,12 +412,12 @@ const MarkdownPage: FC<PageProps> = () => {
             >
               <p>No.</p>
             </div>
-            <input
+            <TextInput
               value={classNo}
               onChange={(e) => {
                 setClassNo(e.target.value);
               }}
-              type="text"
+              type="number"
               className="w-full p-2"
             />
           </SegmentedGroup>

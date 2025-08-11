@@ -62,14 +62,14 @@ const TextInput: FC<TextInputProps> = ({
     className={cn(
       `
         flex items-center gap-2 rounded-lg border bg-background px-2
-        text-body-md
-        focus-within:border-onPrimary
+        text-body-md transition-colors duration-100
+        focus-within:border-primary
       `,
       error
-        ? `z-10 border-error bg-error/20 focus-within:border-error`
+        ? `border-error bg-error/20 focus-within:border-error`
         : "border-outline",
       className,
-      disabled && "pointer-events-none bg-surface-container select-none",
+      disabled && "cursor-not-allowed",
     )}
   >
     {prefixIcon && (
@@ -92,6 +92,8 @@ const TextInput: FC<TextInputProps> = ({
             : alignment === "right"
               ? "text-right"
               : "text-center",
+          disabled &&
+            "pointer-events-none cursor-not-allowed text-on-background-disabled",
         )}
         disabled={disabled}
         type={type}
