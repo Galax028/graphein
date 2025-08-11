@@ -2,7 +2,7 @@ use std::error::Error as _;
 
 use axum::{
     extract::{
-        FromRef, FromRequestParts,
+        FromRef, FromRequestParts, OptionalFromRequest, Request,
         rejection::{JsonRejection, PathRejection},
     },
     response::IntoResponse,
@@ -10,7 +10,7 @@ use axum::{
 use axum_extra::extract::CookieJar;
 use axum_macros::FromRequest;
 use http::request::Parts;
-use serde::Serialize;
+use serde::{Serialize, de::DeserializeOwned};
 use serde_qs::axum::QsQueryRejection;
 
 use crate::{
@@ -30,6 +30,23 @@ pub struct QsQuery<T>(pub T);
 #[derive(FromRequest)]
 #[from_request(via(axum::Json), rejection(AppError))]
 pub struct Json<T>(pub T);
+
+impl<T, S> OptionalFromRequest<S> for Json<T>
+where
+    axum::Json<T>: OptionalFromRequest<S>,
+    AppError: From<<axum::Json<T> as OptionalFromRequest<S>>::Rejection>,
+    T: DeserializeOwned,
+    S: Send + Sync,
+{
+    type Rejection = AppError;
+
+    async fn from_request(req: Request, state: &S) -> Result<Option<Self>, Self::Rejection> {
+        <axum::Json<T> as OptionalFromRequest<S>>::from_request(req, state)
+            .await
+            .map(|value| value.map(|axum::Json(value)| Json(value)))
+            .map_err(From::from)
+    }
+}
 
 impl<T: Serialize> IntoResponse for Json<T> {
     fn into_response(self) -> axum::response::Response {

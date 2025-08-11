@@ -20,7 +20,8 @@ use graphein_common::{
     response::ResponseBuilder,
     schemas::{
         ClientOrdersGlance, CompactOrder, DetailedOrder, FileId, FilePresignResponse,
-        FileUploadCreate, FileUploadResponse, OrderCreate, OrderId, OrderStatusUpdate,
+        FileUploadCreate, FileUploadResponse, OrderCreate, OrderId, OrderPriceUpdate,
+        OrderStatusUpdate,
         enums::{FileType, OrderStatus, UserRole},
     },
 };
@@ -184,10 +185,12 @@ async fn get_orders_id(
     Ok(ResponseBuilder::new().data(order).build())
 }
 
+#[axum_macros::debug_handler]
 async fn post_orders_id_status(
     State(AppState { pool, .. }): State<AppState>,
     session: Session,
     Path(order_id): Path<OrderId>,
+    request_data: Option<Json<OrderPriceUpdate>>,
 ) -> HandlerResponse<OrderStatusUpdate> {
     OrdersTable::permissions_checker(order_id, session)
         .allow_merchant(true)
@@ -207,6 +210,11 @@ async fn post_orders_id_status(
         }
     };
     let order_status_update = OrdersTable::update_status(&mut tx, order_id, next_status).await?;
+    if matches!(next_status, OrderStatus::Processing) {
+        if let Some(Json(OrderPriceUpdate { price })) = request_data {
+            OrdersTable::update_price(&mut tx, order_id, price).await?;
+        }
+    }
     tx.commit().await?;
 
     Ok(ResponseBuilder::new().data(order_status_update).build())
