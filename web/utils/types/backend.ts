@@ -91,6 +91,7 @@ export type FileCreate = {
 
 export type FileRangeCreate = {
   key: Uuid;
+  open: boolean;
   range: string | null;
   copies: number;
   paperVariantId: number;

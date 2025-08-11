@@ -7,7 +7,7 @@ import { type SetStateAction, useCallback, useState } from "react";
  * @param value  The optional value to set the state to. If not provided, the
  *               state is typically toggled.
  */
-export type ToggleDispatch = (value?: boolean) => void;
+export type ToggleDispatch = (value?: SetStateAction<boolean>) => void;
 
 /**
  * Manages a boolean state, providing a function to toggle or set its value.

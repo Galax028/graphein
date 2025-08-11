@@ -16,6 +16,7 @@ import type {
   DraftFile,
   OrderStage,
   PageProps,
+  UploadedDraftFile,
   Uuid,
 } from "@/utils/types/common";
 import { dehydrate, QueryClient, useMutation } from "@tanstack/react-query";
@@ -25,8 +26,10 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
+  type Dispatch,
   type FC,
   type ReactElement,
+  type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -35,11 +38,10 @@ import {
 
 const BuildOrderPage: FC<PageProps> = () => {
   const router = useRouter();
-  const { setNavbar } = useNavbarContext();
-  const dialog = useDialog();
-
   const t = useTranslations("common");
   const tx = useTranslations("order");
+  const { setNavbar } = useNavbarContext();
+  const dialog = useDialog();
 
   const [orderStage, setOrderStage, unsetOrderStage] =
     useLocalStorage<OrderStage>("orderStage", deserializeAsString);
@@ -101,6 +103,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         router.push("/glance");
       }
     },
+    onSuccess: () => dialog.toggle(false),
   });
 
   const toggleDiscardDialog = useCallback(
@@ -123,7 +126,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         ),
         allowClickOutside: false,
       }),
-    [dialog, discardOrderMutation],
+    [t, tx, dialog, discardOrderMutation],
   );
 
   const stages: {
@@ -140,11 +143,11 @@ const BuildOrderPage: FC<PageProps> = () => {
         backContext: "/glance",
         href: "/order/new/configure-order",
         component: (
-          <UploadFiles // @ts-expect-error ---
-            orderId={draftOrderId} // @ts-expect-error ---
-            draftFiles={draftFiles}
+          <UploadFiles
+            orderId={draftOrderId as Uuid}
+            draftFiles={draftFiles as DraftFile[]}
             setDraftFiles={setDraftFiles}
-            setReadyForNextStage={toggleReadyForNextStage}
+            toggleReadyForNextStage={toggleReadyForNextStage}
           />
         ),
       },
@@ -153,10 +156,12 @@ const BuildOrderPage: FC<PageProps> = () => {
         backContext: "/order/new/upload",
         href: "/order/new/review",
         component: (
-          <ConfigOrder // @ts-expect-error ---
-            draftFiles={draftFiles} // @ts-expect-error ---
-            setDraftFiles={setDraftFiles}
-            setReadyForNextStage={toggleReadyForNextStage}
+          <ConfigOrder
+            draftFiles={draftFiles as UploadedDraftFile[]}
+            setDraftFiles={
+              setDraftFiles as Dispatch<SetStateAction<UploadedDraftFile[]>>
+            }
+            toggleReadyForNextStage={toggleReadyForNextStage}
           />
         ),
       },
@@ -174,7 +179,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         component: <Review draftFiles={draftFiles} />,
       },
     }),
-    [draftOrderId, draftFiles, toggleReadyForNextStage],
+    [tx, draftOrderId, draftFiles, toggleReadyForNextStage],
   );
 
   useEffect(() => {
@@ -256,29 +261,36 @@ const BuildOrderPage: FC<PageProps> = () => {
 
   // console.error(expirationCalc / 1000 / 60, "mins");
 
-  useEffect(() => {
-    if (
-      draftOrderNotes === undefined ||
-      draftFiles === undefined ||
-      draftServices === undefined
-    )
-      return;
+  useEffect(
+    () => {
+      if (
+        draftOrderNotes === undefined ||
+        draftFiles === undefined ||
+        draftServices === undefined
+      )
+        return;
 
-    // Do not save `draftFile`s that have not been successfully uploaded, since
-    // it would be impossible to recover them after a page refresh.
-    const nextDraftFiles = draftFiles.filter((draftFile) => draftFile.uploaded);
-    if (nextDraftFiles.length !== 0) toggleReadyForNextStage(true);
+      // Do not save `draftFile`s that have not been successfully uploaded, since
+      // it would be impossible to recover them after a page refresh.
+      const nextDraftFiles = draftFiles.filter(
+        (draftFile) => draftFile.uploaded,
+      );
+      if (orderStage === "uploadFiles" && nextDraftFiles.length !== 0)
+        toggleReadyForNextStage(true);
 
-    localStorage.setItem(
-      "draftOrderData",
-      JSON.stringify({
-        notes: draftOrderNotes,
+      localStorage.setItem(
+        "draftOrderData",
+        JSON.stringify({
+          notes: draftOrderNotes,
 
-        files: nextDraftFiles,
-        services: draftServices,
-      }),
-    );
-  }, [draftOrderNotes, draftFiles, draftServices, toggleReadyForNextStage]);
+          files: nextDraftFiles,
+          services: draftServices,
+        }),
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [draftOrderNotes, draftFiles, draftServices, toggleReadyForNextStage],
+  );
 
   if (
     orderStage === null ||
@@ -292,7 +304,7 @@ const BuildOrderPage: FC<PageProps> = () => {
 
   return (
     <>
-      <div className="w-full pb-27" key={orderStage}>
+      <div className="w-full overflow-y-scroll pb-27" key={orderStage}>
         {stages[orderStage].component}
       </div>
       <div className="fixed right-0 bottom-3 left-0 z-50 mx-auto max-w-lg">

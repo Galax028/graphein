@@ -25,21 +25,16 @@ const getServerSideTranslations = async (
     req.cookies["NEXT_LOCALE"] ??
     process.env.NEXT_PUBLIC_DEFAULT_LOCALE ??
     "en";
-  let translations = {} as TranslationRecord;
+  const translations = {} as TranslationRecord;
 
-  if (routes.length === 1) {
-    translations = (await import(`@/translations/${locale}/${routes}.json`))
-      .default;
-  } else {
-    await Promise.all(
-      routes.map(
-        async (route) =>
-          (translations[route] = (
-            await import(`@/translations/${locale}/${route}.json`)
-          ).default),
-      ),
-    );
-  }
+  await Promise.all(
+    routes.map(
+      async (route) =>
+        (translations[route] = (
+          await import(`@/translations/${locale}/${route}.json`)
+        ).default),
+    ),
+  );
 
   return [locale, translations];
 };

@@ -30,38 +30,29 @@ type UploadFilesProps = {
   orderId: Uuid;
   draftFiles: DraftFile[];
   setDraftFiles: Dispatch<SetStateAction<DraftFile[] | undefined>>;
-  setReadyForNextStage: ToggleDispatch;
+  toggleReadyForNextStage: ToggleDispatch;
 };
 
 /**
  * The primary interface for uploading files for an order.
  *
- * @param props.orderId               The UUID of the parent order.
- * @param props.draftFiles            The array of file objects being uploaded
- *                                    and managed.
- * @param props.setDraftFiles         The state setter function to update the
- *                                    `draftFiles` array.
- * @param props.setReadyForNextStage  A state setter to signal to the parent if
- *                                    the user can proceed.
+ * @param props.orderId                  The UUID of the parent order.
+ * @param props.draftFiles               The array of file objects being
+ *                                       uploaded and managed.
+ * @param props.setDraftFiles            The state setter function to update the
+ *                                       `draftFiles` array.
+ * @param props.toggleReadyForNextStage  A state setter to signal to the parent
+ *                                       if the user can proceed.
  */
 const UploadFiles: FC<UploadFilesProps> = ({
   orderId,
   draftFiles,
   setDraftFiles,
-  setReadyForNextStage,
+  toggleReadyForNextStage,
 }) => {
+  const tx = useTranslations("order");
   const dialog = useDialog();
 
-  // Enable back button when:
-  //   1. There're files in the draft order.
-  //   2. All files in the order are confirmed to be uploaded to cloud bucket.
-  //
-  // TODO: The uploaded check (2.) is still flawed. When refreshed, the file
-  // isn't uploaded to cloud yet, but still appears in draftFiles list.
-  // Which creates a "ghost file".
-
-  const t = useTranslations("common");
-  const tx = useTranslations("order");
   const toggleFileLimitDialog = useCallback(
     () =>
       dialog.setAndToggle({
@@ -73,7 +64,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
         }),
         allowClickOutside: true,
       }),
-    [dialog],
+    [tx, dialog],
   );
 
   const fileUploadMutation = useMutation({
@@ -142,6 +133,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
           prevDraftFile.key === draftFile.key
             ? {
                 ...prevDraftFile,
+                open: true,
                 uploaded: true,
                 progress: undefined,
                 blob: undefined,
@@ -151,12 +143,12 @@ const UploadFiles: FC<UploadFilesProps> = ({
         ),
       );
     },
-    onSuccess: () => setReadyForNextStage(true),
+    onSuccess: () => toggleReadyForNextStage(true),
   });
 
   const fileDeleteMutation = useMutation({
     mutationFn: async (fileId: Uuid) => {
-      setReadyForNextStage(false);
+      toggleReadyForNextStage(false);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_PATH}/orders/${orderId}/files/${fileId}`,
         {
@@ -170,7 +162,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
           const nextDraftFiles = prevDraftFiles!.filter(
             (prevDraftFile) => prevDraftFile.draft?.id !== fileId,
           );
-          setReadyForNextStage(nextDraftFiles.length !== 0);
+          toggleReadyForNextStage(nextDraftFiles.length !== 0);
 
           return nextDraftFiles;
         });
@@ -186,7 +178,7 @@ const UploadFiles: FC<UploadFilesProps> = ({
       if (draftFiles.length + droppedRawFiles.length > MAX_FILE_LIMIT)
         return toggleFileLimitDialog();
 
-      setReadyForNextStage(false);
+      toggleReadyForNextStage(false);
       const nextDraftFiles = droppedRawFiles.map((droppedRawFile) => {
         const nextDraftFile = {
           key: window.crypto.randomUUID(),

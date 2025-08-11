@@ -57,6 +57,7 @@ export type UnuploadedDraftFile = {
 } & BaseDraftFile;
 
 export type UploadedDraftFile = {
+  open: boolean;
   uploaded: true;
   progress: undefined;
   blob: undefined;
