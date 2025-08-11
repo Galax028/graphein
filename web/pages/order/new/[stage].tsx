@@ -1,8 +1,8 @@
 import Button from "@/components/common/Button";
 import LoadingPage from "@/components/layout/LoadingPage";
-import ConfigOrder from "@/components/orders/new/configOrder";
-import Review from "@/components/orders/new/review";
-import UploadFiles from "@/components/orders/new/upload";
+import ConfigOrder from "@/components/orders/new/ConfigOrder";
+import Review from "@/components/orders/new/Review";
+import UploadFiles from "@/components/orders/new/UploadFiles";
 import useDialog from "@/hooks/useDialogContext";
 import useLocalStorage, { deserializeAsString } from "@/hooks/useLocalStorage";
 import { useNavbarContext } from "@/hooks/useNavbarContext";
@@ -175,8 +175,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         title: t("common.stage.review"),
         backContext: "/order/new/configure-order",
         href: "/order/new/review",
-        // @ts-expect-error ---
-        component: <Review draftFiles={draftFiles} />,
+        component: <Review draftFiles={draftFiles as UploadedDraftFile[]} />,
       },
     }),
     [t, draftOrderId, draftFiles, toggleReadyForNextStage],
