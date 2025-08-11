@@ -8,6 +8,7 @@ import { cn } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
 import { useEffect, type Dispatch, type FC, type SetStateAction } from "react";
 
@@ -35,6 +36,8 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
   const router = useRouter();
 
   const { data: papers, status } = usePapersQuery();
+
+  const tx = useTranslations("order.config");
 
   const [open, toggleOpen] = useToggle(true);
 
@@ -154,7 +157,9 @@ const ConfigOrder: FC<ConfigOrderProps> = ({
                     icon="add"
                     onClick={() => addRange(draftFile.draft.id)}
                   >
-                    Add range
+                    {tx(
+                      "action.addRange",
+                    )}{" "}
                   </Button>
                 </motion.div>
               )}

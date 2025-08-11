@@ -24,5 +24,38 @@
       "description": "To minimize wait time for others, you can only upload a maximum of ${MAX_FILE_LIMIT} files per order. To upload more, visit the storefront, or start another order after this one."
     }
   },
-  "config": {}
+  "config": {
+    "action": {
+      "addRange": "Add range"
+    },
+    "fileRangeConfig": {
+      "rangeOptions": {
+        "allPages": "All Pages",
+        "range": "Range"
+      },
+      "configOptions": {
+        "paperType": {
+          "title": "Paper Type"
+        },
+        "color": {
+          "title": "Color",
+          "mono": "Monochrome",
+          "color": "Color"
+        },
+        "orientation": {
+          "title": "Orientation",
+          "portrait": "Portrait",
+          "landscape": "Landscape"
+        },
+        "copies": {
+          "title": "Copies"
+        },
+        "sides": {
+          "title": "Sides",
+          "single": "Single-sided",
+          "double": "Double-sided"
+        }
+      }
+    }
+  }
 }

@@ -10,6 +10,7 @@ import { cn } from "@/utils";
 import type { FileRangeCreate, PaperVariant } from "@/utils/types/backend";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import {
   type Dispatch,
   type FC,
@@ -60,6 +61,8 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
   setDraftFiles,
 }) => {
   const dialog = useDialog();
+
+  const tx = useTranslations("order.config");
 
   const [pageRangeType, setPageRangeType] = useState("All Pages");
 
@@ -178,7 +181,9 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                   bg-surface-container p-3
                 `}
               >
-                <LabelGroup header="Paper Type">
+                <LabelGroup
+                  header={tx("fileRangeConfig.configOptions.paperType.title")}
+                >
                   <SelectInput
                     value={
                       paperVariants.find(
@@ -193,25 +198,29 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                     options={paperVariants}
                   />
                 </LabelGroup>
-                <LabelGroup header="Color">
+                <LabelGroup
+                  header={tx("fileRangeConfig.configOptions.color.title")}
+                >
                   <SegmentedGroup>
                     <Button
                       appearance="tonal"
                       selected={!currentRange.isColour}
                       onClick={() => setRangeField({ isColour: false })}
                     >
-                      Monochrome
+                      {tx("fileRangeConfig.configOptions.color.mono")}
                     </Button>
                     <Button
                       appearance="tonal"
                       selected={currentRange.isColour}
                       onClick={() => setRangeField({ isColour: true })}
                     >
-                      Colour
+                      {tx("fileRangeConfig.configOptions.color.color")}
                     </Button>
                   </SegmentedGroup>
                 </LabelGroup>
-                <LabelGroup header="Orientation">
+                <LabelGroup
+                  header={tx("fileRangeConfig.configOptions.orientation.title")}
+                >
                   <SegmentedGroup>
                     <Button
                       appearance="tonal"
@@ -220,7 +229,7 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                         setRangeField({ paperOrientation: "portrait" })
                       }
                     >
-                      Portrait
+                      {tx("fileRangeConfig.configOptions.orientation.portrait")}
                     </Button>
                     <Button
                       appearance="tonal"
@@ -229,11 +238,15 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                         setRangeField({ paperOrientation: "landscape" })
                       }
                     >
-                      Landscape
+                      {tx(
+                        "fileRangeConfig.configOptions.orientation.landscape",
+                      )}
                     </Button>
                   </SegmentedGroup>
                 </LabelGroup>
-                <LabelGroup header="Copies">
+                <LabelGroup
+                  header={tx("fileRangeConfig.configOptions.copies.title")}
+                >
                   <NumberInput
                     value={currentRange.copies}
                     onChange={(value) => setRangeField({ copies: value })}
@@ -241,21 +254,23 @@ const FileRangeConfig: FC<FileRangeConfigProps> = ({
                     max={99}
                   />
                 </LabelGroup>
-                <LabelGroup header="Sides">
+                <LabelGroup
+                  header={tx("fileRangeConfig.configOptions.sides.title")}
+                >
                   <SegmentedGroup>
                     <Button
                       appearance="tonal"
                       selected={!currentRange.isDoubleSided}
                       onClick={() => setRangeField({ isDoubleSided: false })}
                     >
-                      Single-sided
+                      {tx("fileRangeConfig.configOptions.sides.single")}
                     </Button>
                     <Button
                       appearance="tonal"
                       selected={currentRange.isDoubleSided}
                       onClick={() => setRangeField({ isDoubleSided: true })}
                     >
-                      Double-sided
+                      {tx("fileRangeConfig.configOptions.sides.double")}
                     </Button>
                   </SegmentedGroup>
                 </LabelGroup>

@@ -24,5 +24,38 @@
       "description": "เพื่อลดเวลารอของลูกค้าท่านอื่น, คุณสามารถอัพโหลดไฟล์ได้มากสุด {maxFileLimit} ไฟล์ต่อออเดอร์ หากคุณต้องการส่งไฟล์เพิ่ม กรุณาไปที่หน้าร้าน หรือสร้างออเดอร์ใหม่หลังจากนี้"
     }
   },
-  "config": {}
+  "config": {
+    "action": {
+      "addRange": "เพิ่มช่วง"
+    },
+    "fileRangeConfig": {
+      "rangeOptions": {
+        "allPages": "ทุกหน้า",
+        "range": "ช่วง"
+      },
+      "configOptions": {
+        "paperType": {
+          "title": "ประเภทกระดาษ"
+        },
+        "color": {
+          "title": "สี",
+          "mono": "ขาว-ดำ",
+          "color": "สี"
+        },
+        "orientation": {
+          "title": "ทิศทาง",
+          "portrait": "แนวตั้ง",
+          "landscape": "แนวนอน"
+        },
+        "copies": {
+          "title": "จำนวนแผ่น"
+        },
+        "sides": {
+          "title": "ด้าน",
+          "single": "หนึ่งด้าน",
+          "double": "สองด้าน"
+        }
+      }
+    }
+  }
 }
