@@ -24,7 +24,18 @@ export default tseslint.config(
     },
     plugins: { react, "better-tailwindcss": tailwindcss },
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
       "@typescript-eslint/consistent-type-imports": "warn",
       "react/jsx-curly-brace-presence": ["warn", "never"],
       ...tailwindcss.configs["recommended-error"].rules,
