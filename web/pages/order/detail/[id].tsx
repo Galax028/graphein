@@ -13,6 +13,7 @@ import {
   useDetailedOrderQuery,
 } from "@/query/fetchDetailedOrder";
 import { usePapersQuery } from "@/query/fetchPapers";
+import { prefetchThumbnail } from "@/query/fetchThumbnail";
 import { prefetchUser } from "@/query/fetchUser";
 import { cn } from "@/utils";
 import getFormattedDateTime from "@/utils/helpers/getFormattedDateTime";
@@ -49,7 +50,6 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
           orderNumber: detailedOrder?.orderNumber ?? "",
         }),
         backEnabled: true,
-        backContextURL: "/glance",
       }),
       [tx, detailedOrder],
     ),
@@ -129,7 +129,9 @@ const OrderDetailsPage: FC<{ orderId: Uuid } & PageProps> = ({ orderId }) => {
         >
           <p className="text-body-md">
             {detailedOrder.notes ?? (
-              <span className="italic opacity-50">No notes provided.</span>
+              <span className="italic opacity-50 select-none">
+                {t("note.empty")}
+              </span>
             )}
           </p>
         </div>
@@ -228,7 +230,16 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
 
     const orderId = context.query.id;
     if (typeof orderId !== "string") return { notFound: true };
-    await prefetchDetailedOrder(queryClient, orderId, sessionToken);
+    const detailedOrder = await prefetchDetailedOrder(
+      queryClient,
+      orderId,
+      sessionToken,
+    );
+    await Promise.all(
+      detailedOrder.files.map((file) =>
+        prefetchThumbnail(queryClient, orderId, file.id, sessionToken),
+      ),
+    );
 
     return {
       props: {

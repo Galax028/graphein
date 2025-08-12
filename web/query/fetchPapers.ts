@@ -4,12 +4,11 @@ import { type QueryClient, useQuery } from "@tanstack/react-query";
 export const prefetchPapers = async (
   queryClient: QueryClient,
   sessionToken: string,
-): Promise<void> => {
+): Promise<void> =>
   await queryClient.prefetchQuery({
     queryKey: ["papers"],
     queryFn: () => fetchPapers({ headers: { Cookie: sessionToken } }),
   });
-};
 
 export const fetchPapers = async (
   options: Omit<RequestInit, "method">,
@@ -25,9 +24,8 @@ export const fetchPapers = async (
   } else throw new Error(`Uncaught API Error (${body.error}): ${body.message}`);
 };
 
-export const usePapersQuery = () => {
-  return useQuery({
+export const usePapersQuery = () =>
+  useQuery({
     queryKey: ["papers"],
     queryFn: () => fetchPapers({ credentials: "include" }),
   });
-};

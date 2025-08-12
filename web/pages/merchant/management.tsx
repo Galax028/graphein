@@ -28,7 +28,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
           `}
         >
           <div className="p-2 pl-3">{t("shopOperation.title")}</div>
-          <div className="flex flex-grow flex-col gap-2 p-3">
+          <div className="flex grow flex-col gap-2 p-3">
             <LabelGroup
               header={t("shopOperation.openingHours.header")}
               footer={t("shopOperation.openingHours.footer")}
@@ -77,7 +77,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
           `}
         >
           <div className="p-2 pl-3">{t("defaults.title")}</div>
-          <div className="flex flex-grow flex-col gap-2 p-3">
+          <div className="flex grow flex-col gap-2 p-3">
             <LabelGroup
               header={t("defaults.paper.header")}
               footer={t("defaults.paper.footer")}
@@ -102,7 +102,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
         <div className="bg-surface-container p-2 pl-3">
           {t("serviceManagement.title")}
         </div>
-        <div className="flex flex-grow gap-px">
+        <div className="flex grow gap-px">
           <div className="min-w-60 bg-surface-container p-3">
             <span className="mb-1 block text-body-sm opacity-50 select-none">
               {t("serviceManagement.sidebarLabel")}
@@ -114,11 +114,11 @@ const MerchantDashboardPage: FC<PageProps> = () => {
               {t("serviceManagement.paper.title")}
             </Button>
           </div>
-          <div className="flex flex-grow flex-col gap-px">
+          <div className="flex grow flex-col gap-px">
             <div className="bg-surface-container p-2 pl-3">
               {t("serviceManagement.paper.title")}
             </div>
-            <div className="flex flex-grow gap-px">
+            <div className="flex grow gap-px">
               <div className="min-w-60 bg-surface-container p-3">
                 <span className="mb-1 block text-body-sm opacity-50 select-none">
                   {t("serviceManagement.paper.sidebarLabel")}
@@ -136,14 +136,10 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                   A3
                 </Button>
               </div>
-              <div
-                className={`
-                  flex flex-grow flex-col gap-3 bg-surface-container p-3
-                `}
-              >
+              <div className="flex grow flex-col gap-3 bg-surface-container p-3">
                 <div className="flex gap-2">
                   <LabelGroup
-                    className="flex-grow"
+                    className="grow"
                     header={t("serviceManagement.paper.name.header")}
                     footer={t("serviceManagement.paper.name.footer")}
                   >
@@ -202,7 +198,7 @@ const MerchantDashboardPage: FC<PageProps> = () => {
                         setValue={() => toggleChecked()}
                       />
                     </div>
-                    <SegmentedGroup className="flex-grow">
+                    <SegmentedGroup className="grow">
                       <div className="flex items-center justify-center">
                         <Checkbox
                           checked={checked}

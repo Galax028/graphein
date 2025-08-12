@@ -4,6 +4,7 @@ import type { FC, ReactNode } from "react";
 type TreeViewContainerProps = {
   index?: number;
   isLast?: boolean;
+  onSurface?: boolean;
   children: ReactNode;
 };
 
@@ -22,6 +23,7 @@ type TreeViewContainerProps = {
 const TreeViewContainer: FC<TreeViewContainerProps> = ({
   index = 0,
   isLast = false,
+  onSurface = false,
   children,
 }) => {
   return (
@@ -38,7 +40,14 @@ const TreeViewContainer: FC<TreeViewContainerProps> = ({
           `,
       )}
     >
-      {isLast && <div className="absolute -left-8 h-full w-8 bg-background" />}
+      {isLast && (
+        <div
+          className={cn(
+            "absolute -left-8 h-full w-8",
+            onSurface ? "bg-surface-container" : "bg-background",
+          )}
+        />
+      )}
       <div className="w-full">{children}</div>
     </div>
   );

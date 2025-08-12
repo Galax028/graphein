@@ -8,14 +8,13 @@ import { type QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 export const prefetchOrderHistory = async (
   queryClient: QueryClient,
   sessionToken: string,
-): Promise<void> => {
+): Promise<void> =>
   await queryClient.prefetchInfiniteQuery({
     queryKey: ["orderHistory"],
     queryFn: ({ pageParam }) =>
       fetchOrderHistory(pageParam, { headers: { Cookie: sessionToken } }),
     initialPageParam: "<initial>",
   });
-};
 
 export const fetchOrderHistory = async (
   pageParam: string,
@@ -38,12 +37,11 @@ export const fetchOrderHistory = async (
   } else throw new Error(`Uncaught API Error (${body.error}): ${body.message}`);
 };
 
-export const useOrderHistoryInfiniteQuery = () => {
-  return useInfiniteQuery({
+export const useOrderHistoryInfiniteQuery = () =>
+  useInfiniteQuery({
     queryKey: ["orderHistory"],
     queryFn: ({ pageParam }) =>
       fetchOrderHistory(pageParam, { credentials: "include" }),
     initialPageParam: "<initial>",
     getNextPageParam: (previousPage) => previousPage.pagination.page,
   });
-};

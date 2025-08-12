@@ -18,16 +18,16 @@
       "review": "Review order"
     },
     "sendOrder": {
-      "title": "TODO",
-      "description": "TODO"
+      "title": "Are you sure you want to send this order?",
+      "description": "You cannot edit the order further once it has been sent."
     },
     "discardOrder": {
       "title": "Discard Order",
       "description": "When discarded, all progress made will be lost. Are you sure you want to discard this order? This action can’t be undone!"
     },
     "timeout": {
-      "title": "",
-      "description": ""
+      "title": "Your ordering period has expired.",
+      "description": "Unfortunately, you went over the 15-minute time limit. If you still want to place an order, you will need to start over."
     },
     "deleteRange": {
       "title": "Delete Range",

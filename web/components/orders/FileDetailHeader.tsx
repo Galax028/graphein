@@ -1,9 +1,8 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
+import { useThumbnailQuery } from "@/query/fetchThumbnail";
 import { cn } from "@/utils";
 import getFormattedFilesize from "@/utils/helpers/getFormattedFilesize";
-import type { APIResponse } from "@/utils/types/backend";
 import type { FileType } from "@/utils/types/common";
-import { useQuery } from "@tanstack/react-query";
 import {
   type FC,
   type MouseEventHandler,
@@ -17,7 +16,7 @@ type FileDetailHeaderProps = {
   filename: string;
   filesize: number;
   filetype: FileType;
-  header?: ReactNode,
+  header?: ReactNode;
   button?: ReactNode;
   orderId: string;
   fileId?: string;
@@ -56,42 +55,12 @@ const FileDetailHeader: FC<FileDetailHeaderProps> = ({
     [appendExt, filename, filetype],
   );
 
-  const { data: thumbnailSrc } = useQuery({
-    queryKey: ["thumbnail", orderId, fileId],
-    queryFn: async () => {
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_API_PATH +
-          `/orders/${orderId}/files/${fileId}/thumbnail`,
-        {
-          method: "GET",
-          credentials: "include",
-        },
-      );
-
-      // If the image is still processing (202), set a wait for
-      // half a second before trying again until returns ok (200).
-      if (res.status === 202) {
-        throw new Error("Thumbnail is still processing");
-      }
-
-      const body = (await res.json()) as APIResponse<string>;
-      if (body.success) {
-        return body.data;
-      } else {
-        const errorCode = body.message.match(/\[(\d+)\]/)?.at(1);
-        switch (errorCode) {
-          case "4042":
-            return null;
-          default:
-            throw new Error(
-              `Uncaught API Error (${body.error}): ${body.message}`,
-            );
-        }
-      }
-    },
-    enabled: fileId !== undefined,
-    staleTime: 60 * 60 * 1000, // 1 Hour
-  });
+  const { data: thumbnailSrc } = useThumbnailQuery(
+    orderId,
+    // @ts-expect-error -- Too lazy to modify the function signature
+    fileId,
+    fileId !== undefined,
+  );
 
   return (
     <div

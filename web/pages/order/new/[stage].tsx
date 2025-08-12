@@ -40,7 +40,7 @@ import { useRouter } from "next/router";
 import {
   type Dispatch,
   type FC,
-  type ReactElement,
+  type ReactNode,
   type SetStateAction,
   useCallback,
   useEffect,
@@ -136,6 +136,7 @@ const BuildOrderPage: FC<PageProps> = () => {
         detailedOrder,
       );
 
+      router.push("/glance");
       router.push(`/order/detail/${detailedOrder.id}`);
     },
   });
@@ -229,6 +230,11 @@ const BuildOrderPage: FC<PageProps> = () => {
               appearance="tonal"
               onClick={() => {
                 dialog.toggle(false);
+                unsetOrderStage();
+                unsetDraftOrderId();
+                unsetDraftOrderExpiry();
+                localStorage.removeItem("draftOrderData");
+
                 router.push("/glance");
               }}
             >
@@ -243,6 +249,7 @@ const BuildOrderPage: FC<PageProps> = () => {
                 unsetDraftOrderExpiry();
                 localStorage.removeItem("draftOrderData");
 
+                router.push("/glance");
                 router.push("/order/new/upload");
               }}
             >
@@ -261,7 +268,7 @@ const BuildOrderPage: FC<PageProps> = () => {
       title: string;
       backContext: string;
       href: string;
-      component: ReactElement;
+      component: ReactNode;
     };
   } = useMemo(
     () => ({
@@ -318,7 +325,6 @@ const BuildOrderPage: FC<PageProps> = () => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
     };
-
     window.addEventListener("beforeunload", beforeUnload);
 
     return () => {
@@ -329,12 +335,12 @@ const BuildOrderPage: FC<PageProps> = () => {
   useEffect(() => {
     let timeoutId: number | undefined = undefined;
     if (timeoutId === undefined && draftOrderExpiry === null) return;
-    if (timeoutId === undefined && draftOrderExpiry !== null)
+    if (timeoutId === undefined && draftOrderExpiry !== null) {
       timeoutId = window.setTimeout(
         toggleTimeoutDialog,
-        draftOrderExpiry.subtract(10, "seconds").millisecond() -
-          dayjs().millisecond(),
+        draftOrderExpiry.subtract(10, "seconds").valueOf() - dayjs().valueOf(),
       );
+    }
 
     return () => {
       if (timeoutId) window.clearTimeout(timeoutId);
@@ -382,9 +388,11 @@ const BuildOrderPage: FC<PageProps> = () => {
         setDraftOrderNotes(draftOrderData.notes);
         setDraftFiles(draftOrderData.files);
         setDraftServices(draftOrderData.services);
-      } else {
+      } else if (stage === "uploadFiles") {
         setOrderStage(stage);
         createOrderMutation.mutate();
+      } else {
+        router.push("/glance");
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

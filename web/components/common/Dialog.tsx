@@ -10,7 +10,7 @@ type DialogProps = {
   title: string;
   description?: string;
   toggle: ToggleDispatch;
-  allowClickOutside?: boolean,
+  allowClickOutside?: boolean;
   children?: ReactNode;
 };
 
@@ -48,7 +48,7 @@ const Dialog: FC<DialogProps> = ({
       transition={{ duration: 0.1 }}
       className={cn(
         `
-          fixed top-0 left-0 z-50 grid h-dvh w-dvw place-items-center p-3
+          fixed top-0 left-0 z-1000 grid h-dvh w-dvw place-items-center p-3
           backdrop-brightness-50 backdrop-filter
           dark:backdrop-brightness-25
         `,
@@ -64,7 +64,7 @@ const Dialog: FC<DialogProps> = ({
           duration: 0.1,
           scale: { type: "spring", bounce: 0 },
         }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
         className={cn(`
           flex w-full max-w-96 flex-col gap-4 rounded-lg border border-outline
           bg-surface-container p-4

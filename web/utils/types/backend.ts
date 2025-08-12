@@ -176,3 +176,8 @@ export type MerchantOrdersGlance = {
   waiting: CompactOrder[];
   finished: CompactOrder[];
 };
+
+export type FileDownload = {
+  id: Uuid;
+  url: string;
+};

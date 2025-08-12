@@ -87,7 +87,7 @@ const OrderCard: FC<OrderCardProps> = ({
       onClick={onClick}
     >
       <div className="flex items-center gap-4 p-3 pl-4">
-        <div className="flex-grow">
+        <div className="grow">
           {showStatusText && (
             <p
               className={cn(

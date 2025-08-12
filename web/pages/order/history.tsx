@@ -67,9 +67,7 @@ const OrderHistoryPage: FC<PageProps> = () => {
                     orderNumber={order.orderNumber}
                     createdAt={order.createdAt}
                     filesCount={order.filesCount}
-                    options={{
-                      showNavigationIcon: false,
-                    }}
+                    options={{ showNavigationIcon: true }}
                   />
                 </Link>
               </motion.div>

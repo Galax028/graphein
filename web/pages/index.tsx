@@ -48,7 +48,7 @@ const LandingPage: FC<PageProps> = ({ locale }) => {
   return (
     <>
       <div className="flex h-full flex-col justify-between p-3 md:p-0">
-        <div className="md:m-auto md:grid md:flex-grow md:place-items-center">
+        <div className="md:m-auto md:grid md:grow md:place-items-center">
           <div
             className={cn(`
               flex w-full flex-col gap-3

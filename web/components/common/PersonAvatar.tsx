@@ -1,9 +1,11 @@
 import MaterialIcon from "@/components/common/MaterialIcon";
+import { cn } from "@/utils";
 import getInitialsOfName from "@/utils/helpers/getInitialsOfName";
 import Image from "next/image";
 import type { FC } from "react";
 
 type PersonAvatarProps = {
+  className?: string;
   profileUrl?: string;
   personName?: string;
   size?: number;
@@ -21,16 +23,20 @@ type PersonAvatarProps = {
  * @param props.size        The size of the avatar in pixels. Defaults to 32.
  */
 const PersonAvatar: FC<PersonAvatarProps> = ({
+  className,
   profileUrl,
   personName,
   size = 32,
 }) => (
   <div
     style={{ width: `${size / 16}rem`, height: `${size / 16}rem` }}
-    className={`
-      grid aspect-square place-content-center overflow-hidden rounded-full
-      border border-outline
-    `}
+    className={cn(
+      `
+        grid aspect-square place-content-center overflow-hidden rounded-full
+        border border-outline
+      `,
+      className,
+    )}
   >
     {profileUrl ? (
       <Image

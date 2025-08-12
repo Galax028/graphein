@@ -53,11 +53,10 @@ export const fetchUser = async (
   }
 };
 
-export const useUserQuery = () => {
-  return useQuery({
+export const useUserQuery = () =>
+  useQuery({
     queryKey: ["user"],
     queryFn: async () => fetchUser({ credentials: "include" }),
     gcTime: Infinity,
     staleTime: Infinity,
   });
-};

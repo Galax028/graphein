@@ -6,13 +6,12 @@ export const prefetchDetailedOrder = async (
   queryClient: QueryClient,
   orderId: Uuid,
   sessionToken: string,
-): Promise<void> => {
-  await queryClient.prefetchQuery({
+): Promise<DetailedOrder> =>
+  await queryClient.fetchQuery({
     queryKey: ["detailedOrder", orderId],
     queryFn: () =>
       fetchDetailedOrder(orderId, { headers: { Cookie: sessionToken } }),
   });
-};
 
 export const fetchDetailedOrder = async (
   orderId: Uuid,
@@ -32,10 +31,9 @@ export const fetchDetailedOrder = async (
 export const useDetailedOrderQuery = (
   orderId: Uuid,
   enabled: boolean = false,
-) => {
-  return useQuery({
+) =>
+  useQuery({
     queryKey: ["detailedOrder", orderId],
     queryFn: () => fetchDetailedOrder(orderId, { credentials: "include" }),
     enabled,
   });
-};

@@ -103,6 +103,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   const [locale, translations] = await getServerSideTranslations(context.req, [
     "common",
     "merchantGlance",
+    "order",
   ]);
 
   const queryClient = new QueryClient();

@@ -4,13 +4,12 @@ import { type QueryClient, useQuery } from "@tanstack/react-query";
 export const prefetchMerchantOrdersGlance = async (
   queryClient: QueryClient,
   sessionToken: string,
-): Promise<void> => {
+): Promise<void> =>
   await queryClient.prefetchQuery({
     queryKey: ["merchantOrdersGlance"],
     queryFn: () =>
       fetchMerchantOrdersGlance({ headers: { Cookie: sessionToken } }),
   });
-};
 
 export const fetchMerchantOrdersGlance = async (
   options: Omit<RequestInit, "method">,
@@ -26,11 +25,10 @@ export const fetchMerchantOrdersGlance = async (
   } else throw new Error(`Uncaught API Error (${body.error}): ${body.message}`);
 };
 
-export const useMerchantOrdersGlanceQuery = () => {
-  return useQuery({
+export const useMerchantOrdersGlanceQuery = () =>
+  useQuery({
     queryKey: ["merchantOrdersGlance"],
     queryFn: () => fetchMerchantOrdersGlance({ credentials: "include" }),
     refetchInterval: 10 * 1000, // 10 Seconds
     refetchIntervalInBackground: true,
   });
-};

@@ -7,7 +7,8 @@ import { usePapersQuery } from "@/query/fetchPapers";
 import { mimeToExt } from "@/utils";
 import type { UploadedDraftFile, Uuid } from "@/utils/types/common";
 import { useTranslations } from "next-intl";
-import { useMemo, type FC } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, type FC } from "react";
 
 type ReviewProps = {
   draftOrderId: Uuid;
@@ -15,6 +16,7 @@ type ReviewProps = {
 };
 
 const Review: FC<ReviewProps> = ({ draftOrderId, draftFiles }) => {
+  const router = useRouter();
   const t = useTranslations("order");
 
   const { data: papers, status } = usePapersQuery();
@@ -28,6 +30,23 @@ const Review: FC<ReviewProps> = ({ draftOrderId, draftFiles }) => {
       })),
     );
   }, [papers]);
+
+  useEffect(
+    () => {
+      if (!router.isReady) return;
+
+      if (
+        draftFiles.length === 0 ||
+        draftFiles.some((draftFile) => !draftFile.uploaded)
+      )
+        router.push("/order/new/upload");
+
+      if (draftFiles.some((draftFile) => draftFile.draft.ranges.length === 0))
+        router.push("/order/new/configure-order");
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [draftFiles],
+  );
 
   if (status === "pending" || status === "error" || paperVariants === undefined)
     return <LoadingPage />;

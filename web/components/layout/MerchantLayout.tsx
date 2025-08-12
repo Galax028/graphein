@@ -8,6 +8,7 @@ import { useNavbar } from "@/hooks/useNavbarContext";
 import useToggle from "@/hooks/useToggle";
 import { AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { type FC, type ReactNode, useCallback, useMemo } from "react";
 
@@ -108,6 +109,9 @@ const MerchantLayout: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <div className="flex h-dvh flex-col overflow-y-hidden">
+      <Head>
+        <title>{process.env.NEXT_PUBLIC_APP_NAME}</title>
+      </Head>
       <MerchantNavbar />
       <PageLoadTransition className="!grid !max-w-full grid-cols-4 gap-2">
         {children}

@@ -2,28 +2,64 @@
   "navigationBar": "ภาพรวมระบบ",
   "orders": {
     "incoming": {
-      "title": "incoming",
-      "footer": "{count}",
-      "empty": "incoming empty"
+      "title": "ออเดอร์ใหม่",
+      "footer": "{count} ออเดอร์",
+      "empty": "ไม่มีออเดอร์เข้ามาในขณะนี้"
     },
     "accepted": {
-      "title": "accepted",
-      "footer": "{count}",
-      "empty": "accepted empty"
+      "title": "ยอมรับแล้ว",
+      "footer": "{count} ออเดอร์",
+      "empty": "คุณยังไม่ยอมรับออเดอร์ใดๆ"
     },
     "waiting": {
-      "title": "กำลังดำเนินการ",
-      "footer": "{count}",
-      "empty": "waiting empty"
+      "title": "กำลังรอรับ",
+      "footer": "{count} ออเดอร์",
+      "empty": "ออเดอร์ทั้งหมดเสร็จสมบูรณ์แล้ว"
     },
     "finished": {
       "title": "สำเร็จแล้ว",
-      "footer": "{count}",
-      "empty": "finished empty"
+      "footer": "{count} ออเดอร์",
+      "empty": "ออเดอร์ที่สำเร็จแล้วจะขึ้นในนี้"
     }
+  },
+  "details": {
+    "owner": {
+      "header": "ข้อมูลลูกค้า",
+      "role": {
+        "student": "นักเรียน",
+        "teacher": "อาจารย์"
+      }
+    },
+    "note": "หมายเหตุจากลูกค้า",
+    "files": "ไฟล์แนบ",
+    "header": "รายละเอียด",
+    "action": {
+      "accept": "ยอมรับออเดอร์",
+      "reject": "ปฏิเสธออเดอร์",
+      "markAsReady": "ตั้งว่าพร้อมรับ",
+      "markAsDone": "ตั้งว่าเรียบร้อย"
+    },
+    "empty": "คลิกที่ออเดอร์ใดๆ จากแถบด้านข้างเพื่อแสดงที่นี่"
+  },
+  "acceptOrder": {
+    "title": "ยอมรับออเดอร์",
+    "description": "คุณแน่ใจว่าต้องการยอมรับออเดอร์นี้หรือไม่",
+    "price": "ระบุราคา (ไม่จำเป็น)"
+  },
+  "rejectOrder": {
+    "title": "ปฏิเสธออเดอร์",
+    "description": "คุณแน่ใจว่าต้องการปฏิเสธออเดอร์นี้หรือไม่"
+  },
+  "markAsReady": {
+    "title": "เปลี่ยนสถานะเป็นพร้อมรับ",
+    "description": "การเปลี่ยนสถานะเป็นพร้อมรับจะแจ้งเตือนให้ลูกค้ามารับออเดอร์ ต้องการดำเนินการต่อหรือไม่"
+  },
+  "markAsDone": {
+    "title": "เปลี่ยนสถานะเป็นเสร็จสิ้น",
+    "description": "การเปลี่ยนสถานะเป็นเสร็จสิ้นถือว่าเป็นการยืนยันว่าลูกค้าได้รับออเดอร์เรียบร้อยแล้ว ต้องการดำเนินการต่อหรือไม่"
   },
   "signOut": {
     "title": "ออกจากระบบ",
-    "description": "TODO"
+    "description": "คุณแน่ใจว่าต้องการออกจากระบบใช่ไหม"
   }
 }
