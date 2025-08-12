@@ -1,32 +1,30 @@
 use serde::{Deserialize, Serialize};
-use sqlx::prelude::FromRow;
-use uuid::Uuid;
+use sqlx::FromRow;
 
-use crate::schemas::{BookbindingTypeId, PaperSizeId, enums::ServiceType};
+use crate::schemas::{BindingColourId, BindingId, FileId, enums::ServiceType};
 
 #[derive(Debug, Deserialize, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Service {
-    service_type: ServiceType,
-    bookbinding_type_id: Option<BookbindingTypeId>,
-    notes: Option<String>,
-    file_ids: Vec<Uuid>,
+    pub(crate) r#type: ServiceType,
+    pub(crate) binding_colour_id: Option<BindingColourId>,
+    pub(crate) notes: Option<String>,
+    pub(crate) file_ids: Vec<FileId>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PaperSize {
-    id: PaperSizeId,
+pub struct Binding {
+    id: BindingId,
     name: String,
-    length: i32,
-    width: i32,
-    is_default: bool,
     is_available: bool,
+    colours: Vec<BindingColour>,
 }
 
-#[derive(Debug, Serialize)]
-pub struct BookbindingType {
-    id: BookbindingTypeId,
-    name: String,
+#[derive(Debug, Deserialize, FromRow, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BindingColour {
+    id: BindingColourId,
+    colour: String,
     is_available: bool,
 }

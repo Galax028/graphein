@@ -2,20 +2,20 @@ use regex::Regex;
 use serde::{Deserialize, Deserializer, Serialize, de};
 use sqlx::{FromRow, Type as SqlxType};
 
-use crate::schemas::{enums::UserRole, UserId};
+use crate::schemas::{UserId, enums::UserRole};
 
 #[derive(Debug, FromRow, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    id: UserId,
-    role: UserRole,
-    email: String,
-    name: String,
-    tel: Option<Tel>,
-    class: Option<i16>,
-    class_no: Option<i16>,
-    profile_url: String,
-    is_onboarded: bool,
+    pub(crate) id: UserId,
+    pub(crate) role: UserRole,
+    pub(crate) email: String,
+    pub(crate) name: String,
+    pub(crate) tel: Option<Tel>,
+    pub(crate) class: Option<i16>,
+    pub(crate) class_no: Option<i16>,
+    pub(crate) profile_url: String,
+    pub(crate) is_onboarded: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -39,7 +39,7 @@ impl<'de> Deserialize<'de> for Tel {
     {
         let inner: String = Deserialize::deserialize(deserializer)?;
         let is_valid_tel = Regex::new(r"^0[6-9][0-9]\-?[0-9]{3}\-?[0-9]{4}$")
-            .unwrap()
+            .unwrap() // Infallible
             .is_match(&inner);
 
         if is_valid_tel {

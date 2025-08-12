@@ -2,21 +2,21 @@ use std::error::Error as _;
 
 use axum::{
     extract::{
-        FromRef, FromRequestParts,
+        FromRef, FromRequestParts, OptionalFromRequest, Request,
         rejection::{JsonRejection, PathRejection},
     },
-    http::request::Parts,
     response::IntoResponse,
 };
 use axum_extra::extract::CookieJar;
 use axum_macros::FromRequest;
-use serde::Serialize;
+use http::request::Parts;
+use serde::{Serialize, de::DeserializeOwned};
 use serde_qs::axum::QsQueryRejection;
 
 use crate::{
     AppState,
     auth::{Session, SessionStore},
-    error::{AppError, AuthError},
+    error::{AppError, AuthError, BadRequestError},
 };
 
 #[derive(FromRequestParts)]
@@ -31,6 +31,23 @@ pub struct QsQuery<T>(pub T);
 #[from_request(via(axum::Json), rejection(AppError))]
 pub struct Json<T>(pub T);
 
+impl<T, S> OptionalFromRequest<S> for Json<T>
+where
+    axum::Json<T>: OptionalFromRequest<S>,
+    AppError: From<<axum::Json<T> as OptionalFromRequest<S>>::Rejection>,
+    T: DeserializeOwned,
+    S: Send + Sync,
+{
+    type Rejection = AppError;
+
+    async fn from_request(req: Request, state: &S) -> Result<Option<Self>, Self::Rejection> {
+        <axum::Json<T> as OptionalFromRequest<S>>::from_request(req, state)
+            .await
+            .map(|value| value.map(|axum::Json(value)| Json(value)))
+            .map_err(From::from)
+    }
+}
+
 impl<T: Serialize> IntoResponse for Json<T> {
     fn into_response(self) -> axum::response::Response {
         let Self(value) = self;
@@ -39,20 +56,25 @@ impl<T: Serialize> IntoResponse for Json<T> {
 }
 
 impl From<PathRejection> for AppError {
-    fn from(value: PathRejection) -> Self {
-        Self::BadRequest(format!("[4001] {}.", value.body_text()).into())
+    fn from(rejection: PathRejection) -> Self {
+        BadRequestError::MalformedPath(rejection.body_text()).into()
     }
 }
 
 impl From<QsQueryRejection> for AppError {
-    fn from(value: QsQueryRejection) -> Self {
-        Self::BadRequest(format!("[4002] {}.", value.source().unwrap()).into())
+    fn from(rejection: QsQueryRejection) -> Self {
+        BadRequestError::MalformedQuery(
+            rejection
+                .source()
+                .map_or(String::from("unknown"), ToString::to_string),
+        )
+        .into()
     }
 }
 
 impl From<JsonRejection> for AppError {
-    fn from(value: JsonRejection) -> Self {
-        Self::BadRequest(format!("[4003] {}.", value.body_text()).into())
+    fn from(rejection: JsonRejection) -> Self {
+        BadRequestError::MalformedJson(rejection.body_text().into()).into()
     }
 }
 
@@ -77,7 +99,7 @@ where
             )
         };
 
-        let cookies = CookieJar::from_request_parts(parts, state).await.unwrap();
+        let cookies = CookieJar::from_request_parts(parts, state).await.unwrap(); // Infallible
         let sessions = SessionStore::from_ref(state);
         let session_id = match cookies.get("session_token") {
             Some(cookie) => cookie.value_trimmed(),

@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 publish.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 anyhow.workspace = true
@@ -11,18 +12,21 @@ arc-swap.workspace = true
 axum.workspace = true
 axum-extra.workspace = true
 axum-macros.workspace = true
+bytes.workspace = true
 chrono.workspace = true
-dashmap.workspace = true
 derive_more.workspace = true
 dotenvy.workspace = true
 futures.workspace = true
-graphein-codegen = { path = "../codegen" }
 hex.workspace = true
 hmac.workspace = true
+http.workspace = true
 jsonwebtoken.workspace = true
+libvips.workspace = true
 rand.workspace = true
 regex.workspace = true
 reqwest.workspace = true
+rusty-s3.workspace = true
+scc.workspace = true
 serde.workspace = true
 serde_qs.workspace = true
 serde_with.workspace = true

@@ -1,9 +1,11 @@
-use std::{sync::Arc, time::Duration};
+use std::{
+    sync::Arc,
+    time::{Duration as StdDuration, Instant},
+};
 
 use axum::{
     Router,
     extract::State,
-    http::StatusCode,
     response::{Html, IntoResponse as _, Redirect, Response},
     routing::{get, post},
 };
@@ -11,6 +13,7 @@ use axum_extra::extract::{
     CookieJar,
     cookie::{Cookie, SameSite},
 };
+use http::StatusCode;
 use rand::{RngCore as _, SeedableRng as _, rngs::StdRng};
 use serde_json::json;
 
@@ -109,15 +112,11 @@ async fn get_init_google_oauth(
     })
     .await?;
 
-    let mut oauth_states = oauth_states.lock().await;
-    oauth_states.push((nonce.clone(), state));
-    drop(oauth_states);
-
     let oauth_url = format!(
         "https://accounts.google.com/o/oauth2/v2/auth?{}",
         serde_qs::to_string(&GoogleOAuthReqParams {
             client_id: config.google_oauth_client_id(),
-            nonce,
+            nonce: &nonce,
             response_type: "code",
             redirect_uri: format!("{}/auth/google/code", config.root_uri()),
             scope: "openid email profile",
@@ -129,6 +128,10 @@ async fn get_init_google_oauth(
         })
         .map_err(anyhow::Error::msg)?
     );
+
+    let mut oauth_states = oauth_states.lock().await;
+    oauth_states.push((nonce, state, Instant::now()));
+    drop(oauth_states);
 
     Ok(Redirect::to(&oauth_url))
 }
@@ -144,8 +147,8 @@ async fn get_finish_google_oauth(
     }): State<AppState>,
     cookies: CookieJar,
     QsQuery(GoogleOAuthCodeExchangeParams { state, code }): QsQuery<GoogleOAuthCodeExchangeParams>,
-) -> Response {
-    let work = async || -> Result<(UserId, UserRole, bool, Duration), AppError> {
+) -> Result<Response, AppError> {
+    let work = async || -> Result<(UserId, UserRole, bool, StdDuration), AppError> {
         let (state, hmac) = state
             .split_once('.')
             .map(|(state, hmac)| (hex::decode(state), hex::decode(hmac)))
@@ -157,7 +160,7 @@ async fn get_finish_google_oauth(
             .iter()
             .position(|stored| stored.1 == state[..])
             .ok_or(AuthError::InvalidOAuthFlow)?;
-        let (nonce, _) = oauth_states.remove(idx);
+        let (nonce, _, _) = oauth_states.remove(idx);
         drop(oauth_states);
 
         let config2 = Arc::clone(&config);
@@ -206,20 +209,33 @@ async fn get_finish_google_oauth(
         Ok((user_id, user_role, user_is_onboarded, session_expiry))
     };
 
-    match work().await {
+    Ok(match work().await {
         Ok((user_id, user_role, user_is_onboarded, session_expiry)) => (
             cookies.add(
                 Cookie::build((
                     "session_token",
-                    sessions.issue(user_id, user_role, user_is_onboarded).await,
+                    sessions
+                        .issue(user_id, user_role, user_is_onboarded)
+                        .await?,
                 ))
                 .http_only(true)
-                .max_age(session_expiry.try_into().unwrap())
+                .max_age(
+                    session_expiry
+                        .try_into()
+                        .expect("Invalid value for environment variable `SESSION_EXPIRY_TIME`"),
+                )
                 .path("/")
-                .same_site(SameSite::Strict)
+                .same_site(if cfg!(debug_assertions) {
+                    SameSite::None
+                } else {
+                    SameSite::Strict
+                })
                 .secure(true),
             ),
-            Html(include_str!("../pages/oauth_success.html")),
+            Html(
+                include_str!("../pages/oauth_success.html")
+                    .replace("{{ORIGIN}}", config.frontend_uri()),
+            ),
         )
             .into_response(),
 
@@ -232,5 +248,5 @@ async fn get_finish_google_oauth(
             Html(include_str!("../pages/oauth_failure.html")),
         )
             .into_response(),
-    }
+    })
 }

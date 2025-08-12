@@ -12,7 +12,7 @@
       const openerWindow = window.opener;
 
       if (openerWindow && !openerWindow.closed) {
-        openerWindow.postMessage("oauthSuccess", openerWindow.location.origin);
+        openerWindow.postMessage("oauthSuccess", "{{ORIGIN}}");
       } else {
         window.close();
       }

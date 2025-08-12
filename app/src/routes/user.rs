@@ -10,8 +10,7 @@ use graphein_common::{
     AppError, AppState, HandlerResponse,
     auth::Session,
     database::UsersTable,
-    dto::RequestData,
-    error::{ForbiddenError, MISSING_FIELDS},
+    error::{AuthError, BadRequestError, ForbiddenError},
     extract::Json,
     middleware::requires_onboarding,
     response::ResponseBuilder,
@@ -43,7 +42,7 @@ async fn put_user(
     Session {
         user_id, user_role, ..
     }: Session,
-    Json(RequestData { data, .. }): Json<RequestData<UserUpdate>>,
+    Json(request_data): Json<UserUpdate>,
 ) -> HandlerResponse<User> {
     let mut conn = pool.acquire().await?;
 
@@ -51,7 +50,12 @@ async fn put_user(
         return Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions));
     }
 
-    let user = match (user_role, data.tel, data.class, data.class_no) {
+    let user = match (
+        user_role,
+        request_data.tel,
+        request_data.class,
+        request_data.class_no,
+    ) {
         (UserRole::Student, Some(ref tel), Some(class), Some(class_no)) => {
             UsersTable::update(user_id)
                 .bind_tel(tel)
@@ -67,7 +71,7 @@ async fn put_user(
                 .await?
         }
         _ => {
-            return Err(AppError::BadRequest(MISSING_FIELDS.into()));
+            return Err(AppError::BadRequest(BadRequestError::MissingFields));
         }
     };
 
@@ -83,7 +87,7 @@ async fn post_user_onboard(
         is_onboarded,
         ..
     }: Session,
-    Json(RequestData { data, .. }): Json<RequestData<UserUpdate>>,
+    Json(request_data): Json<UserUpdate>,
 ) -> HandlerResponse<User> {
     let mut conn = pool.acquire().await?;
 
@@ -91,7 +95,12 @@ async fn post_user_onboard(
         return Err(AppError::Forbidden(ForbiddenError::InsufficientPermissions));
     }
 
-    let user = match (user_role, data.tel, data.class, data.class_no) {
+    let user = match (
+        user_role,
+        request_data.tel,
+        request_data.class,
+        request_data.class_no,
+    ) {
         (UserRole::Student, Some(ref tel), Some(class), Some(class_no)) => {
             UsersTable::update(user_id)
                 .bind_tel(tel)
@@ -109,11 +118,14 @@ async fn post_user_onboard(
                 .await?
         }
         _ => {
-            return Err(AppError::BadRequest(MISSING_FIELDS.into()));
+            return Err(AppError::BadRequest(BadRequestError::MissingFields));
         }
     };
 
-    let session_id = cookies.get("session_token").unwrap().value_trimmed();
+    let session_id = cookies
+        .get("session_token")
+        .ok_or(AuthError::Unprocessable)?
+        .value_trimmed();
     sessions.set_onboard(session_id).await?;
 
     Ok(ResponseBuilder::new().data(user).build())
