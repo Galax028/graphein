@@ -1,0 +1,7 @@
+{
+  "navigationBar": "Onboarding",
+  "title": "About you",
+  "description": "This is how you'll appear to the shop.",
+  "disclaimer": "By clicking \"Next\", you agree to {appName}'s <a1>Terms of Service</a1> and <a2>Privacy Policy</a2>.",
+  "signOut": "Sign Out"
+}

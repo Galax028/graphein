@@ -1,0 +1,11 @@
+{
+  "navigationBar": "Settings",
+  "appearanceSettings": {
+    "title": "Appearance",
+    "language": "Language"
+  },
+  "signOut": {
+    "title": "Sign Out",
+    "description": "When you sign out, You won't see your ongoing orders until you sign in again."
+  }
+}

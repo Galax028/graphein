@@ -1,0 +1,37 @@
+{
+  "action": {
+    "ok": "OK",
+    "start": "Start",
+    "cancel": "Cancel",
+    "nevermind": "Nevermind",
+    "next": "Next"
+  },
+  "orderCard": {
+    "title": "Order #{orderNumber}",
+    "filesCount": "{count, plural, =1 {# File} other {# Files}}",
+    "created": "Created at",
+    "price": "Price",
+    "orderId": "Order ID",
+    "status": {
+      "reviewing": "Reviewing",
+      "processing": "Printing",
+      "ready": "Pickup",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    }
+  },
+  "userSettings": {
+    "title": "About You",
+    "description": "You cannot change your profile picture, name, or email here because they're synced with your Google account—please update them in your Google account settings.",
+    "profile": "Profile Picture",
+    "name": "Name",
+    "email": "Email",
+    "tel": "Phone Number",
+    "classAndNo": "Class / No.",
+    "class": "M.",
+    "no": "No.",
+    "error": "Invalid",
+    "save": "Save"
+  }
+}

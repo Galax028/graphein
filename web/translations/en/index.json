@@ -1,0 +1,10 @@
+{
+  "navigationBar": "Welcome to {appName}",
+  "container": {
+    "title": "Sign in",
+    "description": "Use the email ending in sk.ac.th to continue.",
+    "signInButton": "Sign in with Google"
+  },
+  "language": "Language",
+  "footer": "SK Printing Facility is powered by EPLUS+ students, visit <0>About</0> for more information. • SK Printing Facility may collect data for analytics and research purposes, see our <1>Privacy Policy</1> and <2>Terms of Service</2> for more information."
+}
