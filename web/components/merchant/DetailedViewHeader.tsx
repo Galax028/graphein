@@ -46,6 +46,9 @@ const DetailedViewHeader: FC<DetailedViewHeaderProps> = ({ order }) => {
         dialog.toggle(false);
         setPrice(undefined);
         queryClient.invalidateQueries({ queryKey: ["merchantOrdersGlance"] });
+        queryClient.invalidateQueries({
+          queryKey: ["detailedOrder", order.id],
+        });
         if (["completed", "rejected", "cancelled"].includes(body.data.status))
           queryClient.removeQueries({
             queryKey: ["fileDownloads", order.id],
@@ -137,6 +140,7 @@ const DetailedViewHeader: FC<DetailedViewHeaderProps> = ({ order }) => {
 
       dialog.toggle(false);
       queryClient.invalidateQueries({ queryKey: ["merchantOrdersGlance"] });
+      queryClient.invalidateQueries({ queryKey: ["detailedOrder", order.id] });
       queryClient.removeQueries({
         queryKey: ["fileDownloads", order.id],
       });
