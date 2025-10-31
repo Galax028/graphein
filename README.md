@@ -1,4 +1,4 @@
-# SK Printing Facility
+# Graphein
 
 ## Scripts
 
